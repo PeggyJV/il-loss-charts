@@ -1,33 +1,70 @@
-# il-loss-charts
-Ideas for the IL loss charts
+# Getting Started with Create React App
 
-### Problem
-During our discussions of the Impermanent Loss (IL) usecase it was brought up that we should, as a way of marketing our product, have a way for users to see how much money they are losing as a result of IL. This would be a marketing asset that would live on our home page and be 1. a utility that all uniswap LPs could use to visualize their IL driving 👀 to peggy.cool 2. a way to show users visually with real numbers what peggy can do to help their LP positions. 
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-### Requirements/Constraints
-In discussions with @taariq the following items are pertinent to this design:
+## Available Scripts
 
-- This is not a part of the web app that would facilitate users making peggy transactions 
-- If we required an address as input, users who have their LP tokens in farms would not show up properly w/o additional engineering effort
-- Users shouldn't have to sign in with metamask to use the tool
-- This asset would be displayed on the main page of peggy.cool and supported via Infura queries/a small go backend
+In the project directory, you can run:
 
-### Design
-![il-calc](https://user-images.githubusercontent.com/7452680/100788082-70de6c00-33c9-11eb-9613-6ff9ba6079bc.jpg)
+### `yarn start`
 
-### Design Components:
-- Pair picker (top left) - This is a dropdown that allows you to pick any pair from uniswap. We would default this to some common pair so that the UI always is the same and doesn't have an empty state. I'm showing an ETH/DAI example here
-- Pair stats (top bar) - These are the basic high level stats for a given pair: USD Liquidity, Volume over time, fees over time. Note there is a picker for 24h/7d to display different time periods. this feature is not necessary, but a nice to have
-- User inputs (middle right) - These are the user inputs. First item is the date the LP investment was made. This is required to pull the exchange rate for the assets involved. Once that is done, the user will need to input either the total USD amount of the LP investment or the amount of one of the assets from the pair. These are the 2 required user inputs.
-- Calculator output (bottom right) - This is the output, the ideal return (fees + uniswap return), the actual return (ideal return - IL) and the amount of IL this investment is suffering from. The value here defaults to the amounts on the current date, but the user can mouse over the graph on the left and look at historical data too. Note: the amounts here are absolute dollar amounts to show the user clearly what their position is
-- Graph (bottom left) - the top line represents the ideal case of just fees and uniswap return. The bottom line represents the actual return. The distance between the two on a given day (represented as a red shaded area) is the IL. Note: the amounts on the Y axis are in $, not %
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-### Source Material
-- [Example Uniswap Queries](https://uniswap.org/docs/v2/API/queries/)
-- [Graph Query Explorer for Uniswap](https://thegraph.com/explorer/subgraph/uniswap/uniswap-v2)
-- [Existing IL Calculator](https://amm.vav.me/) - Note we would use this same data, just better presented
-- [UniswapROI](https://www.uniswaproi.com/#) - A community built tool for understanding Uniswap returns. 
-- [info.uniswap.org](https://info.uniswap.org/pairs) - Uniswap stats page
-- [1inch exchange](https://1inch.exchange/#/) - Nice UI for a uniswap like thing
-- [Uniswap Fee Explainer](https://uniswap.org/docs/v2/advanced-topics/fees/) - For understanding how to calculate the returns
-- [Using the API from JS](https://uniswap.org/docs/v2/interface-integration/using-the-api/)
+The page will reload if you make edits.\
+You will also see any lint errors in the console.
+
+### `yarn test`
+
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+### `yarn build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `yarn eject`
+
+**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+
+If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+
+You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+
+### Analyzing the Bundle Size
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+
+### Making a Progressive Web App
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+
+### Advanced Configuration
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+
+### Deployment
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+
+### `yarn build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
