@@ -3,6 +3,9 @@ import { Paper, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 import USDValueWidget from 'components/usd-value-widget';
+import PairSelector from 'components/pair-selector';
+import LPInput from 'components/lp-input';
+
 import Uniswap from 'services/uniswap';
 
 const useStyles = makeStyles((theme) => ({
@@ -18,32 +21,84 @@ const useStyles = makeStyles((theme) => ({
 
 function ChartsContainer() {
     const classes = useStyles();
-    console.log('THESE ARE CLASSES', classes);
 
-    const pairId = '0xa478c2975ab1ea89e8196811f51a7b7ade33eb11';
-    const [{ pair, isFetching }, setPair] = useState({ pair: null, isFetching: true });
+    const [allPairs, setAllPairs] = useState([]);
+    const [pairId, setPairId] = useState('0xa478c2975ab1ea89e8196811f51a7b7ade33eb11');
+    const [pairData, setPairData] = useState(null);
+    const [lpDate, setLPDate] = useState(null);
 
-    useEffect(async () => {
-        setPair({ pair, isFetching: true });
-        const newPair = await Uniswap.getPairOverview(pairId);
-        setPair({ pair: newPair, isFetching: false });
-    }, []);
+    useEffect(() => {
+        const fetchPairData = async () => {
+            // Fetch pair overview when pair ID changes
+            // Default to createdAt date if LP date not set
+            const newPair = await Uniswap.getPairOverview(pairId);
+            setPairData(newPair);
+            if (!lpDate) setLPDate(new Date(newPair.createdAtTimestamp * 1000));
+        }
+        fetchPairData();
+    }, [pairId]);
 
-    window.pair = pair;
+    useEffect(() => {
+        const fetchAllPairs = async () => {
+            // Fetch all pairs
+            const allPairs = await Uniswap.getTopPairs();
+            setAllPairs(allPairs);
+        }
+        fetchAllPairs();
+    });
 
-    if (!pair) return null;
+    useEffect(() => {
+        const getDailyPairData = async () => {
+            // Get historical data for pair from lp date until now
+            const historicalDailyData = await Uniswap.getHistoricalDailyData(pairId, lpDate);
+            setHistoricalData(historicalDailyData);
+
+        }
+    }, [lpDate, pairId])
+
+    window.data = {
+        allPairs,
+        pairId,
+        pairData
+    };
+
+    if (allPairs.length === 0) return null;
+    if (!pairData) return null;
 
     return (
         <div className={classes.root}>
             <Grid container spacing={3}>
                 <Grid item xs={3}>
                     <Paper className={classes.paper}>
-                        <USDValueWidget title="USD Volume" value={pair.volumeUSD} />
+                        <PairSelector pairs={allPairs} currentPairId={pairId} setPair={setPairId} />
                     </Paper>
                 </Grid>
                 <Grid item xs={3}>
                     <Paper className={classes.paper}>
-                        <USDValueWidget title="Total Liquidity" value={pair.reserveUSD} />
+                        <USDValueWidget title="USD Volume" value={pairData.volumeUSD} />
+                    </Paper>
+                </Grid>
+                <Grid item xs={3}>
+                    <Paper className={classes.paper}>
+                        <USDValueWidget title="Total Liquidity" value={pairData.reserveUSD} />
+                    </Paper>
+                </Grid>
+                <Grid item xs={3}>
+                    <Paper className={classes.paper}>
+                        <USDValueWidget title="Total Fees" value={pairData.feesUSD} />
+                    </Paper>
+                </Grid>
+                <Grid item xs={9}>
+                    <Paper className={classes.paper}>
+                        {/* <HistoricalChart /> */}
+                    </Paper>
+                </Grid>
+                <Grid item xs={3}>
+                    <Paper className={classes.paper}>
+                        <LPInput
+                            lpDate={lpDate}
+                            setLPDate={setLPDate}
+                        />
                     </Paper>
                 </Grid>
             </Grid>
