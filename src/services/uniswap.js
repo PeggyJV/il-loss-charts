@@ -91,8 +91,6 @@ export default class UniswapFetcher {
     }
 
     static async _get100DaysHistoricalDailyData(pairId, startDate, endDate) {
-        console.log('START END', startDate, endDate);
-
         const response = await UniswapFetcher.client
             .query({
                 query: gql`

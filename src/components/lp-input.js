@@ -1,9 +1,7 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { FormControl, InputLabel } from '@material-ui/core';
-import { DateTimePicker, MuiPickersUtilsProvider} from '@material-ui/pickers';
+import { FormControlLabel, FormGroup, TextField } from '@material-ui/core';
+import { DateTimePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
-
-
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -15,22 +13,39 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-function LPInput({ lpDate, setLPDate }) {
+function LPInput({ lpDate, setLPDate, pairData, lpShare, setLPShare }) {
     const classes = useStyles();
 
     return (
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <div>
-                <FormControl className={classes.formControl}>
-                    <InputLabel>LP Date</InputLabel>
-                    <DateTimePicker
-                        autoOk
-                        ampm={false}
-                        disableFuture
-                        value={lpDate}
-                        onChange={setLPDate}
+                <FormGroup>
+                    <FormControlLabel
+                        label="LP Date"
+                        labelPlacement="start"
+                        control={
+                            <DateTimePicker
+                                autoOk
+                                ampm={false}
+                                disableFuture
+                                value={lpDate}
+                                onChange={setLPDate}
+                            />
+                        }
                     />
-                </FormControl>
+                    <FormControlLabel
+                        label="USD Liquidity"
+                        labelPlacement="start"
+                        control={
+                            <TextField 
+                                variant="outlined" 
+                                onChange={(event) => setLPShare(event.target.value)}
+                                value={lpShare}
+                                defaultValue={pairData.reserveUSD}
+                            />
+                        }
+                    />
+                </FormGroup>
                 {/* Add usd, token0 amt, token1 amount inputs */}
             </div>
         </MuiPickersUtilsProvider>

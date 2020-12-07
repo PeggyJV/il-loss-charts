@@ -7,6 +7,7 @@ import PairSelector from 'components/pair-selector';
 import LPInput from 'components/lp-input';
 
 import Uniswap from 'services/uniswap';
+import calculateLPStats from 'services/calculate-lp-stats';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -26,7 +27,9 @@ function ChartsContainer() {
     const [pairId, setPairId] = useState('0xa478c2975ab1ea89e8196811f51a7b7ade33eb11');
     const [pairData, setPairData] = useState(null);
     const [lpDate, setLPDate] = useState(null);
+    const [lpShare, setLPShare] = useState(0);
     const [historicalData, setHistoricalData] = useState([]);
+    const [lpStats, setLPStats] = useState({});
 
     useEffect(() => {
         const fetchPairData = async () => {
@@ -58,11 +61,19 @@ function ChartsContainer() {
         getDailyPairData();
     }, [lpDate, pairId])
 
+    useEffect(() => {
+        if (!pairData) return;
+
+        const newLpStats = calculateLPStats(pairData, historicalData, lpShare);
+        setLPStats(newLpStats);
+    }, [pairData, lpShare, historicalData]);
+
     window.data = {
         allPairs,
         pairId,
         pairData,
-        historicalData
+        historicalData,
+        lpStats
     };
 
     if (!lpDate) return null;
@@ -72,36 +83,39 @@ function ChartsContainer() {
     return (
         <div className={classes.root}>
             <Grid container spacing={3}>
-                <Grid item xs={3}>
+                <Grid item xs={4}>
                     <Paper className={classes.paper}>
                         <PairSelector pairs={allPairs} currentPairId={pairId} setPair={setPairId} />
                     </Paper>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={2}>
                     <Paper className={classes.paper}>
                         <USDValueWidget title="USD Volume" value={pairData.volumeUSD} />
                     </Paper>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={2}>
                     <Paper className={classes.paper}>
                         <USDValueWidget title="Total Liquidity" value={pairData.reserveUSD} />
                     </Paper>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={4}>
                     <Paper className={classes.paper}>
                         <USDValueWidget title="Total Fees" value={pairData.feesUSD} />
                     </Paper>
                 </Grid>
-                <Grid item xs={9}>
+                <Grid item xs={8}>
                     <Paper className={classes.paper}>
                         {/* <HistoricalChart /> */}
                     </Paper>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={4}>
                     <Paper className={classes.paper}>
                         <LPInput
+                            pairData={pairData}
                             lpDate={lpDate}
                             setLPDate={setLPDate}
+                            lpShare={lpShare}
+                            setLPShare={setLPShare}
                         />
                     </Paper>
                 </Grid>
