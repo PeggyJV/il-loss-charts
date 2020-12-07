@@ -26,6 +26,7 @@ function ChartsContainer() {
     const [pairId, setPairId] = useState('0xa478c2975ab1ea89e8196811f51a7b7ade33eb11');
     const [pairData, setPairData] = useState(null);
     const [lpDate, setLPDate] = useState(null);
+    const [historicalData, setHistoricalData] = useState([]);
 
     useEffect(() => {
         const fetchPairData = async () => {
@@ -36,7 +37,7 @@ function ChartsContainer() {
             if (!lpDate) setLPDate(new Date(newPair.createdAtTimestamp * 1000));
         }
         fetchPairData();
-    }, [pairId]);
+    }, [pairId, lpDate]);
 
     useEffect(() => {
         const fetchAllPairs = async () => {
@@ -49,19 +50,22 @@ function ChartsContainer() {
 
     useEffect(() => {
         const getDailyPairData = async () => {
+            if (!lpDate) return;
             // Get historical data for pair from lp date until now
             const historicalDailyData = await Uniswap.getHistoricalDailyData(pairId, lpDate);
             setHistoricalData(historicalDailyData);
-
         }
+        getDailyPairData();
     }, [lpDate, pairId])
 
     window.data = {
         allPairs,
         pairId,
-        pairData
+        pairData,
+        historicalData
     };
 
+    if (!lpDate) return null;
     if (allPairs.length === 0) return null;
     if (!pairData) return null;
 
