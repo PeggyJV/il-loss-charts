@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import USDValueWidget from 'components/usd-value-widget';
 import PairSelector from 'components/pair-selector';
 import LPInput from 'components/lp-input';
+import LPStatsWidget from 'components/lp-stats-widget';
 
 import Uniswap from 'services/uniswap';
 import calculateLPStats from 'services/calculate-lp-stats';
@@ -117,6 +118,7 @@ function ChartsContainer() {
                             lpShare={lpShare}
                             setLPShare={setLPShare}
                         />
+                        <LPStatsWidget lpStats={lpStats} pairData={pairData} />
                     </Paper>
                 </Grid>
             </Grid>

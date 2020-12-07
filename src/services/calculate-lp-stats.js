@@ -22,6 +22,7 @@ export default function calculateLPStats(pair, historicalData, lpLiquidityUSD) {
     // Calculate impermanent loss
 
     return {
+        totalFees: new BigNumber(pair.feesUSD).times(poolShare),
         runningVolume,
         runningFees
     };
