@@ -23,6 +23,13 @@ function LPInput({ lpDate, setLPDate, pairData, lpShare, setLPShare }) {
     // If token0 liquidity changes, change USD and token1 liquidity
     // If token1 liquidity changes, change USD and token0 liquidity
 
+    const updateShare = (denom) => (event) => {
+        if (denom === 'USD') {
+            const usdShare = event.target.value;
+            setLPShare(event.target.value);
+        }
+    };
+
     return (
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <div>
@@ -46,7 +53,7 @@ function LPInput({ lpDate, setLPDate, pairData, lpShare, setLPShare }) {
                         control={
                             <TextField 
                                 variant="outlined" 
-                                onChange={(event) => setLPShare(event.target.value)}
+                                onChange={(event) => updateShare('USD', event.target.value)}
                                 value={lpShare}
                                 defaultValue={pairData.reserveUSD}
                             />
@@ -58,9 +65,9 @@ function LPInput({ lpDate, setLPDate, pairData, lpShare, setLPShare }) {
                         control={
                             <TextField 
                                 variant="outlined" 
-                                onChange={(event) => setLPShare(event.target.value)}
+                                onChange={(event) => updateShare('token0', event.target.value)}
                                 value={lpShare}
-                                defaultValue={pairData.reserveUSD}
+                                defaultValue={pairData.reserve0}
                             />
                         }
                     />
@@ -70,9 +77,9 @@ function LPInput({ lpDate, setLPDate, pairData, lpShare, setLPShare }) {
                         control={
                             <TextField 
                                 variant="outlined" 
-                                onChange={(event) => setLPShare(event.target.value)}
+                                onChange={(event) => updateShare('token1', event.target.value)}
                                 value={lpShare}
-                                defaultValue={pairData.reserveUSD}
+                                defaultValue={pairData.reserve1}
                             />
                         }
                     />
