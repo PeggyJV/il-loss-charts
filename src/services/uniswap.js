@@ -108,6 +108,8 @@ export default class UniswapFetcher {
                             dailyVolumeToken1
                             dailyVolumeUSD
                             reserveUSD
+                            reserve0
+                            reserve1
                         }
                 }
                 `

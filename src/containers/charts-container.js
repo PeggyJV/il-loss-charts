@@ -27,10 +27,11 @@ function ChartsContainer() {
     const [allPairs, setAllPairs] = useState([]);
     const [pairId, setPairId] = useState('0xa478c2975ab1ea89e8196811f51a7b7ade33eb11');
     const [pairData, setPairData] = useState(null);
-    const [lpDate, setLPDate] = useState(null);
+    const [lpDate, setLPDate] = useState(new Date('2020-05-18'));
     const [lpShare, setLPShare] = useState(0);
     const [historicalData, setHistoricalData] = useState([]);
     const [lpStats, setLPStats] = useState({});
+    const [dailyDataAtLPDate, setDailyDataAtLPDate] = useState({});
 
     useEffect(() => {
         const fetchPairData = async () => {
@@ -57,7 +58,9 @@ function ChartsContainer() {
             if (!lpDate) return;
             // Get historical data for pair from lp date until now
             const historicalDailyData = await Uniswap.getHistoricalDailyData(pairId, lpDate);
+            const dailyDataAtLPDate = historicalDailyData[0];
             setHistoricalData(historicalDailyData);
+            setDailyDataAtLPDate(dailyDataAtLPDate);
         }
         getDailyPairData();
     }, [lpDate, pairId])
@@ -117,6 +120,7 @@ function ChartsContainer() {
                             setLPDate={setLPDate}
                             lpShare={lpShare}
                             setLPShare={setLPShare}
+                            dailyDataAtLPDate={dailyDataAtLPDate}
                         />
                         <LPStatsWidget lpStats={lpStats} pairData={pairData} />
                     </Paper>
