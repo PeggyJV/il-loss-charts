@@ -1,20 +1,9 @@
 import { useState } from 'react'
 import BigNumber from 'bignumber.js';
 
-import { makeStyles } from '@material-ui/core/styles';
 import { FormControlLabel, FormGroup, TextField } from '@material-ui/core';
 import { DateTimePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
-
-const useStyles = makeStyles((theme) => ({
-    formControl: {
-        margin: theme.spacing(1),
-        minWidth: 120,
-    },
-    selectEmpty: {
-        marginTop: theme.spacing(2),
-    },
-}));
 
 function LPInput({ lpDate, setLPDate, pairData, lpShare, setLPShare, dailyDataAtLPDate }) {
     const { token0, token1 } = pairData;
