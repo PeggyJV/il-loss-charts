@@ -6,6 +6,7 @@ import USDValueWidget from 'components/usd-value-widget';
 import PairSelector from 'components/pair-selector';
 import LPInput from 'components/lp-input';
 import LPStatsWidget from 'components/lp-stats-widget';
+import LPStatsChart from 'components/lp-stats-chart';
 
 import Uniswap from 'services/uniswap';
 import calculateLPStats from 'services/calculate-lp-stats';
@@ -108,7 +109,7 @@ function ChartsContainer() {
                 </Grid>
                 <Grid item xs={8}>
                     <Paper className={classes.paper}>
-                        {/* <HistoricalChart /> */}
+                        <LPStatsChart lpStats={lpStats} />
                     </Paper>
                 </Grid>
                 <Grid item xs={4}>
