@@ -16,6 +16,8 @@ function LPStatsWidget({ lpStats, pairData }) {
     return (
         <>
             <p>Total Fees Collected: {displayValue(lpStats.totalFees)}</p>
+            <p>Impermanent Loss: {displayValue(lpStats.impermanentLoss)}</p>
+            <p>Total Return: {displayValue(lpStats.totalReturn)}</p>
         </>
     );
 }

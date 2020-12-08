@@ -58,9 +58,8 @@ function ChartsContainer() {
             if (!lpDate) return;
             // Get historical data for pair from lp date until now
             const historicalDailyData = await Uniswap.getHistoricalDailyData(pairId, lpDate);
-            const dailyDataAtLPDate = historicalDailyData[0];
             setHistoricalData(historicalDailyData);
-            setDailyDataAtLPDate(dailyDataAtLPDate);
+            setDailyDataAtLPDate(historicalDailyData[0]);
         }
         getDailyPairData();
     }, [lpDate, pairId])
