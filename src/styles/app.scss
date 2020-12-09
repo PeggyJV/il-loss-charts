@@ -23,3 +23,21 @@ $body-bg: #000;
 .row + .row {
     margin-top: 2em;
 }
+
+.lp-stats-widget {
+    width: 100%;
+}
+
+.lp-stats-table {
+    font-size: .8rem;
+}
+
+.table .lp-stats-table-cell {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.lp-stats-table-cell.value {
+    text-align: right;
+}
+

@@ -18,7 +18,7 @@ function LPStatsChart({ lpStats }) {
             data={chartData}
             margin={{ top: 10, right: 10, bottom: 10 }}
             width={800}
-            height={579}
+            height={563}
         >
             <XAxis dataKey='day' />
             <YAxis />

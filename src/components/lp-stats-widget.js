@@ -1,4 +1,4 @@
-import { Card } from 'react-bootstrap';
+import { Card, Table } from 'react-bootstrap';
 
 
 const formatter = new Intl.NumberFormat('en-US', {
@@ -11,15 +11,35 @@ const formatter = new Intl.NumberFormat('en-US', {
 });
 
 function LPStatsWidget({ lpStats, pairData }) {
-    if (!pairData) return null;
+    if (!pairData || !lpStats.totalFees) return null;
 
-    const displayValue = (value) => formatter.format(parseInt(value, 10));
+    const displayValue = (value) => {
+        const intVal = parseInt(value, 10);
+        if (Number.isNaN(intVal)) {
+            throw new Error(`Could not parse value for LP stats widget: ${value}`);
+        }
+
+        return formatter.format(intVal);
+    };
 
     return (
-        <Card.Body>
-            <p>Total Fees Collected: {displayValue(lpStats.totalFees)}</p>
-            <p>Impermanent Loss: {displayValue(lpStats.impermanentLoss)}</p>
-            <p>Total Return: {displayValue(lpStats.totalReturn)}</p>
+        <Card.Body clasName='lp-stats-widget'>
+            <Table borderless className='lp-stats-table'>
+                <tbody>
+                    <tr>
+                        <td className='lp-stats-table-cell label'>Fees Collected</td>
+                        <td className='lp-stats-table-cell value'>{displayValue(lpStats.totalFees)}</td>
+                    </tr>
+                    <tr>
+                        <td className='lp-stats-table-cell label'>Impermanent Loss</td>
+                        <td className='lp-stats-table-cell value'>{displayValue(lpStats.impermanentLoss)}</td>
+                    </tr>
+                    <tr>
+                        <td className='lp-stats-table-cell label'><strong>Total Return</strong></td>
+                        <td className='lp-stats-table-cell value'><strong>{displayValue(lpStats.totalReturn)}</strong></td>
+                    </tr>
+                </tbody>
+            </Table>
         </Card.Body>
     );
 }
