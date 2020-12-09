@@ -41,19 +41,20 @@ function LPStatsChart({ lpStats }) {
             </defs>
             <XAxis dataKey='day' interval={30} tickLine={false} tickMargin={10} />
             <YAxis tickFormatter={tick => formatter.format(tick)} width={100} />
-            < Area type='monotone' dataKey='returns' stroke='#82ca9d' fill='url(#areaColor)' />
-            <Tooltip content={renderTooltip} />
+            <Area type='monotone' dataKey='returns' stroke='#82ca9d' fill='url(#areaColor)' />
+            <Tooltip content={<CustomTooltip />} />
         </AreaChart>
     );
 }
 
-function renderTooltip({ runningFee, runningReturn, runningImpermanentLoss }) {
-    console.log('THIS IS FEE', runningFee);
+function CustomTooltip({ active, payload, label }) {
+    if (!active || !payload) return null;
     const lpStats = {
-        totalFees: runningFee,
-        totalReturn: runningReturn,
-        impermanentLoss: runningImpermanentLoss
+        totalFees: payload[0].payload.runningFee,
+        totalReturn: payload[0].payload.runningReturn,
+        impermanentLoss: payload[0].payload.runningImpermanentLoss
     };
+    console.log('THIS IS payload', lpStats);
     return <LPStatsWidget lpStats={lpStats} />;
 }
 
