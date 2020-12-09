@@ -1,15 +1,21 @@
-import './App.css';
-import { Container } from '@material-ui/core';
+import './App.scss';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+import { Container, Row, Col } from 'react-bootstrap';
 import AppContainer from 'containers/app-container';
 
 function App() {
     return (
-        <Container maxWidth="md">
-            <div className="App">
-                <h2 className="page-title">Impermanent Loss Calculator</h2>
-                <AppContainer />
-            </div>
-        </Container>
+        <div className="app">
+            <Container fluid="lg">
+                    <Row>
+                        <Col><h2 className="page-title">Uniswap Impermanent Loss Calculator</h2></Col>
+                    </Row>
+                    <Row>
+                        <AppContainer />
+                    </Row>
+            </Container>
+        </div>
     );
 }
 

@@ -26,7 +26,7 @@ export default function calculateLPStats(pairData, historicalData, lpLiquidityUS
     }
 
     historicalData.forEach((dailyData, index) => {
-        if (index == 0) return;
+        if (index === 0) return;
 
         const poolShare = new BigNumber(lpLiquidityUSD).div(dailyData.reserveUSD);
 

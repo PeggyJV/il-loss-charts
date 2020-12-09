@@ -1,0 +1,25 @@
+// Override default variables before the import
+$body-bg: #000;
+
+// Import Bootstrap and its default variables
+@import '~bootstrap/scss/bootstrap.scss';
+
+.app {
+    padding: 2em;
+}
+
+.page-title {
+    text-align: center;
+}
+
+.lp-input-card {
+    width: 100%;
+}
+
+.top-row-card {
+    height: 120px;
+}
+
+.row + .row {
+    margin-top: 2em;
+}

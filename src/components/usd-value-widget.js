@@ -1,3 +1,5 @@
+import { Card } from 'react-bootstrap';
+
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD'
@@ -11,10 +13,10 @@ function USDValueWidget({ title, value }) {
     const displayValue = formatter.format(parseInt(value, 10));
 
     return (
-        <>
-            <h3>{title}</h3>
-            <p>{displayValue}</p>
-        </>
+        <Card.Body>
+            <Card.Title>{title}</Card.Title>
+            <Card.Text>{displayValue}</Card.Text>
+        </Card.Body>
     );
 }
 

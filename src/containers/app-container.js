@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Paper, Grid } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Container, Row, Col, Card } from 'react-bootstrap';
 
 import USDValueWidget from 'components/usd-value-widget';
 import PairSelector from 'components/pair-selector';
@@ -8,31 +7,19 @@ import LPInput from 'components/lp-input';
 import LPStatsWidget from 'components/lp-stats-widget';
 import LPStatsChart from 'components/lp-stats-chart';
 
+import initialData from 'constants/initialData.json';
 import Uniswap from 'services/uniswap';
 import calculateLPStats from 'services/calculate-lp-stats';
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-      flexGrow: 1,
-    },
-    paper: {
-      padding: theme.spacing(2),
-      textAlign: 'center',
-      color: theme.palette.text.secondary,
-    },
-}));
-
 function ChartsContainer() {
-    const classes = useStyles();
-
-    const [allPairs, setAllPairs] = useState([]);
-    const [pairId, setPairId] = useState('0xa478c2975ab1ea89e8196811f51a7b7ade33eb11');
-    const [pairData, setPairData] = useState(null);
-    const [lpDate, setLPDate] = useState(new Date('2020-05-18'));
-    const [lpShare, setLPShare] = useState(0);
-    const [historicalData, setHistoricalData] = useState([]);
-    const [lpStats, setLPStats] = useState({});
-    const [dailyDataAtLPDate, setDailyDataAtLPDate] = useState({});
+    const [allPairs, setAllPairs] = useState(initialData.allPairs);
+    const [pairId, setPairId] = useState(initialData.pairId);
+    const [pairData, setPairData] = useState(initialData.pairData);
+    const [lpDate, setLPDate] = useState(new Date(initialData.lpDate));
+    const [lpShare, setLPShare] = useState(initialData.lpShare);
+    const [historicalData, setHistoricalData] = useState(initialData.historicalData)
+    const [lpStats, setLPStats] = useState(initialData.lpStats);
+    const [dailyDataAtLPDate, setDailyDataAtLPDate] = useState(initialData.dailyDataAtLPDate);
 
     useEffect(() => {
         const fetchPairData = async () => {
@@ -85,48 +72,58 @@ function ChartsContainer() {
     if (!pairData) return null;
 
     return (
-        <div className={classes.root}>
-            <Grid container spacing={3}>
-                <Grid item xs={4}>
-                    <Paper className={classes.paper}>
+        <Container>
+            <Row>
+                <Col xs={3}>
+                    <Card className="top-row-card">
                         <PairSelector pairs={allPairs} currentPairId={pairId} setPair={setPairId} />
-                    </Paper>
-                </Grid>
-                <Grid item xs={2}>
-                    <Paper className={classes.paper}>
+                    </Card>
+                </Col>
+                <Col xs={3}>
+                    <Card className="top-row-card">
                         <USDValueWidget title="USD Volume" value={pairData.volumeUSD} />
-                    </Paper>
-                </Grid>
-                <Grid item xs={2}>
-                    <Paper className={classes.paper}>
+                    </Card>
+                </Col>
+                <Col xs={3}>
+                    <Card className="top-row-card">
                         <USDValueWidget title="Total Liquidity" value={pairData.reserveUSD} />
-                    </Paper>
-                </Grid>
-                <Grid item xs={4}>
-                    <Paper className={classes.paper}>
+                    </Card>
+                </Col>
+                <Col xs={3}>
+                    <Card className="top-row-card">
                         <USDValueWidget title="Total Fees" value={pairData.feesUSD} />
-                    </Paper>
-                </Grid>
-                <Grid item xs={8}>
-                    <Paper className={classes.paper}>
+                    </Card>
+                </Col>
+            </Row>
+            <Row>
+                <Col xs={9}>
+                    <Card body>
                         <LPStatsChart lpStats={lpStats} />
-                    </Paper>
-                </Grid>
-                <Grid item xs={4}>
-                    <Paper className={classes.paper}>
-                        <LPInput
-                            pairData={pairData}
-                            lpDate={lpDate}
-                            setLPDate={setLPDate}
-                            lpShare={lpShare}
-                            setLPShare={setLPShare}
-                            dailyDataAtLPDate={dailyDataAtLPDate}
-                        />
-                        <LPStatsWidget lpStats={lpStats} pairData={pairData} />
-                    </Paper>
-                </Grid>
-            </Grid>
-        </div>
+                    </Card>
+                </Col>
+                <Col xs={3}>
+                    <Container fluid>
+                        <Row>
+                            <Card className="lp-input-card">
+                                <LPInput
+                                    pairData={pairData}
+                                    lpDate={lpDate}
+                                    setLPDate={setLPDate}
+                                    lpShare={lpShare}
+                                    setLPShare={setLPShare}
+                                    dailyDataAtLPDate={dailyDataAtLPDate}
+                                />
+                            </Card>
+                        </Row>
+                        <Row>
+                            <Card>
+                                <LPStatsWidget lpStats={lpStats} pairData={pairData} />
+                            </Card>
+                        </Row>
+                    </Container>
+                </Col>
+            </Row>
+        </Container>
     );
 }
 

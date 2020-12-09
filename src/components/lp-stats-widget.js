@@ -1,3 +1,5 @@
+import { Card } from 'react-bootstrap';
+
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -14,11 +16,11 @@ function LPStatsWidget({ lpStats, pairData }) {
     const displayValue = (value) => formatter.format(parseInt(value, 10));
 
     return (
-        <>
+        <Card.Body>
             <p>Total Fees Collected: {displayValue(lpStats.totalFees)}</p>
             <p>Impermanent Loss: {displayValue(lpStats.impermanentLoss)}</p>
             <p>Total Return: {displayValue(lpStats.totalReturn)}</p>
-        </>
+        </Card.Body>
     );
 }
 

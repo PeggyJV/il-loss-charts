@@ -14,11 +14,11 @@ function LPStatsChart({ lpStats }) {
     window.chartData = chartData;
 
     return (
-        <AreaChart 
+        <AreaChart
             data={chartData}
             margin={{ top: 10, right: 10, bottom: 10 }}
-            width={600}
-            height={400}
+            width={800}
+            height={579}
         >
             <XAxis dataKey='day' />
             <YAxis />
