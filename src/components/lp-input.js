@@ -1,17 +1,23 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Form, Card } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
+import DatePicker from 'react-date-picker/dist/entry.nostyle';
 
-import { Form, Col, Card } from 'react-bootstrap';
-import DatePicker from 'react-date-picker'
+import 'styles/date-picker.css';
+import 'styles/lp-input.scss';
 
 function LPInput({ lpDate, setLPDate, pairData, lpShare, setLPShare, dailyDataAtLPDate }) {
     const { token0, token1 } = pairData;
 
-    const poolShare = new BigNumber(lpShare).div(dailyDataAtLPDate.reserveUSD);
+    const calcAmounts = (lpShare, dailyDataAtLPDate) => {
+        const poolShare = new BigNumber(lpShare).div(dailyDataAtLPDate.reserveUSD);
+        const token0Amt = poolShare.times(dailyDataAtLPDate.reserve0).toNumber();
+        const token1Amt = poolShare.times(dailyDataAtLPDate.reserve1).toNumber();
 
-    const [usdAmt, setUsdAmt] = useState(lpShare);
-    const [token0Amt, setToken0Amt] = useState(poolShare.times(dailyDataAtLPDate.reserve0).toNumber());
-    const [token1Amt, setToken1Amt] = useState(poolShare.times(dailyDataAtLPDate.reserve1).toNumber());
+        setUsdAmt(lpShare);
+        setToken0Amt(token0Amt);
+        setToken1Amt(token1Amt);
+    }
 
     const updateShare = (denom, value) => {
         if (denom === 'USD') {
@@ -42,18 +48,29 @@ function LPInput({ lpDate, setLPDate, pairData, lpShare, setLPShare, dailyDataAt
         }
     };
 
+    const [usdAmt, setUsdAmt] = useState(lpShare);
+    const [token0Amt, setToken0Amt] = useState(0);
+    const [token1Amt, setToken1Amt] = useState(0);
+
+    useEffect(() => {
+        calcAmounts(lpShare, dailyDataAtLPDate);
+    }, [lpShare, dailyDataAtLPDate]);
+
+
+
     return (
-        <Card.Body>
+        <Card.Body className="lp-input-form">
             <Form.Group>
                 <Form.Label>
                     LP Date
                 </Form.Label>
                 <div>
                     <DatePicker
+                        className="lp-date-picker form-control"
                         minDate={new Date('2020-05-18')}
                         maxDate={new Date()}
-                        dateFormat="YYYY-MM-DD"
-                        selected={lpDate}
+                        format="y/MM/dd"
+                        value={lpDate}
                         onChange={setLPDate}
                     />
                 </div>

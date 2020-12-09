@@ -1,4 +1,4 @@
-import './App.scss';
+import 'styles/app.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { Container, Row, Col } from 'react-bootstrap';
@@ -8,12 +8,12 @@ function App() {
     return (
         <div className="app">
             <Container fluid="lg">
-                    <Row>
-                        <Col><h2 className="page-title">Uniswap Impermanent Loss Calculator</h2></Col>
-                    </Row>
-                    <Row>
-                        <AppContainer />
-                    </Row>
+                <Row>
+                    <Col><h2 className="page-title">Uniswap Impermanent Loss Calculator</h2></Col>
+                </Row>
+                <Row>
+                    <AppContainer />
+                </Row>
             </Container>
         </div>
     );
