@@ -59,14 +59,6 @@ function ChartsContainer() {
         setLPStats(newLpStats);
     }, [pairData, lpShare, historicalData]);
 
-    window.data = {
-        allPairs,
-        pairId,
-        pairData,
-        historicalData,
-        lpStats
-    };
-
     if (!lpDate) return null;
     if (allPairs.length === 0) return null;
     if (!pairData) return null;
@@ -116,7 +108,7 @@ function ChartsContainer() {
                             </Card>
                         </Row>
                         <Row>
-                            <Card>
+                            <Card className="lp-stats-card">
                                 <LPStatsWidget lpStats={lpStats} pairData={pairData} />
                             </Card>
                         </Row>

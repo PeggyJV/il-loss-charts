@@ -10,8 +10,8 @@ const formatter = new Intl.NumberFormat('en-US', {
     //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
 });
 
-function LPStatsWidget({ lpStats, pairData }) {
-    if (!pairData || !lpStats.totalFees) return null;
+function LPStatsWidget({ lpStats }) {
+    if (!lpStats.totalFees) return null;
 
     const displayValue = (value) => {
         const intVal = parseInt(value, 10);
@@ -23,7 +23,7 @@ function LPStatsWidget({ lpStats, pairData }) {
     };
 
     return (
-        <Card.Body clasName='lp-stats-widget'>
+        <Card.Body className='lp-stats-widget'>
             <Table borderless className='lp-stats-table'>
                 <tbody>
                     <tr>
