@@ -1,4 +1,4 @@
-import { AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
+import { ComposedChart, Area, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import LPStatsWidget from 'components/lp-stats-widget';
 
 const formatter = new Intl.NumberFormat('en-US', {
@@ -26,24 +26,29 @@ function LPStatsChart({ lpStats }) {
         });
     }
 
+    window.chartData = chartData;
+
     return (
-        <AreaChart
-            data={chartData}
-            margin={{ top: 10, right: 10, bottom: 10 }}
-            width={800}
-            height={563}
-        >
-            <defs>
-                <linearGradient id="areaColor" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
-                </linearGradient>
-            </defs>
-            <XAxis dataKey='day' interval={30} tickLine={false} tickMargin={10} />
-            <YAxis tickFormatter={tick => formatter.format(tick)} width={100} />
-            <Area type='monotone' dataKey='returns' stroke='#82ca9d' fill='url(#areaColor)' />
-            <Tooltip content={<CustomTooltip />} />
-        </AreaChart>
+        <ResponsiveContainer width="100%" height={563}>
+            <ComposedChart
+                data={chartData}
+                margin={{ top: 10, right: 10, bottom: 10 }}
+                width={800}
+                height={563}
+            >
+                <defs>
+                    <linearGradient id="areaColor" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#0089ff" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#0089ff" stopOpacity={0} />
+                    </linearGradient>
+                </defs>
+                <XAxis dataKey='day' interval={30} tickLine={false} tickMargin={10} />
+                <YAxis tickFormatter={tick => formatter.format(tick)} width={100} />
+                <Area type='monotone' dataKey='returns' stroke='#0089ff' fill='url(#areaColor)' />
+                <Line type='monotone' dataKey='runningReturn' stroke='#5cc9f5' strokeWidth={3} dot={false} />
+                <Tooltip content={<CustomTooltip />} />
+            </ComposedChart>
+        </ResponsiveContainer>
     );
 }
 
@@ -54,7 +59,6 @@ function CustomTooltip({ active, payload, label }) {
         totalReturn: payload[0].payload.runningReturn,
         impermanentLoss: payload[0].payload.runningImpermanentLoss
     };
-    console.log('THIS IS payload', lpStats);
     return <LPStatsWidget lpStats={lpStats} />;
 }
 

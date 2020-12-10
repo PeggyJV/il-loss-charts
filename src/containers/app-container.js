@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Container, Row, Col, Card, Spinner } from 'react-bootstrap';
 
 import USDValueWidget from 'components/usd-value-widget';
 import PairSelector from 'components/pair-selector';
@@ -20,6 +20,7 @@ function ChartsContainer() {
     const [historicalData, setHistoricalData] = useState(initialData.historicalData)
     const [lpStats, setLPStats] = useState(initialData.lpStats);
     const [dailyDataAtLPDate, setDailyDataAtLPDate] = useState(initialData.dailyDataAtLPDate);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchPairData = async () => {
@@ -50,6 +51,7 @@ function ChartsContainer() {
             setDailyDataAtLPDate(historicalDailyData[0]);
         }
         getDailyPairData();
+        setIsLoading(true);
     }, [lpDate, pairId])
 
     useEffect(() => {
@@ -59,41 +61,60 @@ function ChartsContainer() {
         setLPStats(newLpStats);
     }, [pairData, lpShare, historicalData]);
 
+    useEffect(() => {
+        if (isLoading) {
+            setTimeout(() => setIsLoading(false), 2000);
+        }
+    }, [isLoading]);
+
     if (!lpDate) return null;
     if (allPairs.length === 0) return null;
     if (!pairData) return null;
 
+    if (isLoading) {
+        return (
+            <Container className="my-auto loading-container">
+                <Spinner animation="border" />
+            </Container>
+        );
+    }
+
     return (
         <Container>
+            {isLoading &&
+                <Container className="my-auto loading-container">
+                    <Spinner animation="border" />
+                </Container>
+            }
             <Row>
-                <Col xs={3}>
+                <Col lg={3}>
                     <Card className="top-row-card">
                         <PairSelector pairs={allPairs} currentPairId={pairId} setPair={setPairId} />
                     </Card>
                 </Col>
-                <Col xs={3}>
+                <Col lg={3}>
                     <Card className="top-row-card">
                         <USDValueWidget title="USD Volume" value={pairData.volumeUSD} />
                     </Card>
                 </Col>
-                <Col xs={3}>
+                <Col lg={3}>
                     <Card className="top-row-card">
                         <USDValueWidget title="Total Liquidity" value={pairData.reserveUSD} />
                     </Card>
                 </Col>
-                <Col xs={3}>
+                <Col lg={3}>
                     <Card className="top-row-card">
                         <USDValueWidget title="Total Fees" value={pairData.feesUSD} />
                     </Card>
                 </Col>
             </Row>
             <Row>
-                <Col xs={9}>
+                <Col lg={9}>
                     <Card body>
                         <LPStatsChart lpStats={lpStats} />
                     </Card>
                 </Col>
-                <Col xs={3}>
+                <Col lg={3}>
                     <Container fluid>
                         <Row>
                             <Card className="lp-input-card">
