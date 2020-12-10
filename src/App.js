@@ -1,5 +1,6 @@
 import 'styles/app.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-widgets/dist/css/react-widgets.css';
 
 import { Container, Row, Col } from 'react-bootstrap';
 import AppContainer from 'containers/app-container';

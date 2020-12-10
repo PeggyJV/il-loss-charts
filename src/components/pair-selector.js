@@ -1,24 +1,26 @@
-import { Card, Form } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
+import { Combobox } from 'react-widgets';
 
 function PairSelector({ pairs, currentPairId, setPair }) {
+    let defaultValue = null;
+    const pairEntries = pairs.reduce((acc, pair) => {
+        if (pair.id === currentPairId) defaultValue = pairToDisplayText(pair);
+        return { ...acc, [pairToDisplayText(pair)]: pair.id }
+    });
+
+    window.pairEntries = pairEntries;
+
     return (
         <Card.Body>
             <Card.Title>Market</Card.Title>
             <Card.Text>
-                <Form.Control 
-                    as="select"
-                    value={currentPairId}
-                    onChange={(event) => setPair(event.target.value)}
-                >
-                    {pairs.map((pair) => 
-                        <option
-                            key={pair.id}
-                            value={pair.id}
-                        >
-                            {pairToDisplayText(pair)}
-                        </option>
-                    )}
-                </Form.Control>
+                <Combobox
+                    data={pairs.map(pairToDisplayText)}
+                    defaultValue={defaultValue}
+                    filter='contains'
+                    caseSensitive={false}
+                    onChange={selectedLabel => pairEntries[selectedLabel] && setPair(pairEntries[selectedLabel])}
+                />
             </Card.Text>
         </Card.Body>
     );

@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Form, Card } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
-import DatePicker from 'react-date-picker/dist/entry.nostyle';
+import { DateTimePicker } from 'react-widgets';
+import dateFnsLocalizer, { defaultFormats } from 'react-widgets-date-fns';
 
-import 'styles/date-picker.css';
 import 'styles/lp-input.scss';
+
+const dateFormats = Object.assign(defaultFormats, { default: 'YYYY-MM-DD' });
+dateFnsLocalizer({ formats: dateFormats });
 
 function LPInput({ lpDate, setLPDate, pairData, lpShare, setLPShare, dailyDataAtLPDate }) {
     const { token0, token1 } = pairData;
@@ -56,8 +59,6 @@ function LPInput({ lpDate, setLPDate, pairData, lpShare, setLPShare, dailyDataAt
         calcAmounts(lpShare, dailyDataAtLPDate);
     }, [lpShare, dailyDataAtLPDate]);
 
-
-
     return (
         <Card.Body className="lp-input-form">
             <Form.Group>
@@ -65,13 +66,14 @@ function LPInput({ lpDate, setLPDate, pairData, lpShare, setLPShare, dailyDataAt
                     LP Date
                 </Form.Label>
                 <div>
-                    <DatePicker
+                    <DateTimePicker
                         className="lp-date-picker form-control"
-                        minDate={new Date('2020-05-18')}
-                        maxDate={new Date()}
-                        format="y/MM/dd"
+                        min={new Date('2020-05-18')}
+                        max={new Date()}
+                        format="yyyy-MM-dd"
                         value={lpDate}
                         onChange={setLPDate}
+                        time={false}
                     />
                 </div>
             </Form.Group>
