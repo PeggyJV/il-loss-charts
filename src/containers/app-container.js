@@ -28,7 +28,8 @@ function ChartsContainer() {
             // Default to createdAt date if LP date not set
             const newPair = await Uniswap.getPairOverview(pairId);
             setPairData(newPair);
-            if (!lpDate) setLPDate(new Date(newPair.createdAtTimestamp * 1000));
+            const pairCreatedAt = new Date(newPair.createdAtTimestamp * 1000)
+            if (!lpDate || lpDate < pairCreatedAt) setLPDate(pairCreatedAt);
         }
         fetchPairData();
     }, [pairId, lpDate]);
@@ -59,7 +60,7 @@ function ChartsContainer() {
 
         const newLpStats = calculateLPStats(pairData, historicalData, lpShare);
         setLPStats(newLpStats);
-    }, [pairData, lpShare, historicalData]);
+    }, [pairData, lpShare, lpDate, historicalData]);
 
     useEffect(() => {
         if (isLoading) {
