@@ -17,4 +17,5 @@
 ### Code
 
 * Clean up dependencies I didn't end up using
+* Get bundle size down
 * Write tests
