@@ -44,8 +44,8 @@ function LPStatsChart({ lpStats }) {
                 </defs>
                 <XAxis dataKey='day' interval={30} tickLine={false} tickMargin={10} />
                 <YAxis tickFormatter={tick => formatter.format(tick)} width={100} />
-                <Area type='monotone' dataKey='returns' stroke='#0089ff' fill='url(#areaColor)' />
-                <Line type='monotone' dataKey='runningReturn' stroke='#5cc9f5' strokeWidth={3} dot={false} />
+                <Area type='monotone' dataKey='returns' strokeWidth={0} fill='url(#areaColor)' />
+                <Line type='monotone' dataKey='runningReturn' stroke='#0089ff' strokeWidth={2} dot={false} />
                 <Tooltip content={<CustomTooltip />} />
             </ComposedChart>
         </ResponsiveContainer>
