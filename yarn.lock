@@ -10178,6 +10178,11 @@ react-transition-group@^4.0.0, react-transition-group@^4.4.0, react-transition-g
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
 
+react-use-websocket@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/react-use-websocket/-/react-use-websocket-2.2.0.tgz#3e9a6fc0a557d8ef4ad5266a721183e464c5a6ed"
+  integrity sha512-Pt7lbnHxEOTOwO51TD9Nk5cSpuIOQ25hPVb9c0n7HDkciqAYSx9TQxs2clz6pA8KrFlTIHrV5/Pu+cb8MEb5fg==
+
 react-widgets-date-fns@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/react-widgets-date-fns/-/react-widgets-date-fns-4.1.2.tgz#af0b9c3a670949d5e41b74e02519ff2a54ec2c21"

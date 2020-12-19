@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Container, Row, Col, Card, Spinner } from 'react-bootstrap';
+import useWebSocket from 'react-use-websocket';
 
 import USDValueWidget from 'components/usd-value-widget';
 import PairSelector from 'components/pair-selector';
@@ -21,6 +22,31 @@ function ChartsContainer() {
     const [lpStats, setLPStats] = useState(initialData.lpStats);
     const [dailyDataAtLPDate, setDailyDataAtLPDate] = useState(initialData.dailyDataAtLPDate);
     const [isLoading, setIsLoading] = useState(true);
+
+    const [socketUrl, setSocketUrl] = useState('ws://localhost:3001/realtime');
+
+    const prevPairIdRef = useRef();
+    useEffect(() => {
+        prevPairIdRef.current = pairId;
+    });
+    const prevPairId = prevPairIdRef.current;
+
+    const {
+        sendJsonMessage,
+        lastJsonMessage,
+    } = useWebSocket(socketUrl);
+
+    useEffect(() => {
+        console.log('Unsubscribing from prevPairId', prevPairId);
+        sendJsonMessage({ op: 'unsubscribe', topics: [`uniswap:getPairOverview:${prevPairId}`] })
+        console.log('Subscribing to pairId', pairId);
+        sendJsonMessage({ op: 'subscribe', topics: [`uniswap:getPairOverview:${pairId}`] })
+    }, [pairId]);
+
+    useEffect(() => {
+        if (!lastJsonMessage) return;
+        setPairData(lastJsonMessage.data);
+    }, [lastJsonMessage]);
 
     useEffect(() => {
         const fetchPairData = async () => {
