@@ -44,9 +44,9 @@ function ChartsContainer() {
 
     useEffect(() => {
         console.log('Unsubscribing from prevPairId', prevPairId);
-        sendJsonMessage({ op: 'unsubscribe', topics: [`uniswap:getPairOverview:${prevPairId}`] })
+        sendJsonMessage({ op: 'unsubscribe', topics: [`uniswap:getPairOverview:${prevPairId}`] });
         console.log('Subscribing to pairId', pairId);
-        sendJsonMessage({ op: 'subscribe', topics: [`uniswap:getPairOverview:${pairId}`] })
+        sendJsonMessage({ op: 'subscribe', topics: [`uniswap:getPairOverview:${pairId}`], interval: 'newBlocks' });
     }, [pairId]);
 
     useEffect(() => {
