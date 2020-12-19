@@ -7,6 +7,7 @@ import PairSelector from 'components/pair-selector';
 import LPInput from 'components/lp-input';
 import LPStatsWidget from 'components/lp-stats-widget';
 import LPStatsChart from 'components/lp-stats-chart';
+import RealtimeStatusBar from 'components/realtime-status-bar';
 
 import initialData from 'constants/initialData.json';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
@@ -21,6 +22,7 @@ function ChartsContainer() {
     const [historicalData, setHistoricalData] = useState(initialData.historicalData)
     const [lpStats, setLPStats] = useState(initialData.lpStats);
     const [dailyDataAtLPDate, setDailyDataAtLPDate] = useState(initialData.dailyDataAtLPDate);
+    const [latestBlock, setLatestBlock] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
     const [socketUrl, setSocketUrl] = useState('ws://localhost:3001/realtime');
@@ -37,6 +39,10 @@ function ChartsContainer() {
     } = useWebSocket(socketUrl);
 
     useEffect(() => {
+        sendJsonMessage({ op: 'subscribe', topics: ['infura:newBlockHeaders'] })
+    }, []);
+
+    useEffect(() => {
         console.log('Unsubscribing from prevPairId', prevPairId);
         sendJsonMessage({ op: 'unsubscribe', topics: [`uniswap:getPairOverview:${prevPairId}`] })
         console.log('Subscribing to pairId', pairId);
@@ -45,7 +51,15 @@ function ChartsContainer() {
 
     useEffect(() => {
         if (!lastJsonMessage) return;
-        setPairData(lastJsonMessage.data);
+
+        const { topic } = lastJsonMessage;
+
+        if (topic.startsWith('uniswap:getPairOverview')) {
+            setPairData(lastJsonMessage.data);
+        } else if (topic === 'infura:newBlockHeaders') {
+            const { data: { number: blockNumber } } = lastJsonMessage;
+            setLatestBlock(blockNumber);
+        }
     }, [lastJsonMessage]);
 
     useEffect(() => {
@@ -67,7 +81,7 @@ function ChartsContainer() {
             setAllPairs(allPairs);
         }
         fetchAllPairs();
-    });
+    }, []);
 
     useEffect(() => {
         const getDailyPairData = async () => {
@@ -134,6 +148,9 @@ function ChartsContainer() {
                         <USDValueWidget title="Total Fees" value={pairData.feesUSD} />
                     </Card>
                 </Col>
+            </Row>
+            <Row>
+                <RealtimeStatusBar latestBlock={latestBlock} />
             </Row>
             <Row>
                 <Col lg={9}>
