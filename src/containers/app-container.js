@@ -8,7 +8,7 @@ import LPStatsWidget from 'components/lp-stats-widget';
 import LPStatsChart from 'components/lp-stats-chart';
 
 import initialData from 'constants/initialData.json';
-import Uniswap from 'services/uniswap';
+import { UniswapApiFetcher as Uniswap } from 'services/api';
 import calculateLPStats from 'services/calculate-lp-stats';
 
 function ChartsContainer() {
