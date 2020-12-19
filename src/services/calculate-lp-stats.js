@@ -32,7 +32,7 @@ export default function calculateLPStats(pairData, historicalData, lpLiquidityUS
 
         const vol = new BigNumber(dailyData.dailyVolumeUSD);
         const dailyFees = vol.times(poolShare).times(Uniswap.FEE_RATIO);
-        const dailyImpermanentLoss = calculateImpermanentLoss(historicalData[index-1], dailyData);
+        const dailyImpermanentLoss = calculateImpermanentLoss(historicalData[index - 1], dailyData);
         const dailyReturn = dailyFees.plus(dailyImpermanentLoss);
 
         runningVolume.push(

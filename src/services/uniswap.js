@@ -121,7 +121,7 @@ export default class UniswapFetcher {
             throw new Error(`Could not fetch daily data for pair ${pairId}. Error from response: ${response.error}`);
         }
 
-        return pairDayDatas;  
+        return pairDayDatas;
     }
 
     static async getHistoricalDailyData(pairId, startDate, endDate = new Date()) {

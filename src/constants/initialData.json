@@ -6,26 +6,26 @@
         "reserve1": "103167.254103154644269513",
         "reserveUSD": "113360289.8654117803941111655154783",
         "token0": {
-          "derivedETH": "0.001825709749446200052420367379661102",
-          "id": "0x6b175474e89094c44da98b954eedeac495271d0f",
-          "name": "Dai Stablecoin",
-          "symbol": "DAI"
+            "derivedETH": "0.001825709749446200052420367379661102",
+            "id": "0x6b175474e89094c44da98b954eedeac495271d0f",
+            "name": "Dai Stablecoin",
+            "symbol": "DAI"
         },
         "token0Price": "547.7321903458827769864444434814755",
         "token1": {
-          "derivedETH": "1",
-          "id": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-          "name": "Wrapped Ether",
-          "symbol": "WETH"
+            "derivedETH": "1",
+            "id": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+            "name": "Wrapped Ether",
+            "symbol": "WETH"
         },
         "token1Price": "0.001825709749446200052420367379661102",
         "trackedReserveETH": "206334.508206309288539026",
         "txCount": "591598",
         "volumeUSD": "3211256571.979653197198825583508686"
-      },
-      "lpDate": "2020-05-18",
-      "lpShare": 10000,
-      "historicalData": [],
-      "lpStats": {},
-      "dailyDataAtLPDate": {}
+    },
+    "lpDate": "2020-05-18",
+    "lpShare": 10000,
+    "historicalData": [],
+    "lpStats": {},
+    "dailyDataAtLPDate": {}
 }
