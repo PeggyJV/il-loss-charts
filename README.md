@@ -1,70 +1,97 @@
-# Getting Started with Create React App
+# lp-data-service
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Data tools for DeFi LPs
 
-## Available Scripts
+## Quick Start
 
-In the project directory, you can run:
+Get started developing...
 
-### `yarn start`
+```shell
+# install deps
+npm install
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+# run in development mode
+npm run dev
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+# run tests
+npm run test
+```
 
-### `yarn test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## How do I modify the example API and make it my own?
 
-### `yarn build`
+There are two key files:
+1. `server/routes.ts` - This references the implementation of all of your routes. Add as many routes as you like and point each route your express handler functions.
+2. `server/common/api.yaml` - This file contains your [OpenAPI spec](https://swagger.io/specification/). Describe your API here. It's recommended that you to declare any and all validation logic in this YAML. `express-no-stress-typescript`  uses [express-openapi-validator](https://github.com/cdimascio/express-openapi-validator) to automatically handle all API validation based on what you've defined in the spec.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Install Dependencies
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Install all package dependencies (one time operation)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```shell
+npm install
+```
 
-### `yarn eject`
+## Run It
+#### Run in *development* mode:
+Runs the application is development mode. Should not be used in production
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```shell
+npm run dev
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+or debug it
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```shell
+npm run dev:debug
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+#### Run in *production* mode:
 
-## Learn More
+Compiles the application and starts it in production production mode.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```shell
+npm run compile
+npm start
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Test It
 
-### Code Splitting
+Run the Mocha unit tests
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```shell
+npm test
+```
 
-### Analyzing the Bundle Size
+or debug them
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```shell
+npm run test:debug
+```
 
-### Making a Progressive Web App
+## Try It
+* Open your browser to [http://localhost:3000](http://localhost:3000)
+* Invoke the `/examples` endpoint 
+  ```shell
+  curl http://localhost:3000/api/v1/examples
+  ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
 
-### Advanced Configuration
+## Debug It
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+#### Debug the server:
 
-### Deployment
+```
+npm run dev:debug
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+#### Debug Tests
 
-### `yarn build` fails to minify
+```
+npm run test:debug
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+#### Debug with VSCode
+
+Add these [contents](https://github.com/cdimascio/generator-express-no-stress/blob/next/assets/.vscode/launch.json) to your `.vscode/launch.json` file
