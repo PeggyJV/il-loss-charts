@@ -6,7 +6,8 @@
     ],
     "scripts": {
         "dev": "concurrently \"cd packages/client && yarn start\" \"cd packages/server && yarn dev\"",
-        "prod": "cd packages/server && yarn start"
+        "build": "concurrently \"cd packages/client && yarn build\" \"cd packages/server && yarn compile\"",
+        "prod": "NODE_PATH=src/ cd packages/server && yarn start"
     },
     "devDependencies": {
         "@types/chai": "^4.2.14",
