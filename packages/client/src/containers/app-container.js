@@ -14,6 +14,8 @@ import initialData from 'constants/initialData.json';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import calculateLPStats from 'services/calculate-lp-stats';
 
+import config from 'config';
+
 function ChartsContainer() {
     const [allPairs, setAllPairs] = useState(initialData.allPairs);
     const [pairId, setPairId] = useState(initialData.pairId);
@@ -27,7 +29,7 @@ function ChartsContainer() {
     const [latestSwaps, setLatestSwaps] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const [socketUrl, setSocketUrl] = useState('ws://localhost:3001/realtime');
+    const [socketUrl, setSocketUrl] = useState(config.wsApi);
 
     const prevPairIdRef = useRef();
     useEffect(() => {
