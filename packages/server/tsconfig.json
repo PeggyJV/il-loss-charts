@@ -11,11 +11,11 @@
             "node_modules/@types"
         ],
         "resolveJsonModule": true,
-        "baseUrl": "./server"
+        "baseUrl": "./src"
     },
     "include": [
         "typings.d.ts",
-        "server/**/*.ts"
+        "src/**/*.ts"
     ],
     "exclude": [
         "node_modules"
