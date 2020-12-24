@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import ReactGA from 'react-ga';
 import { Route } from 'react-router-dom';
 
-export default function GoogleAnalytics({ location }) {
+export default function GoogleAnalytics() {
     function logPageChange(pathname, search = '') {
         const page = pathname + search;
         const { location } = window;
@@ -18,24 +18,24 @@ export default function GoogleAnalytics({ location }) {
 
     useEffect(() => {
         logPageChange(
-            location.pathname,
-            location.search
+            window.location.pathname,
+            window.location.search
         );
     }, []);
 
     useEffect(() => {
-        const { pathname, search } = location
+        const { pathname, search } = window.location;
         const isDifferentPathname = pathname !== prevLocation.pathname;
         const isDifferentSearch = search !== prevLocation.search;
 
         if (isDifferentPathname || isDifferentSearch) {
             logPageChange(pathname, search);
         }
-    }, [location]);
+    }, [window.location]);
 
     const prevLocationRef = useRef();
     useEffect(() => {
-        prevLocationRef.current = location;
+        prevLocationRef.current = window.location;
     });
     const prevLocation = prevLocationRef.current;
 
