@@ -4,14 +4,14 @@ import PropTypes from 'prop-types';
 import ReactGA from 'react-ga';
 import { Route } from 'react-router-dom';
 
-export default function GoogleAnalytics() {
+export default function GoogleAnalytics({ options }) {
     function logPageChange(pathname, search = '') {
         const page = pathname + search;
         const { location } = window;
         ReactGA.set({
             page,
             location: `${location.origin}${page}`,
-            ...this.props.options
+            options
         });
         ReactGA.pageview(page);
     }
@@ -25,8 +25,8 @@ export default function GoogleAnalytics() {
 
     useEffect(() => {
         const { pathname, search } = window.location;
-        const isDifferentPathname = pathname !== prevLocation.pathname;
-        const isDifferentSearch = search !== prevLocation.search;
+        const isDifferentPathname = pathname !== prevLocation?.pathname;
+        const isDifferentSearch = search !== prevLocation?.search;
 
         if (isDifferentPathname || isDifferentSearch) {
             logPageChange(pathname, search);
@@ -42,16 +42,9 @@ export default function GoogleAnalytics() {
     return null;
 }
 
-GoogleAnalytics.propTypes = {
-    location: PropTypes.shape({
-        pathname: PropTypes.string,
-        search: PropTypes.string
-    }).isRequired,
-    options: PropTypes.object
-};
-
 export const init = (options = {}) => {
-    const isGAEnabled = process.env.NODE_ENV === 'production';
+    // const isGAEnabled = process.env.NODE_ENV === 'production';
+    const isGAEnabled = true;
 
     if (isGAEnabled) {
         console.log('Enabling google analytics');
