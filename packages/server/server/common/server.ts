@@ -18,6 +18,7 @@ export default class ExpressServer {
 
     constructor() {
         const root = path.normalize(__dirname + '/../..');
+        const clientRoot = path.normalize(__dirname + '/../../../client');
         app.set('appPath', root + 'client');
 
         app.use(pino({
@@ -34,6 +35,7 @@ export default class ExpressServer {
         app.use(bodyParser.text({ limit: process.env.REQUEST_LIMIT || '100kb' }));
         app.use(cookieParser(process.env.SESSION_SECRET));
         app.use(express.static(`${root}/public`));
+        app.use(express.static(`${clientRoot}/build`));
 
         const apiSpec = path.join(__dirname, 'api.yml');
         const validateResponses = !!(
@@ -50,6 +52,10 @@ export default class ExpressServer {
         //         ignorePaths: /.*\/spec(\/|$)/,
         //     })
         // );
+
+        app.get('/', function (req, res) {
+            res.sendFile(path.join(clientRoot, 'build', 'index.html'));
+        });
     }
 
     router(routes: (app: Application) => void): ExpressServer {

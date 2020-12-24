@@ -5,7 +5,8 @@
         "packages/*"
     ],
     "scripts": {
-        "dev": "concurrently \"cd packages/client && yarn start\" \"cd packages/server && yarn dev\""
+        "dev": "concurrently \"cd packages/client && yarn start\" \"cd packages/server && yarn dev\"",
+        "prod": "cd packages/server && yarn start"
     },
     "devDependencies": {
         "@types/chai": "^4.2.14",
