@@ -1,3 +1,3 @@
 export default {
-    wsApi: 'ws://il.peggy.cool/realtime'
+    wsApi: 'wss://il.peggy.cool/realtime'
 }
