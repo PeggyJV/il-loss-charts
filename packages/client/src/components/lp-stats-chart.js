@@ -6,8 +6,12 @@ import {
     VictoryAxis,
     VictoryLabel,
     VictoryVoronoiContainer,
+    VictoryTheme,
+    VictoryTooltip,
     LineSegment
 } from 'victory';
+
+import LPStatsWidget from 'components/lp-stats-widget';
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -18,6 +22,13 @@ const formatter = new Intl.NumberFormat('en-US', {
     //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
 });
 
+function formatTooltipText({ runningFee, runningReturn, runningImpermanentLoss }) {
+    return [
+        `Total Fees: ${formatter.format(runningFee)}`,
+        `Impermanent Loss: ${formatter.format(runningImpermanentLoss)}`,
+        `Total Return: ${formatter.format(runningReturn)}`
+    ].join('\n');
+}
 
 function LPStatsChart({ lpStats }) {
     const chartData = [];
@@ -45,6 +56,8 @@ function LPStatsChart({ lpStats }) {
                 </defs>
             </svg>
             <VictoryChart
+                theme={VictoryTheme.material}
+                animate={{ duration: 1000 }}
                 domainPadding={10}
                 containerComponent={<VictoryVoronoiContainer
                     mouseFollowTooltips
@@ -57,6 +70,9 @@ function LPStatsChart({ lpStats }) {
                     crossAxis
                     fixLabelOverlap={true}
                     offsetY={50}
+                    style={{
+                        grid: { strokeWidth: 0 }
+                    }}
                 />
                 <VictoryAxis
                     dependentAxis
@@ -64,11 +80,19 @@ function LPStatsChart({ lpStats }) {
                     tickFormat={(t) => formatter.format(t)}
                     style={{
                         ticks: { size: 0 },
-                        tickLabels: { fontSize: 11 }
+                        tickLabels: { fontSize: 11 },
                     }}
                     gridComponent={<LineSegment type={"grid"} />}
                 />
                 <VictoryArea
+                    labelComponent={<VictoryTooltip
+                        cornerRadius={0}
+                        pointerLength={0}
+                        style={{ textAnchor: 'start' }}
+                    />}
+                    labels={
+                        ({ datum }) => formatTooltipText(datum)
+                    }
                     interpolation="natural"
                     data={chartData}
                     style={{ data: { fill: 'url(#areaColor)' } }}
