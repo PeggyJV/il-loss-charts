@@ -1,5 +1,5 @@
 import { Card } from 'react-bootstrap';
-import { ComposedChart, Area, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import { ComposedChart, CartesianGrid, Area, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import LPStatsWidget from 'components/lp-stats-widget';
 
 const formatter = new Intl.NumberFormat('en-US', {
@@ -42,8 +42,9 @@ function LPStatsChart({ lpStats }) {
                             <stop offset="95%" stopColor="#0089ff" stopOpacity={0} />
                         </linearGradient>
                     </defs>
-                    <XAxis dataKey='day' interval={30} tickLine={false} tickMargin={10} />
-                    <YAxis tick={<YAxisTick />} width={100} tickMargin={-100} />
+                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                    <XAxis dataKey='day' interval={30} tickLine={false} tickMargin={10} padding={{ left: 60, right: 20 }} />
+                    <YAxis tick={<YAxisTick />} tickLine={false} padding={{ top: 20, bottom: 20 }} />
                     <Area type='monotone' dataKey='returns' strokeWidth={0} fill='url(#areaColor)' />
                     <Line type='monotone' dataKey='runningReturn' stroke='#0089ff' strokeWidth={2} dot={false} />
                     <Tooltip content={<CustomTooltip />} />
@@ -66,8 +67,8 @@ function CustomTooltip({ active, payload, label }) {
 function YAxisTick({ x, y, stroke = 'none', payload }) {
     return (
         <g className="recharts-layer recharts-cartesian-axis-tick">
-            <text width="100" height="513" x={x} y={y} stroke={stroke} fill="#666" className="recharts-text recharts-cartesian-axis-tick-value" textAnchor="end" fontSize="0.8rem">
-                <tspan x="194" dy="0.355em">
+            <text width="100" height="513" x={x} y={y} stroke={stroke} fill="#666" className="recharts-text recharts-cartesian-axis-tick-value" textAnchor="start" fontSize="0.8rem">
+                <tspan dx="15" dy="0.355em">
                     {formatter.format(payload.value)}
                 </tspan>
             </text>

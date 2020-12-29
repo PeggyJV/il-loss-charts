@@ -11,8 +11,6 @@ import {
     LineSegment
 } from 'victory';
 
-import LPStatsWidget from 'components/lp-stats-widget';
-
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD'
@@ -22,8 +20,9 @@ const formatter = new Intl.NumberFormat('en-US', {
     //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
 });
 
-function formatTooltipText({ runningFee, runningReturn, runningImpermanentLoss }) {
+function formatTooltipText({ runningFee, runningReturn, runningImpermanentLoss, day }) {
     return [
+        `${day}`,
         `Total Fees: ${formatter.format(runningFee)}`,
         `Impermanent Loss: ${formatter.format(runningImpermanentLoss)}`,
         `Total Return: ${formatter.format(runningReturn)}`
@@ -63,8 +62,8 @@ function LPStatsChart({ lpStats }) {
                     mouseFollowTooltips
                     voronoiDimension='x'
                 />}
-                width={1200}
-                height={400}
+                width={1450}
+                height={563}
             >
                 <VictoryAxis
                     crossAxis

@@ -6,7 +6,7 @@ import USDValueWidget from 'components/usd-value-widget';
 import PairSelector from 'components/pair-selector';
 import LPInput from 'components/lp-input';
 import LPStatsWidget from 'components/lp-stats-widget';
-import LPStatsChart from 'components/lp-stats-chart';
+import LPStatsChart from 'components/lp-stats-rechart';
 import LatestTradesSidebar from 'components/latest-trades-sidebar';
 // import RealtimeStatusBar from 'components/realtime-status-bar';
 
