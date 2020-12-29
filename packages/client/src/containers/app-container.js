@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Container, Row, Col, Card, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Spinner } from 'react-bootstrap';
 import useWebSocket from 'react-use-websocket';
 
 import USDValueWidget from 'components/usd-value-widget';
@@ -29,7 +29,7 @@ function ChartsContainer() {
     const [latestSwaps, setLatestSwaps] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const [socketUrl, setSocketUrl] = useState(config.wsApi);
+    const [socketUrl] = useState(config.wsApi);
 
     const prevPairIdRef = useRef();
     useEffect(() => {
@@ -44,13 +44,13 @@ function ChartsContainer() {
 
     useEffect(() => {
         sendJsonMessage({ op: 'subscribe', topics: ['infura:newBlockHeaders'] })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
-        console.log('Unsubscribing from prevPairId', prevPairId);
         sendJsonMessage({ op: 'unsubscribe', topics: [`uniswap:getPairOverview:${prevPairId}`] });
-        console.log('Subscribing to pairId', pairId);
         sendJsonMessage({ op: 'subscribe', topics: [`uniswap:getPairOverview:${pairId}`], interval: 'newBlocks' });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pairId]);
 
     useEffect(() => {

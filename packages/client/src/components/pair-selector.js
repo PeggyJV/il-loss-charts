@@ -12,16 +12,14 @@ function PairSelector({ pairs, currentPairId, setPair }) {
         <Card className='no-border'>
             <Card.Body>
                 <Card.Title className='stats-card-title'>Market</Card.Title>
-                <Card.Text>
-                    <Combobox
-                        className='pair-selector'
-                        data={pairs.map(pairToDisplayText)}
-                        defaultValue={defaultValue}
-                        filter='contains'
-                        caseSensitive={false}
-                        onChange={selectedLabel => pairEntries[selectedLabel] && setPair(pairEntries[selectedLabel])}
-                    />
-                </Card.Text>
+                <Combobox
+                    className='pair-selector'
+                    data={pairs.map(pairToDisplayText)}
+                    defaultValue={defaultValue}
+                    filter='contains'
+                    caseSensitive={false}
+                    onChange={selectedLabel => pairEntries[selectedLabel] && setPair(pairEntries[selectedLabel])}
+                />
             </Card.Body>
         </Card>
     );
