@@ -84,7 +84,6 @@ function ChartsContainer() {
             // Fetch pair overview when pair ID changes
             // Default to createdAt date if LP date not set
             const latestSwaps = await Uniswap.getLatestSwaps(pairId);
-            window.latestSwaps = latestSwaps;
             setLatestSwaps(latestSwaps);
         }
         getLatestSwaps();

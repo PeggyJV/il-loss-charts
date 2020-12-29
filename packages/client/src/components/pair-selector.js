@@ -8,8 +8,6 @@ function PairSelector({ pairs, currentPairId, setPair }) {
         return { ...acc, [pairToDisplayText(pair)]: pair.id }
     });
 
-    window.pairEntries = pairEntries;
-
     return (
         <Card className='no-border'>
             <Card.Body>

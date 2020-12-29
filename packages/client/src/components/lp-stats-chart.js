@@ -27,8 +27,6 @@ function LPStatsChart({ lpStats }) {
         });
     }
 
-    window.chartData = chartData;
-
     return (
         <Card body className='no-border'>
             <ResponsiveContainer width="100%" height={563}>
