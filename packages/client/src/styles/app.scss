@@ -1,6 +1,9 @@
 // Import Bootstrap and its default variables
 @import '~bootstrap/scss/bootstrap.scss';
 
+body {
+    font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
+}
 
 .app {
     padding: 2em;
