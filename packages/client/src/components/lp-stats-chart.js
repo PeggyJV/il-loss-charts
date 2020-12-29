@@ -1,5 +1,13 @@
 import { Card } from 'react-bootstrap';
-import { VictoryChart, VictoryArea, VictoryLine, VictoryAxis, VictoryLabel, VictoryVoronoiContainer } from 'victory';
+import {
+    VictoryChart,
+    VictoryArea,
+    VictoryLine,
+    VictoryAxis,
+    VictoryLabel,
+    VictoryVoronoiContainer,
+    LineSegment
+} from 'victory';
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -46,7 +54,9 @@ function LPStatsChart({ lpStats }) {
                 height={400}
             >
                 <VictoryAxis
+                    crossAxis
                     fixLabelOverlap={true}
+                    offsetY={50}
                 />
                 <VictoryAxis
                     dependentAxis
@@ -56,6 +66,7 @@ function LPStatsChart({ lpStats }) {
                         ticks: { size: 0 },
                         tickLabels: { fontSize: 11 }
                     }}
+                    gridComponent={<LineSegment type={"grid"} />}
                 />
                 <VictoryArea
                     interpolation="natural"
