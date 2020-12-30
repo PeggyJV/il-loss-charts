@@ -17,8 +17,6 @@ import calculateLPStats from 'services/calculate-lp-stats';
 import config from 'config';
 
 function ChartsContainer() {
-    console.log('RE-RENDER!');
-
     // ------------------ Loading State - handles interstitial UI ------------------
 
     const [isLoading, setIsLoading] = useState(false);
@@ -49,37 +47,30 @@ function ChartsContainer() {
 
     const initialLPInfo = {
         pairData: initialData.pairData,
-        lpDate: new Date(initialData.lpDate),
-        lpShare: initialData.lpShare,
         historicalData: initialData.historicalData,
-        dailyDataAtLPDate: initialData.dailyDataAtLPDate
-    }
+    };
 
     const [lpInfo, setLPInfo] = useState(initialLPInfo);
-    const setInfoVal = (key) => (val) => setLPInfo({ ...lpInfo, [key]: val });
+    const [lpDate, setLPDate] = useState(new Date(initialData.lpDate));
+    const [lpShare, setLPShare] = useState(initialData.lpShare);
 
     useEffect(() => {
         const fetchPairData = async () => {
             setIsLoading(true);
 
-            let { lpDate } = lpInfo;
-
             // Fetch pair overview when pair ID changes
             // Default to createdAt date if LP date not set
             const newPair = await Uniswap.getPairOverview(pairId);
-            const pairCreatedAt = new Date(newPair.createdAtTimestamp * 1000)
-            if (!lpDate || lpDate < pairCreatedAt) lpDate = pairCreatedAt;
+            const pairCreatedAt = new Date(newPair.createdAtTimestamp * 1000);
 
-            // Get historical data for pair from lp date until now
-            const historicalDailyData = await Uniswap.getHistoricalDailyData(pairId, lpDate);
+            // Get historical data for pair from start date until now
+            const historicalDailyData = await Uniswap.getHistoricalDailyData(pairId, pairCreatedAt);
 
-            setLPInfo({
-                ...lpInfo,
-                lpDate,
+            setLPInfo(prevLpInfo => ({
+                ...prevLpInfo,
                 pairData: newPair,
                 historicalData: historicalDailyData,
-                dailyDataAtLPDate: historicalDailyData[0]
-            });
+            }));
 
             setIsLoading(false);
         }
@@ -87,10 +78,22 @@ function ChartsContainer() {
         fetchPairData();
     }, [pairId]);
 
-    const lpStats = useMemo(() => {
-        const { pairData, historicalData, lpShare } = lpInfo;
-        return calculateLPStats(pairData, historicalData, lpShare);
-    }, [lpInfo]);
+    const dailyDataAtLPDate = useMemo(() => {
+        // Find daily data that matches LP date
+        for (let dailyData of lpInfo.historicalData) {
+            const currentDate = new Date(dailyData.date * 1000);
+            if (currentDate.getTime() === lpDate.getTime()) {
+                return dailyData;
+            }
+        }
+
+        console.warn(`Could not find LP date in historical data: ${lpDate}. Setting to first day.`);
+        if (lpInfo.historicalData.length === 0) return;
+        const firstDay = new Date(lpInfo.historicalData[0].date * 1000);
+        setLPDate(firstDay);
+        return lpInfo.historicalData[0];
+    }, [lpInfo, lpDate]);
+    const lpStats = useMemo(() => calculateLPStats({ ...lpInfo, lpDate, lpShare }), [lpInfo, lpDate, lpShare]);
 
     // ------------------ Websocket State - handles subscriptions ------------------
 
@@ -142,7 +145,7 @@ function ChartsContainer() {
 
     // ------------------ Render code ------------------
 
-    if (allPairs.isLoading) {
+    if (allPairs.isLoading || !dailyDataAtLPDate) {
         return (
             <Container className="loading-container">
                 <div className='wine-bounce'>🍷</div>
@@ -182,8 +185,11 @@ function ChartsContainer() {
                 <Col lg={2}>
                     <LPInput
                         {...lpInfo}
-                        setLPDate={setInfoVal('lpDate')}
-                        setLPShare={setInfoVal('lpShare')}
+                        lpDate={lpDate}
+                        lpShare={lpShare}
+                        setLPDate={setLPDate}
+                        setLPShare={setLPShare}
+                        dailyDataAtLPDate={dailyDataAtLPDate}
                     />
                     <LPStatsWidget lpStats={lpStats} pairData={lpInfo.pairData} />
                 </Col>

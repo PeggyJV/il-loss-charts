@@ -3,17 +3,14 @@ import { format } from 'date-fns';
 
 import Uniswap from './uniswap';
 
-export default function calculateLPStats(pairData, historicalData, lpLiquidityUSD) {
+export default function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidityUSD, lpDate }) {
     if (historicalData.length === 0) return {};
 
-    const firstDaily = historicalData[0];
-
-    const runningVolume = [new BigNumber(0)];
-    const runningFees = [new BigNumber(0)];
-    const runningImpermanentLoss = [new BigNumber(0)];
-    const runningReturn = [new BigNumber(0)];
-    const days = [format(new Date(firstDaily.date * 1000), 'MMM d')];
-
+    const runningVolume = [];
+    const runningFees = [];
+    const runningImpermanentLoss = [];
+    const runningReturn = [];
+    const days = [];
 
     const calculateImpermanentLoss = (startDailyData, endDailyData) => {
         const initialExchangeRate = new BigNumber(startDailyData.reserve0).div(new BigNumber(startDailyData.reserve1));
@@ -25,8 +22,14 @@ export default function calculateLPStats(pairData, historicalData, lpLiquidityUS
         return impermanentLoss;
     }
 
+    let firstDaily = null;
     historicalData.forEach((dailyData, index) => {
         if (index === 0) return;
+
+        // Ignore if below lp date
+        const currentDate = new Date(dailyData.date * 1000);
+        if (currentDate.getTime() < lpDate.getTime()) return;
+        if (!firstDaily) firstDaily = dailyData;
 
         const poolShare = new BigNumber(lpLiquidityUSD).div(dailyData.reserveUSD);
 
@@ -36,25 +39,25 @@ export default function calculateLPStats(pairData, historicalData, lpLiquidityUS
         const dailyReturn = dailyFees.plus(dailyImpermanentLoss);
 
         runningVolume.push(
-            runningVolume[runningVolume.length - 1].plus(vol)
+            (runningVolume[runningVolume.length - 1] ?? new BigNumber(0)).plus(vol)
         );
         runningFees.push(
-            runningFees[runningFees.length - 1].plus(
+            (runningFees[runningFees.length - 1] ?? new BigNumber(0)).plus(
                 dailyFees
             )
         );
         runningImpermanentLoss.push(
-            runningImpermanentLoss[runningImpermanentLoss.length - 1].plus(
+            (runningImpermanentLoss[runningImpermanentLoss.length - 1] ?? new BigNumber(0)).plus(
                 dailyImpermanentLoss
             )
         );
         runningReturn.push(
-            runningReturn[runningReturn.length - 1].plus(
+            (runningReturn[runningReturn.length - 1] ?? new BigNumber(0)).plus(
                 dailyReturn
             )
         );
 
-        days.push(format(new Date(dailyData.date * 1000), 'MMM d'))
+        days.push(format(currentDate, 'MMM d'));
     })
 
     const totalFees = runningFees[runningFees.length - 1];
