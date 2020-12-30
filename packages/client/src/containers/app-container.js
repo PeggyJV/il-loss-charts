@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Container, Row, Col, Spinner } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import useWebSocket from 'react-use-websocket';
 
 import USDValueWidget from 'components/usd-value-widget';
@@ -17,6 +17,8 @@ import calculateLPStats from 'services/calculate-lp-stats';
 import config from 'config';
 
 function ChartsContainer() {
+    console.log('RE-RENDER!');
+
     const [allPairs, setAllPairs] = useState(initialData.allPairs);
     const [pairId, setPairId] = useState(initialData.pairId);
     const [pairData, setPairData] = useState(initialData.pairData);
@@ -28,6 +30,7 @@ function ChartsContainer() {
     const [latestBlock, setLatestBlock] = useState(null);
     const [latestSwaps, setLatestSwaps] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     const [socketUrl] = useState(config.wsApi);
 
@@ -42,17 +45,29 @@ function ChartsContainer() {
         lastJsonMessage,
     } = useWebSocket(socketUrl);
 
+    // Called only on first render - fetch all pairs
     useEffect(() => {
-        sendJsonMessage({ op: 'subscribe', topics: ['infura:newBlockHeaders'] })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        const fetchAllPairs = async () => {
+            // Fetch all pairs
+            const allPairs = await Uniswap.getTopPairs();
+            setAllPairs(allPairs);
+        }
+        fetchAllPairs();
     }, []);
 
+    // Subscribe to new blocks
+    useEffect(() => {
+        sendJsonMessage({ op: 'subscribe', topics: ['infura:newBlockHeaders'] })
+    }, []);
+
+    // Subscribe to updates on pair overview
     useEffect(() => {
         sendJsonMessage({ op: 'unsubscribe', topics: [`uniswap:getPairOverview:${prevPairId}`] });
         sendJsonMessage({ op: 'subscribe', topics: [`uniswap:getPairOverview:${pairId}`], interval: 'newBlocks' });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pairId]);
 
+    // Handle websocket
     useEffect(() => {
         if (!lastJsonMessage) return;
 
@@ -90,15 +105,6 @@ function ChartsContainer() {
     }, [pairId, latestBlock]);
 
     useEffect(() => {
-        const fetchAllPairs = async () => {
-            // Fetch all pairs
-            const allPairs = await Uniswap.getTopPairs();
-            setAllPairs(allPairs);
-        }
-        fetchAllPairs();
-    }, []);
-
-    useEffect(() => {
         const getDailyPairData = async () => {
             if (!lpDate) return;
             // Get historical data for pair from lp date until now
@@ -118,8 +124,14 @@ function ChartsContainer() {
     }, [pairData, lpShare, lpDate, historicalData]);
 
     useEffect(() => {
+        if (isInitialLoad) {
+            setTimeout(() => setIsInitialLoad(false), 2000);
+        }
+    }, [isInitialLoad]);
+
+    useEffect(() => {
         if (isLoading) {
-            setTimeout(() => setIsLoading(false), 2000);
+            setTimeout(() => setIsLoading(false), 10000);
         }
     }, [isLoading]);
 
@@ -127,24 +139,22 @@ function ChartsContainer() {
     if (allPairs.length === 0) return null;
     if (!pairData) return null;
 
-    if (isLoading) {
+    if (isInitialLoad) {
         return (
-            <Container className="my-auto loading-container">
+            <Container className="loading-container">
                 <div className='wine-bounce'>🍷</div>
             </Container>
         );
     }
 
     return (
-        <>
-            {isLoading &&
-                <Container className="my-auto loading-container">
-                    <Spinner animation="border" />
-                </Container>
-            }
+        <Container fluid>
+            <Row>
+                <Col><h2 className="page-title">Uniswap Impermanent Loss Calculator</h2></Col>
+            </Row>
             <Row noGutters>
                 <Col lg={3}>
-                    <PairSelector pairs={allPairs} currentPairId={pairId} setPair={setPairId} />
+                    <PairSelector pairs={allPairs} currentPairId={pairId} setPair={setPairId} isLoading={isLoading} />
                 </Col>
                 <Col lg={3}>
                     <USDValueWidget title="USD Volume" value={pairData.volumeUSD} />
@@ -178,7 +188,7 @@ function ChartsContainer() {
                     <LPStatsWidget lpStats={lpStats} pairData={pairData} />
                 </Col>
             </Row>
-        </>
+        </Container>
     );
 }
 

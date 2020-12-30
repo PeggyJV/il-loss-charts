@@ -1,7 +1,7 @@
 import { Card } from 'react-bootstrap';
 import { Combobox } from 'react-widgets';
 
-function PairSelector({ pairs, currentPairId, setPair }) {
+function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
     let defaultValue = null;
     const pairEntries = pairs.reduce((acc, pair) => {
         if (pair.id === currentPairId) defaultValue = pairToDisplayText(pair);
@@ -13,6 +13,8 @@ function PairSelector({ pairs, currentPairId, setPair }) {
             <Card.Body>
                 <Card.Title className='stats-card-title'>Market</Card.Title>
                 <Combobox
+                    busy={isLoading}
+                    busySpinner={<span className='wine-tip'>🍷</span>}
                     className='pair-selector'
                     data={pairs.map(pairToDisplayText)}
                     defaultValue={defaultValue}

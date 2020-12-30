@@ -6,13 +6,32 @@ body {
 }
 
 .wine-bounce {
+    font-size: 5rem;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    transform-origin: bottom;
     animation-name: bounce-rotate;
     animation-timing-function: ease;
 }
+
 @keyframes bounce-rotate {
     0%   { transform: translateY(0) rotate(0); }
     50%  { transform: translateY(-100px) rotate(15deg); }
     100% { transform: translateY(0); }
+}
+
+.wine-tip {
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    transform-origin: bottom;
+    animation-name: wine-rotate;
+    animation-timing-function: ease;
+}
+
+@keyframes wine-rotate {
+    0%   { transform: rotate(0); }
+    50%  { transform: translateX(100px) rotate(30deg); }
+    100% { transform: rotate(0); }
 }
 
 .app {
@@ -67,15 +86,12 @@ body {
     text-align: right;
 }
 
-.my-auto {
-    margin-top: auto;
-    margin-bottom: auto;
-}
-
 .loading-container {
-    opacity: 0.7;
+    margin-top: 10em;
+    margin-left: auto;
+    margin-right: auto;
+    // opacity: 0.7;
     background-color: #ffffff;
-    position: fixed;
     text-align: center;
 }
 
