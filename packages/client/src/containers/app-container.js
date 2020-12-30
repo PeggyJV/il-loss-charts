@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import useWebSocket from 'react-use-websocket';
 
@@ -19,84 +19,120 @@ import config from 'config';
 function ChartsContainer() {
     console.log('RE-RENDER!');
 
-    const [allPairs, setAllPairs] = useState(initialData.allPairs);
-    const [pairId, setPairId] = useState(initialData.pairId);
-    const [pairData, setPairData] = useState(initialData.pairData);
-    const [lpDate, setLPDate] = useState(new Date(initialData.lpDate));
-    const [lpShare, setLPShare] = useState(initialData.lpShare);
-    const [historicalData, setHistoricalData] = useState(initialData.historicalData)
-    const [lpStats, setLPStats] = useState(initialData.lpStats);
-    const [dailyDataAtLPDate, setDailyDataAtLPDate] = useState(initialData.dailyDataAtLPDate);
-    const [latestBlock, setLatestBlock] = useState(null);
-    const [latestSwaps, setLatestSwaps] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isInitialLoad, setIsInitialLoad] = useState(true);
+    // ------------------ Loading State - handles interstitial UI ------------------
 
-    const [socketUrl] = useState(config.wsApi);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const prevPairIdRef = useRef();
-    useEffect(() => {
-        prevPairIdRef.current = pairId;
-    });
-    const prevPairId = prevPairIdRef.current;
+    // ------------------ Initial Mount - API calls for first render ------------------
 
-    const {
-        sendJsonMessage,
-        lastJsonMessage,
-    } = useWebSocket(socketUrl);
+    const [allPairs, setAllPairs] = useState({ isLoading: true, pairs: initialData.allPairs });
 
-    // Called only on first render - fetch all pairs
     useEffect(() => {
         const fetchAllPairs = async () => {
             // Fetch all pairs
-            const allPairs = await Uniswap.getTopPairs();
-            setAllPairs(allPairs);
+            const pairs = await Uniswap.getTopPairs();
+            setAllPairs({ isLoading: false, pairs });
         }
         fetchAllPairs();
     }, []);
 
-    // Subscribe to new blocks
-    useEffect(() => {
-        sendJsonMessage({ op: 'subscribe', topics: ['infura:newBlockHeaders'] })
-    }, []);
+    // ------------------ Shared State ------------------
 
-    // Subscribe to updates on pair overview
+    const [pairId, setPairId] = useState(initialData.pairId);
+
+    // Keep track of previous pair ID so we can unsubscribe
+    const prevPairIdRef = useRef();
+    useEffect(() => { prevPairIdRef.current = pairId; });
+    const prevPairId = prevPairIdRef.current;
+
+    // ------------------ LP State - handles lp-specific info ------------------
+
+    const initialLPInfo = {
+        pairData: initialData.pairData,
+        lpDate: new Date(initialData.lpDate),
+        lpShare: initialData.lpShare,
+        historicalData: initialData.historicalData,
+        dailyDataAtLPDate: initialData.dailyDataAtLPDate
+    }
+
+    const [lpInfo, setLPInfo] = useState(initialLPInfo);
+    const setInfoVal = (key) => (val) => setLPInfo({ ...lpInfo, [key]: val });
+
     useEffect(() => {
-        sendJsonMessage({ op: 'unsubscribe', topics: [`uniswap:getPairOverview:${prevPairId}`] });
-        sendJsonMessage({ op: 'subscribe', topics: [`uniswap:getPairOverview:${pairId}`], interval: 'newBlocks' });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        const fetchPairData = async () => {
+            setIsLoading(true);
+
+            let { lpDate } = lpInfo;
+
+            // Fetch pair overview when pair ID changes
+            // Default to createdAt date if LP date not set
+            const newPair = await Uniswap.getPairOverview(pairId);
+            const pairCreatedAt = new Date(newPair.createdAtTimestamp * 1000)
+            if (!lpDate || lpDate < pairCreatedAt) lpDate = pairCreatedAt;
+
+            // Get historical data for pair from lp date until now
+            const historicalDailyData = await Uniswap.getHistoricalDailyData(pairId, lpDate);
+
+            setLPInfo({
+                ...lpInfo,
+                lpDate,
+                pairData: newPair,
+                historicalData: historicalDailyData,
+                dailyDataAtLPDate: historicalDailyData[0]
+            });
+
+            setIsLoading(false);
+        }
+
+        fetchPairData();
     }, [pairId]);
 
-    // Handle websocket
+    const lpStats = useMemo(() => {
+        const { pairData, historicalData, lpShare } = lpInfo;
+        return calculateLPStats(pairData, historicalData, lpShare);
+    }, [lpInfo]);
+
+    // ------------------ Websocket State - handles subscriptions ------------------
+
+    const [latestBlock, setLatestBlock] = useState(null);
+    const {
+        sendJsonMessage,
+        lastJsonMessage,
+    } = useWebSocket(config.wsApi);
+
+    // Handle websocket message
     useEffect(() => {
         if (!lastJsonMessage) return;
 
         const { topic } = lastJsonMessage;
 
         if (topic.startsWith('uniswap:getPairOverview')) {
-            setPairData(lastJsonMessage.data);
+            setLPInfo({ ...lpInfo, pairData: lastJsonMessage.data });
         } else if (topic === 'infura:newBlockHeaders') {
             const { data: { number: blockNumber } } = lastJsonMessage;
             setLatestBlock(blockNumber);
         }
     }, [lastJsonMessage]);
 
+    // Subscribe to new blocks on first render
     useEffect(() => {
-        const fetchPairData = async () => {
-            // Fetch pair overview when pair ID changes
-            // Default to createdAt date if LP date not set
-            const newPair = await Uniswap.getPairOverview(pairId);
-            setPairData(newPair);
-            const pairCreatedAt = new Date(newPair.createdAtTimestamp * 1000)
-            if (!lpDate || lpDate < pairCreatedAt) setLPDate(pairCreatedAt);
-        }
-        fetchPairData();
-    }, [pairId, lpDate]);
+        sendJsonMessage({ op: 'subscribe', topics: ['infura:newBlockHeaders'] })
+    }, []);
 
+    // Subscribe to updates on pair overview when pair changes
+    useEffect(() => {
+        sendJsonMessage({ op: 'unsubscribe', topics: [`uniswap:getPairOverview:${prevPairId}`] });
+        sendJsonMessage({ op: 'subscribe', topics: [`uniswap:getPairOverview:${pairId}`], interval: 'newBlocks' });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pairId]);
+
+    // ------------------ Market Data State - fetches non-LP specific market data ------------------
+
+    const [latestSwaps, setLatestSwaps] = useState(null);
 
     useEffect(() => {
         const getLatestSwaps = async () => {
-            // Fetch pair overview when pair ID changes
+            // Fetch latest block when pair ID changes
             // Default to createdAt date if LP date not set
             const latestSwaps = await Uniswap.getLatestSwaps(pairId);
             setLatestSwaps(latestSwaps);
@@ -104,42 +140,9 @@ function ChartsContainer() {
         getLatestSwaps();
     }, [pairId, latestBlock]);
 
-    useEffect(() => {
-        const getDailyPairData = async () => {
-            if (!lpDate) return;
-            // Get historical data for pair from lp date until now
-            const historicalDailyData = await Uniswap.getHistoricalDailyData(pairId, lpDate);
-            setHistoricalData(historicalDailyData);
-            setDailyDataAtLPDate(historicalDailyData[0]);
-        }
-        getDailyPairData();
-        setIsLoading(true);
-    }, [lpDate, pairId])
+    // ------------------ Render code ------------------
 
-    useEffect(() => {
-        if (!pairData) return;
-
-        const newLpStats = calculateLPStats(pairData, historicalData, lpShare);
-        setLPStats(newLpStats);
-    }, [pairData, lpShare, lpDate, historicalData]);
-
-    useEffect(() => {
-        if (isInitialLoad) {
-            setTimeout(() => setIsInitialLoad(false), 2000);
-        }
-    }, [isInitialLoad]);
-
-    useEffect(() => {
-        if (isLoading) {
-            setTimeout(() => setIsLoading(false), 10000);
-        }
-    }, [isLoading]);
-
-    if (!lpDate) return null;
-    if (allPairs.length === 0) return null;
-    if (!pairData) return null;
-
-    if (isInitialLoad) {
+    if (allPairs.isLoading) {
         return (
             <Container className="loading-container">
                 <div className='wine-bounce'>🍷</div>
@@ -154,16 +157,16 @@ function ChartsContainer() {
             </Row>
             <Row noGutters>
                 <Col lg={3}>
-                    <PairSelector pairs={allPairs} currentPairId={pairId} setPair={setPairId} isLoading={isLoading} />
+                    <PairSelector pairs={allPairs.pairs} currentPairId={pairId} setPair={setPairId} isLoading={isLoading} />
                 </Col>
                 <Col lg={3}>
-                    <USDValueWidget title="USD Volume" value={pairData.volumeUSD} />
+                    <USDValueWidget title="USD Volume" value={lpInfo.pairData.volumeUSD} />
                 </Col>
                 <Col lg={3}>
-                    <USDValueWidget title="Total Liquidity" value={pairData.reserveUSD} />
+                    <USDValueWidget title="Total Liquidity" value={lpInfo.pairData.reserveUSD} />
                 </Col>
                 <Col lg={3}>
-                    <USDValueWidget title="Total Fees" value={pairData.feesUSD} />
+                    <USDValueWidget title="Total Fees" value={lpInfo.pairData.feesUSD} />
                 </Col>
             </Row>
             {/* <Row>
@@ -178,14 +181,11 @@ function ChartsContainer() {
                 </Col>
                 <Col lg={2}>
                     <LPInput
-                        pairData={pairData}
-                        lpDate={lpDate}
-                        setLPDate={setLPDate}
-                        lpShare={lpShare}
-                        setLPShare={setLPShare}
-                        dailyDataAtLPDate={dailyDataAtLPDate}
+                        {...lpInfo}
+                        setLPDate={setInfoVal('lpDate')}
+                        setLPShare={setInfoVal('lpShare')}
                     />
-                    <LPStatsWidget lpStats={lpStats} pairData={pairData} />
+                    <LPStatsWidget lpStats={lpStats} pairData={lpInfo.pairData} />
                 </Col>
             </Row>
         </Container>
