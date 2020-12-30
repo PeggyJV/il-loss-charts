@@ -5,6 +5,16 @@ body {
     font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+.wine-bounce {
+    animation-name: bounce-rotate;
+    animation-timing-function: ease;
+}
+@keyframes bounce-rotate {
+    0%   { transform: translateY(0) rotate(0); }
+    50%  { transform: translateY(-100px) rotate(15deg); }
+    100% { transform: translateY(0); }
+}
+
 .app {
     padding: 2em;
 }

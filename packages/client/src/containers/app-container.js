@@ -130,7 +130,7 @@ function ChartsContainer() {
     if (isLoading) {
         return (
             <Container className="my-auto loading-container">
-                <Spinner animation="border" />
+                <div className='wine-bounce'>🍷</div>
             </Container>
         );
     }
