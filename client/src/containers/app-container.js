@@ -111,15 +111,16 @@ function ChartsContainer() {
 
         if (topic.startsWith('uniswap:getPairOverview')) {
             setLPInfo({ ...lpInfo, pairData: lastJsonMessage.data });
-        } else if (topic === 'infura:newBlockHeaders') {
-            const { data: { number: blockNumber } } = lastJsonMessage;
+        } else if (topic === 'infura:newHeads') {
+            const { data: { number: blockNumberHex } } = lastJsonMessage;
+            const blockNumber = parseInt(blockNumberHex.slice(2), 16);
             setLatestBlock(blockNumber);
         }
     }, [lastJsonMessage]);
 
     // Subscribe to new blocks on first render
     useEffect(() => {
-        sendJsonMessage({ op: 'subscribe', topics: ['infura:newBlockHeaders'] })
+        sendJsonMessage({ op: 'subscribe', topics: ['infura:newHeads'] })
     }, []);
 
     // Subscribe to updates on pair overview when pair changes

@@ -1,4 +1,5 @@
 import { Card } from 'react-bootstrap';
+import UpdatingText from 'components/updating-text';
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -16,7 +17,9 @@ function USDValueWidget({ title, value }) {
         <Card className='stats-card no-border'>
             <Card.Body>
                 <Card.Title className='stats-card-title'>{title}</Card.Title>
-                <Card.Text className='stats-card-body'>{displayValue}</Card.Text>
+                <Card.Text className='stats-card-body'>
+                    <UpdatingText><span>{displayValue}</span></UpdatingText>
+                </Card.Text>
             </Card.Body>
         </Card>
     );

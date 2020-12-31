@@ -34,6 +34,33 @@ body {
     100% { transform: rotate(0); }
 }
 
+.fade-update-enter {
+  opacity: 0.01;
+}
+
+.fade-update-enter.fade-update-enter-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}
+
+.fade-update-leave {
+  opacity: 1;
+}
+
+.fade-update-leave.fade-update-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}
+
+.fade-update-appear {
+  opacity: 0.01;
+}
+
+.fade-update-appear.fade-update-appear-active {
+  opacity: 1;
+  transition: opacity .5s ease-in;
+}
+
 .app {
     padding: 2em;
 }

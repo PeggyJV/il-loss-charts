@@ -132,7 +132,7 @@ export default class WsMessageHandler {
                 return false;
             }
         } else if (source === 'infura') {
-            if (query !== 'newBlockHeaders' && query !== 'pendingTransactions') {
+            if (query !== 'newHeads' && query !== 'pendingTransactions') {
                 this.sendError(400, `Invalid query for infura source.`)
                 return false;
             }
@@ -177,7 +177,7 @@ export default class WsMessageHandler {
         // Assume args are comma-delimited
         const argsArr = args.split(',');
 
-        services.infura.subscribe('newBlockHeaders')
+        services.infura.subscribe('newHeads')
             .on('data', async () => {
                 // we got a new block, so fetch result and sendJSON
                 const latest = await queryFn(...argsArr);
