@@ -134,6 +134,12 @@ body {
     font-size: 1.2rem;
 }
 
-.pair-selector {
-    width: 12em;
+.pair-selector-col {
+    padding: 0;
+}
+
+.pair-selector-middle-col {
+    text-align: center;
+    margin-top: auto;
+    margin-bottom: auto;
 }
