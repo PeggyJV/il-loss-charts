@@ -1,33 +1,57 @@
+import { useState } from 'react';
 import { Card } from 'react-bootstrap';
 import { Combobox } from 'react-widgets';
 
 function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
-    let defaultValue = null;
-    const pairEntries = pairs.reduce((acc, pair) => {
-        if (pair.id === currentPairId) defaultValue = pairToDisplayText(pair);
-        return { ...acc, [pairToDisplayText(pair)]: pair.id }
-    });
+    let defaultValue;
+    for (let pair of pairs) {
+        if (pair.id === currentPairId) {
+            defaultValue = pair;
+            break;
+        }
+    };
+
+    const leftSideOptions = [];
+    const rightSideOptions = [];
+
+    for (let pair of pairs) {
+        if (pair.token1.symbol === defaultValue.token1.symbol) {
+            leftSideOptions.push(pair);
+        }
+
+        if (pair.token0.symbol === defaultValue.token0.symbol) {
+            rightSideOptions.push(pair);
+        }
+    }
 
     return (
         <Card className='no-border'>
             <Card.Body>
                 <Card.Title className='stats-card-title'>Market</Card.Title>
                 <Combobox
-                    busy={isLoading}
-                    busySpinner={<span className='wine-tip'>🍷</span>}
                     className='pair-selector'
-                    data={pairs.map(pairToDisplayText)}
+                    data={leftSideOptions}
+                    textField={pair => pair.token0.symbol}
                     defaultValue={defaultValue}
                     filter='contains'
                     caseSensitive={false}
-                    onChange={selectedLabel => pairEntries[selectedLabel] && setPair(pairEntries[selectedLabel])}
+                    onChange={pair => setPair(pair.id)}
+                />
+                <Combobox
+                    className='pair-selector'
+                    data={rightSideOptions}
+                    textField={pair => pair.token1.symbol}
+                    defaultValue={defaultValue}
+                    filter='contains'
+                    caseSensitive={false}
+                    onChange={pair => setPair(pair.id)}
                 />
             </Card.Body>
         </Card>
     );
 }
 
-function pairToDisplayText(pair) {
+function pairToLookup(pair) {
     return `${pair.token0.symbol}/${pair.token1.symbol}`;
 }
 
