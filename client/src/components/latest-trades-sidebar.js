@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 
 function LatestTradeSidebar({ latestBlock, latestSwaps }) {
     return (
-        <Card className='chart-card no-border'>
+        <Card className='chart-card'>
             <Card.Header>
                 <strong>Latest Block: #{latestBlock}</strong>
             </Card.Header>

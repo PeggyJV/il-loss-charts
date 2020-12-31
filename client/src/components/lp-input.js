@@ -60,7 +60,7 @@ function LPInput({ lpDate, setLPDate, pairData, lpShare, setLPShare, dailyDataAt
     }, [lpShare, dailyDataAtLPDate]);
 
     return (
-        <Card className='lp-input-card no-border'>
+        <Card className='lp-input-card'>
             <Card.Body className="lp-input-form">
                 <Form.Group>
                     <Form.Label>

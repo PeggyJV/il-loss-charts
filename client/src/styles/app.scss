@@ -84,6 +84,10 @@ body {
     border: 0;
 }
 
+.card.pair-selector-card.card-body {
+    padding-left: 0;
+}
+
 .chart-card {
     height: 563px;
     padding: 0;
@@ -103,6 +107,7 @@ body {
 }
 
 .trades-sidebar-content {
+    padding: 0;
     height: 554px;
     overflow: scroll;
 }
@@ -128,6 +133,7 @@ body {
 
 .stats-card-title {
     font-size: 0.9rem;
+    font-weight: 700;
 }
 
 .stats-card-body {
