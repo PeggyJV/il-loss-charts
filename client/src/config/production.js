@@ -1,5 +1,5 @@
 const config = {
-    wsApi: 'wss://il.peggy.cool/realtime'
+    wsApi: 'wss://134.122.12.165/realtime'
 }
 
 export default config;
