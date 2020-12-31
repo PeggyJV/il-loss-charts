@@ -44,6 +44,11 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
     }
 
     const handleChange = (pair) => {
+        // Ignore if typed in for now
+        if (typeof pair === 'string') {
+            return;
+        }
+
         if (pair.id) setPair(pair.id);
     }
 
@@ -61,6 +66,7 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                                 <Combobox
                                     className='pair-selector'
                                     data={leftSideOptions}
+                                    value={defaultValue}
                                     textField={pair => pair.token0.symbol}
                                     itemComponent={TokenWithLogo('left')}
                                     defaultValue={defaultValue}
@@ -81,6 +87,7 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                                 <Combobox
                                     className='pair-selector'
                                     data={rightSideOptions}
+                                    value={defaultValue}
                                     textField={pair => pair.token1.symbol}
                                     itemComponent={TokenWithLogo('right')}
                                     defaultValue={defaultValue}

@@ -5,7 +5,11 @@ function LatestTradeSidebar({ latestBlock, latestSwaps }) {
     return (
         <Card className='chart-card'>
             <Card.Header>
-                <strong>Latest Block: #{latestBlock}</strong>
+                {latestBlock ?
+                    <strong>Latest Block: #{latestBlock}</strong>
+                    :
+                    <strong>Awaiting New Blocks...</strong>
+                }
             </Card.Header>
             <Card.Body className='trades-sidebar-content'>
                 <ListGroup variant="flush">
