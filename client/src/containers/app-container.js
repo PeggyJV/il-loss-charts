@@ -192,29 +192,30 @@ function ChartsContainer() {
                 </Col>
             </Row>
             <Row noGutters>
-                <Col lg={4}>
-                    <PairSelector pairs={allPairs.pairs} currentPairId={pairId} setPair={setPairId} isLoading={isLoading} />
-                </Col>
-                <Col lg={2}>
-                    <USDValueWidget title="USD Volume" value={lpInfo.pairData.volumeUSD} />
-                </Col>
-                <Col lg={2}>
-                    <USDValueWidget title="Total Liquidity" value={lpInfo.pairData.reserveUSD} />
-                </Col>
-                <Col lg={2}>
-                    <USDValueWidget title="Total Fees" value={lpInfo.pairData.feesUSD} />
-                </Col>
-            </Row>
-            {/* <Row>
-                <RealtimeStatusBar latestBlock={latestBlock} />
-            </Row> */}
-            <Row noGutters>
-                <Col lg={2} className='trades-sidebar'>
-                    <LatestTradesSidebar latestBlock={latestBlock} latestSwaps={latestSwaps} />
-                </Col>
-                <Col lg={8}>
-                    {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
-                    <LPStatsChart lpStats={lpStats} />
+                <Col lg={10}>
+                    <Row>
+                        <Col lg={5}>
+                            <PairSelector pairs={allPairs.pairs} currentPairId={pairId} setPair={setPairId} isLoading={isLoading} />
+                        </Col>
+                        <Col lg={2}>
+                            <USDValueWidget title="USD Volume" value={lpInfo.pairData.volumeUSD} />
+                        </Col>
+                        <Col lg={2}>
+                            <USDValueWidget title="Total Liquidity" value={lpInfo.pairData.reserveUSD} />
+                        </Col>
+                        <Col lg={2}>
+                            <USDValueWidget title="Total Fees" value={lpInfo.pairData.feesUSD} />
+                        </Col>
+                    </Row>
+                    <Row noGutters>
+                        <Col lg={3} className='trades-sidebar'>
+                            <LatestTradesSidebar latestBlock={latestBlock} latestSwaps={latestSwaps} />
+                        </Col>
+                        <Col lg={9}>
+                            {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
+                            <LPStatsChart lpStats={lpStats} />
+                        </Col>
+                    </Row>
                 </Col>
                 <Col lg={2}>
                     <LPInput
@@ -228,6 +229,9 @@ function ChartsContainer() {
                     <LPStatsWidget lpStats={lpStats} pairData={lpInfo.pairData} />
                 </Col>
             </Row>
+            {/* <Row>
+                <RealtimeStatusBar latestBlock={latestBlock} />
+            </Row> */}
         </Container>
     );
 }
