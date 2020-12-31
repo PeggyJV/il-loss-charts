@@ -59,7 +59,7 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
     }
 
     return (
-        <Card className='no-border pair-selector-card'>
+        <Card className='pair-selector-card'>
             <Card.Body>
                 <Card.Title className='stats-card-title'>Market</Card.Title>
                 <Container fluid>

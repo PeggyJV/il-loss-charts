@@ -88,12 +88,16 @@ body {
     width: calc(100% - 42px);
 }
 .token-logo .input-group-text {
-    background: none;
+    background-color: #ffffff;
     border-right: none;
 }
 
-.card.pair-selector-card .card-body {
-    padding-left: 0;
+.card.pair-selector-card {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.top-stats-row {
+    margin-bottom: 1em;
 }
 
 .chart-card {
@@ -120,6 +124,9 @@ body {
     overflow: scroll;
 }
 
+.sidebar-item {
+    font-size: 0.8rem;
+}
 
 .table .lp-stats-table-cell {
     padding-left: 0;
@@ -145,7 +152,7 @@ body {
 }
 
 .stats-card-body {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
 .pair-selector-col {

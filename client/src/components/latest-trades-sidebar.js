@@ -26,8 +26,8 @@ function SwapInfo({ swap }) {
     const inAmount = new BigNumber(swap[`amount${inSide}In`]).toFixed(3);
 
     return (
-        <ListGroup.Item>
-            {outAmount} {outToken} for {inAmount} {inToken}
+        <ListGroup.Item className='sidebar-item'>
+            Swap {outAmount} {outToken} for {inAmount} {inToken}
         </ListGroup.Item>
     )
 }

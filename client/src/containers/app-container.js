@@ -193,7 +193,7 @@ function ChartsContainer() {
             </Row>
             <Row noGutters>
                 <Col lg={10}>
-                    <Row>
+                    <Row className='top-stats-row'>
                         <Col lg={5}>
                             <PairSelector pairs={allPairs.pairs} currentPairId={pairId} setPair={setPairId} isLoading={isLoading} />
                         </Col>
