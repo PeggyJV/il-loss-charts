@@ -1,5 +1,5 @@
 import { Card } from 'react-bootstrap';
-import UpdatingText from 'components/updating-text';
+import FadeOnChange from 'components/fade-on-change';
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -18,7 +18,7 @@ function USDValueWidget({ title, value }) {
             <Card.Body>
                 <Card.Title className='stats-card-title'>{title}</Card.Title>
                 <Card.Text className='stats-card-body'>
-                    <UpdatingText>{displayValue}</UpdatingText>
+                    <FadeOnChange>{displayValue}</FadeOnChange>
                 </Card.Text>
             </Card.Body>
         </Card>

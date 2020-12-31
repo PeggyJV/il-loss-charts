@@ -10,13 +10,13 @@ import LPStatsChart from 'components/lp-stats-rechart';
 import LatestTradesSidebar from 'components/latest-trades-sidebar';
 // import RealtimeStatusBar from 'components/realtime-status-bar';
 
+import FadeOnChange from 'components/fade-on-change';
+
 import initialData from 'constants/initialData.json';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import calculateLPStats from 'services/calculate-lp-stats';
 
 import config from 'config';
-
-import UpdatingText from 'components/updating-text';
 
 function ChartsContainer() {
     // ------------------ Loading State - handles interstitial UI ------------------
@@ -192,16 +192,16 @@ function ChartsContainer() {
                 </Col>
             </Row>
             <Row noGutters>
-                <Col lg={3}>
+                <Col lg={4}>
                     <PairSelector pairs={allPairs.pairs} currentPairId={pairId} setPair={setPairId} isLoading={isLoading} />
                 </Col>
-                <Col lg={3}>
+                <Col lg={2}>
                     <USDValueWidget title="USD Volume" value={lpInfo.pairData.volumeUSD} />
                 </Col>
-                <Col lg={3}>
+                <Col lg={2}>
                     <USDValueWidget title="Total Liquidity" value={lpInfo.pairData.reserveUSD} />
                 </Col>
-                <Col lg={3}>
+                <Col lg={2}>
                     <USDValueWidget title="Total Fees" value={lpInfo.pairData.feesUSD} />
                 </Col>
             </Row>
@@ -213,6 +213,7 @@ function ChartsContainer() {
                     <LatestTradesSidebar latestBlock={latestBlock} latestSwaps={latestSwaps} />
                 </Col>
                 <Col lg={8}>
+                    {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
                     <LPStatsChart lpStats={lpStats} />
                 </Col>
                 <Col lg={2}>

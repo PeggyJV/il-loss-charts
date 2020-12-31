@@ -84,7 +84,15 @@ body {
     border: 0;
 }
 
-.card.pair-selector-card.card-body {
+.pair-selector {
+    width: calc(100% - 42px);
+}
+.token-logo .input-group-text {
+    background: none;
+    border-right: none;
+}
+
+.card.pair-selector-card .card-body {
     padding-left: 0;
 }
 

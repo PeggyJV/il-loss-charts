@@ -1,6 +1,7 @@
 import { Card } from 'react-bootstrap';
 import { ComposedChart, CartesianGrid, Area, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import LPStatsWidget from 'components/lp-stats-widget';
+import FadeOnChange from 'components/fade-on-change';
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',

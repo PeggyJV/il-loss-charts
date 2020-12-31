@@ -1,6 +1,6 @@
 import { useTransition, animated } from 'react-spring';
 
-function UpdatingText({ children }) {
+function FadeOnChange({ children }) {
     const transitions = useTransition(children, null, {
         from: { position: 'absolute', opacity: 0 },
         enter: { opacity: 1 },
@@ -14,4 +14,4 @@ function UpdatingText({ children }) {
     )
 }
 
-export default UpdatingText;
+export default FadeOnChange;
