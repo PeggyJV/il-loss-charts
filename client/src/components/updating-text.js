@@ -6,7 +6,7 @@ function UpdatingText({ children }) {
         enter: { opacity: 1 },
         update: { position: 'absolute', opacity: 1 },
         leave: { opacity: 0 },
-        duration: 5000,
+        duration: 500,
     });
 
     return transitions.map(({ item, key, props }) =>
