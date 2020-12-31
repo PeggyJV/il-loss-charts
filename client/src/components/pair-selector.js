@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { Card, Container, Row, Col, InputGroup } from 'react-bootstrap';
 import { Combobox } from 'react-widgets';
-import { useTransition, animated } from 'react-spring';
+import { useSpring, animated } from 'react-spring';
 
 import logoMappings from 'constants/trustwallet-mappings';
 
@@ -17,18 +18,6 @@ const TokenWithLogo = (side) => ({ item: pair }) => {
         </span>
     )
 }
-
-const WineSpinner = () => {
-    const transitions = useTransition('🍷', null, {
-        from: { rotate: 0 },
-        enter: { rotate: 180 },
-        leave: { rotate: 0 },
-    });
-
-    return transitions.map(({ item, key, props }) =>
-        <animated.span key={key} style={props}>{item}</animated.span>
-    )
-};
 
 function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
     console.log('CURRENT PAIR ID', currentPairId);
@@ -82,7 +71,7 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                             </InputGroup>
                         </Col>
                         <Col xs={2} className='pair-selector-middle-col'>
-                            {isLoading ? <WineSpinner /> : '✖️'}
+                            {isLoading ? <div className='wine-spin'>🍷</div> : '✖️'}
                         </Col>
                         <Col xs={5} className='pair-selector-col'>
                             <InputGroup>
