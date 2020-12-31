@@ -16,6 +16,8 @@ import calculateLPStats from 'services/calculate-lp-stats';
 
 import config from 'config';
 
+import UpdatingText from 'components/updating-text';
+
 function ChartsContainer() {
     // ------------------ Loading State - handles interstitial UI ------------------
 
@@ -109,18 +111,26 @@ function ChartsContainer() {
 
         const { topic } = lastJsonMessage;
 
+        let blockNumber;
         if (topic.startsWith('uniswap:getPairOverview')) {
             setLPInfo({ ...lpInfo, pairData: lastJsonMessage.data });
         } else if (topic === 'infura:newHeads') {
             const { data: { number: blockNumberHex } } = lastJsonMessage;
-            const blockNumber = parseInt(blockNumberHex.slice(2), 16);
+            blockNumber = parseInt(blockNumberHex.slice(2), 16);
+            setLatestBlock(blockNumber);
+        } else if (topic === 'infura:newBlockHeaders') {
+            const { data: { number: blockNumberStr } } = lastJsonMessage;
+            blockNumber = parseInt(blockNumberStr, 10);
             setLatestBlock(blockNumber);
         }
+
     }, [lastJsonMessage]);
 
     // Subscribe to new blocks on first render
+    // Using both b/c infura API is inconsistent
     useEffect(() => {
         sendJsonMessage({ op: 'subscribe', topics: ['infura:newHeads'] })
+        sendJsonMessage({ op: 'subscribe', topics: ['infura:newBlockHeaders'] })
     }, []);
 
     // Subscribe to updates on pair overview when pair changes
@@ -141,7 +151,18 @@ function ChartsContainer() {
             const latestSwaps = await Uniswap.getLatestSwaps(pairId);
             setLatestSwaps(latestSwaps);
         }
+
+        const refreshPairData = async () => {
+            const newPairData = await Uniswap.getPairOverview(pairId);
+
+            setLPInfo(prevLpInfo => ({
+                ...prevLpInfo,
+                pairData: newPairData,
+            }));
+        }
+
         getLatestSwaps();
+        refreshPairData();
     }, [pairId, latestBlock]);
 
     // ------------------ Render code ------------------
@@ -163,9 +184,12 @@ function ChartsContainer() {
                     </h6>
                 </Col>
             </Row>
-
             <Row>
-                <Col><h2 className="page-title">Uniswap Impermanent Loss Calculator</h2></Col>
+                <Col>
+                    <h2 className="page-title">
+                        <UpdatingText>Uniswap Impermanent Loss Calculator</UpdatingText>
+                    </h2>
+                </Col>
             </Row>
             <Row noGutters>
                 <Col lg={3}>

@@ -132,7 +132,7 @@ export default class WsMessageHandler {
                 return false;
             }
         } else if (source === 'infura') {
-            if (query !== 'newHeads' && query !== 'pendingTransactions') {
+            if (query !== 'newHeads' && query !== 'newBlockHeaders' && query !== 'pendingTransactions') {
                 this.sendError(400, `Invalid query for infura source.`)
                 return false;
             }

@@ -7,7 +7,7 @@
         "node_modules"
     ],
     "watch": [
-        "server",
+        "src",
         ".env"
     ],
     "ext": "ts,js,json,yaml,yml"

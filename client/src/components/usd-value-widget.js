@@ -18,7 +18,7 @@ function USDValueWidget({ title, value }) {
             <Card.Body>
                 <Card.Title className='stats-card-title'>{title}</Card.Title>
                 <Card.Text className='stats-card-body'>
-                    <UpdatingText><span>{displayValue}</span></UpdatingText>
+                    <UpdatingText>{displayValue}</UpdatingText>
                 </Card.Text>
             </Card.Body>
         </Card>

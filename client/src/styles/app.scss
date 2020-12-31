@@ -16,7 +16,7 @@ body {
 
 @keyframes bounce-rotate {
     0%   { transform: translateY(0) rotate(0); }
-    50%  { transform: translateY(-100px) rotate(15deg); }
+    50%  { transform: translateY(-100px) rotate(-15deg); }
     100% { transform: translateY(0); }
 }
 
@@ -33,6 +33,19 @@ body {
     50%  { transform: translateX(100px) rotate(30deg); }
     100% { transform: rotate(0); }
 }
+
+.text-fade {
+    animation-duration: 500ms;
+    transform-origin: bottom;
+    animation-name: fade;
+    animation-timing-function: ease;
+}
+
+@keyframes fade {
+    0%   { opacity: 0 }
+    100% { opacity: 1 }
+}
+
 
 .fade-update-enter {
   opacity: 0.01;
