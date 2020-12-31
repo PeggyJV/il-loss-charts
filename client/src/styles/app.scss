@@ -34,19 +34,6 @@ body {
     100% { transform: rotate(0); }
 }
 
-.text-fade {
-    animation-duration: 500ms;
-    transform-origin: bottom;
-    animation-name: fade;
-    animation-timing-function: ease;
-}
-
-@keyframes fade {
-    0%   { opacity: 0 }
-    100% { opacity: 1 }
-}
-
-
 .fade-update-enter {
   opacity: 0.01;
 }

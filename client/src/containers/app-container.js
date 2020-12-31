@@ -187,7 +187,7 @@ function ChartsContainer() {
             <Row>
                 <Col>
                     <h2 className="page-title">
-                        <UpdatingText>Uniswap Impermanent Loss Calculator</UpdatingText>
+                        Uniswap Impermanent Loss Calculator
                     </h2>
                 </Col>
             </Row>
