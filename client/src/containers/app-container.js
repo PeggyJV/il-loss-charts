@@ -3,12 +3,12 @@ import { Container, Row, Col } from 'react-bootstrap';
 import useWebSocket from 'react-use-websocket';
 import Mixpanel from 'util/mixpanel';
 
-import USDValueWidget from 'components/usd-value-widget';
 import PairSelector from 'components/pair-selector';
 import LPInput from 'components/lp-input';
 import LPStatsWidget from 'components/lp-stats-widget';
 import LPStatsChart from 'components/lp-stats-rechart';
 import LatestTradesSidebar from 'components/latest-trades-sidebar';
+import TotalPoolStats from 'components/total-pool-stats';
 // import RealtimeStatusBar from 'components/realtime-status-bar';
 
 import FadeOnChange from 'components/fade-on-change';
@@ -102,6 +102,8 @@ function ChartsContainer() {
         return lpInfo.historicalData[0];
     }, [lpInfo, lpDate]);
     const lpStats = useMemo(() => calculateLPStats({ ...lpInfo, lpDate, lpShare }), [lpInfo, lpDate, lpShare]);
+    window.lpStats = lpStats;
+    window.allPairs = allPairs;
 
     // ------------------ Websocket State - handles subscriptions ------------------
 
@@ -181,9 +183,6 @@ function ChartsContainer() {
         );
     }
 
-    window.lookups = allPairs.lookups;
-    window.pairData = lpInfo.pairData;
-
     return (
         <Container fluid>
             <Row>
@@ -206,23 +205,8 @@ function ChartsContainer() {
                         <Col lg={5}>
                             <PairSelector pairs={allPairs.pairs} currentPairId={pairId} setPair={setPairId} isLoading={isLoading} />
                         </Col>
-                        <Col lg={2}>
-                            <USDValueWidget
-                                title={`USD Volume - #${allPairs.lookups[lpInfo.pairData.id].volumeRanking}`}
-                                value={lpInfo.pairData.volumeUSD}
-                            />
-                        </Col>
-                        <Col lg={2}>
-                            <USDValueWidget
-                                title={`Total Liquidity - #${allPairs.lookups[lpInfo.pairData.id].liquidityRanking}`}
-                                value={lpInfo.pairData.reserveUSD}
-                            />
-                        </Col>
-                        <Col lg={2}>
-                            <USDValueWidget
-                                title={`Total Fees - #${allPairs.lookups[lpInfo.pairData.id].volumeRanking}`}
-                                value={lpInfo.pairData.feesUSD}
-                            />
+                        <Col lg={7}>
+                            <TotalPoolStats allPairs={allPairs} lpInfo={lpInfo} lpStats={lpStats} />
                         </Col>
                     </Row>
                     <Row noGutters>
