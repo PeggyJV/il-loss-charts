@@ -20,8 +20,6 @@ const TokenWithLogo = (side) => ({ item: pair }) => {
 }
 
 function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
-    console.log('CURRENT PAIR ID', currentPairId);
-
     let defaultValue;
     for (let pair of pairs) {
         if (pair.id === currentPairId) {
@@ -58,7 +56,7 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                 <Card.Title className='stats-card-title'>Market</Card.Title>
                 <Container fluid>
                     <Row>
-                        <Col xs={5} className='pair-selector-col'>
+                        <Col lg={5} className='pair-selector-col'>
                             <InputGroup>
                                 <InputGroup.Prepend className='token-logo'>
                                     <InputGroup.Text>{resolveLogo(defaultValue.token0.id)}</InputGroup.Text>
@@ -76,10 +74,10 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                                 />
                             </InputGroup>
                         </Col>
-                        <Col xs={2} className='pair-selector-middle-col'>
+                        <Col lg={2} className='pair-selector-middle-col'>
                             {isLoading ? <div className='wine-spin'>🍷</div> : '✖️'}
                         </Col>
-                        <Col xs={5} className='pair-selector-col'>
+                        <Col lg={5} className='pair-selector-col'>
                             <InputGroup>
                                 <InputGroup.Prepend className='token-logo'>
                                     <InputGroup.Text >{resolveLogo(defaultValue.token1.id)}</InputGroup.Text>

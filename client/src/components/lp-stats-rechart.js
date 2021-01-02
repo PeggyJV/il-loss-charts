@@ -33,8 +33,8 @@ function LPStatsChart({ lpStats }) {
             <ResponsiveContainer width="100%" height={563}>
                 <ComposedChart
                     data={chartData}
-                    margin={{ top: 10, right: 10, bottom: 10 }}
-                    width={918}
+                    margin={{ top: 10, right: 10, bottom: 10, left: -50 }}
+                    padding={{ left: -100 }}
                     height={563}
                 >
                     <defs>
@@ -45,7 +45,7 @@ function LPStatsChart({ lpStats }) {
                     </defs>
                     <CartesianGrid vertical={false} strokeDasharray="3 3" />
                     <XAxis dataKey='day' interval={30} tickLine={false} tickMargin={10} padding={{ left: 60, right: 20 }} />
-                    <YAxis tick={<YAxisTick />} tickLine={false} padding={{ top: 20, bottom: 20 }} />
+                    <YAxis axisLine={false} tick={<YAxisTick />} tickLine={false} padding={{ bottom: 20 }} />
                     <Area type='monotone' dataKey='returns' strokeWidth={0} fill='url(#areaColor)' />
                     <Line type='monotone' dataKey='runningReturn' stroke='#0089ff' strokeWidth={2} dot={false} />
                     <Tooltip content={<CustomTooltip />} />
