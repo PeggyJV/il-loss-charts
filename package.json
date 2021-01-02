@@ -5,5 +5,8 @@
         "dev": "npx concurrently \"cd client && yarn start\" \"cd server && yarn dev\"",
         "build": "npx concurrently \"cd client && yarn build\" \"cd server && yarn compile\"",
         "prod": "cd server && yarn start"
+    },
+    "dependencies": {
+        "mixpanel-browser": "^2.40.0"
     }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import useWebSocket from 'react-use-websocket';
+import Mixpanel from 'util/mixpanel';
 
 import USDValueWidget from 'components/usd-value-widget';
 import PairSelector from 'components/pair-selector';
@@ -18,7 +19,10 @@ import calculateLPStats from 'services/calculate-lp-stats';
 
 import config from 'config';
 
+const mixpanel = new Mixpanel();
+
 function ChartsContainer() {
+
     // ------------------ Loading State - handles interstitial UI ------------------
 
     const [isLoading, setIsLoading] = useState(false);
@@ -59,6 +63,7 @@ function ChartsContainer() {
     useEffect(() => {
         const fetchPairData = async () => {
             setIsLoading(true);
+            mixpanel.track('pair_query', { pairId });
 
             // Fetch pair overview when pair ID changes
             // Default to createdAt date if LP date not set
