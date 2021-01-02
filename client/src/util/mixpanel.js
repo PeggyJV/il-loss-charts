@@ -5,7 +5,7 @@ class MixpanelWrapper {
     isActive = false;
 
     constructor() {
-        const token = process.env.MIXPANEL_TOKEN;
+        const token = process.env.REACT_APP_MIXPANEL_TOKEN;
         if (token) {
             this.isActive = true;
             mixpanel.init(token, { debug: true });
