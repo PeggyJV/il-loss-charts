@@ -15,6 +15,7 @@ export default class UniswapFetcher {
                 query: gql`
                     {
                         pair(id: "${pairId}"){
+                            id
                             token0 {
                                 id
                                 name
@@ -65,6 +66,8 @@ export default class UniswapFetcher {
                     {
                         pairs(first: ${count}, orderBy: volumeUSD, orderDirection: desc) {
                             id
+                            volumeUSD
+                            reserveUSD
                             token0 {
                                 id
                                 name

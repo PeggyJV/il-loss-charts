@@ -24,6 +24,7 @@ export default class UniswapFetcher {
                 query: gql`
                     {
                         pair(id: "${pairId}"){
+                            id
                             token0 {
                                 id
                                 name
@@ -59,7 +60,7 @@ export default class UniswapFetcher {
         const { pair } = response?.data;
 
         if (pair == null) {
-            throw new Error(`Could not ∫ pair with ID ${pairId}. Error from response: ${response.error}`);
+            throw new Error(`Could not find pair with ID ${pairId}. Error from response: ${response.error}`);
         }
 
         const feesUSD = new BigNumber(pair.volumeUSD, 10).times(UniswapFetcher.FEE_RATIO).toString();
@@ -74,6 +75,8 @@ export default class UniswapFetcher {
                     {
                         pairs(first: ${count}, orderBy: volumeUSD, orderDirection: desc) {
                             id
+                            volumeUSD
+                            reserveUSD
                             token0 {
                                 id
                                 name

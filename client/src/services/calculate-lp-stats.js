@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 
 import Uniswap from './uniswap';
 
-export default function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidityUSD, lpDate }) {
+export function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidityUSD, lpDate }) {
     if (historicalData.length === 0) return {};
 
     const runningVolume = [];
@@ -73,5 +73,27 @@ export default function calculateLPStats({ pairData, historicalData, lpShare: lp
         impermanentLoss,
         totalReturn,
         days
+    };
+}
+
+export function calculatePairRankings(pairs) {
+    const byVolume = [...pairs].sort((a, b) => new BigNumber(a.volumeUSD).minus(new BigNumber(b.volumeUSD)).toNumber());
+    const byLiquidity = [...pairs].sort((a, b) => new BigNumber(b.reserveUSD).minus(new BigNumber(a.reserveUSD)).toNumber());
+    const liquidityLookup = byLiquidity.reduce((acc, pair, index) => ({ ...acc, [pair.id]: index + 1 }), {});
+
+    const pairLookups = pairs.reduce((acc, pair, index) => ({
+        ...acc,
+        [pair.id]: {
+            ...pair,
+            volumeRanking: parseInt(index, 10) + 1,
+            liquidityRanking: liquidityLookup[pair.id]
+        }
+    }), {});
+
+    return {
+        byVolume,
+        byLiquidity,
+        pairs,
+        pairLookups
     };
 }

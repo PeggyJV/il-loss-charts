@@ -15,7 +15,7 @@ import FadeOnChange from 'components/fade-on-change';
 
 import initialData from 'constants/initialData.json';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
-import calculateLPStats from 'services/calculate-lp-stats';
+import { calculateLPStats, calculatePairRankings } from 'services/calculate-lp-stats';
 
 import config from 'config';
 
@@ -34,8 +34,9 @@ function ChartsContainer() {
     useEffect(() => {
         const fetchAllPairs = async () => {
             // Fetch all pairs
-            const pairs = await Uniswap.getTopPairs();
-            setAllPairs({ isLoading: false, pairs });
+            const pairsRaw = await Uniswap.getTopPairs();
+            const calculated = calculatePairRankings(pairsRaw);
+            setAllPairs({ isLoading: false, pairs: calculated.pairs, lookups: calculated.pairLookups });
         }
         fetchAllPairs();
     }, []);
@@ -180,6 +181,9 @@ function ChartsContainer() {
         );
     }
 
+    window.lookups = allPairs.lookups;
+    window.pairData = lpInfo.pairData;
+
     return (
         <Container fluid>
             <Row>
@@ -203,13 +207,22 @@ function ChartsContainer() {
                             <PairSelector pairs={allPairs.pairs} currentPairId={pairId} setPair={setPairId} isLoading={isLoading} />
                         </Col>
                         <Col lg={2}>
-                            <USDValueWidget title="USD Volume" value={lpInfo.pairData.volumeUSD} />
+                            <USDValueWidget
+                                title={`USD Volume - #${allPairs.lookups[lpInfo.pairData.id].volumeRanking}`}
+                                value={lpInfo.pairData.volumeUSD}
+                            />
                         </Col>
                         <Col lg={2}>
-                            <USDValueWidget title="Total Liquidity" value={lpInfo.pairData.reserveUSD} />
+                            <USDValueWidget
+                                title={`Total Liquidity - #${allPairs.lookups[lpInfo.pairData.id].liquidityRanking}`}
+                                value={lpInfo.pairData.reserveUSD}
+                            />
                         </Col>
                         <Col lg={2}>
-                            <USDValueWidget title="Total Fees" value={lpInfo.pairData.feesUSD} />
+                            <USDValueWidget
+                                title={`Total Fees - #${allPairs.lookups[lpInfo.pairData.id].volumeRanking}`}
+                                value={lpInfo.pairData.feesUSD}
+                            />
                         </Col>
                     </Row>
                     <Row noGutters>
