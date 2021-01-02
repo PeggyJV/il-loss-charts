@@ -30,11 +30,11 @@ function SwapInfo({ swap }) {
     const inAmount = new BigNumber(swap[`amount${inSide}In`]).toFixed(3);
 
 
-    const arrowIcon = outSide === '0' ? '⬅️' : '➡️';
+    const arrowIcon = outSide === '1' ? '⬅️' : '➡️';
 
     return (
         <ListGroup.Item className='sidebar-item'>
-            Swap {outAmount} {outToken} for {inAmount} {inToken}
+            {arrowIcon} Swap {outAmount} {outToken} for {inAmount} {inToken}
         </ListGroup.Item>
     )
 }
