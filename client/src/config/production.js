@@ -1,5 +1,5 @@
 const config = {
-    wsApi: 'wss://134.122.12.165/realtime'
+    wsApi: 'wss://app.sommelier.finance/realtime'
 }
 
 export default config;
