@@ -121,7 +121,7 @@ export function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidit
         prevWeekStats = {
             volumeUSD: runningVolume[weeklyStartIndex].minus(runningVolume[prevWeekStartIndex]),
             liquidityUSD: dailyLiquidity[weeklyStartIndex],
-            feesUSD: runningFees[weeklyStartIndex].minus(runningFees[prevWeekStartIndex]),
+            feesUSD: runningPoolFees[weeklyStartIndex].minus(runningPoolFees[prevWeekStartIndex]),
         };
 
         lastWeekStats.volumeUSDChange = lastWeekStats.volumeUSD.minus(prevWeekStats.volumeUSD).div(prevWeekStats.volumeUSD);
