@@ -16,9 +16,6 @@ class MixpanelWrapper {
     track(...args) {
         // No-op if not using
         if (!this.isActive) return;
-
-        console.log('Going to track');
-
         mixpanel.track(...args);
     }
 }

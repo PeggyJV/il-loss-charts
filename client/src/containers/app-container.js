@@ -65,7 +65,6 @@ function ChartsContainer() {
     useEffect(() => {
         const fetchPairData = async () => {
             setIsLoading(true);
-            mixpanel.track('pair_query', { pairId });
 
             // Fetch pair overview when pair ID changes
             // Default to createdAt date if LP date not set
@@ -80,6 +79,9 @@ function ChartsContainer() {
                 pairData: newPair,
                 historicalData: historicalDailyData,
             }));
+
+            mixpanel.track('pair_query', { pairId, token0: newPair.token0.symbol, token1: newPair.token1.symbol });
+
 
             setIsLoading(false);
         }
