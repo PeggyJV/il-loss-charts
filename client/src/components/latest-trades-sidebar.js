@@ -16,6 +16,8 @@ function LatestTradeSidebar({ latestBlock, latestSwaps }) {
     const [mode, setMode] = useState('swaps');
 
     const { swaps, mintsAndBurns } = latestSwaps;
+    if (!swaps || !mintsAndBurns) return null;
+
     window.mintsAndBurns = mintsAndBurns;
 
     return (
