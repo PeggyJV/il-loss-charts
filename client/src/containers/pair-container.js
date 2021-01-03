@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
+import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 import Mixpanel from 'util/mixpanel';
 
@@ -23,6 +24,7 @@ import config from 'config';
 const mixpanel = new Mixpanel();
 
 function ChartsContainer() {
+    const { id: routePairId } = useParams();
 
     // ------------------ Loading State - handles interstitial UI ------------------
 
@@ -44,7 +46,7 @@ function ChartsContainer() {
 
     // ------------------ Shared State ------------------
 
-    const [pairId, setPairId] = useState(initialData.pairId);
+    const [pairId, setPairId] = useState(routePairId || initialData.pairId);
 
     // Keep track of previous pair ID so we can unsubscribe
     const prevPairIdRef = useRef();
