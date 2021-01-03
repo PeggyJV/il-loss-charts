@@ -3,6 +3,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import useWebSocket from 'react-use-websocket';
 import Mixpanel from 'util/mixpanel';
 
+import Header from 'components/header';
 import PairSelector from 'components/pair-selector';
 import LPInput from 'components/lp-input';
 import LPStatsWidget from 'components/lp-stats-widget';
@@ -185,27 +186,14 @@ function ChartsContainer() {
 
     return (
         <Container fluid>
-            <Row>
-                <Col>
-                    <h6 className="social-cta">
-                        <a href="https://t.me/getsomm">Join the Sommelier Community</a>
-                    </h6>
-                </Col>
-            </Row>
-            <Row>
-                <Col>
-                    <h2 className="page-title">
-                        Uniswap Impermanent Loss Calculator
-                    </h2>
-                </Col>
-            </Row>
+            <Header />
             <Row noGutters>
                 <Col lg={10}>
                     <Row className='top-stats-row'>
-                        <Col lg={5}>
+                        <Col lg={4}>
                             <PairSelector pairs={allPairs.pairs} currentPairId={pairId} setPair={setPairId} isLoading={isLoading} />
                         </Col>
-                        <Col lg={7}>
+                        <Col lg={8}>
                             <TotalPoolStats allPairs={allPairs} lpInfo={lpInfo} lpStats={lpStats} />
                         </Col>
                     </Row>

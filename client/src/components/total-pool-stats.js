@@ -2,6 +2,13 @@ import { useState } from 'react';
 import { Row, Col, Button, Card } from 'react-bootstrap';
 import USDValueWidget from 'components/usd-value-widget';
 
+function PercentChangeStat({ value }) {
+    const sign = value.isPositive() ? '↗' : '↘';
+    const className = value.isPositive() ? 'pct-change-up' : 'pct-change-down';
+
+    return <span className={className}>{value.toFixed(2)}% {sign}</span>;
+}
+
 
 function TotalPoolStats({ allPairs, lpInfo, lpStats }) {
     const [window, setWindow] = useState('total');
@@ -28,36 +35,27 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }) {
     const prefix = window === 'day' ? '24h' : window === 'week' ? '7d' : '';
 
     return (
-        <Row noGutters>
-            <Col lg={3}>
-                <USDValueWidget
-                    title={`${prefix} USD Volume - #${allPairs.lookups[lpInfo.pairData.id].volumeRanking}`}
-                    value={stats.volumeUSD}
-                />
-                {window !== 'total' && `${stats.volumeUSDChange.times(100).toFixed(2)}% Change`}
-            </Col>
-            <Col lg={3}>
-                <USDValueWidget
-                    title={`Total Liquidity - #${allPairs.lookups[lpInfo.pairData.id].liquidityRanking}`}
-                    value={stats.liquidityUSD}
-                />
-                {window !== 'total' && `${stats.liquidityUSDChange.times(100).toFixed(2)}% Change`}
-            </Col>
-            <Col lg={3}>
-                <USDValueWidget
-                    title={`${prefix} Total Fees - #${allPairs.lookups[lpInfo.pairData.id].volumeRanking}`}
-                    value={stats.feesUSD}
-                />
-                {window !== 'total' && `${stats.feesUSDChange.times(100).toFixed(2)}% Change`}
-
-            </Col>
-            <Col lg={3}>
-                <Card className='stats-card window-button-card no-border' body>
-                    <Button variant={window === 'day' ? 'primary' : 'outline-primary'} size='sm' onClick={() => handleSetWindow('day')}>24H</Button>
-                    <Button variant={window === 'week' ? 'primary' : 'outline-primary'} size='sm' onClick={() => handleSetWindow('week')}>7D</Button>
-                </Card>
-            </Col>
-        </Row>
+        <div className='pool-stats-container'>
+            <USDValueWidget
+                title={`${prefix} USD Volume - #${allPairs.lookups[lpInfo.pairData.id].volumeRanking}`}
+                value={stats.volumeUSD}
+                footnote={window !== 'total' && <PercentChangeStat value={stats.volumeUSDChange.times(100)} />}
+            />
+            <USDValueWidget
+                title={`Total Liquidity - #${allPairs.lookups[lpInfo.pairData.id].liquidityRanking}`}
+                value={stats.liquidityUSD}
+                footnote={window !== 'total' && <PercentChangeStat value={stats.liquidityUSDChange.times(100)} />}
+            />
+            <USDValueWidget
+                title={`${prefix} Fees Collected - #${allPairs.lookups[lpInfo.pairData.id].volumeRanking}`}
+                value={stats.feesUSD}
+                footnote={window !== 'total' && <PercentChangeStat value={stats.feesUSDChange.times(100)} />}
+            />
+            <Card className='stats-card window-button-card no-border' body>
+                <Button variant={window === 'day' ? 'primary' : 'outline-primary'} size='sm' className='window-button' onClick={() => handleSetWindow('day')}>24H</Button>
+                <Button variant={window === 'week' ? 'primary' : 'outline-primary'} size='sm' className='window-button' onClick={() => handleSetWindow('week')}>7D</Button>
+            </Card>
+        </div>
     );
 }
 

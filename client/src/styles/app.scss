@@ -171,3 +171,38 @@ body {
     display: flex;
     justify-content: space-evenly;
 }
+
+.pool-stats-container {
+    display: flex;
+}
+
+.stats-card {
+    flex-grow: 1;
+}
+
+.window-button-card {
+    width: 6em;
+}
+
+.window-button {
+    width: 5em;
+    text-align: center;;
+}
+
+.window-button + .window-button {
+    margin-top: 1em;
+}
+
+.card-footnote {
+    position: relative;
+    top: 1.3em;
+    font-size: 0.9rem;
+}
+
+.pct-change-up {
+    color: #3e832a;
+}
+
+.pct-change-down {
+    color: #d54152;
+}

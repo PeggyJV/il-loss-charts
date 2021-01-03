@@ -10,7 +10,7 @@ const formatter = new Intl.NumberFormat('en-US', {
     //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
 });
 
-function USDValueWidget({ title, value }) {
+function USDValueWidget({ title, value, footnote }) {
     const displayValue = formatter.format(parseFloat(value, 10));
 
     return (
@@ -20,6 +20,9 @@ function USDValueWidget({ title, value }) {
                 <Card.Text className='stats-card-body'>
                     <FadeOnChange>{displayValue}</FadeOnChange>
                 </Card.Text>
+                <p className='card-footnote'>
+                    <FadeOnChange>{footnote}</FadeOnChange>
+                </p>
             </Card.Body>
         </Card>
     );
