@@ -29,12 +29,9 @@ class AlchemyWs extends EventEmitter {
 
         let subscription = new EventEmitter();
 
-        console.log('SUBSCRIBRING TO PENDING')
-
         AlchemyWs.web3.eth.subscribe('alchemy_fullPendingTransactions')
             .on('data', (tx) => {
                 // Only emit transactions to the v2 uniswap router
-                console.log('THIS IS TX TO', tx.to);
                 if (tx.to === AlchemyWs.UNISWAP_ROUTER_ADDR) {
                     subscription.emit('data', tx);
                 }
