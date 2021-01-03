@@ -186,4 +186,77 @@ export default class UniswapFetcher {
 
         return swaps;
     }
+
+
+    static async getMintsForPair(pairId) {
+        const response = await UniswapFetcher.client
+            .query({
+                query: gql`
+                    {
+                        mints(first: 100, orderBy: timestamp, orderDirection: desc, where:
+                            { pair: "${pairId}" }
+                        ) {
+                            pair {
+                                token0 {
+                                    symbol
+                                }
+                                token1 {
+                                    symbol
+                                }
+                            }
+                            timestamp
+                            liquidity
+                            amount0
+                            amount1
+                            amountUSD
+                            to
+                        }
+                    }
+                `
+            });
+
+        const { mints } = response?.data;
+
+        if (mints == null) {
+            throw new Error(`Could not fetch recent mints for pair ${pairId}. Error from response: ${response.error}`);
+        }
+
+        return mints;
+    }
+
+    static async getBurnsForPair(pairId) {
+        const response = await UniswapFetcher.client
+            .query({
+                query: gql`
+                    {
+                        burns(first: 100, orderBy: timestamp, orderDirection: desc, where:
+                            { pair: "${pairId}" }
+                        ) {
+                            pair {
+                                token0 {
+                                    symbol
+                                }
+                                token1 {
+                                    symbol
+                                }
+                            }
+                            timestamp
+                            liquidity
+                            amount0
+                            amount1
+                            amountUSD
+                            to
+                        }
+                    }
+                `
+            });
+
+        const { burns } = response?.data;
+
+        if (burns == null) {
+            throw new Error(`Could not fetch recent burns for pair ${pairId}. Error from response: ${response.error}`);
+        }
+
+        return burns;
+    }
 }

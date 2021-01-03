@@ -1,19 +1,42 @@
-import { Card, ListGroup } from 'react-bootstrap';
+import { useState } from 'react';
+import { Card, ListGroup, Button } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 
+const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+
+    // These options are needed to round to whole numbers if that's what you want.
+    //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+    //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+});
+
+
 function LatestTradeSidebar({ latestBlock, latestSwaps }) {
+    const [mode, setMode] = useState('swaps');
+
+    const { swaps, mintsAndBurns } = latestSwaps;
+    window.mintsAndBurns = mintsAndBurns;
+
     return (
         <Card className='chart-card'>
             <Card.Header>
-                {latestBlock ?
-                    <strong>Latest Block: #{latestBlock}</strong>
-                    :
-                    <strong>Awaiting New Blocks...</strong>
-                }
+                <p>
+                    {latestBlock ?
+                        <strong>Latest Block: #{latestBlock}</strong>
+                        :
+                        <strong>Awaiting New Blocks...</strong>
+                    }
+                </p>
+                <div className='sidebar-buttons'>
+                    <Button variant={mode === 'swaps' ? 'primary' : 'outline-primary'} size='sm' className='sidebar-button' onClick={() => setMode('swaps')}>Swaps</Button>
+                    <Button variant={mode === 'adds' ? 'primary' : 'outline-primary'} size='sm' className='sidebar-button' onClick={() => setMode('adds')}>Adds/Removes</Button>
+                </div>
             </Card.Header>
             <Card.Body className='trades-sidebar-content'>
                 <ListGroup variant="flush">
-                    {latestSwaps.map((swap, index) => <SwapInfo swap={swap} key={index} />)}
+                    {mode === 'swaps' && swaps.map((swap, index) => <SwapInfo swap={swap} key={index} />)}
+                    {mode === 'adds' && mintsAndBurns.combined.map((action, index) => <MintBurnInfo action={action} key={index} />)}
                 </ListGroup>
             </Card.Body>
         </Card>
@@ -38,5 +61,17 @@ function SwapInfo({ swap }) {
         </ListGroup.Item>
     )
 }
+
+function MintBurnInfo({ action }) {
+    const icon = action.__typename === 'Mint' ? '💰' : '🔥';
+    const actionName = action.__typename === 'Mint' ? 'Add' : 'Remove';
+    const pairAmounts = `${new BigNumber(action.amount0).toFixed(3)} ${action.pair.token0.symbol}/${new BigNumber(action.amount1).toFixed(3)} ${action.pair.token1.symbol}`;
+    return (
+        <ListGroup.Item className='sidebar-item'>
+            {icon} {actionName} {formatter.format(action.amountUSD)} ({pairAmounts})
+        </ListGroup.Item>
+    )
+}
+
 
 export default LatestTradeSidebar;

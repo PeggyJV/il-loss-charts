@@ -43,6 +43,22 @@ class UniswapController {
         return swaps;
     }
 
+    static async getMintsAndBurnsForPair(req: Request) {
+        const pairId: string = req.params.id;
+        // Validate ethereum address
+        const validId = isValidEthAddress(pairId);
+        if (!validId) throw new HTTPError(400, `ID must be a valid ETH address.`);
+
+        const [mints, burns] = await Promise.all([
+            UniswapFetcher.getMintsForPair(pairId),
+            UniswapFetcher.getBurnsForPair(pairId)
+        ]);
+
+        const combined = [...mints, ...burns].sort((a, b) => parseInt(b.timestamp, 10) - parseInt(a.timestamp, 10));
+
+        return { mints, burns, combined };
+    }
+
     static async getHistoricalDailyData(req: Request) {
         const pairId: string = req.params.id;
         // Validate ethereum address
@@ -98,5 +114,6 @@ export default express
     .get('/pairs', wrapRequest(UniswapController.getTopPairs))
     .get('/pairs/:id', wrapRequest(UniswapController.getPairOverview))
     .get('/pairs/:id/swaps', wrapRequest(UniswapController.getSwapsForPair))
+    .get('/pairs/:id/addremove', wrapRequest(UniswapController.getMintsAndBurnsForPair))
     .get('/historical/:id', wrapRequest(UniswapController.getHistoricalDailyData))
     .get('/stats', wrapRequest(UniswapController.getStats));

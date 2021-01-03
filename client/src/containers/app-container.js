@@ -151,14 +151,17 @@ function ChartsContainer() {
 
     // ------------------ Market Data State - fetches non-LP specific market data ------------------
 
-    const [latestSwaps, setLatestSwaps] = useState(null);
+    const [latestSwaps, setLatestSwaps] = useState({ swaps: null, mintsAndBurns: null });
 
     useEffect(() => {
         const getLatestSwaps = async () => {
             // Fetch latest block when pair ID changes
             // Default to createdAt date if LP date not set
-            const latestSwaps = await Uniswap.getLatestSwaps(pairId);
-            setLatestSwaps(latestSwaps);
+            const [latestSwaps, mintsAndBurns] = await Promise.all([
+                Uniswap.getLatestSwaps(pairId),
+                Uniswap.getMintsAndBurns(pairId)
+            ]);
+            setLatestSwaps({ swaps: latestSwaps, mintsAndBurns });
         }
 
         const refreshPairData = async () => {

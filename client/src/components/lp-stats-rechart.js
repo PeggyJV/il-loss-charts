@@ -28,6 +28,8 @@ function LPStatsChart({ lpStats }) {
         });
     }
 
+    const showXAxisTicks = window.innerWidth > 700;
+
     return (
         <Card body className='no-border'>
             <ResponsiveContainer width="100%" height={563}>
@@ -44,7 +46,7 @@ function LPStatsChart({ lpStats }) {
                         </linearGradient>
                     </defs>
                     <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                    <XAxis dataKey='day' interval={30} tickLine={false} tickMargin={10} padding={{ left: 60, right: 20 }} />
+                    <XAxis dataKey='day' tick={showXAxisTicks} interval={30} tickLine={false} tickMargin={10} padding={{ left: 60, right: 20 }} />
                     <YAxis axisLine={false} tick={<YAxisTick />} tickLine={false} padding={{ bottom: 20 }} />
                     <Area type='monotone' dataKey='returns' strokeWidth={0} fill='url(#areaColor)' />
                     <Line type='monotone' dataKey='runningReturn' stroke='#0089ff' strokeWidth={2} dot={false} />

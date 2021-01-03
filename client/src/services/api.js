@@ -12,6 +12,11 @@ export class UniswapApiFetcher {
         return data;
     }
 
+    static async getMintsAndBurns(pairId) {
+        const response = await fetch(`/api/v1/uniswap/pairs/${pairId}/addremove`);
+        const { data } = await response.json();
+        return data;
+    }
 
     static async getTopPairs(count = 1000) {
         const response = await fetch(`/api/v1/uniswap/pairs?count=${count}`);
