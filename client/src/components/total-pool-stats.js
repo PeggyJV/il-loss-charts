@@ -25,12 +25,13 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }) {
         else setWindow(selectedWindow);
     }
 
+    const prefix = window === 'day' ? '24h' : window === 'week' ? '7d' : '';
 
     return (
         <Row noGutters>
             <Col lg={3}>
                 <USDValueWidget
-                    title={`USD Volume - #${allPairs.lookups[lpInfo.pairData.id].volumeRanking}`}
+                    title={`${prefix} USD Volume - #${allPairs.lookups[lpInfo.pairData.id].volumeRanking}`}
                     value={stats.volumeUSD}
                 />
                 {window !== 'total' && `${stats.volumeUSDChange.times(100).toFixed(2)}% Change`}
@@ -44,7 +45,7 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }) {
             </Col>
             <Col lg={3}>
                 <USDValueWidget
-                    title={`Total Fees - #${allPairs.lookups[lpInfo.pairData.id].volumeRanking}`}
+                    title={`${prefix} Total Fees - #${allPairs.lookups[lpInfo.pairData.id].volumeRanking}`}
                     value={stats.feesUSD}
                 />
                 {window !== 'total' && `${stats.feesUSDChange.times(100).toFixed(2)}% Change`}
