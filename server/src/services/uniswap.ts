@@ -136,6 +136,63 @@ export default class UniswapFetcher {
         return pairDayDatas;
     }
 
+    static async getCurrentDayDataFromHourly(pairId, startDate, endDate) {
+        const response = await UniswapFetcher.client
+            .query({
+                query: gql`
+                    {
+                        pairHourDatas(orderBy: hourStartUnix, orderDirection: asc,
+                            where: {
+                                pair: "${pairId}",
+                                hourStartUnix_gt: ${Math.floor(startDate.getTime() / 1000) - 1}
+                                hourStartUnix_lt: ${Math.floor(endDate.getTime() / 1000)}
+                            }
+                        ) {
+                            pair {
+                                id
+                            }
+                            hourStartUnix
+                            hourlyVolumeToken0
+                            hourlyVolumeToken1
+                            hourlyVolumeUSD
+                            reserveUSD
+                            reserve0
+                            reserve1
+                        }
+                }
+                `
+            });
+
+        const { pairHourDatas } = response?.data;
+
+        if (pairHourDatas == null) {
+            throw new Error(`Could not fetch daily data for pair ${pairId}. Error from response: ${response.error}`);
+        }
+
+        // Aggregate hour datas into current day data
+        // TODO: Investigate reserve0/reserve1 discrepancy in hourly datas
+        const currentDayData = pairHourDatas.reduce((acc, hourData) => {
+            acc.dailyVolumeUSD = acc.dailyVolumeUSD.plus(hourData.hourlyVolumeUSD);
+            acc.dailyVolumeToken0 = acc.dailyVolumeToken0.plus(hourData.hourlyVolumeToken0);
+            acc.dailyVolumeToken1 = acc.dailyVolumeToken1.plus(hourData.hourlyVolumeToken1);
+            return acc;
+        }, {
+            __typename: 'PairDayData',
+            partialDay: true,
+            dailyVolumeToken0: new BigNumber(0),
+            dailyVolumeToken1: new BigNumber(0),
+            dailyVolumeUSD: new BigNumber(0),
+            date: pairHourDatas[pairHourDatas.length - 1].hourStartUnix,
+            pairAddress: pairId,
+            reserve0: pairHourDatas[pairHourDatas.length - 1].reserve0,
+            reserve1: pairHourDatas[pairHourDatas.length - 1].reserve1,
+            reserveUSD: pairHourDatas[pairHourDatas.length - 1].reserveUSD,
+            pairHourDatas: pairHourDatas
+        });
+
+        return currentDayData;
+    }
+
     static async getHistoricalDailyData(pairId, startDate, endDate = new Date()) {
         let lastStartDate = startDate;
         let dailyData = await UniswapFetcher._get100DaysHistoricalDailyData(pairId, startDate, endDate);
@@ -147,6 +204,20 @@ export default class UniswapFetcher {
             lastStartDate = new Date(dailyData[dailyData.length - 1].date * 1000 + dayMs); // skip ahead 24 hrs
             dailyData = [...dailyData, ...(await UniswapFetcher._get100DaysHistoricalDailyData(pairId, lastStartDate, endDate))]
         }
+
+        // If end date is greater than the last day, fetch more hourly
+        // const lastDay = dailyData[dailyData.length - 1];
+        // const lastDayDate = new Date(lastDay.date * 1000);
+        // if (lastDayDate < endDate) {
+        //     const currentDayHourlyData = await UniswapFetcher.getCurrentDayDataFromHourly(pairId, lastDayDate, endDate);
+        //     // Fix last daily reserve0/reserve1 based on hourly data at same timestamp
+        //     const lastDaily = dailyData[dailyData.length - 1];
+        //     const firstHourly = currentDayHourlyData.pairHourDatas[0];
+        //     lastDaily.reserve0 = firstHourly.reserve0;
+        //     lastDaily.reserve1 = firstHourly.reserve1;
+        //     lastDaily.reserveUSD = firstHourly.reserveUSD;
+        //     dailyData.push(currentDayHourlyData);
+        // }
 
         return dailyData;
     }

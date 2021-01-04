@@ -14,24 +14,23 @@ export function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidit
     const runningReturn = [];
     const days = [];
 
-    const calculateImpermanentLoss = (startDailyData, endDailyData) => {
+    const calculateImpermanentLoss = (startDailyData, endDailyData, lpLiquidity) => {
         const initialExchangeRate = new BigNumber(startDailyData.reserve0).div(new BigNumber(startDailyData.reserve1));
         const currentExchangeRate = new BigNumber(endDailyData.reserve0).div(new BigNumber(endDailyData.reserve1));
         const priceRatio = currentExchangeRate.div(initialExchangeRate);
         const impermanentLossPct = new BigNumber(2).times(priceRatio.sqrt()).div(priceRatio.plus(1)).minus(1);
-        const impermanentLoss = impermanentLossPct.times(lpLiquidityUSD);
+        const impermanentLoss = impermanentLossPct.times(new BigNumber(lpLiquidity));
 
         return impermanentLoss;
     }
 
     let firstDaily = null;
     historicalData.forEach((dailyData, index) => {
-        if (index === 0) return;
-
         // Ignore if below lp date
         const currentDate = new Date(dailyData.date * 1000);
         if (currentDate.getTime() < lpDate.getTime()) return;
         if (!firstDaily) firstDaily = dailyData;
+        if (index === 0) return;
 
         const poolShare = new BigNumber(lpLiquidityUSD).div(dailyData.reserveUSD);
 
@@ -39,8 +38,11 @@ export function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidit
         const liquidity = new BigNumber(dailyData.reserveUSD);
         const dailyPoolFees = vol.times(Uniswap.FEE_RATIO);
         const dailyFees = dailyPoolFees.times(poolShare);
-        const dailyImpermanentLoss = calculateImpermanentLoss(historicalData[index - 1], dailyData);
-        const dailyReturn = dailyFees.plus(dailyImpermanentLoss);
+        const newRunningFees = (runningFees[runningFees.length - 1] ?? new BigNumber(0)).plus(
+            dailyFees
+        );
+        const dailyImpermanentLoss = calculateImpermanentLoss(firstDaily, dailyData, lpLiquidityUSD);
+        const dailyReturn = newRunningFees.plus(dailyImpermanentLoss);
 
         dailyLiquidity.push(liquidity);
         runningVolume.push(
@@ -51,27 +53,15 @@ export function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidit
                 dailyPoolFees
             )
         );
-        runningFees.push(
-            (runningFees[runningFees.length - 1] ?? new BigNumber(0)).plus(
-                dailyFees
-            )
-        );
-        runningImpermanentLoss.push(
-            (runningImpermanentLoss[runningImpermanentLoss.length - 1] ?? new BigNumber(0)).plus(
-                dailyImpermanentLoss
-            )
-        );
-        runningReturn.push(
-            (runningReturn[runningReturn.length - 1] ?? new BigNumber(0)).plus(
-                dailyReturn
-            )
-        );
+        runningFees.push(newRunningFees);
+        runningImpermanentLoss.push(dailyImpermanentLoss);
+        runningReturn.push(dailyReturn);
 
         days.push(format(currentDate, 'MMM d'));
-    })
+    });
 
     const totalFees = runningFees[runningFees.length - 1];
-    const impermanentLoss = calculateImpermanentLoss(firstDaily, pairData);
+    const impermanentLoss = calculateImpermanentLoss(firstDaily, historicalData[historicalData.length - 1], lpLiquidityUSD);
     const totalReturn = totalFees.plus(impermanentLoss);
 
     // Calculate 24h and 7d stats
