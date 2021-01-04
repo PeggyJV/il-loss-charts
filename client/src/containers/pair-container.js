@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 import Mixpanel from 'util/mixpanel';
 import AppContext from 'util/app-context';
@@ -18,17 +18,15 @@ import FadeOnChange from 'components/fade-on-change';
 
 import initialData from 'constants/initialData.json';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
-import { calculateLPStats, calculatePairRankings } from 'services/calculate-lp-stats';
+import { calculateLPStats, calculatePairRankings } from 'services/calculate-stats';
 
 import config from 'config';
 
 const mixpanel = new Mixpanel();
 
-function ChartsContainer() {
-    const { id: routePairId } = useParams();
-
-    // ------------------ Global context ------------------
-    const { allPairs } = useContext(AppContext);
+function PairContainer({ allPairs }) {
+    // const query = new URLSearchParams(useLocation().search);
+    // const routePairId = query.get('id');
 
     // ------------------ Loading State - handles interstitial UI ------------------
 
@@ -36,7 +34,8 @@ function ChartsContainer() {
 
     // ------------------ Shared State ------------------
 
-    const [pairId, setPairId] = useState(routePairId || initialData.pairId);
+    // const [pairId, setPairId] = useState(routePairId || initialData.pairId);
+    const [pairId, setPairId] = useState(initialData.pairId);
 
     // Keep track of previous pair ID so we can unsubscribe
     const prevPairIdRef = useRef();
@@ -97,8 +96,6 @@ function ChartsContainer() {
         return lpInfo.historicalData[0];
     }, [lpInfo, lpDate]);
     const lpStats = useMemo(() => calculateLPStats({ ...lpInfo, lpDate, lpShare }), [lpInfo, lpDate, lpShare]);
-    window.lpStats = lpStats;
-    window.allPairs = allPairs;
 
     // ------------------ Websocket State - handles subscriptions ------------------
 
@@ -173,6 +170,14 @@ function ChartsContainer() {
 
     // ------------------ Render code ------------------
 
+    if (!lpStats) {
+        return (
+            <Container className="loading-container">
+                <div className='wine-bounce'>🍷</div>
+            </Container>
+        );
+    }
+
     return (
         <Container fluid>
             <Header />
@@ -215,4 +220,4 @@ function ChartsContainer() {
     );
 }
 
-export default ChartsContainer;
+export default PairContainer;

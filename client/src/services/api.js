@@ -24,6 +24,12 @@ export class UniswapApiFetcher {
         return data;
     }
 
+    static async getMarketData(startDate = '2020-12-01') {
+        const response = await fetch(`/api/v1/uniswap/market?startDate=${startDate}`);
+        const { data } = await response.json();
+        return data;
+    }
+
     static async getHistoricalDailyData(pairId, startDate, endDate = new Date()) {
         const response = await fetch(`/api/v1/uniswap/historical/${pairId}?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`);
         const { data } = await response.json();

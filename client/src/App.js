@@ -8,10 +8,12 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 
 import AppContext from 'util/app-context';
+import OverviewContainer from 'containers/overview-container';
 import PairContainer from 'containers/pair-container';
+import SideMenu from 'components/side-menu';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
-import { calculatePairRankings } from 'services/calculate-lp-stats';
+import { calculatePairRankings } from 'services/calculate-stats';
 
 import initialData from 'constants/initialData.json';
 
@@ -26,7 +28,9 @@ function App() {
             // Fetch all pairs
             const pairsRaw = await Uniswap.getTopPairs();
             const calculated = calculatePairRankings(pairsRaw);
-            setAllPairs({ isLoading: false, pairs: calculated.pairs, lookups: calculated.pairLookups });
+            window.calculated = calculated;
+
+            setAllPairs({ isLoading: false, pairs: calculated.pairs, lookups: calculated.pairLookups, byLiquidity: calculated.byLiquidity });
         }
         fetchAllPairs();
     }, []);
@@ -41,20 +45,23 @@ function App() {
     }
 
     return (
-        <AppContext.Provider value={{ allPairs }}>
-            <Router>
-                <div className="app">
+        <Router>
+            <div className='app'>
+                <div className='side-menu'>
+                    <SideMenu />
+                </div>
+                <div className="app-body">
                     <Switch>
-                        <Route path='/pair/:id'>
-                            <PairContainer />
+                        <Route path='/pair'>
+                            <PairContainer allPairs={allPairs} />
                         </Route>
                         <Route path='/'>
-                            <div>Hello World</div>
+                            <OverviewContainer allPairs={allPairs} />
                         </Route>
                     </Switch>
-                </div >
-            </Router>
-        </AppContext.Provider >
+                </div>
+            </div>
+        </Router>
     );
 }
 
