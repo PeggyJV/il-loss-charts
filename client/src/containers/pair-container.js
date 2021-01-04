@@ -1,8 +1,9 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 import Mixpanel from 'util/mixpanel';
+import AppContext from 'util/app-context';
 
 import Header from 'components/header';
 import PairSelector from 'components/pair-selector';
@@ -26,23 +27,12 @@ const mixpanel = new Mixpanel();
 function ChartsContainer() {
     const { id: routePairId } = useParams();
 
+    // ------------------ Global context ------------------
+    const { allPairs } = useContext(AppContext);
+
     // ------------------ Loading State - handles interstitial UI ------------------
 
     const [isLoading, setIsLoading] = useState(false);
-
-    // ------------------ Initial Mount - API calls for first render ------------------
-
-    const [allPairs, setAllPairs] = useState({ isLoading: true, pairs: initialData.allPairs });
-
-    useEffect(() => {
-        const fetchAllPairs = async () => {
-            // Fetch all pairs
-            const pairsRaw = await Uniswap.getTopPairs();
-            const calculated = calculatePairRankings(pairsRaw);
-            setAllPairs({ isLoading: false, pairs: calculated.pairs, lookups: calculated.pairLookups });
-        }
-        fetchAllPairs();
-    }, []);
 
     // ------------------ Shared State ------------------
 
@@ -182,14 +172,6 @@ function ChartsContainer() {
     }, [pairId, latestBlock]);
 
     // ------------------ Render code ------------------
-
-    if (allPairs.isLoading || !dailyDataAtLPDate) {
-        return (
-            <Container className="loading-container">
-                <div className='wine-bounce'>🍷</div>
-            </Container>
-        );
-    }
 
     return (
         <Container fluid>
