@@ -68,12 +68,12 @@ export default class UniswapFetcher {
         return { ...pair, feesUSD };
     }
 
-    static async getTopPairs(count = 1000) {
+    static async getTopPairs(count = 1000, orderBy = 'volumeUSD') {
         const response = await UniswapFetcher.client
             .query({
                 query: gql`
                     {
-                        pairs(first: ${count}, orderBy: volumeUSD, orderDirection: desc) {
+                        pairs(first: ${count}, orderBy: ${orderBy}, orderDirection: desc) {
                             id
                             volumeUSD
                             reserveUSD
@@ -204,20 +204,6 @@ export default class UniswapFetcher {
             lastStartDate = new Date(dailyData[dailyData.length - 1].date * 1000 + dayMs); // skip ahead 24 hrs
             dailyData = [...dailyData, ...(await UniswapFetcher._get100DaysHistoricalDailyData(pairId, lastStartDate, endDate))]
         }
-
-        // If end date is greater than the last day, fetch more hourly
-        // const lastDay = dailyData[dailyData.length - 1];
-        // const lastDayDate = new Date(lastDay.date * 1000);
-        // if (lastDayDate < endDate) {
-        //     const currentDayHourlyData = await UniswapFetcher.getCurrentDayDataFromHourly(pairId, lastDayDate, endDate);
-        //     // Fix last daily reserve0/reserve1 based on hourly data at same timestamp
-        //     const lastDaily = dailyData[dailyData.length - 1];
-        //     const firstHourly = currentDayHourlyData.pairHourDatas[0];
-        //     lastDaily.reserve0 = firstHourly.reserve0;
-        //     lastDaily.reserve1 = firstHourly.reserve1;
-        //     lastDaily.reserveUSD = firstHourly.reserveUSD;
-        //     dailyData.push(currentDayHourlyData);
-        // }
 
         return dailyData;
     }

@@ -63,8 +63,8 @@ body {
   transition: opacity .5s ease-in;
 }
 
-.app {
-    padding: 2em;
+.app-body {
+    padding: 1em;
 }
 
 .page-title {
@@ -208,4 +208,25 @@ body {
 .sidebar-buttons {
     display: flex;
     justify-content: space-around;
+}
+
+.side-menu {
+    background-color: #eeeeee;
+    padding: 1em;
+}
+
+.side-menu-title {
+    font-weight: 700;
+}
+
+.app {
+    display: flex;
+}
+
+.side-menu {
+    height: 100vh;
+}
+
+.side-menu-list {
+    list-style-type: none;
 }

@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import Uniswap from './uniswap';
 
 export function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidityUSD, lpDate }) {
-    if (historicalData.length === 0) return {};
+    if (historicalData.length === 0) return null;
 
     const dailyLiquidity = [];
     const runningVolume = [];
@@ -38,21 +38,13 @@ export function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidit
         const liquidity = new BigNumber(dailyData.reserveUSD);
         const dailyPoolFees = vol.times(Uniswap.FEE_RATIO);
         const dailyFees = dailyPoolFees.times(poolShare);
-        const newRunningFees = (runningFees[runningFees.length - 1] ?? new BigNumber(0)).plus(
-            dailyFees
-        );
+        const newRunningFees = (runningFees[runningFees.length - 1] ?? new BigNumber(0)).plus(dailyFees);
         const dailyImpermanentLoss = calculateImpermanentLoss(firstDaily, dailyData, lpLiquidityUSD);
         const dailyReturn = newRunningFees.plus(dailyImpermanentLoss);
 
         dailyLiquidity.push(liquidity);
-        runningVolume.push(
-            (runningVolume[runningVolume.length - 1] ?? new BigNumber(0)).plus(vol)
-        );
-        runningPoolFees.push(
-            (runningPoolFees[runningPoolFees.length - 1] ?? new BigNumber(0)).plus(
-                dailyPoolFees
-            )
-        );
+        runningVolume.push((runningVolume[runningVolume.length - 1] ?? new BigNumber(0)).plus(vol));
+        runningPoolFees.push((runningPoolFees[runningPoolFees.length - 1] ?? new BigNumber(0)).plus(dailyPoolFees));
         runningFees.push(newRunningFees);
         runningImpermanentLoss.push(dailyImpermanentLoss);
         runningReturn.push(dailyReturn);

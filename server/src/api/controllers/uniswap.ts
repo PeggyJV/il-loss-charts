@@ -1,11 +1,13 @@
 import express from 'express';
 import { Request, Response } from 'express';
 
+import cacheMiddleware from 'api/middlewares/cache';
+
 import UniswapFetcher from 'services/uniswap';
 import { HTTPError } from 'api/util/errors';
 import wrapRequest from 'api/util/wrap-request';
 import { isValidEthAddress } from 'util/eth';
-import calculateLPStats from 'util/calculate-lp-stats';
+import { calculateLPStats, calculateMarketStats } from 'util/calculate-stats';
 
 
 // TODO - caching
@@ -78,7 +80,27 @@ class UniswapController {
         return historicalDailyData;
     }
 
-    static async getStats(req: Request) {
+    static async getMarketStats(req: Request) {
+        const start: string = req.query.startDate?.toString();
+        if (!start) throw new HTTPError(400, `startDate is required.`);
+
+        const startDate = new Date(start);
+        if (startDate.getTime() !== startDate.getTime()) throw new HTTPError(400, `Received invalid date for startDate.`);
+
+        const endDate: Date = req.query.endDate ? new Date(req.query.endDate.toString()) : new Date();
+        if (endDate.getTime() !== endDate.getTime()) throw new HTTPError(400, `Received invalid date for endDate.`);
+
+        // Get 25 top pairs
+        // TODO: make this changeable by query
+        const topPairs = await UniswapFetcher.getTopPairs(100, 'volumeUSD');
+
+        // Calculate IL for top 25 pairs by liquidity
+        const marketStats = await calculateMarketStats(topPairs, startDate, endDate);
+
+        return marketStats;
+    }
+
+    static async getPairStats(req: Request) {
         const pairId: string = req.query.id.toString();
         // Validate ethereum address
         const validId = isValidEthAddress(pairId);
@@ -111,9 +133,10 @@ class UniswapController {
 
 export default express
     .Router()
-    .get('/pairs', wrapRequest(UniswapController.getTopPairs))
-    .get('/pairs/:id', wrapRequest(UniswapController.getPairOverview))
-    .get('/pairs/:id/swaps', wrapRequest(UniswapController.getSwapsForPair))
-    .get('/pairs/:id/addremove', wrapRequest(UniswapController.getMintsAndBurnsForPair))
-    .get('/historical/:id', wrapRequest(UniswapController.getHistoricalDailyData))
-    .get('/stats', wrapRequest(UniswapController.getStats));
+    .get('/market', cacheMiddleware(3600), wrapRequest(UniswapController.getMarketStats))
+    .get('/pairs', cacheMiddleware(300), wrapRequest(UniswapController.getTopPairs))
+    .get('/pairs/:id', cacheMiddleware(15), wrapRequest(UniswapController.getPairOverview))
+    .get('/pairs/:id/swaps', cacheMiddleware(15), wrapRequest(UniswapController.getSwapsForPair))
+    .get('/pairs/:id/addremove', cacheMiddleware(15), wrapRequest(UniswapController.getMintsAndBurnsForPair))
+    .get('/historical/:id', cacheMiddleware(300), wrapRequest(UniswapController.getHistoricalDailyData))
+    .get('/stats', wrapRequest(UniswapController.getPairStats));
