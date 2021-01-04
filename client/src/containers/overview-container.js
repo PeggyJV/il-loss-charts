@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import BootstrapTable from 'react-bootstrap-table-next';
 import BigNumber from 'bignumber.js';
 
@@ -23,7 +24,6 @@ function OverviewContainer() {
         const fetchMarketData = async () => {
             // Fetch all pairs
             const marketData = await Uniswap.getMarketData();
-            console.log('FETCHED', marketData);
             setMarketData(marketData);
         }
         fetchMarketData();
@@ -40,11 +40,19 @@ function OverviewContainer() {
 }
 
 function MarketDataTable({ data }) {
-    const formatCell = ({ token0, token1 }) => {
-        return <span>{resolveLogo(token0.id)}{' '}{token0.symbol}/{token1.symbol}{' '}{resolveLogo(token1.id)}</span>;
+    const formatCell = ({ id, token0, token1 }) => {
+        return <span>
+            {resolveLogo(token0.id)}{' '}
+            <Link to={`/pair?id=${id}`}>{token0.symbol}/{token1.symbol}</Link>
+            {' '}{resolveLogo(token1.id)}
+        </span>;
     }
 
     const columns = [
+        {
+            dataField: 'index',
+            text: '#',
+        },
         {
             dataField: 'market',
             text: 'Market',
@@ -78,9 +86,10 @@ function MarketDataTable({ data }) {
     ];
 
     const sortedIl = [...data].sort((a, b) => a.ilGross - b.ilGross)
-        .map(d => ({
+        .map((d, index) => ({
             ...d,
-            market: { token0: d.token0, token1: d.token1 },
+            index: index + 1,
+            market: { id: d.id, token0: d.token0, token1: d.token1 },
             impermanentLoss: `${new BigNumber(d.impermanentLoss).times(100).toFixed(2)}%`,
             ilGross: formatter.format(d.ilGross),
             liquidity: formatter.format(d.liquidity),
