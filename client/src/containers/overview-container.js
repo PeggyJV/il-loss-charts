@@ -16,8 +16,6 @@ const formatter = new Intl.NumberFormat('en-US', {
     //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
 });
 
-
-
 function OverviewContainer() {
     const [marketData, setMarketData] = useState([]);
 
