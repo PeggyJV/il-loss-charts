@@ -12,7 +12,7 @@ import LPStatsWidget from 'components/lp-stats-widget';
 import LPStatsChart from 'components/lp-stats-rechart';
 import LatestTradesSidebar from 'components/latest-trades-sidebar';
 import TotalPoolStats from 'components/total-pool-stats';
-// import RealtimeStatusBar from 'components/realtime-status-bar';
+import TelegramCTA from 'components/telegram-cta';
 
 import FadeOnChange from 'components/fade-on-change';
 
@@ -186,6 +186,7 @@ function PairContainer({ allPairs }) {
     return (
         <Container fluid>
             <Header />
+            <TelegramCTA />
             <Row noGutters>
                 <Col lg={10}>
                     <Row className='top-stats-row'>
