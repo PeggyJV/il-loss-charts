@@ -160,6 +160,10 @@ body {
     font-size: 1.1rem;
 }
 
+.pair-selector-container {
+    display: flex;
+}
+
 .pair-selector-col {
     padding: 0;
 }
@@ -168,6 +172,12 @@ body {
     text-align: center;
     margin-top: auto;
     margin-bottom: auto;
+}
+
+.pair-selector-separator {
+    display: flex;
+    align-items: center;
+    margin: 0 0.25em;
 }
 
 .window-button-card {

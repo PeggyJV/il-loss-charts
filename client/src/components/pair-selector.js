@@ -40,52 +40,45 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
         <Card className='pair-selector-card'>
             <Card.Body>
                 <Card.Title className='stats-card-title'>Market</Card.Title>
-                <Container fluid>
-                    <Row>
-                        <Col lg={5} className='pair-selector-col'>
-                            <InputGroup>
-                                <InputGroup.Prepend className='token-logo'>
-                                    <InputGroup.Text>{resolveLogo(defaultValue.token0.id)}</InputGroup.Text>
-                                </InputGroup.Prepend>
-                                <Combobox
-                                    className='pair-selector'
-                                    data={leftSideOptions}
-                                    value={defaultValue}
-                                    textField={pair => pair.token0.symbol}
-                                    itemComponent={TokenWithLogo('left')}
-                                    defaultValue={defaultValue}
-                                    filter='contains'
-                                    caseSensitive={false}
-                                    onChange={handleChange}
-                                />
-                            </InputGroup>
-                        </Col>
-                        <Col lg={2} className='pair-selector-middle-col'>
-                            {isLoading ? <div className='wine-spin'>🍷</div> : '✖️'}
-                        </Col>
-                        <Col lg={5} className='pair-selector-col'>
-                            <InputGroup>
-                                <InputGroup.Prepend className='token-logo'>
-                                    <InputGroup.Text >{resolveLogo(defaultValue.token1.id)}</InputGroup.Text>
-                                </InputGroup.Prepend>
-                                <Combobox
-                                    className='pair-selector'
-                                    data={rightSideOptions}
-                                    value={defaultValue}
-                                    textField={pair => pair.token1.symbol}
-                                    itemComponent={TokenWithLogo('right')}
-                                    defaultValue={defaultValue}
-                                    filter='contains'
-                                    caseSensitive={false}
-                                    onChange={handleChange}
-                                />
-                            </InputGroup>
-                        </Col>
-                    </Row>
-                </Container>
-
+                <div className='pair-selector-container'>
+                    <InputGroup>
+                        <InputGroup.Prepend className='token-logo'>
+                            <InputGroup.Text>{resolveLogo(defaultValue.token0.id)}</InputGroup.Text>
+                        </InputGroup.Prepend>
+                        <Combobox
+                            className='pair-selector'
+                            data={leftSideOptions}
+                            value={defaultValue}
+                            textField={pair => pair.token0.symbol}
+                            itemComponent={TokenWithLogo('left')}
+                            defaultValue={defaultValue}
+                            filter='contains'
+                            caseSensitive={false}
+                            onChange={handleChange}
+                        />
+                    </InputGroup>
+                    {isLoading ?
+                        <div className='wine-spin pair-selector-separator'>🍷</div>
+                        : <div className='pair-selector-separator'>✖️</div>}
+                    <InputGroup>
+                        <InputGroup.Prepend className='token-logo'>
+                            <InputGroup.Text >{resolveLogo(defaultValue.token1.id)}</InputGroup.Text>
+                        </InputGroup.Prepend>
+                        <Combobox
+                            className='pair-selector'
+                            data={rightSideOptions}
+                            value={defaultValue}
+                            textField={pair => pair.token1.symbol}
+                            itemComponent={TokenWithLogo('right')}
+                            defaultValue={defaultValue}
+                            filter='contains'
+                            caseSensitive={false}
+                            onChange={handleChange}
+                        />
+                    </InputGroup>
+                </div>
             </Card.Body>
-        </Card>
+        </Card >
     );
 }
 
