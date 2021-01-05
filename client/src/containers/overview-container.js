@@ -93,6 +93,12 @@ function MarketDataTable({ data }) {
             text: 'USD Returns',
             sort: true,
             formatter: formatUSD
+        },
+        {
+            dataField: 'returnsETH',
+            text: 'ETH Returns',
+            sort: true,
+            formatter: (val) => val.toFixed(4)
         }
     ];
 
@@ -107,8 +113,7 @@ function MarketDataTable({ data }) {
     return (
         <Card body className='il-market-container'>
             <BootstrapTable
-                classes='il-market-table'
-                keyField='market'
+                keyField='index'
                 data={sortedIl}
                 columns={columns}
                 rowStyle={{ borderLeft: 0, borderRight: 0 }}

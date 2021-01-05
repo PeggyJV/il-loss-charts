@@ -22,6 +22,8 @@ export async function calculateMarketStats(pairs, startDate, endDate) {
     // const pairsByLiq = [...pairs].sort((a, b) => parseInt(b.reserveUSD, 10) - parseInt(a.reserveUSD, 10)).slice(0, 25);
     const pairsByVol = pairs.slice(0, 25);
 
+    const { ethPrice } = await UniswapFetcher.getEthPrice();
+
     // TODO: Save requests by only fetching first and last day
     const historicalFetches = pairsByVol.map((pair) => UniswapFetcher.getHistoricalDailyData(pair.id, startDate, endDate));
 
@@ -53,7 +55,8 @@ export async function calculateMarketStats(pairs, startDate, endDate) {
             impermanentLoss: impermanentLoss.toNumber(),
             volume: volume.toNumber(),
             liquidity: new BigNumber(pair.reserveUSD).toNumber(),
-            returnsUSD: returns.toNumber()
+            returnsUSD: returns.toNumber(),
+            returnsETH: returns.div(ethPrice).toNumber(),
         });
         return acc;
     }, []);
