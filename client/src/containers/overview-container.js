@@ -32,7 +32,7 @@ function OverviewContainer() {
 
     return (
         <div>
-            <h4>Highest Impermanent Loss Pairs on Uniswap</h4>
+            <h4>Highest Impermanent Loss Pairs on Uniswap since December 1</h4>
             <p><em>* The impermanent loss percentage is a reflection of the amount of IL due to price fluctation relative to the total return of the pool.</em></p>
             {marketData && <MarketDataTable data={marketData} />}
         </div>
@@ -100,7 +100,7 @@ function MarketDataTable({ data }) {
         }
     ];
 
-    const sortedIl = [...data].sort((a, b) => a.ilGross - b.ilGross)
+    const sortedIl = [...data].sort((a, b) => a.impermanentLoss - b.impermanentLoss)
         .map((d, index) => ({
             ...d,
             index: index + 1,
