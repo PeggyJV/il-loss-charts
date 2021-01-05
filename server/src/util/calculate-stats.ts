@@ -50,10 +50,10 @@ export async function calculateMarketStats(pairs, startDate, endDate) {
             ...pair,
             ilGross: impermanentLossGross.toNumber(),
             market: `${pair.token0.symbol}/${pair.token1.symbol}`,
-            impermanentLoss: impermanentLoss.toFixed(5),
-            volume: volume.toFixed(5),
-            liquidity: pair.reserveUSD,
-            returnsUSD: returns.toFixed(5)
+            impermanentLoss: impermanentLoss.toNumber(),
+            volume: volume.toNumber(),
+            liquidity: new BigNumber(pair.reserveUSD).toNumber(),
+            returnsUSD: returns.toNumber()
         });
         return acc;
     }, []);

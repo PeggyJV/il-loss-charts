@@ -231,3 +231,39 @@ body {
 .side-menu-list {
     list-style-type: none;
 }
+
+.il-market-container {
+    height: 45em;
+    overflow: scroll;
+}
+
+th .order-4:before {
+    margin-left: 3.5px;
+    content: "\2191";
+    opacity: 0.4;
+}
+
+th .order-4:after {
+    content: "\2193";
+    opacity: 0.4;
+}
+
+th .caret-4-asc:before {
+    margin-left: 3.5px;
+    content: "\2191";
+}
+
+th .caret-4-asc:after {
+    content: "\2193";
+    opacity: 0.4;
+}
+
+th .caret-4-desc:before {
+    margin-left: 3.5px;
+    content: "\2191";
+    opacity: 0.4;
+}
+
+th .caret-4-desc:after {
+    content: "\2193";
+}

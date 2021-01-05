@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 import Mixpanel from 'util/mixpanel';
 import AppContext from 'util/app-context';
@@ -25,9 +25,6 @@ import config from 'config';
 const mixpanel = new Mixpanel();
 
 function PairContainer({ allPairs }) {
-    // const query = new URLSearchParams(useLocation().search);
-    // const routePairId = query.get('id');
-
     // ------------------ Loading State - handles interstitial UI ------------------
 
     const [isLoading, setIsLoading] = useState(false);
@@ -41,6 +38,14 @@ function PairContainer({ allPairs }) {
     const prevPairIdRef = useRef();
     useEffect(() => { prevPairIdRef.current = pairId; });
     const prevPairId = prevPairIdRef.current;
+
+    const location = useLocation();
+    const history = useHistory();
+    useEffect(() => {
+        const query = new URLSearchParams(location.search);
+        const pairId = query.get('id');
+        if (pairId) setPairId(pairId);
+    }, [location]);
 
     // ------------------ LP State - handles lp-specific info ------------------
 

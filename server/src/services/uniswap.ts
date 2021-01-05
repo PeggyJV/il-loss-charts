@@ -202,7 +202,13 @@ export default class UniswapFetcher {
         // Keep fetching until we pass the end date
         while (dailyData[dailyData.length - 1].date <= endDateTimestamp && Math.floor(lastStartDate.getTime() / 1000) <= endDateTimestamp) {
             lastStartDate = new Date(dailyData[dailyData.length - 1].date * 1000 + dayMs); // skip ahead 24 hrs
+            const oldLength = dailyData.length;
             dailyData = [...dailyData, ...(await UniswapFetcher._get100DaysHistoricalDailyData(pairId, lastStartDate, endDate))]
+
+            // Nothing more to add
+            if (dailyData.length === oldLength) {
+                break;
+            }
         }
 
         return dailyData;
