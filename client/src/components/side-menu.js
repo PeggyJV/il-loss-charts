@@ -1,3 +1,4 @@
+import { Button } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
 
 function SideMenu() {
@@ -15,6 +16,11 @@ function SideMenu() {
                     IL Calculator
                 </NavLink>
             </p>
+            <hr />
+            <Button variant='secondary' size='sm' disabled>
+                Connect Wallet
+            </Button>
+            <div style={{ fontSize: '0.8rem' }}>☝️ Coming soon!</div>
         </>
     );
 }
