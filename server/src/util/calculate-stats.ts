@@ -1,8 +1,7 @@
 import BigNumber from 'bignumber.js';
 import { format } from 'date-fns';
 
-import UniswapFetcher from 'services/uniswap';
-
+import UniswapFetcher from '../services/uniswap';
 
 const FEE_RATIO = 0.003;
 
@@ -17,15 +16,10 @@ export type LPStats = {
     days: string[]
 };
 
-export async function calculateMarketStats(pairs, startDate, endDate) {
+// export async function calculateMarketStats(pairs, startDate, endDate) {
+export async function calculateMarketStats(pairs, historicalData, period = 'daily') {
     // Historical data fetches
-    // const pairsByLiq = [...pairs].sort((a, b) => parseInt(b.reserveUSD, 10) - parseInt(a.reserveUSD, 10)).slice(0, 25);
-    const pairsByVol = pairs.slice(0, 25);
-
     const { ethPrice } = await UniswapFetcher.getEthPrice();
-
-    // TODO: Save requests by only fetching first and last day
-    const historicalFetches = pairsByVol.map((pair) => UniswapFetcher.getHistoricalDailyData(pair.id, startDate, endDate));
 
     const calculateImpermanentLoss = (startDailyData, endDailyData) => {
         const initialExchangeRate = new BigNumber(startDailyData.reserve0).div(new BigNumber(startDailyData.reserve1));
@@ -36,14 +30,21 @@ export async function calculateMarketStats(pairs, startDate, endDate) {
         return impermanentLossPct;
     }
 
-    const historicalData: any[] = await Promise.all(historicalFetches);
-
-    const marketStats = pairsByVol.reduce((acc, pair, index) => {
+    const marketStats = pairs.reduce((acc, pair, index) => {
         const historical = historicalData[index];
         const firstDaily = historical[0];
         const lastDaily = historical[historical.length - 1];
+
+        // Skip pair if no data
+        // TODO smarter error handling
+        if (!firstDaily || !lastDaily) {
+            console.warn(`Could not calculate impermanent loss for ${pair.token0.symbol}/${pair.token1.symbol}`);
+            return acc;
+        }
+
         const impermanentLoss = calculateImpermanentLoss(firstDaily, lastDaily);
-        const volume = historical.reduce((acc, h) => acc.plus(h.dailyVolumeUSD), new BigNumber(0));
+        const volField = period === 'hourly' ? 'hourlyVolumeUSD' : 'dailyVolumeUSD';
+        const volume = historical.reduce((acc, h) => acc.plus(h[volField]), new BigNumber(0));
         const fees = volume.times(FEE_RATIO);
         const returns = fees.plus(impermanentLoss);
         const impermanentLossGross = impermanentLoss.times(returns);
@@ -61,15 +62,7 @@ export async function calculateMarketStats(pairs, startDate, endDate) {
         return acc;
     }, []);
 
-
-    // const historicalData = {};
-    // for (const pair of pairs) {
-    //     console.log('FETCHING PAIR ID', pair.id);
-    //     const pairHistorical = await UniswapFetcher.getHistoricalDailyData(pair.id, startDate, endDate);
-    //     historicalData[pair.id] = pairHistorical;
-    // }
     return marketStats;
-
 }
 
 export function calculateLPStats(pairData, historicalData, lpLiquidityUSD) {

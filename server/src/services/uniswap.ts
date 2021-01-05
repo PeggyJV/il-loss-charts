@@ -136,7 +136,7 @@ export default class UniswapFetcher {
         return pairDayDatas;
     }
 
-    static async getCurrentDayDataFromHourly(pairId, startDate, endDate) {
+    static async getHourlyData(pairId, startDate, endDate) {
         const response = await UniswapFetcher.client
             .query({
                 query: gql`
@@ -169,6 +169,12 @@ export default class UniswapFetcher {
             throw new Error(`Could not fetch daily data for pair ${pairId}. Error from response: ${response.error}`);
         }
 
+        return pairHourDatas;
+    }
+
+    static async getCurrentDayDataFromHourly(pairId, startDate, endDate) {
+        const pairHourDatas = await UniswapFetcher.getHourlyData(pairId, startDate, endDate);
+
         // Aggregate hour datas into current day data
         // TODO: Investigate reserve0/reserve1 discrepancy in hourly datas
         const currentDayData = pairHourDatas.reduce((acc, hourData) => {
@@ -198,6 +204,10 @@ export default class UniswapFetcher {
         let dailyData = await UniswapFetcher._get100DaysHistoricalDailyData(pairId, startDate, endDate);
         const endDateTimestamp = Math.floor(endDate.getTime() / 1000);
         const dayMs = 1000 * 60 * 60 * 24;
+
+        if (dailyData.length === 0) {
+            throw new Error(`Could not fetch any historical data for the given timeframe. Make sure the window is at least 1 day.`);
+        }
 
         // Keep fetching until we pass the end date
         while (dailyData[dailyData.length - 1].date <= endDateTimestamp && Math.floor(lastStartDate.getTime() / 1000) <= endDateTimestamp) {

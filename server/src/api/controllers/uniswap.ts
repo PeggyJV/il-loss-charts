@@ -93,9 +93,14 @@ class UniswapController {
         // Get 25 top pairs
         // TODO: make this changeable by query
         const topPairs = await UniswapFetcher.getTopPairs(100, 'volumeUSD');
+        const pairsByVol = topPairs.slice(0, 25);
+
+        // TODO: Save requests by only fetching first and last day
+        const historicalFetches = pairsByVol.map((pair) => UniswapFetcher.getHistoricalDailyData(pair.id, startDate, endDate));
+        const historicalData: any[] = await Promise.all(historicalFetches);
 
         // Calculate IL for top 25 pairs by liquidity
-        const marketStats = await calculateMarketStats(topPairs, startDate, endDate);
+        const marketStats = await calculateMarketStats(pairsByVol, historicalData, 'daily');
 
         return marketStats;
     }
@@ -131,7 +136,6 @@ class UniswapController {
 
     static async getEthPrice(req: Request) {
         const ethPrice = await UniswapFetcher.getEthPrice();
-
         return ethPrice;
     }
 }
