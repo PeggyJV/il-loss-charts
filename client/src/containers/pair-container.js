@@ -28,6 +28,7 @@ function PairContainer({ allPairs }) {
     // ------------------ Loading State - handles interstitial UI ------------------
 
     const [isLoading, setIsLoading] = useState(false);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     // ------------------ Shared State ------------------
 
@@ -50,11 +51,13 @@ function PairContainer({ allPairs }) {
     const [lpInfo, setLPInfo] = useState({});
     const [lpDate, setLPDate] = useState(new Date(initialData.lpDate));
     const [lpShare, setLPShare] = useState(initialData.lpShare);
-    const lpStats = useMemo(() => !isLoading && calculateLPStats({ ...lpInfo, lpDate, lpShare }), [lpInfo, lpDate, lpShare]);
+
+    // Keep track of previous lp stats to prevent entire loading UI from coming up on change
+    const lpStats = useMemo(() => !isInitialLoad && calculateLPStats({ ...lpInfo, lpDate, lpShare }), [lpInfo, lpDate, lpShare]);
 
     useEffect(() => {
         const fetchPairData = async () => {
-            setIsLoading(true);
+            if (!isLoading) setIsLoading(true);
 
             // Fetch pair overview when pair ID changes
             // Default to createdAt date if LP date not set
@@ -73,6 +76,7 @@ function PairContainer({ allPairs }) {
             mixpanel.track('pair_query', { pairId, token0: newPair.token0.symbol, token1: newPair.token1.symbol });
 
             setIsLoading(false);
+            if (isInitialLoad) setIsInitialLoad(false);
         }
 
         fetchPairData();
@@ -111,7 +115,7 @@ function PairContainer({ allPairs }) {
         const { topic } = lastJsonMessage;
 
         let blockNumber;
-        if (topic.startsWith('uniswap:getPairOverview')) {
+        if (topic.startsWith('uniswap:getPairOverview') && !isLoading) {
             setLPInfo({ ...lpInfo, pairData: lastJsonMessage.data });
         } else if (topic === 'infura:newHeads') {
             const { data: { number: blockNumberHex } } = lastJsonMessage;
