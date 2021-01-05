@@ -322,4 +322,25 @@ export default class UniswapFetcher {
 
         return burns;
     }
+
+    static async getEthPrice() {
+        const response = await UniswapFetcher.client
+            .query({
+                query: gql`
+                    {
+                        bundle(id: "1" ) {
+                            ethPrice
+                        }
+                    }
+                `
+            });
+
+        const { bundle: { ethPrice } } = response?.data;
+
+        if (ethPrice == null) {
+            throw new Error(`Could not fetch ethPrice. Error from response: ${response.error}`);
+        }
+
+        return { ethPrice };
+    }
 }

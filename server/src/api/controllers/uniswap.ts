@@ -128,11 +128,18 @@ class UniswapController {
         const lpStats = calculateLPStats(pairData, historicalDailyData, lpLiquidityUSD);
         return lpStats;
     }
+
+    static async getEthPrice(req: Request) {
+        const ethPrice = await UniswapFetcher.getEthPrice();
+
+        return ethPrice;
+    }
 }
 
 
 export default express
     .Router()
+    .get('/ethPrice', wrapRequest(UniswapController.getEthPrice))
     .get('/market', cacheMiddleware(3600), wrapRequest(UniswapController.getMarketStats))
     .get('/pairs', cacheMiddleware(300), wrapRequest(UniswapController.getTopPairs))
     .get('/pairs/:id', cacheMiddleware(15), wrapRequest(UniswapController.getPairOverview))
