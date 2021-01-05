@@ -31,7 +31,6 @@ function PairContainer({ allPairs }) {
 
     // ------------------ Shared State ------------------
 
-    // const [pairId, setPairId] = useState(routePairId || initialData.pairId);
     const [pairId, setPairId] = useState(initialData.pairId);
 
     // Keep track of previous pair ID so we can unsubscribe
@@ -40,7 +39,6 @@ function PairContainer({ allPairs }) {
     const prevPairId = prevPairIdRef.current;
 
     const location = useLocation();
-    const history = useHistory();
     useEffect(() => {
         const query = new URLSearchParams(location.search);
         const pairId = query.get('id');
@@ -49,14 +47,10 @@ function PairContainer({ allPairs }) {
 
     // ------------------ LP State - handles lp-specific info ------------------
 
-    const initialLPInfo = {
-        pairData: initialData.pairData,
-        historicalData: initialData.historicalData,
-    };
-
-    const [lpInfo, setLPInfo] = useState(initialLPInfo);
+    const [lpInfo, setLPInfo] = useState({});
     const [lpDate, setLPDate] = useState(new Date(initialData.lpDate));
     const [lpShare, setLPShare] = useState(initialData.lpShare);
+    const lpStats = useMemo(() => !isLoading && calculateLPStats({ ...lpInfo, lpDate, lpShare }), [lpInfo, lpDate, lpShare]);
 
     useEffect(() => {
         const fetchPairData = async () => {
@@ -78,7 +72,6 @@ function PairContainer({ allPairs }) {
 
             mixpanel.track('pair_query', { pairId, token0: newPair.token0.symbol, token1: newPair.token1.symbol });
 
-
             setIsLoading(false);
         }
 
@@ -86,6 +79,8 @@ function PairContainer({ allPairs }) {
     }, [pairId]);
 
     const dailyDataAtLPDate = useMemo(() => {
+        if (!lpInfo.historicalData || lpInfo.historicalData.length === 0) return {};
+
         // Find daily data that matches LP date
         for (let dailyData of lpInfo.historicalData) {
             const currentDate = new Date(dailyData.date * 1000);
@@ -100,7 +95,6 @@ function PairContainer({ allPairs }) {
         setLPDate(firstDay);
         return lpInfo.historicalData[0];
     }, [lpInfo, lpDate]);
-    const lpStats = useMemo(() => calculateLPStats({ ...lpInfo, lpDate, lpShare }), [lpInfo, lpDate, lpShare]);
 
     // ------------------ Websocket State - handles subscriptions ------------------
 
@@ -175,11 +169,12 @@ function PairContainer({ allPairs }) {
 
     // ------------------ Render code ------------------
 
-    if (!lpStats) {
+    // If no lp stats, we haven't completed our first data fetch yet
+    if (!lpStats || Object.keys(lpStats).length === 0) {
         return (
-            <Container className="loading-container">
-                <div className='wine-bounce'>🍷</div>
-            </Container>
+            <Container className="loading-container" >
+                <div className='wine-bounce' >🍷</div >
+            </Container >
         );
     }
 

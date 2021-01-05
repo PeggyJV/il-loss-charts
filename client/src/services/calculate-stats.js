@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import Uniswap from './uniswap';
 
 export function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidityUSD, lpDate }) {
-    if (historicalData.length === 0) return null;
+    if (!historicalData || historicalData.length === 0) return null;
 
     const dailyLiquidity = [];
     const runningVolume = [];

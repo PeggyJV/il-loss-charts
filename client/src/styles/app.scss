@@ -144,8 +144,9 @@ body {
 
 .loading-container {
     margin-top: 10em;
-    margin-left: auto;
-    margin-right: auto;
+    position: fixed;
+    width: 10%;
+    left: 45%;
     // opacity: 0.7;
     background-color: #ffffff;
     text-align: center;
