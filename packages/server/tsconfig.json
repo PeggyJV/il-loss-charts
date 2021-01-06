@@ -1,20 +1,11 @@
 {
-    "compileOnSave": false,
+    "extends": "../tsconfig.settings.json",
     "compilerOptions": {
-        "target": "es6",
-        "module": "commonjs",
-        "esModuleInterop": true,
-        "sourceMap": true,
-        "moduleResolution": "node",
+        "composite": true,
         "outDir": "dist",
-        "typeRoots": [
-            "node_modules/@types"
-        ],
-        "resolveJsonModule": true,
         "baseUrl": "./src"
     },
     "include": [
-        "typings.d.ts",
         "src/**/*.ts"
     ],
     "exclude": [

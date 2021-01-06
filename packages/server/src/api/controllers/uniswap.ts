@@ -18,8 +18,12 @@ import { calculateLPStats, calculateMarketStats } from 'util/calculate-stats';
 // Controllers should parse query/body, validate params, and pass to service to do the work.
 class UniswapController {
     static async getTopPairs(req: Request) {
-        const count: number = req.query.count && parseInt(req.query.count?.toString(), 10);
-        if (Number.isNaN(count) || count < 1) throw new HTTPError(400, `Invalid count parameter: ${req.query.count}`);
+        let count: number | undefined;
+
+        if (typeof req.query.count === 'string') {
+            count = parseInt(req.query.count, 10);
+            if (Number.isNaN(count) || count < 1) throw new HTTPError(400, `Invalid count parameter: ${req.query.count}`);
+        }
 
         const topPairs = await UniswapFetcher.getTopPairs(count);
         return topPairs;
@@ -67,7 +71,7 @@ class UniswapController {
         const validId = isValidEthAddress(pairId);
         if (!validId) throw new HTTPError(400, `id must be a valid ETH address.`);
 
-        const start: string = req.query.startDate?.toString();
+        const start: string | undefined = req.query.startDate?.toString();
         if (!start) throw new HTTPError(400, `startDate is required.`);
 
         const startDate = new Date(start);
@@ -81,7 +85,7 @@ class UniswapController {
     }
 
     static async getMarketStats(req: Request) {
-        const start: string = req.query.startDate?.toString();
+        const start: string | undefined = req.query.startDate?.toString();
         if (!start) throw new HTTPError(400, `startDate is required.`);
 
         const startDate = new Date(start);
@@ -106,12 +110,12 @@ class UniswapController {
     }
 
     static async getPairStats(req: Request) {
-        const pairId: string = req.query.id.toString();
+        const pairId: string | undefined = req.query.id?.toString();
         // Validate ethereum address
         const validId = isValidEthAddress(pairId);
         if (!validId) throw new HTTPError(400, `ID must be a valid ETH address.`);
 
-        const start: string = req.query.startDate?.toString();
+        const start: string | undefined = req.query.startDate?.toString();
         if (!start) throw new HTTPError(400, `startDate is required.`);
 
         const startDate = new Date(start);

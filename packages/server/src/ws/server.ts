@@ -7,8 +7,8 @@ export default class WebsocketServer {
     static WS_PATH = '/realtime';
 
     _server: ws.Server;
-    connections = [];
-    handlers = [];
+    connections: ws[] = [];
+    handlers: WsMessageHandler[] = [];
 
     constructor(server: http.Server) {
         this._server = new ws.Server({ server, path: WebsocketServer.WS_PATH });

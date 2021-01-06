@@ -18,7 +18,7 @@ export default class UniswapFetcher {
         }
     });
 
-    static async getPairOverview(pairId) {
+    static async getPairOverview(pairId: string): UniswapPair {
         const response = await UniswapFetcher.client
             .query({
                 query: gql`
