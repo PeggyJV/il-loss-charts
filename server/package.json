@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "NODE_PATH=dist/ node dist/index.js",
-        "compile": "ts-node build.ts && tsc",
+        "build": "ts-node build.ts && tsc",
         "dev": "nodemon src/index.ts | pino-pretty",
         "dev:debug": "nodemon --exec \"node -r ts-node/register --inspect-brk\" src/index.ts | pino-pretty",
         "lint": "eslint -c .eslintrc.js \"{server, test}/**/*.{js,ts,tsx}\" --quiet",
