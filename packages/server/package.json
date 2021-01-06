@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "Data tools for DeFi LPs",
     "main": "dist/index.js",
-    "typings": "**/*.d.ts",
+    "types": "dist/index.d.ts",
     "scripts": {
         "start": "NODE_PATH=dist/ node dist/index.js",
         "clean": "rimraf dist *.tsbuildinfo",

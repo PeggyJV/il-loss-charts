@@ -15,6 +15,7 @@
         "packages/*"
     ],
     "dependencies": {
-        "concurrently": "^5.3.0"
+        "concurrently": "^5.3.0",
+        "rimraf": "^3.0.2"
     }
 }
