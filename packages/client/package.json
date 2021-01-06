@@ -44,6 +44,7 @@
     },
     "scripts": {
         "clean": "rimraf build *.tsbuildinfo",
+        "lint": "eslint src --ext js,ts",
         "predeploy": "yarn build",
         "deploy": "gh-pages -d build",
         "dev": "react-scripts start",

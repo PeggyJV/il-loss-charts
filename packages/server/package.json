@@ -11,8 +11,8 @@
         "build:watch": "ts-node build.ts && tsc -w",
         "dev": "nodemon src/index.ts | pino-pretty",
         "dev:debug": "nodemon --exec \"node -r ts-node/register --inspect-brk\" src/index.ts | pino-pretty",
-        "lint": "eslint -c .eslintrc.js \"{server, test}/**/*.{js,ts,tsx}\" --quiet",
-        "lint:fix": "eslint -c .eslintrc.js \"{server, test}/**/*.{js,ts,tsx}\" --quiet --fix",
+        "lint": "eslint src --ext js,ts",
+        "lint:fix": "eslint src --ext js,ts --fix",
         "test": "mocha -r ts-node/register test/**/*.ts --exit",
         "test:debug": "mocha -r ts-node/register --inspect-brk test/**/*.ts --exit"
     },
