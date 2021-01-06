@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { tokenizeTopic } from 'util/parse-topics';
-import services from 'services';
+import services, { DataSource } from 'services';
 import logger from 'common/logger';
 
 // TODO: Normalize errors and re-architect polling vs socket
@@ -24,7 +24,7 @@ class PollingUtil extends EventEmitter {
         return this.startPolling(topic, interval);
     }
 
-    unsubscribe(topic): void {
+    unsubscribe(topic: string): void {
         if (!this.activeTopics[topic]) {
             // If topic is not active, no-op
             logger.info(`Unsubscribe attempt for inactive topic: ${topic}`);
@@ -49,10 +49,10 @@ class PollingUtil extends EventEmitter {
             throw new Error('Wildcards not yet implemented.');
         }
 
-        const dataSource = services[source];
+        const dataSource = services[source as DataSource];
         if (!dataSource) throw new Error(`Cannot start polling on data source ${dataSource}`);
 
-        const queryFn = dataSource[query];
+        const queryFn = (dataSource as any)[query];
         if (!queryFn) throw new Error(`Query ${query} does not exist on data source ${dataSource}`);
 
         const topicEmitter = new EventEmitter();
@@ -60,7 +60,7 @@ class PollingUtil extends EventEmitter {
         // Assume args are comma-delimited
         const argsArr = args.split(',');
 
-        const interval = setInterval(async () => {
+        const interval: NodeJS.Timeout = <any>setInterval(async () => {
             const latest = await queryFn(...argsArr);
             topicEmitter.emit('data', latest);
         }, intervalMs);
@@ -76,7 +76,7 @@ class PollingUtil extends EventEmitter {
         return topicEmitter;
     }
 
-    stopPolling(topic): boolean {
+    stopPolling(topic: string): boolean {
         if (!this.activeTopics[topic]) return false;
 
         // Clear interval for active topic and delete tracked topic

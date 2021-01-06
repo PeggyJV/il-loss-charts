@@ -9,7 +9,13 @@ import { calculateMarketStats } from '../util/calculate-stats';
 
 import fs from 'fs';
 
-const sommBot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
+let sommBot: TelegramBot | undefined;
+if (process.env.TELEGRAM_BOT_TOKEN) {
+    sommBot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
+} else {
+    throw new Error(`Cannot start il alerts telegram bot without token.`);
+}
+
 const CHAT_ID = '@getsomm_alerts';
 
 async function runAlertCheck(): Promise<void> {

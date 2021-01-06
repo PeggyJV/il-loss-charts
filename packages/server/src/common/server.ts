@@ -13,8 +13,7 @@ import * as OpenApiValidator from 'express-openapi-validator';
 const app = express();
 
 export default class ExpressServer {
-    private routes: (app: Application) => void;
-    public httpServer: http.Server;
+    public httpServer?: http.Server;
 
     constructor() {
         const root = path.normalize(__dirname + '/../..');

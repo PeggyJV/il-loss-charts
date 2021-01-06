@@ -2,7 +2,79 @@ import fetch from 'cross-fetch';
 import { ApolloClient, HttpLink, InMemoryCache, gql } from '@apollo/client/core';
 import BigNumber from 'bignumber.js';
 
+export interface LiquidityData {
+    reserve0: string;
+    reserve1: string;
+    reserveUSD: string;
+}
+export interface Token {
+    __typename: 'Token';
+    decimals: string;
+    derivedETH: string;
+    id: string;
+    name: string;
+    symbol: string;
+    totalLiquidity: string;
+    tradeVolumeUSD: string;
+}
+
+export interface UniswapPair extends LiquidityData {
+    __typename: 'Pair';
+    createdAtTimestamp: string;
+    id: string;
+    token0: Token;
+    token1: Token;
+    token0Price: string;
+    token1Price: string;
+    trackedReserveETH: string;
+    txCount: string;
+    volumeUSD: string;
+    feesUSD?: string;
+}
+
+export interface UniswapDailyData extends LiquidityData {
+    __typename: 'PairDayData';
+    date: number;
+    pairAddress: string;
+    dailyVolumeToken0: string;
+    dailyVolumeToken1: string;
+    dailyVolumeUSD: string;
+}
+
+export interface UniswapHourlyData extends LiquidityData {
+    __typename: 'PairDayData';
+    paid: { id: string };
+    hourStartUnix: number;
+    hourlyVolumeToken0: string;
+    hourlyVolumeToken1: string;
+    hourlyVolumeUSD: string;
+}
+
+export interface UniswapSwaps {
+    __typename: 'Swap';
+    amount0In: string;
+    amount0Out: string;
+    amount1In: string;
+    amount1Out: string;
+    amountUSD: string;
+    to: string;
+    pair: Partial<UniswapPair>;
+}
+
+export interface UniswapMintOrBurn {
+    __typename: 'Mint' | 'Burn';
+    amount0: string;
+    amount1: string;
+    amountUSD: string;
+    liquidity: string
+    to: string;
+    pair: Partial<UniswapPair>;
+    timestamp: string;
+}
+
+
 export default class UniswapFetcher {
+
     static FEE_RATIO = 0.003;
 
     static client = new ApolloClient({
@@ -18,7 +90,7 @@ export default class UniswapFetcher {
         }
     });
 
-    static async getPairOverview(pairId: string): UniswapPair {
+    static async getPairOverview(pairId: string): Promise<UniswapPair> {
         const response = await UniswapFetcher.client
             .query({
                 query: gql`
@@ -68,7 +140,7 @@ export default class UniswapFetcher {
         return { ...pair, feesUSD };
     }
 
-    static async getTopPairs(count = 1000, orderBy = 'volumeUSD') {
+    static async getTopPairs(count = 1000, orderBy = 'volumeUSD'): Promise<UniswapPair[]> {
         const response = await UniswapFetcher.client
             .query({
                 query: gql`
@@ -102,6 +174,7 @@ export default class UniswapFetcher {
         return pairs;
     }
 
+<<<<<<< HEAD
     static async getIlAlertsPairs(count = 1000) {
         const response = await UniswapFetcher.client
             .query({
@@ -145,6 +218,9 @@ export default class UniswapFetcher {
 
 
     static async _get100DaysHistoricalDailyData(pairId, startDate, endDate) {
+=======
+    static async _get100DaysHistoricalDailyData(pairId: string, startDate: Date, endDate: Date): Promise<UniswapDailyData[]> {
+>>>>>>> get ts working
         const response = await UniswapFetcher.client
             .query({
                 query: gql`
@@ -178,7 +254,7 @@ export default class UniswapFetcher {
         return pairDayDatas;
     }
 
-    static async getHourlyData(pairId, startDate, endDate) {
+    static async getHourlyData(pairId: string, startDate: Date, endDate: Date): Promise<UniswapHourlyData[]> {
         const response = await UniswapFetcher.client
             .query({
                 query: gql`
@@ -214,18 +290,17 @@ export default class UniswapFetcher {
         return pairHourDatas;
     }
 
-    static async getCurrentDayDataFromHourly(pairId, startDate, endDate) {
+    static async getCurrentDayDataFromHourly(pairId: string, startDate: Date, endDate: Date): Promise<UniswapDailyData> {
         const pairHourDatas = await UniswapFetcher.getHourlyData(pairId, startDate, endDate);
 
         // Aggregate hour datas into current day data
         // TODO: Investigate reserve0/reserve1 discrepancy in hourly datas
-        const currentDayData = pairHourDatas.reduce((acc, hourData) => {
+        const currentDayResults = pairHourDatas.reduce((acc, hourData) => {
             acc.dailyVolumeUSD = acc.dailyVolumeUSD.plus(hourData.hourlyVolumeUSD);
             acc.dailyVolumeToken0 = acc.dailyVolumeToken0.plus(hourData.hourlyVolumeToken0);
             acc.dailyVolumeToken1 = acc.dailyVolumeToken1.plus(hourData.hourlyVolumeToken1);
             return acc;
         }, {
-            __typename: 'PairDayData',
             partialDay: true,
             dailyVolumeToken0: new BigNumber(0),
             dailyVolumeToken1: new BigNumber(0),
@@ -238,10 +313,18 @@ export default class UniswapFetcher {
             pairHourDatas: pairHourDatas
         });
 
+        const currentDayData: UniswapDailyData = {
+            ...currentDayResults,
+            __typename: 'PairDayData',
+            dailyVolumeToken0: currentDayResults.dailyVolumeToken0.toString(),
+            dailyVolumeToken1: currentDayResults.dailyVolumeToken1.toString(),
+            dailyVolumeUSD: currentDayResults.dailyVolumeUSD.toString(),
+        };
+
         return currentDayData;
     }
 
-    static async getHistoricalDailyData(pairId, startDate, endDate = new Date()) {
+    static async getHistoricalDailyData(pairId: string, startDate: Date, endDate = new Date()): Promise<UniswapDailyData[]> {
         let lastStartDate = startDate;
         let dailyData = await UniswapFetcher._get100DaysHistoricalDailyData(pairId, startDate, endDate);
         const endDateTimestamp = Math.floor(endDate.getTime() / 1000);
@@ -266,7 +349,7 @@ export default class UniswapFetcher {
         return dailyData;
     }
 
-    static async getSwapsForPair(pairId) {
+    static async getSwapsForPair(pairId: string): Promise<UniswapSwaps> {
         const response = await UniswapFetcher.client
             .query({
                 query: gql`
@@ -303,7 +386,7 @@ export default class UniswapFetcher {
     }
 
 
-    static async getMintsForPair(pairId) {
+    static async getMintsForPair(pairId: string): Promise<UniswapMintOrBurn[]> {
         const response = await UniswapFetcher.client
             .query({
                 query: gql`
@@ -339,7 +422,7 @@ export default class UniswapFetcher {
         return mints;
     }
 
-    static async getBurnsForPair(pairId) {
+    static async getBurnsForPair(pairId: string): Promise<UniswapMintOrBurn[]> {
         const response = await UniswapFetcher.client
             .query({
                 query: gql`
@@ -375,7 +458,7 @@ export default class UniswapFetcher {
         return burns;
     }
 
-    static async getEthPrice() {
+    static async getEthPrice(): Promise<{ ethPrice: number }> {
         const response = await UniswapFetcher.client
             .query({
                 query: gql`

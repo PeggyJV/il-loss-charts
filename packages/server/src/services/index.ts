@@ -7,3 +7,5 @@ export default {
     infura,
     alchemy
 };
+
+export type DataSource = 'uniswap' | 'infura' | 'alchemy';

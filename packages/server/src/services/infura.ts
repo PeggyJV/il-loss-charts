@@ -2,10 +2,12 @@ import { EventEmitter } from 'events';
 import Web3 from 'web3';
 import fetch from 'node-fetch';
 
+export class Infura extends EventEmitter {
+    [key: string]: any;
 
-class Infura extends EventEmitter {
     // TODO make long-lived, add reconnection logic
     // TODO clean up anys
+    // TODO add types to subscriptions
     // Define 'subscribable' type for this WS and polling interface
 
     static apiRoot = 'mainnet.infura.io';
@@ -19,7 +21,7 @@ class Infura extends EventEmitter {
         [key: string]: { subscription: any };
     } = {};
 
-    subscribe(topic, address?: string): any {
+    subscribe(topic: any, address?: string): any {
         if (this.activeTopics[topic]) {
             return this.activeTopics[topic].subscription;
         }
@@ -31,14 +33,14 @@ class Infura extends EventEmitter {
         return subscription;
     }
 
-    unsubscribe(topic): void {
+    unsubscribe(topic: string): void {
         if (!this.activeTopics[topic]) {
             return;
         }
 
         // unsubscribes the subscription
         const { subscription } = this.activeTopics[topic];
-        subscription.unsubscribe(function (error, success) {
+        subscription.unsubscribe(function (error: Error, success: any) {
             if (success)
                 console.log('Successfully unsubscribed!');
         });

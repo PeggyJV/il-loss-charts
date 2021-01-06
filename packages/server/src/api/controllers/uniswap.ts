@@ -111,6 +111,8 @@ class UniswapController {
 
     static async getPairStats(req: Request) {
         const pairId: string | undefined = req.query.id?.toString();
+        if (!pairId) throw new HTTPError(400, `id is required.`);
+
         // Validate ethereum address
         const validId = isValidEthAddress(pairId);
         if (!validId) throw new HTTPError(400, `ID must be a valid ETH address.`);

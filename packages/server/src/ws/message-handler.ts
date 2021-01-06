@@ -1,6 +1,6 @@
 import logger from 'common/logger';
 import ws from 'ws';
-import services from 'services';
+import services, { DataSource } from 'services';
 import pollingUtil from 'util/polling';
 import { tokenizeTopic } from 'util/parse-topics';
 import { parse } from 'dotenv/types';
@@ -37,6 +37,10 @@ export default class WsMessageHandler {
             msgPayload = JSON.parse(message);
         } catch (e) {
             return this.sendError(400, 'Could not parse message as JSON.');
+        }
+
+        if (msgPayload == null) {
+            return this.sendError(400, 'Receieved an empty message.');
         }
 
         if (!WsMessageHandler.ALLOWED_OPERATIONS.includes(msgPayload.op)) {
@@ -112,7 +116,8 @@ export default class WsMessageHandler {
             return false;
         }
 
-        const service = services[source];
+        const service = services[source as DataSource];
+        if (!service) throw new Error(`Cannot handle topic on data source ${source}`);
 
         // Validate query
         if (!query) {
@@ -121,7 +126,7 @@ export default class WsMessageHandler {
         }
 
         if (source === 'uniswap') {
-            if (query !== '*' && !service[query]) {
+            if (query !== '*' && !(service as any)[query]) {
                 this.sendError(400, `Invalid query for source ${source}: ${query}`);
                 return false;
             }
@@ -152,13 +157,13 @@ export default class WsMessageHandler {
         // We assume token is valid
         if (source === 'uniswap') {
             pollingUtil.subscribe(topic, interval)
-                .on('data', (data) => this.sendJSON({
+                .on('data', (data: Object) => this.sendJSON({
                     topic,
                     data
                 }));
         } else {
-            services[source].subscribe(query, args)
-                .on('data', (data) => this.sendJSON({
+            (services as any)[source].subscribe(query, args)
+                .on('data', (data: Object) => this.sendJSON({
                     topic,
                     data
                 }));
@@ -168,10 +173,10 @@ export default class WsMessageHandler {
     subscribeOnNewBlocks(topic: string): void {
         const [source, query, args] = tokenizeTopic(topic);
 
-        const dataSource = services[source];
+        const dataSource = services[source as DataSource];
         if (!dataSource) throw new Error(`Cannot start polling on data source ${dataSource}`);
 
-        const queryFn = dataSource[query];
+        const queryFn = (dataSource as any)[query];
         if (!queryFn) throw new Error(`Query ${query} does not exist on data source ${dataSource}`);
 
         // Assume args are comma-delimited

@@ -2,7 +2,9 @@ import { EventEmitter } from 'events';
 import { createAlchemyWeb3 } from "@alch/alchemy-web3";
 
 
-class AlchemyWs extends EventEmitter {
+export class AlchemyWs extends EventEmitter {
+    [key: string]: any;
+
     // TODO make long-lived, add reconnection logic
     // TODO clean up anys
     // Define 'subscribable' type for this WS and polling interface
@@ -15,7 +17,7 @@ class AlchemyWs extends EventEmitter {
         [key: string]: { subscription: any };
     } = {};
 
-    subscribe(topic, address?: string): any {
+    subscribe(topic: string, address?: string): any {
         if (this.activeTopics[topic]) {
             return this.activeTopics[topic].subscription;
         }
@@ -42,14 +44,14 @@ class AlchemyWs extends EventEmitter {
         return subscription;
     }
 
-    unsubscribe(topic): void {
+    unsubscribe(topic: string): void {
         if (!this.activeTopics[topic]) {
             return;
         }
 
         // unsubscribes the subscription
         const { subscription } = this.activeTopics[topic];
-        subscription.unsubscribe(function (error, success) {
+        subscription.unsubscribe(function (error: Error, success: any) {
             if (success)
                 console.log('Successfully unsubscribed!');
         });

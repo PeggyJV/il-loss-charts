@@ -1,26 +1,44 @@
 import BigNumber from 'bignumber.js';
 import { format } from 'date-fns';
 
-import UniswapFetcher from '../services/uniswap';
+import UniswapFetcher, { UniswapPair, UniswapDailyData, UniswapHourlyData, LiquidityData } from 'services/uniswap';
 
 const FEE_RATIO = 0.003;
 
-export type LPStats = {
-    totalFees: BigNumber,
-    runningVolume: BigNumber[],
-    runningFees: BigNumber[],
-    runningImpermanentLoss: BigNumber[]
-    runningReturn: BigNumber[],
-    impermanentLoss: BigNumber,
-    totalReturn: BigNumber,
-    days: string[]
+export interface LPStats {
+    totalFees: BigNumber;
+    runningVolume: BigNumber[];
+    runningFees: BigNumber[];
+    runningImpermanentLoss: BigNumber[];
+    runningReturn: BigNumber[];
+    impermanentLoss: BigNumber;
+    totalReturn: BigNumber;
+    days: string[];
 };
 
+<<<<<<< HEAD
 export async function calculateMarketStats(pairs, historicalData, period = 'daily') {
+=======
+export interface MarketStats extends UniswapPair {
+    ilGross: number;
+    market: string;
+    impermanentLoss: number;
+    volume: number;
+    liquidity: number;
+    returnsUSD: number;
+    returnsETH: number;
+}
+
+// export async function calculateMarketStats(pairs, startDate, endDate) {
+type UniswapPeriodData = UniswapDailyData | UniswapHourlyData;
+type historicalDataParam = Array<UniswapDailyData[] | UniswapHourlyData[]>
+
+export async function calculateMarketStats(pairs: UniswapPair[], historicalData: historicalDataParam, period = 'daily'): Promise<MarketStats[]> {
+>>>>>>> get ts working
     // Historical data fetches
     const { ethPrice } = await UniswapFetcher.getEthPrice();
 
-    const calculateImpermanentLoss = (startDailyData, endDailyData) => {
+    const calculateImpermanentLoss = (startDailyData: LiquidityData, endDailyData: LiquidityData) => {
         const initialExchangeRate = new BigNumber(startDailyData.reserve0).div(new BigNumber(startDailyData.reserve1));
         const currentExchangeRate = new BigNumber(endDailyData.reserve0).div(new BigNumber(endDailyData.reserve1));
         const priceRatio = currentExchangeRate.div(initialExchangeRate);
@@ -29,7 +47,7 @@ export async function calculateMarketStats(pairs, historicalData, period = 'dail
         return impermanentLossPct;
     }
 
-    const marketStats = pairs.reduce((acc, pair, index) => {
+    const marketStats = pairs.reduce((acc: MarketStats[], pair: UniswapPair, index: number) => {
         const historical = historicalData[index];
         const firstDaily = historical[0];
         const lastDaily = historical[historical.length - 1];
@@ -42,8 +60,12 @@ export async function calculateMarketStats(pairs, historicalData, period = 'dail
         }
 
         const impermanentLoss = calculateImpermanentLoss(firstDaily, lastDaily);
-        const volField = period === 'hourly' ? 'hourlyVolumeUSD' : 'dailyVolumeUSD';
-        const volume = historical.reduce((acc, h) => acc.plus(h[volField]), new BigNumber(0));
+        let volume;
+        if (period === 'hourly') {
+            volume = (historical as UniswapHourlyData[]).reduce((acc: BigNumber, h: UniswapHourlyData) => acc.plus(h.hourlyVolumeUSD), new BigNumber(0));
+        } else {
+            volume = (historical as UniswapDailyData[]).reduce((acc: BigNumber, h: UniswapDailyData) => acc.plus(h.dailyVolumeUSD), new BigNumber(0));
+        }
         const fees = volume.times(FEE_RATIO);
         const returns = fees.plus(impermanentLoss);
         const pctReturn = returns.div(pair.reserveUSD);
@@ -66,7 +88,7 @@ export async function calculateMarketStats(pairs, historicalData, period = 'dail
     return marketStats;
 }
 
-export function calculateLPStats(pairData, historicalData, lpLiquidityUSD) {
+export function calculateLPStats(pairData: UniswapPair, historicalData: UniswapDailyData[], lpLiquidityUSD: number) {
     if (historicalData.length === 0) return {};
 
     const firstDaily = historicalData[0];
@@ -78,7 +100,7 @@ export function calculateLPStats(pairData, historicalData, lpLiquidityUSD) {
     const days = [format(new Date(firstDaily.date * 1000), 'MMM d')];
 
 
-    const calculateImpermanentLoss = (startDailyData, endDailyData) => {
+    const calculateImpermanentLoss = (startDailyData: LiquidityData, endDailyData: LiquidityData) => {
         const initialExchangeRate = new BigNumber(startDailyData.reserve0).div(new BigNumber(startDailyData.reserve1));
         const currentExchangeRate = new BigNumber(endDailyData.reserve0).div(new BigNumber(endDailyData.reserve1));
         const priceRatio = currentExchangeRate.div(initialExchangeRate);
