@@ -6,6 +6,7 @@
     "typings": "**/*.d.ts",
     "scripts": {
         "start": "NODE_PATH=dist/ node dist/index.js",
+        "clean": "rimraf dist *.tsbuildinfo",
         "build": "ts-node build.ts && tsc",
         "build:watch": "ts-node build.ts && tsc -w",
         "dev": "nodemon src/index.ts | pino-pretty",
@@ -26,7 +27,7 @@
         "date-fns": "^2.16.1",
         "dotenv": "^8.2.0",
         "express": "^4.17.1",
-        "express-openapi-validator": "^4.7.2",
+        "express-openapi-validator": "^4.10.2",
         "graphql": "^15.4.0",
         "memory-cache": "^0.2.0",
         "node-fetch": "^2.6.1",
