@@ -2,10 +2,10 @@
     "name": "root",
     "private": true,
     "scripts": {
-        "dev": "npx concurrently \"cd client && yarn dev\" \"cd server && yarn dev\"",
-        "build": "npx concurrently \"cd client && yarn build\" \"cd server && yarn build\"",
-        "dev-live": "PORT=4000 cd server && yarn start",
-        "prod": "cd server && yarn start"
+        "dev": "npx concurrently \"cd packages/client && yarn dev\" \"cd packages/server && yarn dev\"",
+        "build": "npx concurrently \"cd packages/client && yarn build\" \"cd packages/server && yarn build\"",
+        "dev-live": "PORT=4000 cd packages/server && yarn start",
+        "prod": "cd packages/server && yarn start"
     },
     "volta": {
         "node": "14.15.4",
