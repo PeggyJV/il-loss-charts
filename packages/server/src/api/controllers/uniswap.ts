@@ -1,9 +1,9 @@
 import express from 'express';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 
 import cacheMiddleware from 'api/middlewares/cache';
 
-import UniswapFetcher from 'services/uniswap';
+import UniswapFetcher, { UniswapDailyData } from 'services/uniswap';
 import { HTTPError } from 'api/util/errors';
 import wrapRequest from 'api/util/wrap-request';
 import { isValidEthAddress } from 'util/eth';
@@ -101,7 +101,7 @@ class UniswapController {
 
         // TODO: Save requests by only fetching first and last day
         const historicalFetches = pairsByVol.map((pair) => UniswapFetcher.getHistoricalDailyData(pair.id, startDate, endDate));
-        const historicalData: any[] = await Promise.all(historicalFetches);
+        const historicalData: UniswapDailyData[][] = await Promise.all(historicalFetches);
 
         // Calculate IL for top 25 pairs by liquidity
         const marketStats = await calculateMarketStats(pairsByVol, historicalData, 'daily');
@@ -140,7 +140,7 @@ class UniswapController {
         return lpStats;
     }
 
-    static async getEthPrice(req: Request) {
+    static async getEthPrice() {
         const ethPrice = await UniswapFetcher.getEthPrice();
         return ethPrice;
     }
