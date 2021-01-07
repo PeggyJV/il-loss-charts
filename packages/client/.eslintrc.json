@@ -1,14 +1,18 @@
 {
     "env": {
-        "es2021": true
+        "es2021": true,
+        "browser": true
     },
     "extends": [
-        "eslint:recommended"
+        "eslint:recommended",
+        "plugin:react/recommended"
     ],
     "parserOptions": {
+        "sourceType": "module",
         "ecmaVersion": 12
     },
     "rules": {
-        "prefer-const": "error"
+        "prefer-const": "error",
+        "react/react-in-jsx-scope": "off"
     }
 }
