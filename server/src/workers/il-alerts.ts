@@ -17,7 +17,7 @@ async function runAlertCheck(): Promise<void> {
     // For any pair with a 10% 24h change in impermanent loss, send an alert
 
     // Get 100 top pairs
-    const topPairs = await UniswapFetcher.getTopPairs(100);
+    const topPairs = await UniswapFetcher.getIlAlertsPairs(100);
 
     // Start 24h ago, compare to now
     const oneDayMs = 24 * 60 * 60 * 1000;
@@ -41,7 +41,7 @@ async function runAlertCheck(): Promise<void> {
         // Send message to channel
         const ilStr = new BigNumber(pair.impermanentLoss).times(-100).toFixed(2);
         const numGlasses = Math.abs(Math.ceil(pair.impermanentLoss / -0.01));
-        const msg = `${'🍷'.repeat(numGlasses)} Pair ${pair.market} saw a ${ilStr}% impermanent loss in the last 24 hours!`;
+        const msg = `${'🍷'.repeat(numGlasses)} Pair [${pair.market}](https://app.sommelier.finance/pair?id=${pair.id}) saw a ${ilStr}% impermanent loss in the last 24 hours!`;
         sommBot.sendMessage(CHAT_ID, msg);
         console.log('Sent msg to channel for pair', pair.market);
     });

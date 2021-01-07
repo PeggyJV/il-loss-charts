@@ -102,6 +102,48 @@ export default class UniswapFetcher {
         return pairs;
     }
 
+    static async getIlAlertsPairs(count = 1000) {
+        const response = await UniswapFetcher.client
+            .query({
+                query: gql`
+                    {
+                        pairs(
+                            first: ${count}, 
+                            orderDirection: desc, 
+                            orderBy: volumeUSD,
+                            where: {
+                                volume_lt: 1000000
+                            }
+                        ) {
+                            id
+                            volumeUSD
+                            reserveUSD
+                            token0 {
+                                id
+                                name
+                                symbol
+                            }
+                            token1 {
+                                id
+                                name
+                                symbol
+                            }
+
+                        }
+                    }
+                `
+            });
+
+        const { pairs } = response?.data;
+
+        if (pairs == null || pairs.length === 0) {
+            throw new Error(`Could not fetch top pairs. Error from response: ${response.error}`);
+        }
+
+        return pairs;
+    }
+
+
     static async _get100DaysHistoricalDailyData(pairId, startDate, endDate) {
         const response = await UniswapFetcher.client
             .query({
