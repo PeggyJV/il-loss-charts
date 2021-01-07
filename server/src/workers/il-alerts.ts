@@ -33,12 +33,14 @@ async function runAlertCheck(): Promise<void> {
     // Calculate IL for top 25 pairs by liquidity
     const marketStats = await calculateMarketStats(topPairs, historicalData, 'hourly');
 
-    const highReturnPairs = [...marketStats].sort((a, b) => b.pctReturn - a.pctReturn);
-    const highIlPairs = [...marketStats].sort((a, b) => a.impermanentLoss - b.impermanentLoss);
+    const highReturnPairs = [...marketStats].sort((a, b) => b.pctReturn - a.pctReturn)
+        .filter((pair) => pair.pctReturn > 0.05)
+    const highIlPairs = [...marketStats].sort((a, b) => a.impermanentLoss - b.impermanentLoss)
+        .filter((pair) => pair.impermanentLoss < -0.05)
 
     let msgs = [];
 
-    highReturnPairs.slice(0, 5).forEach((pair) => {
+    highReturnPairs.forEach((pair) => {
         // Send message to channel
         const returnStr = new BigNumber(pair.pctReturn).times(100).toFixed(2);
         const numGlasses = Math.min(Math.abs(Math.ceil(pair.pctReturn / 0.01)), 10);
@@ -48,7 +50,7 @@ async function runAlertCheck(): Promise<void> {
         console.log('Sent msg to channel for pair', pair.market);
     });
 
-    highIlPairs.slice(0, 5).forEach((pair) => {
+    highIlPairs.forEach((pair) => {
         // Send message to channel
         const ilStr = new BigNumber(pair.impermanentLoss).times(-100).toFixed(2);
         const numFaces = Math.min(Math.abs(Math.ceil(pair.impermanentLoss / -0.01)), 10);
@@ -59,10 +61,9 @@ async function runAlertCheck(): Promise<void> {
     });
 
     // Send one msg per second
-    for (const msg of msgs) {
-        sommBot.sendMessage(CHAT_ID, msg, { parse_mode: 'HTML' });
-        await new Promise(resolve => setTimeout(resolve, 1000));
-    }
+    await sommBot.sendMessage(CHAT_ID, msgs.join('\n'), { parse_mode: 'HTML' });
+
+    process.exit(0);
 }
 
 
