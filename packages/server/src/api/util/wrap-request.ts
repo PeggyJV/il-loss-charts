@@ -1,7 +1,7 @@
-import { Request, Response } from 'express';
+import { Request, Response, RequestHandler } from 'express';
 
-export default function wrapRequest(controllerFn: (req: Request, res: Response) => any) {
-    return async function wrappedRequest(req: Request, res: Response) {
+export default function wrapRequest(controllerFn: (req: Request, res: Response) => Promise<unknown>): RequestHandler {
+    return async (req: Request, res: Response) => {
         try {
             const response = await controllerFn(req, res);
             res.json({ data: response });

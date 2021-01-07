@@ -12,6 +12,7 @@ if (!server.httpServer) {
     throw new Error(`Did not successfully initialize http server on startup.`)
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const wsServer = new WebsocketServer(server.httpServer);
 
 export default Server;

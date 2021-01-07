@@ -34,7 +34,7 @@ async function runAlertCheck(): Promise<void> {
 
     // TODO: Save requests by only fetching first and last hour
     const historicalFetches = topPairs.map((pair) => UniswapFetcher.getHourlyData(pair.id, startDate, endDate));
-    const historicalData: any[] = await Promise.all(historicalFetches);
+    const historicalData = await Promise.all(historicalFetches);
 
     // Calculate IL for top 25 pairs by liquidity
     const marketStats = await calculateMarketStats(topPairs, historicalData, 'hourly');
@@ -74,5 +74,5 @@ async function runAlertCheck(): Promise<void> {
 
 
 if (require.main === module) {
-    runAlertCheck();
+    void runAlertCheck();
 }

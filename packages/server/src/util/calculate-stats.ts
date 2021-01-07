@@ -14,7 +14,7 @@ export interface LPStats {
     impermanentLoss: BigNumber;
     totalReturn: BigNumber;
     days: string[];
-};
+}
 
 <<<<<<< HEAD
 export async function calculateMarketStats(pairs, historicalData, period = 'daily') {
@@ -30,7 +30,6 @@ export interface MarketStats extends UniswapPair {
 }
 
 // export async function calculateMarketStats(pairs, startDate, endDate) {
-type UniswapPeriodData = UniswapDailyData | UniswapHourlyData;
 type historicalDataParam = Array<UniswapDailyData[] | UniswapHourlyData[]>
 
 export async function calculateMarketStats(pairs: UniswapPair[], historicalData: historicalDataParam, period = 'daily'): Promise<MarketStats[]> {
@@ -88,8 +87,8 @@ export async function calculateMarketStats(pairs: UniswapPair[], historicalData:
     return marketStats;
 }
 
-export function calculateLPStats(pairData: UniswapPair, historicalData: UniswapDailyData[], lpLiquidityUSD: number) {
-    if (historicalData.length === 0) return {};
+export function calculateLPStats(pairData: UniswapPair, historicalData: UniswapDailyData[], lpLiquidityUSD: number): LPStats {
+    if (historicalData.length === 0) throw new Error(`Did not receive historical data`);
 
     const firstDaily = historicalData[0];
 

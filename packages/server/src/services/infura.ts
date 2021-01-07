@@ -2,8 +2,12 @@ import { EventEmitter } from 'events';
 import Web3 from 'web3';
 import fetch from 'node-fetch';
 
+if (!process.env.INFURA_PROJECT_ID) {
+    throw new Error('Cannot instiate Infura handler without infura project id.')
+}
+
 export class Infura extends EventEmitter {
-    [key: string]: any;
+    [key: string]: unknown;
 
     // TODO make long-lived, add reconnection logic
     // TODO clean up anys
@@ -12,21 +16,32 @@ export class Infura extends EventEmitter {
 
     static apiRoot = 'mainnet.infura.io';
 
-
     static web3 = new Web3(
-        new Web3.providers.WebsocketProvider(`wss://${Infura.apiRoot}/ws/v3/${process.env.INFURA_PROJECT_ID}`)
+        new Web3.providers.WebsocketProvider(`wss://${Infura.apiRoot}/ws/v3/${process.env.INFURA_PROJECT_ID as string}`)
     );
 
     activeTopics: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [key: string]: { subscription: any };
     } = {};
 
-    subscribe(topic: any, address?: string): any {
+    subscribe(topic: string): unknown {
         if (this.activeTopics[topic]) {
             return this.activeTopics[topic].subscription;
         }
 
-        const subscription = Infura.web3.eth.subscribe(topic);
+        let subscription;
+        try {
+            if (topic === 'newBlockHeaders') {
+                subscription = Infura.web3.eth.subscribe('newBlockHeaders');
+            } else if (topic === 'pendingTransactions') {
+                subscription = Infura.web3.eth.subscribe('pendingTransactions');
+            } else {
+                throw new Error(`Could not subscribe to web3.eth for unknown topic ${topic}`);
+            }
+        } catch (e) {
+            throw new Error(`Could not subscribe to web3.eth for topic ${topic}`);
+        }
 
         this.activeTopics[topic] = { subscription };
 
@@ -40,14 +55,14 @@ export class Infura extends EventEmitter {
 
         // unsubscribes the subscription
         const { subscription } = this.activeTopics[topic];
-        subscription.unsubscribe(function (error: Error, success: any) {
+        subscription.unsubscribe(function (error: Error, success: unknown) {
             if (success)
                 console.log('Successfully unsubscribed!');
         });
     }
 
     async getLatestBlock(): Promise<{ result: number }> {
-        const res = await fetch(`https://${Infura.apiRoot}/v3/${process.env.INFURA_PROJECT_ID}`);
+        const res = await fetch(`https://${Infura.apiRoot}/v3/${process.env.INFURA_PROJECT_ID as string}`);
         const data = await res.json();
 
         // Convert hex

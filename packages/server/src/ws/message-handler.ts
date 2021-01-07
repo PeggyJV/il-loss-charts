@@ -1,16 +1,15 @@
-import logger from 'common/logger';
+import { EventEmitter } from 'events';
 import ws from 'ws';
 import services, { DataSource } from 'services';
 import pollingUtil from 'util/polling';
 import { tokenizeTopic } from 'util/parse-topics';
-import { parse } from 'dotenv/types';
 import { isValidEthAddress } from 'util/eth';
 
 interface MessagePayload {
     op: 'subscribe' | 'unsubscribe' | 'help';
     topics: string[],
     interval?: string | number
-};
+}
 
 // TODO - topic deduper
 // TODO - cleaner merged uniswap/infura API
@@ -55,7 +54,7 @@ export default class WsMessageHandler {
 
     }
 
-    handleSubscribe(msgPayload: MessagePayload) {
+    handleSubscribe(msgPayload: MessagePayload): void {
         const { topics, interval } = msgPayload;
 
         if (!msgPayload.topics || topics.length === 0) {
@@ -79,7 +78,7 @@ export default class WsMessageHandler {
 
     }
 
-    handleUnsubscribe(msgPayload: MessagePayload) {
+    handleUnsubscribe(msgPayload: MessagePayload): void {
         const { topics } = msgPayload
 
         if (!msgPayload.topics || topics.length === 0) {
@@ -126,6 +125,7 @@ export default class WsMessageHandler {
         }
 
         if (source === 'uniswap') {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             if (query !== '*' && !(service as any)[query]) {
                 this.sendError(400, `Invalid query for source ${source}: ${query}`);
                 return false;
@@ -157,13 +157,14 @@ export default class WsMessageHandler {
         // We assume token is valid
         if (source === 'uniswap') {
             pollingUtil.subscribe(topic, interval)
-                .on('data', (data: Object) => this.sendJSON({
+                .on('data', (data: unknown) => this.sendJSON({
                     topic,
                     data
                 }));
         } else {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (services as any)[source].subscribe(query, args)
-                .on('data', (data: Object) => this.sendJSON({
+                .on('data', (data: unknown) => this.sendJSON({
                     topic,
                     data
                 }));
@@ -174,22 +175,23 @@ export default class WsMessageHandler {
         const [source, query, args] = tokenizeTopic(topic);
 
         const dataSource = services[source as DataSource];
-        if (!dataSource) throw new Error(`Cannot start polling on data source ${dataSource}`);
+        if (!dataSource) throw new Error(`Cannot start polling on data source ${source}`);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const queryFn = (dataSource as any)[query];
-        if (!queryFn) throw new Error(`Query ${query} does not exist on data source ${dataSource}`);
+        if (!queryFn) throw new Error(`Query ${query} does not exist on data source ${source}`);
 
         // Assume args are comma-delimited
         const argsArr = args.split(',');
 
-        services.infura.subscribe('newHeads')
-            .on('data', async () => {
+        (services.infura.subscribe('newHeads') as EventEmitter)
+            .on('data', () => {
                 // we got a new block, so fetch result and sendJSON
-                const latest = await queryFn(...argsArr);
-                this.sendJSON({
-                    topic,
-                    data: latest
-                })
+                queryFn(...argsArr)
+                    .then((latest): unknown => this.sendJSON({
+                        topic,
+                        data: latest
+                    }));
             });
     }
 
@@ -204,7 +206,7 @@ export default class WsMessageHandler {
         }
     }
 
-    sendError(code: number = 500, errorMsg: string): void {
+    sendError(code = 500, errorMsg: string): void {
         this.sendJSON({
             result: 'error',
             code,
@@ -212,7 +214,7 @@ export default class WsMessageHandler {
         });
     }
 
-    sendJSON(obj: Object): void {
+    sendJSON(obj: unknown): void {
         this.conn.send(JSON.stringify(obj));
     }
 }

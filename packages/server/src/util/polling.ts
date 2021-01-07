@@ -50,19 +50,21 @@ class PollingUtil extends EventEmitter {
         }
 
         const dataSource = services[source as DataSource];
-        if (!dataSource) throw new Error(`Cannot start polling on data source ${dataSource}`);
+        if (!dataSource) throw new Error(`Cannot start polling on data source ${source}`);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const queryFn = (dataSource as any)[query];
-        if (!queryFn) throw new Error(`Query ${query} does not exist on data source ${dataSource}`);
+        if (!queryFn) throw new Error(`Query ${query} does not exist on data source ${source}`);
 
         const topicEmitter = new EventEmitter();
 
         // Assume args are comma-delimited
         const argsArr = args.split(',');
 
-        const interval: NodeJS.Timeout = <any>setInterval(async () => {
-            const latest = await queryFn(...argsArr);
-            topicEmitter.emit('data', latest);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const interval: NodeJS.Timeout = <any>setInterval(() => {
+            queryFn(...argsArr)
+                .then((latest: unknown) => topicEmitter.emit('data', latest));
         }, intervalMs);
 
         // Unref prevents the interval from blocking app shutdown

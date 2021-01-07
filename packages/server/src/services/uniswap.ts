@@ -1,5 +1,5 @@
 import fetch from 'cross-fetch';
-import { ApolloClient, HttpLink, InMemoryCache, gql } from '@apollo/client/core';
+import { ApolloClient, ApolloError, HttpLink, InMemoryCache, gql } from '@apollo/client/core';
 import BigNumber from 'bignumber.js';
 
 export interface LiquidityData {
@@ -50,7 +50,7 @@ export interface UniswapHourlyData extends LiquidityData {
     hourlyVolumeUSD: string;
 }
 
-export interface UniswapSwaps {
+export interface UniswapSwap {
     __typename: 'Swap';
     amount0In: string;
     amount0Out: string;
@@ -72,7 +72,10 @@ export interface UniswapMintOrBurn {
     timestamp: string;
 }
 
-
+interface ApolloResponse<T> {
+    data: T,
+    error?: ApolloError
+}
 export default class UniswapFetcher {
 
     static FEE_RATIO = 0.003;
@@ -91,7 +94,7 @@ export default class UniswapFetcher {
     });
 
     static async getPairOverview(pairId: string): Promise<UniswapPair> {
-        const response = await UniswapFetcher.client
+        const response: ApolloResponse<{ pair: UniswapPair }> = await UniswapFetcher.client
             .query({
                 query: gql`
                     {
@@ -132,7 +135,7 @@ export default class UniswapFetcher {
         const { pair } = response?.data;
 
         if (pair == null) {
-            throw new Error(`Could not find pair with ID ${pairId}. Error from response: ${response.error}`);
+            throw new Error(`Could not find pair with ID ${pairId}. Error from response: ${response.error?.toString() || ''}`);
         }
 
         const feesUSD = new BigNumber(pair.volumeUSD, 10).times(UniswapFetcher.FEE_RATIO).toString();
@@ -141,7 +144,7 @@ export default class UniswapFetcher {
     }
 
     static async getTopPairs(count = 1000, orderBy = 'volumeUSD'): Promise<UniswapPair[]> {
-        const response = await UniswapFetcher.client
+        const response: ApolloResponse<{ pairs: UniswapPair[] }> = await UniswapFetcher.client
             .query({
                 query: gql`
                     {
@@ -168,7 +171,7 @@ export default class UniswapFetcher {
         const { pairs } = response?.data;
 
         if (pairs == null || pairs.length === 0) {
-            throw new Error(`Could not fetch top pairs. Error from response: ${response.error}`);
+            throw new Error(`Could not fetch top pairs. Error from response: ${response.error?.toString() || ''}`);
         }
 
         return pairs;
@@ -220,8 +223,12 @@ export default class UniswapFetcher {
     static async _get100DaysHistoricalDailyData(pairId, startDate, endDate) {
 =======
     static async _get100DaysHistoricalDailyData(pairId: string, startDate: Date, endDate: Date): Promise<UniswapDailyData[]> {
+<<<<<<< HEAD
 >>>>>>> get ts working
         const response = await UniswapFetcher.client
+=======
+        const response: ApolloResponse<{ pairDayDatas: UniswapDailyData[] }> = await UniswapFetcher.client
+>>>>>>> fix all lint issues
             .query({
                 query: gql`
                     {
@@ -248,14 +255,14 @@ export default class UniswapFetcher {
         const { pairDayDatas } = response?.data;
 
         if (pairDayDatas == null) {
-            throw new Error(`Could not fetch daily data for pair ${pairId}. Error from response: ${response.error}`);
+            throw new Error(`Could not fetch daily data for pair ${pairId}. Error from response: ${response.error?.toString() || ''}`);
         }
 
         return pairDayDatas;
     }
 
     static async getHourlyData(pairId: string, startDate: Date, endDate: Date): Promise<UniswapHourlyData[]> {
-        const response = await UniswapFetcher.client
+        const response: ApolloResponse<{ pairHourDatas: UniswapHourlyData[] }> = await UniswapFetcher.client
             .query({
                 query: gql`
                     {
@@ -284,7 +291,7 @@ export default class UniswapFetcher {
         const { pairHourDatas } = response?.data;
 
         if (pairHourDatas == null) {
-            throw new Error(`Could not fetch daily data for pair ${pairId}. Error from response: ${response.error}`);
+            throw new Error(`Could not fetch daily data for pair ${pairId}. Error from response: ${response.error?.toString() || ''}`);
         }
 
         return pairHourDatas;
@@ -349,8 +356,8 @@ export default class UniswapFetcher {
         return dailyData;
     }
 
-    static async getSwapsForPair(pairId: string): Promise<UniswapSwaps> {
-        const response = await UniswapFetcher.client
+    static async getSwapsForPair(pairId: string): Promise<UniswapSwap[]> {
+        const response: ApolloResponse<{ swaps: UniswapSwap[] }> = await UniswapFetcher.client
             .query({
                 query: gql`
                     {
@@ -379,7 +386,7 @@ export default class UniswapFetcher {
         const { swaps } = response?.data;
 
         if (swaps == null) {
-            throw new Error(`Could not fetch recent swaps for pair ${pairId}. Error from response: ${response.error}`);
+            throw new Error(`Could not fetch recent swaps for pair ${pairId}. Error from response: ${response.error?.toString() || ''}`);
         }
 
         return swaps;
@@ -387,7 +394,7 @@ export default class UniswapFetcher {
 
 
     static async getMintsForPair(pairId: string): Promise<UniswapMintOrBurn[]> {
-        const response = await UniswapFetcher.client
+        const response: ApolloResponse<{ mints: UniswapMintOrBurn[] }> = await UniswapFetcher.client
             .query({
                 query: gql`
                     {
@@ -416,14 +423,14 @@ export default class UniswapFetcher {
         const { mints } = response?.data;
 
         if (mints == null) {
-            throw new Error(`Could not fetch recent mints for pair ${pairId}. Error from response: ${response.error}`);
+            throw new Error(`Could not fetch recent mints for pair ${pairId}. Error from response: ${response.error?.toString() || ''}`);
         }
 
         return mints;
     }
 
     static async getBurnsForPair(pairId: string): Promise<UniswapMintOrBurn[]> {
-        const response = await UniswapFetcher.client
+        const response: ApolloResponse<{ burns: UniswapMintOrBurn[] }> = await UniswapFetcher.client
             .query({
                 query: gql`
                     {
@@ -452,14 +459,14 @@ export default class UniswapFetcher {
         const { burns } = response?.data;
 
         if (burns == null) {
-            throw new Error(`Could not fetch recent burns for pair ${pairId}. Error from response: ${response.error}`);
+            throw new Error(`Could not fetch recent burns for pair ${pairId}. Error from response: ${response.error?.toString() || ''}`);
         }
 
         return burns;
     }
 
     static async getEthPrice(): Promise<{ ethPrice: number }> {
-        const response = await UniswapFetcher.client
+        const response: ApolloResponse<{ bundle: { ethPrice: number } }> = await UniswapFetcher.client
             .query({
                 query: gql`
                     {
@@ -473,7 +480,7 @@ export default class UniswapFetcher {
         const { bundle: { ethPrice } } = response?.data;
 
         if (ethPrice == null) {
-            throw new Error(`Could not fetch ethPrice. Error from response: ${response.error}`);
+            throw new Error(`Could not fetch ethPrice. Error from response: ${response.error?.toString() || ''}`);
         }
 
         return { ethPrice };

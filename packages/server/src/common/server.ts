@@ -8,7 +8,7 @@ import pino from 'pino-http';
 import l from './logger';
 
 import errorHandler from '../api/middlewares/error.handler';
-import * as OpenApiValidator from 'express-openapi-validator';
+// import * as OpenApiValidator from 'express-openapi-validator';
 
 const app = express();
 
@@ -37,10 +37,11 @@ export default class ExpressServer {
         app.use(express.static(`${clientRoot}/build`));
 
         const apiSpec = path.join(__dirname, 'api.yml');
-        const validateResponses = !!(
-            process.env.OPENAPI_ENABLE_RESPONSE_VALIDATION &&
-            process.env.OPENAPI_ENABLE_RESPONSE_VALIDATION.toLowerCase() === 'true'
-        );
+        // TODO re-enable API validation
+        // const validateResponses = !!(
+        //     process.env.OPENAPI_ENABLE_RESPONSE_VALIDATION &&
+        //     process.env.OPENAPI_ENABLE_RESPONSE_VALIDATION.toLowerCase() === 'true'
+        // );
         app.use(process.env.OPENAPI_SPEC || '/spec', express.static(apiSpec));
 
         // TODO re-enable
