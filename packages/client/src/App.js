@@ -7,7 +7,6 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 
-import AppContext from 'util/app-context';
 import OverviewContainer from 'containers/overview-container';
 import PairContainer from 'containers/pair-container';
 import SideMenu from 'components/side-menu';
