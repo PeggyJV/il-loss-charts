@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import fetch from 'cross-fetch';
 import { ApolloClient, HttpLink, InMemoryCache, gql } from '@apollo/client/core';
 import BigNumber from 'bignumber.js';
 
@@ -112,7 +112,7 @@ export default class UniswapFetcher {
                             orderDirection: desc, 
                             orderBy: volumeUSD,
                             where: {
-                                volume_lt: 1000000
+                                volumeUSD_lt: 1000000
                             }
                         ) {
                             id

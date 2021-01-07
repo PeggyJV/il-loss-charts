@@ -35,14 +35,13 @@ async function runAlertCheck(): Promise<void> {
 
 
     const highIlPairs = marketStats.sort((a, b) => a.impermanentLoss - b.impermanentLoss);
-    fs.writeFileSync('marketstats.json', JSON.stringify(highIlPairs, null, 4));
 
     highIlPairs.slice(0, 5).forEach((pair) => {
         // Send message to channel
         const ilStr = new BigNumber(pair.impermanentLoss).times(-100).toFixed(2);
         const numGlasses = Math.abs(Math.ceil(pair.impermanentLoss / -0.01));
-        const msg = `${'🍷'.repeat(numGlasses)} Pair [${pair.market}](https://app.sommelier.finance/pair?id=${pair.id}) saw a ${ilStr}% impermanent loss in the last 24 hours!`;
-        sommBot.sendMessage(CHAT_ID, msg);
+        const msg = `${'🍷'.repeat(numGlasses)} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${pair.market}</a> saw a ${ilStr}% impermanent loss in the last 24 hours!`;
+        sommBot.sendMessage(CHAT_ID, msg, { parse_mode: 'HTML' });
         console.log('Sent msg to channel for pair', pair.market);
     });
 }

@@ -53,7 +53,10 @@ export default class ExpressServer {
         //     })
         // );
 
-        app.get('/', function (req, res) {
+        // Catch all 
+        app.use(function (req, res, next) {
+            if (req.url.includes('api')) return next();
+
             res.sendFile(path.join(clientRoot, 'build', 'index.html'));
         });
     }
