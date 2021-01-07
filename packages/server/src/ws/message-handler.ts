@@ -188,7 +188,7 @@ export default class WsMessageHandler {
             .on('data', () => {
                 // we got a new block, so fetch result and sendJSON
                 queryFn(...argsArr)
-                    .then((latest): unknown => this.sendJSON({
+                    .then((latest: unknown) => this.sendJSON({
                         topic,
                         data: latest
                     }));

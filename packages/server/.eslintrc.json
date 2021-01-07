@@ -1,9 +1,14 @@
 {
-    "extends": "../../.eslintrc.json",
     "parserOptions": {
         "project": "tsconfig.json"
     },
     "parser": "@typescript-eslint/parser",
+    "extends": [
+        "../../.eslintrc.json",
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking"
+    ],
     "plugins": [
         "@typescript-eslint"
     ],
