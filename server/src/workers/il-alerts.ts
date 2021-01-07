@@ -33,17 +33,36 @@ async function runAlertCheck(): Promise<void> {
     // Calculate IL for top 25 pairs by liquidity
     const marketStats = await calculateMarketStats(topPairs, historicalData, 'hourly');
 
+    const highReturnPairs = [...marketStats].sort((a, b) => b.pctReturn - a.pctReturn);
+    const highIlPairs = [...marketStats].sort((a, b) => a.impermanentLoss - b.impermanentLoss);
 
-    const highIlPairs = marketStats.sort((a, b) => a.impermanentLoss - b.impermanentLoss);
+    let msgs = [];
+
+    highReturnPairs.slice(0, 5).forEach((pair) => {
+        // Send message to channel
+        const returnStr = new BigNumber(pair.pctReturn).times(100).toFixed(2);
+        const numGlasses = Math.min(Math.abs(Math.ceil(pair.pctReturn / 0.01)), 10);
+        const msg = `${'🍷'.repeat(numGlasses)} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${pair.market}</a> saw a ${returnStr}% return in the last 24 hours!`;
+        // sommBot.sendMessage(CHAT_ID, msg, { parse_mode: 'HTML' });
+        msgs.push(msg);
+        console.log('Sent msg to channel for pair', pair.market);
+    });
 
     highIlPairs.slice(0, 5).forEach((pair) => {
         // Send message to channel
         const ilStr = new BigNumber(pair.impermanentLoss).times(-100).toFixed(2);
-        const numGlasses = Math.abs(Math.ceil(pair.impermanentLoss / -0.01));
-        const msg = `${'🍷'.repeat(numGlasses)} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${pair.market}</a> saw a ${ilStr}% impermanent loss in the last 24 hours!`;
-        sommBot.sendMessage(CHAT_ID, msg, { parse_mode: 'HTML' });
+        const numFaces = Math.min(Math.abs(Math.ceil(pair.impermanentLoss / -0.01)), 10);
+        const msg = `${'😢'.repeat(numFaces)} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${pair.market}</a> saw a ${ilStr}% impermanent loss in the last 24 hours!`;
+        // sommBot.sendMessage(CHAT_ID, msg, { parse_mode: 'HTML' });
+        msgs.push(msg);
         console.log('Sent msg to channel for pair', pair.market);
     });
+
+    // Send one msg per second
+    for (const msg of msgs) {
+        sommBot.sendMessage(CHAT_ID, msg, { parse_mode: 'HTML' });
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
 }
 
 

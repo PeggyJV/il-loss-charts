@@ -16,7 +16,6 @@ export type LPStats = {
     days: string[]
 };
 
-// export async function calculateMarketStats(pairs, startDate, endDate) {
 export async function calculateMarketStats(pairs, historicalData, period = 'daily') {
     // Historical data fetches
     const { ethPrice } = await UniswapFetcher.getEthPrice();
@@ -47,6 +46,7 @@ export async function calculateMarketStats(pairs, historicalData, period = 'dail
         const volume = historical.reduce((acc, h) => acc.plus(h[volField]), new BigNumber(0));
         const fees = volume.times(FEE_RATIO);
         const returns = fees.plus(impermanentLoss);
+        const pctReturn = returns.div(pair.reserveUSD);
         const impermanentLossGross = impermanentLoss.times(returns);
 
         acc.push({
@@ -57,6 +57,7 @@ export async function calculateMarketStats(pairs, historicalData, period = 'dail
             volume: volume.toNumber(),
             liquidity: new BigNumber(pair.reserveUSD).toNumber(),
             returnsUSD: returns.toNumber(),
+            pctReturn: pctReturn.toNumber(),
             returnsETH: returns.div(ethPrice).toNumber(),
         });
         return acc;
