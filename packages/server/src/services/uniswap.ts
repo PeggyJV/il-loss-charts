@@ -14,7 +14,6 @@ interface ApolloResponse<T> {
     error?: ApolloError
 }
 export default class UniswapFetcher {
-
     static FEE_RATIO = 0.003;
 
     static client = new ApolloClient({
@@ -114,8 +113,8 @@ export default class UniswapFetcher {
         return pairs;
     }
 
-    static async getIlAlertsPairs(count = 1000) {
-        const response = await UniswapFetcher.client
+    static async getIlAlertsPairs(count = 1000): Promise<UniswapPair[]> {
+        const response: ApolloResponse<{ pairs: UniswapPair[] }> = await UniswapFetcher.client
             .query({
                 query: gql`
                     {
@@ -149,7 +148,7 @@ export default class UniswapFetcher {
         const { pairs } = response?.data;
 
         if (pairs == null || pairs.length === 0) {
-            throw new Error(`Could not fetch top pairs. Error from response: ${response.error}`);
+            throw new Error(`Could not fetch pairs subject to alerting. Error from response: ${response.error?.toString() || ''}`);
         }
 
         return pairs;

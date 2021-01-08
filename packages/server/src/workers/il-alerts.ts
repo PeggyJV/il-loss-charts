@@ -8,8 +8,6 @@ import UniswapFetcher from '../services/uniswap';
 import { UniswapHourlyData, UniswapPair } from '../types/uniswap';
 import { calculateMarketStats } from '../util/calculate-stats';
 
-import fs from 'fs';
-
 let sommBot: TelegramBot | undefined;
 if (process.env.TELEGRAM_BOT_TOKEN) {
     sommBot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
