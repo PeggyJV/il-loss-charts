@@ -5,6 +5,7 @@ import TelegramBot from 'node-telegram-bot-api';
 import BigNumber from 'bignumber.js';
 
 import UniswapFetcher from '../services/uniswap';
+import { UniswapHourlyData, UniswapPair } from '../types/uniswap';
 import { calculateMarketStats } from '../util/calculate-stats';
 
 import fs from 'fs';
@@ -33,8 +34,8 @@ async function runAlertCheck(): Promise<void> {
     console.log(`Testing impermanent loss for ${topPairs.length} pairs.`);
 
     // TODO: Save requests by only fetching first and last hour
-    const historicalFetches = topPairs.map((pair) => UniswapFetcher.getHourlyData(pair.id, startDate, endDate));
-    const historicalData = await Promise.all(historicalFetches);
+    const historicalFetches = topPairs.map((pair: UniswapPair) => UniswapFetcher.getHourlyData(pair.id, startDate, endDate));
+    const historicalData: UniswapHourlyData[][] = await Promise.all(historicalFetches);
 
     // Calculate IL for top 25 pairs by liquidity
     const marketStats = await calculateMarketStats(topPairs, historicalData, 'hourly');
@@ -44,7 +45,7 @@ async function runAlertCheck(): Promise<void> {
     const highIlPairs = [...marketStats].sort((a, b) => a.impermanentLoss - b.impermanentLoss)
         .filter((pair) => pair.impermanentLoss < -0.05)
 
-    let msgs = [];
+    const msgs: string[] = [];
 
     highReturnPairs.forEach((pair) => {
         // Send message to channel
@@ -67,7 +68,7 @@ async function runAlertCheck(): Promise<void> {
     });
 
     // Send one msg per second
-    await sommBot.sendMessage(CHAT_ID, msgs.join('\n'), { parse_mode: 'HTML' });
+    await sommBot?.sendMessage(CHAT_ID, msgs.join('\n'), { parse_mode: 'HTML' });
 
     process.exit(0);
 }

@@ -1,7 +1,8 @@
 import BigNumber from 'bignumber.js';
 import { format } from 'date-fns';
 
-import UniswapFetcher, { UniswapPair, UniswapDailyData, UniswapHourlyData, LiquidityData } from 'services/uniswap';
+import UniswapFetcher from 'services/uniswap';
+import { UniswapPair, UniswapDailyData, UniswapHourlyData, LiquidityData } from 'types/uniswap';
 
 const FEE_RATIO = 0.003;
 
@@ -16,9 +17,6 @@ export interface LPStats {
     days: string[];
 }
 
-<<<<<<< HEAD
-export async function calculateMarketStats(pairs, historicalData, period = 'daily') {
-=======
 export interface MarketStats extends UniswapPair {
     ilGross: number;
     market: string;
@@ -27,13 +25,13 @@ export interface MarketStats extends UniswapPair {
     liquidity: number;
     returnsUSD: number;
     returnsETH: number;
+    pctReturn: number;
 }
 
 // export async function calculateMarketStats(pairs, startDate, endDate) {
 type historicalDataParam = Array<UniswapDailyData[] | UniswapHourlyData[]>
 
 export async function calculateMarketStats(pairs: UniswapPair[], historicalData: historicalDataParam, period = 'daily'): Promise<MarketStats[]> {
->>>>>>> get ts working
     // Historical data fetches
     const { ethPrice } = await UniswapFetcher.getEthPrice();
 

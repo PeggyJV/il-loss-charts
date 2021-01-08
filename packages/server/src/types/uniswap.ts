@@ -66,4 +66,4 @@ export interface UniswapMintOrBurn {
     to: string;
     pair: Partial<UniswapPair>;
     timestamp: string;
-}s
+}
