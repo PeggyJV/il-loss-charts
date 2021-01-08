@@ -7,14 +7,10 @@ function SideMenu() {
             <h5 className='side-menu-title'>sommelier.finance</h5>
             <hr />
             <p>
-                <NavLink to='/'>
-                    Market Overview
-                </NavLink>
+                <NavLink to='/'>Market Overview</NavLink>
             </p>
             <p>
-                <NavLink to='/pair'>
-                    IL Calculator
-                </NavLink>
+                <NavLink to='/pair'>IL Calculator</NavLink>
             </p>
             <hr />
             <Button variant='secondary' size='sm' disabled>
@@ -23,7 +19,7 @@ function SideMenu() {
             <div style={{ fontSize: '0.8rem' }}>☝️ Coming soon!</div>
             <hr />
             <h6 className='centered'>
-                <a href="https://t.me/getsomm">Join the Sommelier Community</a>
+                <a href='https://t.me/getsomm'>Join the Sommelier Community</a>
             </h6>
         </>
     );

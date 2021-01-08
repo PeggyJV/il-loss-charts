@@ -11,7 +11,12 @@ function RealtimeStatusBar({ latestBlock }) {
 
     return (
         <Col xs={12}>
-            <Toast onClose={() => setShow(false)} show={show} delay={3000} autohide>
+            <Toast
+                onClose={() => setShow(false)}
+                show={show}
+                delay={3000}
+                autohide
+            >
                 <Toast.Body>Block update - #{latestBlock} confirmed</Toast.Body>
             </Toast>
         </Col>

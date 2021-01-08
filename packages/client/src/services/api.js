@@ -1,4 +1,3 @@
-
 export class UniswapApiFetcher {
     static async getPairOverview(pairId) {
         const response = await fetch(`/api/v1/uniswap/pairs/${pairId}`);
@@ -13,7 +12,9 @@ export class UniswapApiFetcher {
     }
 
     static async getMintsAndBurns(pairId) {
-        const response = await fetch(`/api/v1/uniswap/pairs/${pairId}/addremove`);
+        const response = await fetch(
+            `/api/v1/uniswap/pairs/${pairId}/addremove`
+        );
         const { data } = await response.json();
         return data;
     }
@@ -25,13 +26,21 @@ export class UniswapApiFetcher {
     }
 
     static async getMarketData(startDate = '2020-12-01') {
-        const response = await fetch(`/api/v1/uniswap/market?startDate=${startDate}`);
+        const response = await fetch(
+            `/api/v1/uniswap/market?startDate=${startDate}`
+        );
         const { data } = await response.json();
         return data;
     }
 
-    static async getHistoricalDailyData(pairId, startDate, endDate = new Date()) {
-        const response = await fetch(`/api/v1/uniswap/historical/${pairId}?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`);
+    static async getHistoricalDailyData(
+        pairId,
+        startDate,
+        endDate = new Date()
+    ) {
+        const response = await fetch(
+            `/api/v1/uniswap/historical/${pairId}?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+        );
         const { data } = await response.json();
         return data;
     }

@@ -1,6 +1,5 @@
 import mixpanel from 'mixpanel-browser';
 
-
 class MixpanelWrapper {
     isActive = false;
 
@@ -21,4 +20,3 @@ class MixpanelWrapper {
 }
 
 export default MixpanelWrapper;
-

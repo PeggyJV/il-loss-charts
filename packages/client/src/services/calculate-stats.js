@@ -3,7 +3,12 @@ import { format } from 'date-fns';
 
 import Uniswap from './uniswap';
 
-export function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidityUSD, lpDate }) {
+export function calculateLPStats({
+    pairData,
+    historicalData,
+    lpShare: lpLiquidityUSD,
+    lpDate,
+}) {
     if (!historicalData || historicalData.length === 0) return null;
 
     const dailyLiquidity = [];
@@ -14,15 +19,28 @@ export function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidit
     const runningReturn = [];
     const days = [];
 
-    const calculateImpermanentLoss = (startDailyData, endDailyData, lpLiquidity) => {
-        const initialExchangeRate = new BigNumber(startDailyData.reserve0).div(new BigNumber(startDailyData.reserve1));
-        const currentExchangeRate = new BigNumber(endDailyData.reserve0).div(new BigNumber(endDailyData.reserve1));
+    const calculateImpermanentLoss = (
+        startDailyData,
+        endDailyData,
+        lpLiquidity
+    ) => {
+        const initialExchangeRate = new BigNumber(startDailyData.reserve0).div(
+            new BigNumber(startDailyData.reserve1)
+        );
+        const currentExchangeRate = new BigNumber(endDailyData.reserve0).div(
+            new BigNumber(endDailyData.reserve1)
+        );
         const priceRatio = currentExchangeRate.div(initialExchangeRate);
-        const impermanentLossPct = new BigNumber(2).times(priceRatio.sqrt()).div(priceRatio.plus(1)).minus(1);
-        const impermanentLoss = impermanentLossPct.times(new BigNumber(lpLiquidity));
+        const impermanentLossPct = new BigNumber(2)
+            .times(priceRatio.sqrt())
+            .div(priceRatio.plus(1))
+            .minus(1);
+        const impermanentLoss = impermanentLossPct.times(
+            new BigNumber(lpLiquidity)
+        );
 
         return impermanentLoss;
-    }
+    };
 
     let firstDaily = null;
     historicalData.forEach((dailyData, index) => {
@@ -32,19 +50,35 @@ export function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidit
         if (!firstDaily) firstDaily = dailyData;
         if (index === 0) return;
 
-        const poolShare = new BigNumber(lpLiquidityUSD).div(dailyData.reserveUSD);
+        const poolShare = new BigNumber(lpLiquidityUSD).div(
+            dailyData.reserveUSD
+        );
 
         const vol = new BigNumber(dailyData.dailyVolumeUSD);
         const liquidity = new BigNumber(dailyData.reserveUSD);
         const dailyPoolFees = vol.times(Uniswap.FEE_RATIO);
         const dailyFees = dailyPoolFees.times(poolShare);
-        const newRunningFees = (runningFees[runningFees.length - 1] ?? new BigNumber(0)).plus(dailyFees);
-        const dailyImpermanentLoss = calculateImpermanentLoss(firstDaily, dailyData, lpLiquidityUSD);
+        const newRunningFees = (
+            runningFees[runningFees.length - 1] ?? new BigNumber(0)
+        ).plus(dailyFees);
+        const dailyImpermanentLoss = calculateImpermanentLoss(
+            firstDaily,
+            dailyData,
+            lpLiquidityUSD
+        );
         const dailyReturn = newRunningFees.plus(dailyImpermanentLoss);
 
         dailyLiquidity.push(liquidity);
-        runningVolume.push((runningVolume[runningVolume.length - 1] ?? new BigNumber(0)).plus(vol));
-        runningPoolFees.push((runningPoolFees[runningPoolFees.length - 1] ?? new BigNumber(0)).plus(dailyPoolFees));
+        runningVolume.push(
+            (runningVolume[runningVolume.length - 1] ?? new BigNumber(0)).plus(
+                vol
+            )
+        );
+        runningPoolFees.push(
+            (
+                runningPoolFees[runningPoolFees.length - 1] ?? new BigNumber(0)
+            ).plus(dailyPoolFees)
+        );
         runningFees.push(newRunningFees);
         runningImpermanentLoss.push(dailyImpermanentLoss);
         runningReturn.push(dailyReturn);
@@ -53,7 +87,11 @@ export function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidit
     });
 
     const totalFees = runningFees[runningFees.length - 1];
-    const impermanentLoss = calculateImpermanentLoss(firstDaily, historicalData[historicalData.length - 1], lpLiquidityUSD);
+    const impermanentLoss = calculateImpermanentLoss(
+        firstDaily,
+        historicalData[historicalData.length - 1],
+        lpLiquidityUSD
+    );
     const totalReturn = totalFees.plus(impermanentLoss);
 
     // Calculate 24h and 7d stats
@@ -66,49 +104,77 @@ export function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidit
     const totalStats = {
         volumeUSD: pairData.volumeUSD,
         liquidityUSD: pairData.reserveUSD,
-        feesUSD: pairData.feesUSD
+        feesUSD: pairData.feesUSD,
     };
 
     let lastDayStats, prevDayStats, lastWeekStats, prevWeekStats;
 
     if (runningVolume.length > 1) {
         lastDayStats = {
-            volumeUSD: runningVolume[lastDailyIndex].minus(runningVolume[dailyStartIndex]),
+            volumeUSD: runningVolume[lastDailyIndex].minus(
+                runningVolume[dailyStartIndex]
+            ),
             liquidityUSD: dailyLiquidity[lastDailyIndex],
-            feesUSD: runningPoolFees[lastDailyIndex].minus(runningPoolFees[dailyStartIndex]),
+            feesUSD: runningPoolFees[lastDailyIndex].minus(
+                runningPoolFees[dailyStartIndex]
+            ),
         };
     }
 
     if (runningVolume.length > 2) {
         prevDayStats = {
-            volumeUSD: runningVolume[dailyStartIndex].minus(runningVolume[prevDayStartIndex]),
+            volumeUSD: runningVolume[dailyStartIndex].minus(
+                runningVolume[prevDayStartIndex]
+            ),
             liquidityUSD: dailyLiquidity[dailyStartIndex],
-            feesUSD: runningPoolFees[dailyStartIndex].minus(runningPoolFees[prevDayStartIndex]),
+            feesUSD: runningPoolFees[dailyStartIndex].minus(
+                runningPoolFees[prevDayStartIndex]
+            ),
         };
 
-        lastDayStats.volumeUSDChange = lastDayStats.volumeUSD.minus(prevDayStats.volumeUSD).div(prevDayStats.volumeUSD);
-        lastDayStats.liquidityUSDChange = lastDayStats.liquidityUSD.minus(prevDayStats.liquidityUSD).div(prevDayStats.liquidityUSD);
-        lastDayStats.feesUSDChange = lastDayStats.feesUSD.minus(prevDayStats.feesUSD).div(prevDayStats.feesUSD);
+        lastDayStats.volumeUSDChange = lastDayStats.volumeUSD
+            .minus(prevDayStats.volumeUSD)
+            .div(prevDayStats.volumeUSD);
+        lastDayStats.liquidityUSDChange = lastDayStats.liquidityUSD
+            .minus(prevDayStats.liquidityUSD)
+            .div(prevDayStats.liquidityUSD);
+        lastDayStats.feesUSDChange = lastDayStats.feesUSD
+            .minus(prevDayStats.feesUSD)
+            .div(prevDayStats.feesUSD);
     }
 
     if (runningVolume.length > 7) {
         lastWeekStats = {
-            volumeUSD: runningVolume[lastDailyIndex].minus(runningVolume[weeklyStartIndex]),
+            volumeUSD: runningVolume[lastDailyIndex].minus(
+                runningVolume[weeklyStartIndex]
+            ),
             liquidityUSD: dailyLiquidity[lastDailyIndex],
-            feesUSD: runningPoolFees[lastDailyIndex].minus(runningPoolFees[weeklyStartIndex]),
+            feesUSD: runningPoolFees[lastDailyIndex].minus(
+                runningPoolFees[weeklyStartIndex]
+            ),
         };
     }
 
     if (runningVolume.length > 14) {
         prevWeekStats = {
-            volumeUSD: runningVolume[weeklyStartIndex].minus(runningVolume[prevWeekStartIndex]),
+            volumeUSD: runningVolume[weeklyStartIndex].minus(
+                runningVolume[prevWeekStartIndex]
+            ),
             liquidityUSD: dailyLiquidity[weeklyStartIndex],
-            feesUSD: runningPoolFees[weeklyStartIndex].minus(runningPoolFees[prevWeekStartIndex]),
+            feesUSD: runningPoolFees[weeklyStartIndex].minus(
+                runningPoolFees[prevWeekStartIndex]
+            ),
         };
 
-        lastWeekStats.volumeUSDChange = lastWeekStats.volumeUSD.minus(prevWeekStats.volumeUSD).div(prevWeekStats.volumeUSD);
-        lastWeekStats.liquidityUSDChange = lastWeekStats.liquidityUSD.minus(prevWeekStats.liquidityUSD).div(prevWeekStats.liquidityUSD);
-        lastWeekStats.feesUSDChange = lastWeekStats.feesUSD.minus(prevWeekStats.feesUSD).div(prevWeekStats.feesUSD);
+        lastWeekStats.volumeUSDChange = lastWeekStats.volumeUSD
+            .minus(prevWeekStats.volumeUSD)
+            .div(prevWeekStats.volumeUSD);
+        lastWeekStats.liquidityUSDChange = lastWeekStats.liquidityUSD
+            .minus(prevWeekStats.liquidityUSD)
+            .div(prevWeekStats.liquidityUSD);
+        lastWeekStats.feesUSDChange = lastWeekStats.feesUSD
+            .minus(prevWeekStats.feesUSD)
+            .div(prevWeekStats.feesUSD);
     }
 
     return {
@@ -125,28 +191,40 @@ export function calculateLPStats({ pairData, historicalData, lpShare: lpLiquidit
         runningReturn,
         impermanentLoss,
         totalReturn,
-        days
+        days,
     };
 }
 
 export function calculatePairRankings(pairs) {
-    const byVolume = [...pairs].sort((a, b) => new BigNumber(a.volumeUSD).minus(new BigNumber(b.volumeUSD)).toNumber());
-    const byLiquidity = [...pairs].sort((a, b) => new BigNumber(b.reserveUSD).minus(new BigNumber(a.reserveUSD)).toNumber());
-    const liquidityLookup = byLiquidity.reduce((acc, pair, index) => ({ ...acc, [pair.id]: index + 1 }), {});
+    const byVolume = [...pairs].sort((a, b) =>
+        new BigNumber(a.volumeUSD).minus(new BigNumber(b.volumeUSD)).toNumber()
+    );
+    const byLiquidity = [...pairs].sort((a, b) =>
+        new BigNumber(b.reserveUSD)
+            .minus(new BigNumber(a.reserveUSD))
+            .toNumber()
+    );
+    const liquidityLookup = byLiquidity.reduce(
+        (acc, pair, index) => ({ ...acc, [pair.id]: index + 1 }),
+        {}
+    );
 
-    const pairLookups = pairs.reduce((acc, pair, index) => ({
-        ...acc,
-        [pair.id]: {
-            ...pair,
-            volumeRanking: parseInt(index, 10) + 1,
-            liquidityRanking: liquidityLookup[pair.id]
-        }
-    }), {});
+    const pairLookups = pairs.reduce(
+        (acc, pair, index) => ({
+            ...acc,
+            [pair.id]: {
+                ...pair,
+                volumeRanking: parseInt(index, 10) + 1,
+                liquidityRanking: liquidityLookup[pair.id],
+            },
+        }),
+        {}
+    );
 
     return {
         byVolume,
         byLiquidity,
         pairs,
-        pairLookups
+        pairLookups,
     };
 }

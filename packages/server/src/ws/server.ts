@@ -21,7 +21,7 @@ export default class WebsocketServer {
             const ip = req.socket.remoteAddress;
             logger.info(`Client connected: ${ip || 'unknown ip'}`);
             this.connections.push(ws);
-            this.handlers.push(new WsMessageHandler(ws))
+            this.handlers.push(new WsMessageHandler(ws));
             ws.on('close', () => logger.info('Client disconnected'));
         });
     }

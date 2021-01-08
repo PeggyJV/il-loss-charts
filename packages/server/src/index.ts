@@ -9,7 +9,7 @@ const server = new Server().router(routes);
 server.listen(port);
 
 if (!server.httpServer) {
-    throw new Error(`Did not successfully initialize http server on startup.`)
+    throw new Error(`Did not successfully initialize http server on startup.`);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

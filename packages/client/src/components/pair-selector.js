@@ -34,7 +34,7 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
         }
 
         if (pair.id) setPair(pair.id);
-    }
+    };
 
     return (
         <Card className='pair-selector-card'>
@@ -43,13 +43,15 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                 <div className='pair-selector-container'>
                     <InputGroup>
                         <InputGroup.Prepend className='token-logo'>
-                            <InputGroup.Text>{resolveLogo(defaultValue.token0.id)}</InputGroup.Text>
+                            <InputGroup.Text>
+                                {resolveLogo(defaultValue.token0.id)}
+                            </InputGroup.Text>
                         </InputGroup.Prepend>
                         <Combobox
                             className='pair-selector'
                             data={leftSideOptions}
                             value={defaultValue}
-                            textField={pair => pair.token0.symbol}
+                            textField={(pair) => pair.token0.symbol}
                             itemComponent={TokenWithLogo('left')}
                             defaultValue={defaultValue}
                             filter='contains'
@@ -57,18 +59,24 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                             onChange={handleChange}
                         />
                     </InputGroup>
-                    {isLoading ?
-                        <div className='wine-spin pair-selector-separator'>🍷</div>
-                        : <div className='pair-selector-separator'>✖️</div>}
+                    {isLoading ? (
+                        <div className='wine-spin pair-selector-separator'>
+                            🍷
+                        </div>
+                    ) : (
+                        <div className='pair-selector-separator'>✖️</div>
+                    )}
                     <InputGroup>
                         <InputGroup.Prepend className='token-logo'>
-                            <InputGroup.Text >{resolveLogo(defaultValue.token1.id)}</InputGroup.Text>
+                            <InputGroup.Text>
+                                {resolveLogo(defaultValue.token1.id)}
+                            </InputGroup.Text>
                         </InputGroup.Prepend>
                         <Combobox
                             className='pair-selector'
                             data={rightSideOptions}
                             value={defaultValue}
-                            textField={pair => pair.token1.symbol}
+                            textField={(pair) => pair.token1.symbol}
                             itemComponent={TokenWithLogo('right')}
                             defaultValue={defaultValue}
                             filter='contains'
@@ -78,7 +86,7 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                     </InputGroup>
                 </div>
             </Card.Body>
-        </Card >
+        </Card>
     );
 }
 
@@ -86,7 +94,7 @@ PairSelector.propTypes = {
     pairs: PropTypes.arrayOf(Pair).isRequired,
     currentPairId: PropTypes.string.isRequired,
     setPair: PropTypes.func.isRequired,
-    isLoading: PropTypes.bool.isRequired
+    isLoading: PropTypes.bool.isRequired,
 };
 
 export default PairSelector;

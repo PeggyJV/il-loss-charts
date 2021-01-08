@@ -62,7 +62,7 @@ export interface UniswapMintOrBurn {
     amount0: string;
     amount1: string;
     amountUSD: string;
-    liquidity: string
+    liquidity: string;
     to: string;
     pair: Partial<UniswapPair>;
     timestamp: string;

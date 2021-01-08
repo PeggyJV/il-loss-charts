@@ -9,8 +9,8 @@ export const Pair = PropTypes.shape({
     name: PropTypes.string,
     symbol: PropTypes.string,
     totalLiquidity: PropTypes.string,
-    tradeVolumeUSD: PropTypes.string
-})
+    tradeVolumeUSD: PropTypes.string,
+});
 
 export const Swap = PropTypes.shape({
     amount0In: PropTypes.string,
@@ -19,7 +19,7 @@ export const Swap = PropTypes.shape({
     amount1Out: PropTypes.string,
     amountUSD: PropTypes.string,
     to: PropTypes.string,
-    pair: Pair
+    pair: Pair,
 });
 
 export const DailyData = PropTypes.shape({
@@ -38,7 +38,7 @@ export const HourlyData = PropTypes.shape({
     dailyVolumeToken0: PropTypes.string,
     dailyVolumeToken1: PropTypes.string,
     dailyVolumeUSD: PropTypes.string,
-    pair: Pair
+    pair: Pair,
 });
 
 export const MintOrBurn = PropTypes.shape({
@@ -54,13 +54,16 @@ export const MintOrBurn = PropTypes.shape({
 
 export const LPStats = PropTypes.shape({
     totalFees: PropTypes.instanceOf(BigNumber).isRequired,
-    runningVolume: PropTypes.arrayOf(PropTypes.instanceOf(BigNumber)).isRequired,
+    runningVolume: PropTypes.arrayOf(PropTypes.instanceOf(BigNumber))
+        .isRequired,
     runningFees: PropTypes.arrayOf(PropTypes.instanceOf(BigNumber)).isRequired,
-    runningImpermanentLoss: PropTypes.arrayOf(PropTypes.instanceOf(BigNumber)).isRequired,
-    runningReturn: PropTypes.arrayOf(PropTypes.instanceOf(BigNumber)).isRequired,
+    runningImpermanentLoss: PropTypes.arrayOf(PropTypes.instanceOf(BigNumber))
+        .isRequired,
+    runningReturn: PropTypes.arrayOf(PropTypes.instanceOf(BigNumber))
+        .isRequired,
     impermanentLoss: PropTypes.instanceOf(BigNumber).isRequired,
     totalReturn: PropTypes.instanceOf(BigNumber).isRequired,
-    days: PropTypes.arrayOf(PropTypes.string).isRequired
+    days: PropTypes.arrayOf(PropTypes.string).isRequired,
 });
 
 export const MarketData = PropTypes.shape({
@@ -71,5 +74,5 @@ export const MarketData = PropTypes.shape({
     liquidity: PropTypes.number.isRequired,
     returnsUSD: PropTypes.number.isRequired,
     returnsETH: PropTypes.number.isRequired,
-    pctReturn: PropTypes.number.isRequired
+    pctReturn: PropTypes.number.isRequired,
 });

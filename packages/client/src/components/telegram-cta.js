@@ -4,7 +4,9 @@ function TelegramCTA() {
             <hr />
             <p>
                 🍷 Track impermanent loss for this pair (and many others) on the{' '}
-                <a href='https://t.me/getsomm_alerts'>Sommelier IL Alerts Telegram!</a>
+                <a href='https://t.me/getsomm_alerts'>
+                    Sommelier IL Alerts Telegram!
+                </a>
             </p>
             <hr />
         </>

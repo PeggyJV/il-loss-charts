@@ -9,9 +9,7 @@
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking"
     ],
-    "plugins": [
-        "@typescript-eslint"
-    ],
+    "plugins": ["@typescript-eslint"],
     "rules": {
         "prefer-const": "error",
         "@typescript-eslint/no-unsafe-member-access": "off",

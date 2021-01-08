@@ -20,18 +20,24 @@ export default class ExpressServer {
         const clientRoot = path.normalize(__dirname + '/../../../client');
         app.set('appPath', root + 'client');
 
-        app.use(pino({
-            logger: l
-        }));
+        app.use(
+            pino({
+                logger: l,
+            })
+        );
 
-        app.use(bodyParser.json({ limit: process.env.REQUEST_LIMIT || '100kb' }));
+        app.use(
+            bodyParser.json({ limit: process.env.REQUEST_LIMIT || '100kb' })
+        );
         app.use(
             bodyParser.urlencoded({
                 extended: true,
                 limit: process.env.REQUEST_LIMIT || '100kb',
             })
         );
-        app.use(bodyParser.text({ limit: process.env.REQUEST_LIMIT || '100kb' }));
+        app.use(
+            bodyParser.text({ limit: process.env.REQUEST_LIMIT || '100kb' })
+        );
         app.use(cookieParser(process.env.SESSION_SECRET));
         app.use(express.static(`${root}/public`));
         app.use(express.static(`${clientRoot}/build`));
@@ -53,7 +59,7 @@ export default class ExpressServer {
         //     })
         // );
 
-        // Catch all 
+        // Catch all
         app.use(function (req, res, next) {
             if (req.url.includes('api')) return next();
 
@@ -70,7 +76,8 @@ export default class ExpressServer {
     listen(port: number): Application {
         const welcome = (p: number) => (): void =>
             l.info(
-                `up and running in ${process.env.NODE_ENV || 'development'
+                `up and running in ${
+                    process.env.NODE_ENV || 'development'
                 } @: ${os.hostname()} on port: ${p}}`
             );
 

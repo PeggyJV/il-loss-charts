@@ -9,13 +9,16 @@ class PollingUtil extends EventEmitter {
     static MEMPOOL_INTERVAL = 1000; // poll the mempool every 1s (via Infura)
 
     activeTopics: {
-        [key: string]: { emitter: EventEmitter, interval: NodeJS.Timeout };
+        [key: string]: { emitter: EventEmitter; interval: NodeJS.Timeout };
     } = {};
 
     // TODO
     // Make multi-tenant.
 
-    subscribe(topic: string, interval: number = PollingUtil.DEFAULT_INTERVAL): EventEmitter {
+    subscribe(
+        topic: string,
+        interval: number = PollingUtil.DEFAULT_INTERVAL
+    ): EventEmitter {
         if (this.activeTopics[topic]) {
             // If topic is already active, no-op
             return this.activeTopics[topic].emitter;
@@ -39,7 +42,6 @@ class PollingUtil extends EventEmitter {
             this.stopPolling(topic);
             this.startPolling(topic, intervalMs);
         }
-
     }
 
     startPolling(topic: string, intervalMs?: number): EventEmitter {
@@ -50,11 +52,15 @@ class PollingUtil extends EventEmitter {
         }
 
         const dataSource = services[source as DataSource];
-        if (!dataSource) throw new Error(`Cannot start polling on data source ${source}`);
+        if (!dataSource)
+            throw new Error(`Cannot start polling on data source ${source}`);
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const queryFn = (dataSource as any)[query];
-        if (!queryFn) throw new Error(`Query ${query} does not exist on data source ${source}`);
+        if (!queryFn)
+            throw new Error(
+                `Query ${query} does not exist on data source ${source}`
+            );
 
         const topicEmitter = new EventEmitter();
 
@@ -63,8 +69,9 @@ class PollingUtil extends EventEmitter {
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const interval: NodeJS.Timeout = <any>setInterval(() => {
-            queryFn(...argsArr)
-                .then((latest: unknown) => topicEmitter.emit('data', latest));
+            queryFn(...argsArr).then((latest: unknown) =>
+                topicEmitter.emit('data', latest)
+            );
         }, intervalMs);
 
         // Unref prevents the interval from blocking app shutdown
@@ -72,7 +79,7 @@ class PollingUtil extends EventEmitter {
 
         this.activeTopics[topic] = {
             emitter: topicEmitter,
-            interval
+            interval,
         };
 
         return topicEmitter;

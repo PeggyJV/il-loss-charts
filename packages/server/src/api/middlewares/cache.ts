@@ -14,7 +14,7 @@ export default function cacheMiddleware(ttl: number): RequestHandler {
         const cacheContent: unknown | null = memCache.get(key);
         if (cacheContent) {
             res.send(cacheContent);
-            return
+            return;
         } else {
             res.sendResponse = res.send;
             res.send = (body: unknown) => {
@@ -23,8 +23,8 @@ export default function cacheMiddleware(ttl: number): RequestHandler {
                     res.sendResponse(body);
                 }
                 return res;
-            }
+            };
             next();
         }
-    }
+    };
 }

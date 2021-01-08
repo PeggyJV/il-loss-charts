@@ -1,4 +1,3 @@
-
 import logoMappings from 'constants/trustwallet-mappings';
 import { Pair } from 'constants/prop-types';
 
@@ -12,15 +11,15 @@ const TokenWithLogo = (side) => {
 
         return (
             <span>
-                {resolveLogo(token.id)}{' '}{token.symbol}
+                {resolveLogo(token.id)} {token.symbol}
             </span>
         );
-    }
+    };
 
     TokenOnGivenSide.propTypes = { item: Pair };
 
     return TokenOnGivenSide;
-}
+};
 
 TokenWithLogo.displayName = 'TokenWithLogo';
 
@@ -30,7 +29,11 @@ export function resolveLogo(addressLower) {
     if (!address) return <span>🍇</span>;
 
     const imgUrl = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`;
-    return <span><img style={{ height: '1rem' }} src={imgUrl} alt="🍇" /></span>
+    return (
+        <span>
+            <img style={{ height: '1rem' }} src={imgUrl} alt='🍇' />
+        </span>
+    );
 }
 
 export default TokenWithLogo;

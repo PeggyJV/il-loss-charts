@@ -16,11 +16,13 @@ import { calculatePairRankings } from 'services/calculate-stats';
 
 import initialData from 'constants/initialData.json';
 
-
 function App() {
     // ------------------ Initial Mount - API calls for first render ------------------
 
-    const [allPairs, setAllPairs] = useState({ isLoading: true, pairs: initialData.allPairs });
+    const [allPairs, setAllPairs] = useState({
+        isLoading: true,
+        pairs: initialData.allPairs,
+    });
 
     useEffect(() => {
         const fetchAllPairs = async () => {
@@ -29,15 +31,19 @@ function App() {
             const calculated = calculatePairRankings(pairsRaw);
             window.calculated = calculated;
 
-            setAllPairs({ isLoading: false, pairs: calculated.pairs, lookups: calculated.pairLookups, byLiquidity: calculated.byLiquidity });
-        }
+            setAllPairs({
+                isLoading: false,
+                pairs: calculated.pairs,
+                lookups: calculated.pairLookups,
+                byLiquidity: calculated.byLiquidity,
+            });
+        };
         fetchAllPairs();
     }, []);
 
-
     if (allPairs.isLoading) {
         return (
-            <Container className="loading-container">
+            <Container className='loading-container'>
                 <div className='wine-bounce'>🍷</div>
             </Container>
         );
@@ -49,7 +55,7 @@ function App() {
                 <div className='side-menu'>
                     <SideMenu />
                 </div>
-                <div className="app-body">
+                <div className='app-body'>
                     <Switch>
                         <Route path='/pair'>
                             <PairContainer allPairs={allPairs} />

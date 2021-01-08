@@ -7,8 +7,8 @@ import { isValidEthAddress } from 'util/eth';
 
 interface MessagePayload {
     op: 'subscribe' | 'unsubscribe' | 'help';
-    topics: string[],
-    interval?: string | number
+    topics: string[];
+    interval?: string | number;
 }
 
 // TODO - topic deduper
@@ -22,7 +22,7 @@ export default class WsMessageHandler {
 
     constructor(conn: ws) {
         this.conn = conn;
-        conn.on('message', this.handleMessage.bind(this))
+        conn.on('message', this.handleMessage.bind(this));
     }
 
     handleMessage(message: string): void {
@@ -43,7 +43,7 @@ export default class WsMessageHandler {
         }
 
         if (!WsMessageHandler.ALLOWED_OPERATIONS.includes(msgPayload.op)) {
-            return this.sendError(400, `Invalid operation: ${msgPayload.op}`)
+            return this.sendError(400, `Invalid operation: ${msgPayload.op}`);
         }
 
         if (msgPayload.op === 'subscribe') {
@@ -51,14 +51,16 @@ export default class WsMessageHandler {
         } else if (msgPayload.op === 'unsubscribe') {
             return this.handleUnsubscribe(msgPayload);
         }
-
     }
 
     handleSubscribe(msgPayload: MessagePayload): void {
         const { topics, interval } = msgPayload;
 
         if (!msgPayload.topics || topics.length === 0) {
-            return this.sendError(400, `Received 'subscribe' message without topics.`);
+            return this.sendError(
+                400,
+                `Received 'subscribe' message without topics.`
+            );
         }
 
         if (interval && typeof interval === 'string') {
@@ -67,7 +69,6 @@ export default class WsMessageHandler {
                 const isValid = this.validateTopic(topic);
                 if (isValid) this.subscribeOnNewBlocks(topic);
             });
-
         } else {
             // Interval is a number
             topics.forEach((topic) => {
@@ -75,14 +76,16 @@ export default class WsMessageHandler {
                 if (isValid) this.subscribeToTopic(topic, <number>interval);
             });
         }
-
     }
 
     handleUnsubscribe(msgPayload: MessagePayload): void {
-        const { topics } = msgPayload
+        const { topics } = msgPayload;
 
         if (!msgPayload.topics || topics.length === 0) {
-            return this.sendError(400, `Received 'subscribe' message without topics.`);
+            return this.sendError(
+                400,
+                `Received 'subscribe' message without topics.`
+            );
         }
 
         topics.forEach((topic) => {
@@ -116,18 +119,25 @@ export default class WsMessageHandler {
         }
 
         const service = services[source as DataSource];
-        if (!service) throw new Error(`Cannot handle topic on data source ${source}`);
+        if (!service)
+            throw new Error(`Cannot handle topic on data source ${source}`);
 
         // Validate query
         if (!query) {
-            this.sendError(400, `Did not receive query for source ${source}. To subscribe to all queries use a wildcard.`);
+            this.sendError(
+                400,
+                `Did not receive query for source ${source}. To subscribe to all queries use a wildcard.`
+            );
             return false;
         }
 
         if (source === 'uniswap') {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             if (query !== '*' && !(service as any)[query]) {
-                this.sendError(400, `Invalid query for source ${source}: ${query}`);
+                this.sendError(
+                    400,
+                    `Invalid query for source ${source}: ${query}`
+                );
                 return false;
             }
 
@@ -137,13 +147,20 @@ export default class WsMessageHandler {
                 return false;
             }
         } else if (source === 'infura') {
-            if (query !== 'newHeads' && query !== 'newBlockHeaders' && query !== 'pendingTransactions') {
-                this.sendError(400, `Invalid query for infura source.`)
+            if (
+                query !== 'newHeads' &&
+                query !== 'newBlockHeaders' &&
+                query !== 'pendingTransactions'
+            ) {
+                this.sendError(400, `Invalid query for infura source.`);
                 return false;
             }
 
             if (query === 'pendingTransactions' && !isValidEthAddress(args)) {
-                this.sendError(400, `Invalid address for pendingTransactions query.`)
+                this.sendError(
+                    400,
+                    `Invalid address for pendingTransactions query.`
+                );
                 return false;
             }
         }
@@ -156,18 +173,22 @@ export default class WsMessageHandler {
 
         // We assume token is valid
         if (source === 'uniswap') {
-            pollingUtil.subscribe(topic, interval)
-                .on('data', (data: unknown) => this.sendJSON({
+            pollingUtil.subscribe(topic, interval).on('data', (data: unknown) =>
+                this.sendJSON({
                     topic,
-                    data
-                }));
+                    data,
+                })
+            );
         } else {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (services as any)[source].subscribe(query, args)
-                .on('data', (data: unknown) => this.sendJSON({
-                    topic,
-                    data
-                }));
+            (services as any)[source]
+                .subscribe(query, args)
+                .on('data', (data: unknown) =>
+                    this.sendJSON({
+                        topic,
+                        data,
+                    })
+                );
         }
     }
 
@@ -175,24 +196,31 @@ export default class WsMessageHandler {
         const [source, query, args] = tokenizeTopic(topic);
 
         const dataSource = services[source as DataSource];
-        if (!dataSource) throw new Error(`Cannot start polling on data source ${source}`);
+        if (!dataSource)
+            throw new Error(`Cannot start polling on data source ${source}`);
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const queryFn = (dataSource as any)[query];
-        if (!queryFn) throw new Error(`Query ${query} does not exist on data source ${source}`);
+        if (!queryFn)
+            throw new Error(
+                `Query ${query} does not exist on data source ${source}`
+            );
 
         // Assume args are comma-delimited
         const argsArr = args.split(',');
 
-        (services.infura.subscribe('newHeads') as EventEmitter)
-            .on('data', () => {
+        (services.infura.subscribe('newHeads') as EventEmitter).on(
+            'data',
+            () => {
                 // we got a new block, so fetch result and sendJSON
-                queryFn(...argsArr)
-                    .then((latest: unknown) => this.sendJSON({
+                queryFn(...argsArr).then((latest: unknown) =>
+                    this.sendJSON({
                         topic,
-                        data: latest
-                    }));
-            });
+                        data: latest,
+                    })
+                );
+            }
+        );
     }
 
     unsubscribeFromTopic(topic: string): void {
@@ -200,7 +228,7 @@ export default class WsMessageHandler {
 
         // We assume token is valid
         if (source === 'uniswap') {
-            pollingUtil.unsubscribe(topic)
+            pollingUtil.unsubscribe(topic);
         } else if (source === 'infura') {
             services.infura.unsubscribe(query);
         }
@@ -210,7 +238,7 @@ export default class WsMessageHandler {
         this.sendJSON({
             result: 'error',
             code,
-            message: errorMsg
+            message: errorMsg,
         });
     }
 

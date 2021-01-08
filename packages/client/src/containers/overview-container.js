@@ -10,7 +10,7 @@ import { resolveLogo } from 'components/token-with-logo';
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'USD',
 
     // These options are needed to round to whole numbers if that's what you want.
     //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
@@ -25,7 +25,7 @@ function OverviewContainer() {
             // Fetch all pairs
             const marketData = await Uniswap.getMarketData();
             setMarketData(marketData);
-        }
+        };
         fetchMarketData();
     }, []);
 
@@ -34,7 +34,13 @@ function OverviewContainer() {
     return (
         <div>
             <h4>Highest Impermanent Loss Pairs on Uniswap since December 1</h4>
-            <p><em>* The impermanent loss percentage is a reflection of the amount of IL due to price fluctation relative to the total return of the pool.</em></p>
+            <p>
+                <em>
+                    * The impermanent loss percentage is a reflection of the
+                    amount of IL due to price fluctation relative to the total
+                    return of the pool.
+                </em>
+            </p>
             {marketData && <MarketDataTable data={marketData} />}
         </div>
     );
@@ -42,12 +48,16 @@ function OverviewContainer() {
 
 function MarketDataTable({ data }) {
     const formatPair = ({ id, token0, token1 }) => {
-        return <span>
-            {resolveLogo(token0.id)}{' '}
-            <Link to={`/pair?id=${id}`}>{token0.symbol}/{token1.symbol}</Link>
-            {' '}{resolveLogo(token1.id)}
-        </span>;
-    }
+        return (
+            <span>
+                {resolveLogo(token0.id)}{' '}
+                <Link to={`/pair?id=${id}`}>
+                    {token0.symbol}/{token1.symbol}
+                </Link>{' '}
+                {resolveLogo(token1.id)}
+            </span>
+        );
+    };
 
     const formatPct = (val) => `${new BigNumber(val).times(100).toFixed(2)}%`;
     const formatUSD = (val) => formatter.format(parseFloat(val, 10));
@@ -56,56 +66,57 @@ function MarketDataTable({ data }) {
         {
             dataField: 'index',
             text: '#',
-            sort: true
+            sort: true,
         },
         {
             dataField: 'market',
             text: 'Market',
-            formatter: formatPair
+            formatter: formatPair,
         },
         {
             dataField: 'impermanentLoss',
             text: 'Impermanent Loss %',
             sort: true,
-            formatter: formatPct
+            formatter: formatPct,
         },
         {
             dataField: 'ilGross',
             text: 'Impermanent Loss',
             sort: true,
-            formatter: formatUSD
+            formatter: formatUSD,
         },
         {
             dataField: 'liquidity',
             text: 'USD Liquidity',
             sort: true,
-            formatter: formatUSD
+            formatter: formatUSD,
         },
         {
             dataField: 'volume',
             text: 'USD Volume',
             sort: true,
-            formatter: formatUSD
+            formatter: formatUSD,
         },
         {
             dataField: 'returnsUSD',
             text: 'USD Returns',
             sort: true,
-            formatter: formatUSD
+            formatter: formatUSD,
         },
         {
             dataField: 'returnsETH',
             text: 'ETH Returns',
             sort: true,
-            formatter: (val) => val.toFixed(4)
-        }
+            formatter: (val) => val.toFixed(4),
+        },
     ];
 
-    const sortedIl = [...data].sort((a, b) => a.impermanentLoss - b.impermanentLoss)
+    const sortedIl = [...data]
+        .sort((a, b) => a.impermanentLoss - b.impermanentLoss)
         .map((d, index) => ({
             ...d,
             index: index + 1,
-            market: { id: d.id, token0: d.token0, token1: d.token1 }
+            market: { id: d.id, token0: d.token0, token1: d.token1 },
         }));
     window.sortedIL = sortedIl;
 

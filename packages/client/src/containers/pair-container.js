@@ -35,7 +35,9 @@ function PairContainer({ allPairs }) {
 
     // Keep track of previous pair ID so we can unsubscribe
     const prevPairIdRef = useRef();
-    useEffect(() => { prevPairIdRef.current = pairId; });
+    useEffect(() => {
+        prevPairIdRef.current = pairId;
+    });
     const prevPairId = prevPairIdRef.current;
 
     const location = useLocation();
@@ -53,7 +55,11 @@ function PairContainer({ allPairs }) {
 
     // Keep track of previous lp stats to prevent entire loading UI from coming up on change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    const lpStats = useMemo(() => !isInitialLoad && calculateLPStats({ ...lpInfo, lpDate, lpShare }), [lpInfo, lpDate, lpShare]);
+    const lpStats = useMemo(
+        () =>
+            !isInitialLoad && calculateLPStats({ ...lpInfo, lpDate, lpShare }),
+        [lpInfo, lpDate, lpShare]
+    );
 
     useEffect(() => {
         const fetchPairData = async () => {
@@ -65,19 +71,26 @@ function PairContainer({ allPairs }) {
             const pairCreatedAt = new Date(newPair.createdAtTimestamp * 1000);
 
             // Get historical data for pair from start date until now
-            const historicalDailyData = await Uniswap.getHistoricalDailyData(pairId, pairCreatedAt);
+            const historicalDailyData = await Uniswap.getHistoricalDailyData(
+                pairId,
+                pairCreatedAt
+            );
 
-            setLPInfo(prevLpInfo => ({
+            setLPInfo((prevLpInfo) => ({
                 ...prevLpInfo,
                 pairData: newPair,
                 historicalData: historicalDailyData,
             }));
 
-            mixpanel.track('pair_query', { pairId, token0: newPair.token0.symbol, token1: newPair.token1.symbol });
+            mixpanel.track('pair_query', {
+                pairId,
+                token0: newPair.token0.symbol,
+                token1: newPair.token1.symbol,
+            });
 
             setIsLoading(false);
             if (isInitialLoad) setIsInitialLoad(false);
-        }
+        };
 
         fetchPairData();
 
@@ -85,7 +98,8 @@ function PairContainer({ allPairs }) {
     }, [pairId]);
 
     const dailyDataAtLPDate = useMemo(() => {
-        if (!lpInfo.historicalData || lpInfo.historicalData.length === 0) return {};
+        if (!lpInfo.historicalData || lpInfo.historicalData.length === 0)
+            return {};
 
         // Find daily data that matches LP date
         for (const dailyData of lpInfo.historicalData) {
@@ -95,7 +109,9 @@ function PairContainer({ allPairs }) {
             }
         }
 
-        console.warn(`Could not find LP date in historical data: ${lpDate}. Setting to first day.`);
+        console.warn(
+            `Could not find LP date in historical data: ${lpDate}. Setting to first day.`
+        );
         if (lpInfo.historicalData.length === 0) return;
         const firstDay = new Date(lpInfo.historicalData[0].date * 1000);
         setLPDate(firstDay);
@@ -105,10 +121,7 @@ function PairContainer({ allPairs }) {
     // ------------------ Websocket State - handles subscriptions ------------------
 
     const [latestBlock, setLatestBlock] = useState(null);
-    const {
-        sendJsonMessage,
-        lastJsonMessage,
-    } = useWebSocket(config.wsApi);
+    const { sendJsonMessage, lastJsonMessage } = useWebSocket(config.wsApi);
 
     // Handle websocket message
     useEffect(() => {
@@ -120,11 +133,15 @@ function PairContainer({ allPairs }) {
         if (topic.startsWith('uniswap:getPairOverview') && !isLoading) {
             setLPInfo({ ...lpInfo, pairData: lastJsonMessage.data });
         } else if (topic === 'infura:newHeads') {
-            const { data: { number: blockNumberHex } } = lastJsonMessage;
+            const {
+                data: { number: blockNumberHex },
+            } = lastJsonMessage;
             blockNumber = parseInt(blockNumberHex.slice(2), 16);
             setLatestBlock(blockNumber);
         } else if (topic === 'infura:newBlockHeaders') {
-            const { data: { number: blockNumberStr } } = lastJsonMessage;
+            const {
+                data: { number: blockNumberStr },
+            } = lastJsonMessage;
             blockNumber = parseInt(blockNumberStr, 10);
             setLatestBlock(blockNumber);
         }
@@ -136,20 +153,33 @@ function PairContainer({ allPairs }) {
     // Using both b/c infura API is inconsistent
     useEffect(() => {
         sendJsonMessage({ op: 'subscribe', topics: ['infura:newHeads'] });
-        sendJsonMessage({ op: 'subscribe', topics: ['infura:newBlockHeaders'] });
+        sendJsonMessage({
+            op: 'subscribe',
+            topics: ['infura:newBlockHeaders'],
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Subscribe to updates on pair overview when pair changes
     useEffect(() => {
-        sendJsonMessage({ op: 'unsubscribe', topics: [`uniswap:getPairOverview:${prevPairId}`] });
-        sendJsonMessage({ op: 'subscribe', topics: [`uniswap:getPairOverview:${pairId}`], interval: 'newBlocks' });
+        sendJsonMessage({
+            op: 'unsubscribe',
+            topics: [`uniswap:getPairOverview:${prevPairId}`],
+        });
+        sendJsonMessage({
+            op: 'subscribe',
+            topics: [`uniswap:getPairOverview:${pairId}`],
+            interval: 'newBlocks',
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pairId]);
 
     // ------------------ Market Data State - fetches non-LP specific market data ------------------
 
-    const [latestSwaps, setLatestSwaps] = useState({ swaps: null, mintsAndBurns: null });
+    const [latestSwaps, setLatestSwaps] = useState({
+        swaps: null,
+        mintsAndBurns: null,
+    });
 
     useEffect(() => {
         const getLatestSwaps = async () => {
@@ -157,19 +187,19 @@ function PairContainer({ allPairs }) {
             // Default to createdAt date if LP date not set
             const [latestSwaps, mintsAndBurns] = await Promise.all([
                 Uniswap.getLatestSwaps(pairId),
-                Uniswap.getMintsAndBurns(pairId)
+                Uniswap.getMintsAndBurns(pairId),
             ]);
             setLatestSwaps({ swaps: latestSwaps, mintsAndBurns });
-        }
+        };
 
         const refreshPairData = async () => {
             const newPairData = await Uniswap.getPairOverview(pairId);
 
-            setLPInfo(prevLpInfo => ({
+            setLPInfo((prevLpInfo) => ({
                 ...prevLpInfo,
                 pairData: newPairData,
             }));
-        }
+        };
 
         getLatestSwaps();
         refreshPairData();
@@ -180,9 +210,9 @@ function PairContainer({ allPairs }) {
     // If no lp stats, we haven't completed our first data fetch yet
     if (!lpStats || Object.keys(lpStats).length === 0) {
         return (
-            <Container className="loading-container" >
-                <div className='wine-bounce' >🍷</div >
-            </Container >
+            <Container className='loading-container'>
+                <div className='wine-bounce'>🍷</div>
+            </Container>
         );
     }
 
@@ -194,15 +224,27 @@ function PairContainer({ allPairs }) {
                 <Col lg={10}>
                     <Row className='top-stats-row'>
                         <Col lg={4}>
-                            <PairSelector pairs={allPairs.pairs} currentPairId={pairId} setPair={setPairId} isLoading={isLoading} />
+                            <PairSelector
+                                pairs={allPairs.pairs}
+                                currentPairId={pairId}
+                                setPair={setPairId}
+                                isLoading={isLoading}
+                            />
                         </Col>
                         <Col lg={8}>
-                            <TotalPoolStats allPairs={allPairs} lpInfo={lpInfo} lpStats={lpStats} />
+                            <TotalPoolStats
+                                allPairs={allPairs}
+                                lpInfo={lpInfo}
+                                lpStats={lpStats}
+                            />
                         </Col>
                     </Row>
                     <Row noGutters>
                         <Col lg={3} className='trades-sidebar'>
-                            <LatestTradesSidebar latestBlock={latestBlock} latestSwaps={latestSwaps} />
+                            <LatestTradesSidebar
+                                latestBlock={latestBlock}
+                                latestSwaps={latestSwaps}
+                            />
                         </Col>
                         <Col lg={9}>
                             {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
@@ -219,7 +261,10 @@ function PairContainer({ allPairs }) {
                         setLPShare={setLPShare}
                         dailyDataAtLPDate={dailyDataAtLPDate}
                     />
-                    <LPStatsWidget lpStats={lpStats} pairData={lpInfo.pairData} />
+                    <LPStatsWidget
+                        lpStats={lpStats}
+                        pairData={lpInfo.pairData}
+                    />
                 </Col>
             </Row>
             {/* <Row>
