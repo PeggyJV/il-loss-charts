@@ -16,6 +16,7 @@
         "packages/*"
     ],
     "dependencies": {
+        "lerna": "^3.22.1",
         "rimraf": "^3.0.2"
     },
     "devDependencies": {
