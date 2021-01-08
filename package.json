@@ -4,6 +4,7 @@
     "scripts": {
         "dev": "lerna run dev --parallel",
         "build": "lerna run clean && lerna run build",
+        "lint": "lerna run lint --stream --concurrency 1",
         "dev-live": "PORT=4000 cd packages/server && yarn start",
         "prod": "cd packages/server && yarn start"
     },
