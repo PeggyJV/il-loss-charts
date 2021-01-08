@@ -114,7 +114,6 @@ export default class UniswapFetcher {
         return pairs;
     }
 
-<<<<<<< HEAD
     static async getIlAlertsPairs(count = 1000) {
         const response = await UniswapFetcher.client
             .query({
@@ -157,15 +156,8 @@ export default class UniswapFetcher {
     }
 
 
-    static async _get100DaysHistoricalDailyData(pairId, startDate, endDate) {
-=======
     static async _get100DaysHistoricalDailyData(pairId: string, startDate: Date, endDate: Date): Promise<UniswapDailyData[]> {
-<<<<<<< HEAD
->>>>>>> get ts working
-        const response = await UniswapFetcher.client
-=======
         const response: ApolloResponse<{ pairDayDatas: UniswapDailyData[] }> = await UniswapFetcher.client
->>>>>>> fix all lint issues
             .query({
                 query: gql`
                     {
