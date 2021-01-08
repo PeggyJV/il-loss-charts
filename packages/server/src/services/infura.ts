@@ -36,11 +36,15 @@ export class Infura extends EventEmitter {
                 subscription = Infura.web3.eth.subscribe('newBlockHeaders');
             } else if (topic === 'pendingTransactions') {
                 subscription = Infura.web3.eth.subscribe('pendingTransactions');
+            } else if (topic === 'newHeads') {
+                // newHeads is mentioned in the docs below, but not supported as a type
+                // https://infura.io/docs/ethereum#section/Make-Requests/Subscriptions-and-Filters
+                subscription = Infura.web3.eth.subscribe('newHeads' as 'newBlockHeaders');
             } else {
-                throw new Error(`Could not subscribe to web3.eth for unknown topic ${topic}`);
+                throw new Error();
             }
         } catch (e) {
-            throw new Error(`Could not subscribe to web3.eth for topic ${topic}`);
+            throw new Error(`Could not subscribe to web3.eth for topic ${topic}: ${e.message}`);
         }
 
         this.activeTopics[topic] = { subscription };

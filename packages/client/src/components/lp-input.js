@@ -117,10 +117,10 @@ function LPInput({ lpDate, setLPDate, pairData, lpShare, setLPShare, dailyDataAt
 }
 
 LPInput.propTypes = {
-    lpDate: PropTypes.Date.isRequired,
+    lpDate: PropTypes.instanceOf(Date).isRequired,
     setLPDate: PropTypes.func.isRequired,
     pairData: Pair.isRequired,
-    lpShare: PropTypes.numnber.isRequired,
+    lpShare: PropTypes.number.isRequired,
     setLPShare: PropTypes.func.isRequired,
     dailyDataAtLPDate: PropTypes.arrayOf(DailyData).isRequired
 };
