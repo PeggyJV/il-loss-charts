@@ -54,10 +54,10 @@ function PairContainer({ allPairs }) {
     const [lpShare, setLPShare] = useState(initialData.lpShare);
 
     // Keep track of previous lp stats to prevent entire loading UI from coming up on change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     const lpStats = useMemo(
         () =>
             !isInitialLoad && calculateLPStats({ ...lpInfo, lpDate, lpShare }),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [lpInfo, lpDate, lpShare]
     );
 

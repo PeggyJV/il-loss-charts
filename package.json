@@ -25,5 +25,13 @@
         "eslint": "^7.17.0",
         "prettier": "2.2.1",
         "scripty": "^2.0.0"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "**/*": "prettier --write --ignore-unknown"
     }
 }
