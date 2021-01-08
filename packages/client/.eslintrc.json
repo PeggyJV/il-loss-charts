@@ -1,11 +1,15 @@
 {
     "env": {
         "es2021": true,
-        "browser": true
+        "browser": true,
+        "node": true
     },
+    "parser": "@babel/eslint-parser",
     "extends": [
         "eslint:recommended",
-        "plugin:react/recommended"
+        "plugin:react/recommended",
+        "plugin:react-hooks/recommended",
+        "plugin:@babel/plugin-proposal-class-properties"
     ],
     "parserOptions": {
         "sourceType": "module",
@@ -14,5 +18,10 @@
     "rules": {
         "prefer-const": "error",
         "react/react-in-jsx-scope": "off"
+    },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
     }
 }

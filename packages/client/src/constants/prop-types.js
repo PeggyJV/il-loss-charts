@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import BigNumber from 'bignumber.js';
 
 export const Pair = PropTypes.shape({
     __typename: PropTypes.string,
@@ -28,4 +29,47 @@ export const DailyData = PropTypes.shape({
     dailyVolumeToken0: PropTypes.string,
     dailyVolumeToken1: PropTypes.string,
     dailyVolumeUSD: PropTypes.string,
+});
+
+export const HourlyData = PropTypes.shape({
+    __typename: PropTypes.string,
+    date: PropTypes.number,
+    pairAddress: PropTypes.string,
+    dailyVolumeToken0: PropTypes.string,
+    dailyVolumeToken1: PropTypes.string,
+    dailyVolumeUSD: PropTypes.string,
+    pair: Pair
+});
+
+export const MintOrBurn = PropTypes.shape({
+    __typename: PropTypes.string,
+    amount0: PropTypes.string,
+    amount1: PropTypes.string,
+    amountUSD: PropTypes.string,
+    liquidity: PropTypes.string,
+    to: PropTypes.string,
+    pair: Pair,
+    timestamp: PropTypes.string,
+});
+
+export const LPStats = PropTypes.shape({
+    totalFees: PropTypes.instanceOf(BigNumber).isRequired,
+    runningVolume: PropTypes.arrayOf(PropTypes.instanceOf(BigNumber)).isRequired,
+    runningFees: PropTypes.arrayOf(PropTypes.instanceOf(BigNumber)).isRequired,
+    runningImpermanentLoss: PropTypes.arrayOf(PropTypes.instanceOf(BigNumber)).isRequired,
+    runningReturn: PropTypes.arrayOf(PropTypes.instanceOf(BigNumber)).isRequired,
+    impermanentLoss: PropTypes.instanceOf(BigNumber).isRequired,
+    totalReturn: PropTypes.instanceOf(BigNumber).isRequired,
+    days: PropTypes.arrayOf(PropTypes.string).isRequired
+});
+
+export const MarketData = PropTypes.shape({
+    ilGross: PropTypes.number.isRequired,
+    market: PropTypes.string.isRequired,
+    impermanentLoss: PropTypes.number.isRequired,
+    volume: PropTypes.number.isRequired,
+    liquidity: PropTypes.number.isRequired,
+    returnsUSD: PropTypes.number.isRequired,
+    returnsETH: PropTypes.number.isRequired,
+    pctReturn: PropTypes.number.isRequired
 });

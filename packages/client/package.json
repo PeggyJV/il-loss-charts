@@ -72,6 +72,9 @@
         ]
     },
     "devDependencies": {
-        "eslint-plugin-react": "^7.22.0"
+        "@babel/eslint-parser": "^7.12.1",
+        "@babel/plugin-proposal-class-properties": "^7.12.1",
+        "eslint-plugin-react": "^7.22.0",
+        "eslint-plugin-react-hooks": "^4.2.0"
     }
 }

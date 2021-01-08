@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card } from 'react-bootstrap';
 import BootstrapTable from 'react-bootstrap-table-next';
 import BigNumber from 'bignumber.js';
+import { MarketData } from 'constants/prop-types';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { resolveLogo } from 'components/token-with-logo';
@@ -122,5 +123,7 @@ function MarketDataTable({ data }) {
         </Card>
     );
 }
+
+MarketDataTable.propTypes = { data: MarketData };
 
 export default OverviewContainer;

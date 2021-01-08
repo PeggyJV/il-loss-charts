@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { MintOrBurn, Swap } from 'constants/prop-types';
 import { Card, ListGroup, Button } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 
@@ -48,16 +49,8 @@ function LatestTradeSidebar({ latestBlock, latestSwaps }) {
 
 LatestTradeSidebar.propTypes = {
     latestBlock: PropTypes.number,
-    latestSwaps: PropTypes.arrayOf(PropTypes.shape({
-        amount0In: PropTypes.string,
-        amount0Out: PropTypes.string,
-        amount1In: PropTypes.string,
-        amount1Out: PropTypes.string,
-        amountUSD: PropTypes.string,
-        to: PropTypes.string,
-        // pair: Partial<UniswapPair>;
-    }))
-}
+    latestSwaps: PropTypes.arrayOf(Swap).isRequired
+};
 
 function SwapInfo({ swap }) {
     const outSide = new BigNumber(swap.amount0Out).eq(0) ? '1' : '0';
@@ -78,6 +71,8 @@ function SwapInfo({ swap }) {
     )
 }
 
+SwapInfo.propTypes = { swap: Swap.isRequired };
+
 function MintBurnInfo({ action }) {
     const icon = action.__typename === 'Mint' ? '💰' : '🔥';
     const actionName = action.__typename === 'Mint' ? 'Add' : 'Remove';
@@ -88,6 +83,8 @@ function MintBurnInfo({ action }) {
         </ListGroup.Item>
     )
 }
+
+MintBurnInfo.propTypes = { action: MintOrBurn.isRequired };
 
 
 

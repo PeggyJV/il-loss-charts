@@ -1,7 +1,8 @@
 import { Card } from 'react-bootstrap';
 import { ComposedChart, CartesianGrid, Area, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import LPStatsWidget from 'components/lp-stats-widget';
-import FadeOnChange from 'components/fade-on-change';
+import PropTypes from 'prop-types';
+import { LPStats } from 'constants/prop-types';
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -12,10 +13,9 @@ const formatter = new Intl.NumberFormat('en-US', {
     //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
 });
 
-
 function LPStatsChart({ lpStats }) {
     const chartData = [];
-    for (let i in lpStats.days) {
+    for (const i in lpStats.days) {
         const runningFee = lpStats.runningFees[i].toNumber();
         const runningReturn = lpStats.runningReturn[i].toNumber();
 
@@ -57,7 +57,9 @@ function LPStatsChart({ lpStats }) {
     );
 }
 
-function CustomTooltip({ active, payload, label }) {
+LPStatsChart.propTypes = { lpStats: LPStats };
+
+function CustomTooltip({ active, payload }) {
     if (!active || !payload) return null;
     const lpStats = {
         totalFees: payload[0].payload.runningFee,
@@ -66,6 +68,11 @@ function CustomTooltip({ active, payload, label }) {
     };
     return <LPStatsWidget lpStats={lpStats} />;
 }
+
+CustomTooltip.propTypes = {
+    active: PropTypes.bool,
+    payload: PropTypes.object.isRequired,
+};
 
 function YAxisTick({ x, y, stroke = 'none', payload }) {
     return (
@@ -78,5 +85,12 @@ function YAxisTick({ x, y, stroke = 'none', payload }) {
         </g>
     )
 }
+
+YAxisTick.propTypes = {
+    x: PropTypes.string,
+    y: PropTypes.string,
+    stroke: PropTypes.string,
+    payload: PropTypes.object.isRequired,
+};
 
 export default LPStatsChart;

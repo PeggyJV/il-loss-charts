@@ -11,6 +11,8 @@ import {
     LineSegment
 } from 'victory';
 
+import { LPStats } from 'constants/prop-types';
+
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD'
@@ -31,7 +33,7 @@ function formatTooltipText({ runningFee, runningReturn, runningImpermanentLoss, 
 
 function LPStatsChart({ lpStats }) {
     const chartData = [];
-    for (let i in lpStats.days) {
+    for (const i in lpStats.days) {
         const runningFee = lpStats.runningFees[i].toNumber();
         const runningReturn = lpStats.runningReturn[i].toNumber();
 
@@ -110,5 +112,7 @@ function LPStatsChart({ lpStats }) {
         </Card>
     );
 }
+
+LPStatsChart.propTypes = { lpStats: LPStats };
 
 export default LPStatsChart;

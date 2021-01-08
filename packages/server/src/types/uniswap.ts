@@ -39,7 +39,7 @@ export interface UniswapDailyData extends LiquidityData {
 
 export interface UniswapHourlyData extends LiquidityData {
     __typename: 'PairDayData';
-    paid: { id: string };
+    pair: Partial<UniswapPair>;
     hourStartUnix: number;
     hourlyVolumeToken0: string;
     hourlyVolumeToken1: string;

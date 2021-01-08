@@ -1,4 +1,5 @@
 import { Card } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 import FadeOnChange from 'components/fade-on-change';
 
 const formatter = new Intl.NumberFormat('en-US', {
@@ -27,5 +28,11 @@ function USDValueWidget({ title, value, footnote }) {
         </Card>
     );
 }
+
+USDValueWidget.propTypes = {
+    title: PropTypes.string,
+    value: PropTypes.node.isRequired,
+    footnote: PropTypes.node,
+};
 
 export default USDValueWidget;

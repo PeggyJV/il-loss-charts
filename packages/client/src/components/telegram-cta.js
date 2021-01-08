@@ -1,5 +1,3 @@
-import { Card } from 'react-bootstrap';
-
 function TelegramCTA() {
     return (
         <>

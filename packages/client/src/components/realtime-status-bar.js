@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Col, Toast } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 
 function RealtimeStatusBar({ latestBlock }) {
     const [show, setShow] = useState(false);
@@ -16,5 +17,7 @@ function RealtimeStatusBar({ latestBlock }) {
         </Col>
     );
 }
+
+RealtimeStatusBar.propTypes = { latestBlock: PropTypes.number };
 
 export default RealtimeStatusBar;

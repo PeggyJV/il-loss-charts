@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Form, Card } from 'react-bootstrap';
+import PropTypes from 'prop-types';
+import { Pair, DailyData } from 'constants/prop-types';
+
 import BigNumber from 'bignumber.js';
 import { DateTimePicker } from 'react-widgets';
 import dateFnsLocalizer, { defaultFormats } from 'react-widgets-date-fns';
@@ -112,5 +115,14 @@ function LPInput({ lpDate, setLPDate, pairData, lpShare, setLPShare, dailyDataAt
         </Card>
     );
 }
+
+LPInput.propTypes = {
+    lpDate: PropTypes.Date.isRequired,
+    setLPDate: PropTypes.func.isRequired,
+    pairData: Pair.isRequired,
+    lpShare: PropTypes.numnber.isRequired,
+    setLPShare: PropTypes.func.isRequired,
+    dailyDataAtLPDate: PropTypes.arrayOf(DailyData).isRequired
+};
 
 export default LPInput;

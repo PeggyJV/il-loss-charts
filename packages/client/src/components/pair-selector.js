@@ -1,23 +1,23 @@
-import { useState } from 'react';
-import { Card, Container, Row, Col, InputGroup } from 'react-bootstrap';
+import { Card, InputGroup } from 'react-bootstrap';
 import { Combobox } from 'react-widgets';
-import { useSpring, animated } from 'react-spring';
+import PropTypes from 'prop-types';
+import { Pair } from 'constants/prop-types';
 
 import TokenWithLogo, { resolveLogo } from 'components/token-with-logo';
 
 function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
     let defaultValue;
-    for (let pair of pairs) {
+    for (const pair of pairs) {
         if (pair.id === currentPairId) {
             defaultValue = pair;
             break;
         }
-    };
+    }
 
     const leftSideOptions = [];
     const rightSideOptions = [];
 
-    for (let pair of pairs) {
+    for (const pair of pairs) {
         if (pair.token1.symbol === defaultValue.token1.symbol) {
             leftSideOptions.push(pair);
         }
@@ -81,5 +81,12 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
         </Card >
     );
 }
+
+PairSelector.propTypes = {
+    pairs: PropTypes.arrayOf(Pair).isRequired,
+    currentPairId: PropTypes.string.isRequired,
+    setPair: PropTypes.func.isRequired,
+    isLoading: PropTypes.bool.isRequired
+};
 
 export default PairSelector;

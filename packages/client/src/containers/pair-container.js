@@ -1,9 +1,10 @@
-import { useContext, useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
+import PropTypes from 'prop-types';
+import { Pair } from 'constants/prop-types';
 import Mixpanel from 'util/mixpanel';
-import AppContext from 'util/app-context';
 
 import Header from 'components/header';
 import PairSelector from 'components/pair-selector';
@@ -14,11 +15,9 @@ import LatestTradesSidebar from 'components/latest-trades-sidebar';
 import TotalPoolStats from 'components/total-pool-stats';
 import TelegramCTA from 'components/telegram-cta';
 
-import FadeOnChange from 'components/fade-on-change';
-
 import initialData from 'constants/initialData.json';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
-import { calculateLPStats, calculatePairRankings } from 'services/calculate-stats';
+import { calculateLPStats } from 'services/calculate-stats';
 
 import config from 'config';
 
@@ -53,6 +52,7 @@ function PairContainer({ allPairs }) {
     const [lpShare, setLPShare] = useState(initialData.lpShare);
 
     // Keep track of previous lp stats to prevent entire loading UI from coming up on change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const lpStats = useMemo(() => !isInitialLoad && calculateLPStats({ ...lpInfo, lpDate, lpShare }), [lpInfo, lpDate, lpShare]);
 
     useEffect(() => {
@@ -80,13 +80,15 @@ function PairContainer({ allPairs }) {
         }
 
         fetchPairData();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pairId]);
 
     const dailyDataAtLPDate = useMemo(() => {
         if (!lpInfo.historicalData || lpInfo.historicalData.length === 0) return {};
 
         // Find daily data that matches LP date
-        for (let dailyData of lpInfo.historicalData) {
+        for (const dailyData of lpInfo.historicalData) {
             const currentDate = new Date(dailyData.date * 1000);
             if (currentDate.getTime() === lpDate.getTime()) {
                 return dailyData;
@@ -127,13 +129,15 @@ function PairContainer({ allPairs }) {
             setLatestBlock(blockNumber);
         }
 
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [lastJsonMessage]);
 
     // Subscribe to new blocks on first render
     // Using both b/c infura API is inconsistent
     useEffect(() => {
-        sendJsonMessage({ op: 'subscribe', topics: ['infura:newHeads'] })
-        sendJsonMessage({ op: 'subscribe', topics: ['infura:newBlockHeaders'] })
+        sendJsonMessage({ op: 'subscribe', topics: ['infura:newHeads'] });
+        sendJsonMessage({ op: 'subscribe', topics: ['infura:newBlockHeaders'] });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Subscribe to updates on pair overview when pair changes
@@ -224,5 +228,7 @@ function PairContainer({ allPairs }) {
         </Container>
     );
 }
+
+PairContainer.propTypes = { allPairs: PropTypes.arrayOf(Pair) };
 
 export default PairContainer;

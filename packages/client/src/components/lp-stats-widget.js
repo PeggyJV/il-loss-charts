@@ -1,4 +1,5 @@
 import { Card, Table } from 'react-bootstrap';
+import { LPStats } from 'constants/prop-types';
 
 
 const formatter = new Intl.NumberFormat('en-US', {
@@ -45,5 +46,7 @@ function LPStatsWidget({ lpStats }) {
         </Card>
     );
 }
+
+LPStatsWidget.propTypes = { lpStats: LPStats };
 
 export default LPStatsWidget;

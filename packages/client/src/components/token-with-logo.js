@@ -1,19 +1,28 @@
 
 import logoMappings from 'constants/trustwallet-mappings';
+import { Pair } from 'constants/prop-types';
 
-const TokenWithLogo = (side) => ({ item: pair }) => {
-    let token;
+const TokenWithLogo = (side) => {
+    const TokenOnGivenSide = ({ item: pair }) => {
+        let token;
 
-    if (side === 'left') token = pair.token0;
-    else if (side === 'right') token = pair.token1;
-    else throw new Error('Unknown side');
+        if (side === 'left') token = pair.token0;
+        else if (side === 'right') token = pair.token1;
+        else throw new Error('Unknown side');
 
-    return (
-        <span>
-            {resolveLogo(token.id)}{' '}{token.symbol}
-        </span>
-    )
+        return (
+            <span>
+                {resolveLogo(token.id)}{' '}{token.symbol}
+            </span>
+        );
+    }
+
+    TokenOnGivenSide.propTypes = { item: Pair };
+
+    return TokenOnGivenSide;
 }
+
+TokenWithLogo.displayName = 'TokenWithLogo';
 
 export function resolveLogo(addressLower) {
     const address = logoMappings[addressLower];

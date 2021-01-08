@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { Row, Col, Button, Card } from 'react-bootstrap';
+import { Button, Card } from 'react-bootstrap';
+import BigNumber from 'bignumber.js';
+import PropTypes from 'prop-types';
+import { Pair, DailyData, LPStats } from 'constants/prop-types';
 import USDValueWidget from 'components/usd-value-widget';
 
 function PercentChangeStat({ value }) {
@@ -9,6 +12,7 @@ function PercentChangeStat({ value }) {
     return <span className={className}>{value.toFixed(2)}% {sign}</span>;
 }
 
+PercentChangeStat.propTypes = { value: PropTypes.instanceOf(BigNumber) };
 
 function TotalPoolStats({ allPairs, lpInfo, lpStats }) {
     const [window, setWindow] = useState('total');
@@ -58,5 +62,16 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }) {
         </div>
     );
 }
+
+TotalPoolStats.propTypes = {
+    allPairs: PropTypes.shape({
+        lookups: PropTypes.object.isRequired,
+    }),
+    lpInfo: PropTypes.shape({
+        pairData: Pair.isRequired,
+        historicalData: PropTypes.arrayOf(DailyData)
+    }),
+    lpStats: LPStats
+};
 
 export default TotalPoolStats;
