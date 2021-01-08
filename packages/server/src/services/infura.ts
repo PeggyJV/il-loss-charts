@@ -44,7 +44,7 @@ export class Infura extends EventEmitter {
                 throw new Error();
             }
         } catch (e) {
-            throw new Error(`Could not subscribe to web3.eth for topic ${topic}: ${e.message}`);
+            throw new Error(`Could not subscribe to web3.eth for topic ${topic}`);
         }
 
         this.activeTopics[topic] = { subscription };
