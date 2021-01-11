@@ -28,8 +28,8 @@ function LatestTradeSidebar({ latestBlock, latestSwaps }) {
                     {latestBlock ? (
                         <strong>Latest Block: #{latestBlock}</strong>
                     ) : (
-                        <strong>Awaiting New Blocks...</strong>
-                    )}
+                            <strong>Awaiting New Blocks...</strong>
+                        )}
                 </p>
                 <div className='sidebar-buttons'>
                     <Button
@@ -72,7 +72,14 @@ function LatestTradeSidebar({ latestBlock, latestSwaps }) {
 
 LatestTradeSidebar.propTypes = {
     latestBlock: PropTypes.number,
-    latestSwaps: PropTypes.arrayOf(Swap).isRequired,
+    latestSwaps: PropTypes.shape({
+        swaps: PropTypes.arrayOf(Swap).isRequired,
+        mintsAndBurns: PropTypes.shape({
+            mints: PropTypes.arrayOf(MintOrBurn).isRequired,
+            burns: PropTypes.arrayOf(MintOrBurn).isRequired,
+            combined: PropTypes.arrayOf(MintOrBurn).isRequired,
+        })
+    })
 };
 
 function SwapInfo({ swap }) {
@@ -98,9 +105,8 @@ SwapInfo.propTypes = { swap: Swap.isRequired };
 function MintBurnInfo({ action }) {
     const icon = action.__typename === 'Mint' ? '💰' : '🔥';
     const actionName = action.__typename === 'Mint' ? 'Add' : 'Remove';
-    const pairAmounts = `${new BigNumber(action.amount0).toFixed(3)} ${
-        action.pair.token0.symbol
-    }/${new BigNumber(action.amount1).toFixed(3)} ${action.pair.token1.symbol}`;
+    const pairAmounts = `${new BigNumber(action.amount0).toFixed(3)} ${action.pair.token0.symbol
+        }/${new BigNumber(action.amount1).toFixed(3)} ${action.pair.token1.symbol}`;
     return (
         <ListGroup.Item className='sidebar-item'>
             {icon} {actionName} {formatter.format(action.amountUSD)} (

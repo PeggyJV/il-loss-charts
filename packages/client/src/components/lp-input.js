@@ -153,7 +153,7 @@ LPInput.propTypes = {
     pairData: Pair.isRequired,
     lpShare: PropTypes.number.isRequired,
     setLPShare: PropTypes.func.isRequired,
-    dailyDataAtLPDate: PropTypes.arrayOf(DailyData).isRequired,
+    dailyDataAtLPDate: DailyData.isRequired,
 };
 
 export default LPInput;

@@ -13718,7 +13718,7 @@ react-widgets-date-fns@^4.1.2:
   resolved "https://registry.yarnpkg.com/react-widgets-date-fns/-/react-widgets-date-fns-4.1.2.tgz#af0b9c3a670949d5e41b74e02519ff2a54ec2c21"
   integrity sha512-c5nXWu3yetd92+GazHQiO8V5tmd7BSkRsETneRX5AEsSgYf+DwTOSsAjrPDrMQaXGyuK0klNDnv2iyxYTOcUdQ==
 
-react-widgets@^4.6.1:
+react-widgets@4.6.1:
   version "4.6.1"
   resolved "https://registry.yarnpkg.com/react-widgets/-/react-widgets-4.6.1.tgz#a1d83cf24007ecab05a921719c25cea370cfd685"
   integrity sha512-x2n4EFQnk1ZG2rWsdekGK3js091k+b06e0CRI4pDEZ0uh/cft3NyGFKS5/x7CV/fN51kHMaM4r5IRGIbPfsLLw==

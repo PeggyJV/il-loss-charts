@@ -109,11 +109,11 @@ function PairContainer({ allPairs }) {
             }
         }
 
-        console.warn(
-            `Could not find LP date in historical data: ${lpDate}. Setting to first day.`
-        );
         if (lpInfo.historicalData.length === 0) return;
         const firstDay = new Date(lpInfo.historicalData[0].date * 1000);
+        console.warn(
+            `Could not find LP date in historical data: ${lpDate}. Setting to first day, which is ${firstDay}.`
+        );
         setLPDate(firstDay);
         return lpInfo.historicalData[0];
     }, [lpInfo, lpDate]);

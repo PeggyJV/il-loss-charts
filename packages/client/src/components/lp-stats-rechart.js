@@ -127,7 +127,7 @@ function CustomTooltip({ active, payload }) {
 
 CustomTooltip.propTypes = {
     active: PropTypes.bool,
-    payload: PropTypes.object.isRequired,
+    payload: PropTypes.array,
 };
 
 function YAxisTick({ x, y, stroke = 'none', payload }) {
@@ -153,10 +153,10 @@ function YAxisTick({ x, y, stroke = 'none', payload }) {
 }
 
 YAxisTick.propTypes = {
-    x: PropTypes.string,
-    y: PropTypes.string,
+    x: PropTypes.number,
+    y: PropTypes.number,
     stroke: PropTypes.string,
-    payload: PropTypes.object.isRequired,
+    payload: PropTypes.object,
 };
 
 export default LPStatsChart;

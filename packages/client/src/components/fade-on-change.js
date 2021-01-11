@@ -10,9 +10,9 @@ function FadeOnChange({ children }) {
     });
 
     return transitions.map(({ item, key, props }) => (
-        <animated.div key={key} style={props}>
+        <animated.span key={key} style={props}>
             {item}
-        </animated.div>
+        </animated.span>
     ));
 }
 
