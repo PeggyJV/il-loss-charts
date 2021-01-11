@@ -9,8 +9,10 @@ import {
     YAxis,
     Tooltip,
 } from 'recharts';
-import LPStatsWidget from 'components/lp-stats-widget';
 import PropTypes from 'prop-types';
+import { format } from 'date-fns';
+
+import LPStatsWidget from 'components/lp-stats-widget';
 import { LPStats } from 'constants/prop-types';
 
 const formatter = new Intl.NumberFormat('en-US', {
@@ -29,6 +31,7 @@ function LPStatsChart({ lpStats }) {
         const runningReturn = lpStats.runningReturn[i].toNumber();
 
         chartData.push({
+            fullDate: lpStats.fullDates[i],
             day: lpStats.days[i],
             runningFee,
             runningReturn,
@@ -114,7 +117,12 @@ function CustomTooltip({ active, payload }) {
         totalReturn: payload[0].payload.runningReturn,
         impermanentLoss: payload[0].payload.runningImpermanentLoss,
     };
-    return <LPStatsWidget lpStats={lpStats} />;
+
+    const tooltipDate = format(payload[0].payload.fullDate, 'MMMM d, yyyy');
+
+    return (
+        <LPStatsWidget title={tooltipDate} lpStats={lpStats} />
+    );
 }
 
 CustomTooltip.propTypes = {

@@ -17,6 +17,7 @@ export function calculateLPStats({
     const runningFees = [];
     const runningImpermanentLoss = [];
     const runningReturn = [];
+    const fullDates = [];
     const days = [];
 
     const calculateImpermanentLoss = (
@@ -83,6 +84,7 @@ export function calculateLPStats({
         runningImpermanentLoss.push(dailyImpermanentLoss);
         runningReturn.push(dailyReturn);
 
+        fullDates.push(currentDate);
         days.push(format(currentDate, 'MMM d'));
     });
 
@@ -192,6 +194,7 @@ export function calculateLPStats({
         impermanentLoss,
         totalReturn,
         days,
+        fullDates
     };
 }
 

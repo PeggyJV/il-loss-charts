@@ -64,6 +64,7 @@ export const LPStats = PropTypes.shape({
     impermanentLoss: PropTypes.instanceOf(BigNumber).isRequired,
     totalReturn: PropTypes.instanceOf(BigNumber).isRequired,
     days: PropTypes.arrayOf(PropTypes.string).isRequired,
+    fullDates: PropTypes.arrayOf(PropTypes.instanceOf(Date)).isRequired,
 });
 
 export const MarketData = PropTypes.shape({

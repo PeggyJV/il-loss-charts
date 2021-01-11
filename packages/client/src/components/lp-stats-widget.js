@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { Card, Table } from 'react-bootstrap';
 import { LPStats } from 'constants/prop-types';
 
@@ -10,7 +11,7 @@ const formatter = new Intl.NumberFormat('en-US', {
     //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
 });
 
-function LPStatsWidget({ lpStats }) {
+function LPStatsWidget({ lpStats, title }) {
     if (!lpStats.totalFees) return null;
 
     const displayValue = (value) => {
@@ -27,6 +28,7 @@ function LPStatsWidget({ lpStats }) {
     return (
         <Card className='lp-stats-card'>
             <Card.Body className='lp-stats-widget'>
+                {title && <p>{title}</p>}
                 <Table borderless className='lp-stats-table'>
                     <tbody>
                         <tr>
@@ -62,6 +64,6 @@ function LPStatsWidget({ lpStats }) {
     );
 }
 
-LPStatsWidget.propTypes = { lpStats: LPStats };
+LPStatsWidget.propTypes = { lpStats: LPStats, title: PropTypes.string };
 
 export default LPStatsWidget;

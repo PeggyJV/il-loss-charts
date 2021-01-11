@@ -274,6 +274,6 @@ function PairContainer({ allPairs }) {
     );
 }
 
-PairContainer.propTypes = { allPairs: PropTypes.arrayOf(Pair) };
+PairContainer.propTypes = { allPairs: PropTypes.shape({ pairs: PropTypes.arrayOf(Pair) }) };
 
 export default PairContainer;

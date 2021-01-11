@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Card } from 'react-bootstrap';
 import BootstrapTable from 'react-bootstrap-table-next';
@@ -135,6 +136,6 @@ function MarketDataTable({ data }) {
     );
 }
 
-MarketDataTable.propTypes = { data: MarketData };
+MarketDataTable.propTypes = { data: PropTypes.arrayOf(MarketData) };
 
 export default OverviewContainer;
