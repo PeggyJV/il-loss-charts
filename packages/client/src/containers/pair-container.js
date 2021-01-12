@@ -87,7 +87,7 @@ function PairContainer({ allPairs }) {
                 token0: newPair.token0.symbol,
                 token1: newPair.token1.symbol,
             });
-            s
+
             setIsLoading(false);
             if (isInitialLoad) setIsInitialLoad(false);
         };
@@ -131,7 +131,13 @@ function PairContainer({ allPairs }) {
 
         let blockNumber;
         if (topic.startsWith('uniswap:getPairOverview') && !isLoading) {
-            setLPInfo({ ...lpInfo, pairData: lastJsonMessage.data });
+            const { data: pairMsg } = lastJsonMessage;
+
+            if (pairMsg.id === pairId) {
+                setLPInfo({ ...lpInfo, pairData: pairMsg });
+            } else {
+                console.warn(`Received pair update over websocket for non-active pair: ${pairMsg.token0.symbol}/${pairMsg.token1.symbol}`);
+            }
         } else if (topic === 'infura:newHeads') {
             const {
                 data: { number: blockNumberHex },
