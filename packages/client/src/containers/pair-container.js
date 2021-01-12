@@ -58,7 +58,7 @@ function PairContainer({ allPairs }) {
         () =>
             !isInitialLoad && calculateLPStats({ ...lpInfo, lpDate, lpShare }),
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [lpInfo, lpDate, lpShare]
+        [lpInfo, lpDate, lpShare, isInitialLoad]
     );
 
     useEffect(() => {
@@ -87,7 +87,7 @@ function PairContainer({ allPairs }) {
                 token0: newPair.token0.symbol,
                 token1: newPair.token1.symbol,
             });
-
+            s
             setIsLoading(false);
             if (isInitialLoad) setIsInitialLoad(false);
         };
