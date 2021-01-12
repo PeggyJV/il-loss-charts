@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Card, InputGroup } from 'react-bootstrap';
 import { Combobox } from 'react-widgets';
 import PropTypes from 'prop-types';
@@ -14,6 +15,8 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
         }
     }
 
+    const [currentValue, setCurrentValue] = useState(defaultValue);
+
     const leftSideOptions = [];
     const rightSideOptions = [];
 
@@ -27,13 +30,39 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
         }
     }
 
-    const handleChange = (pair) => {
-        // Ignore if typed in for now
-        if (typeof pair === 'string') {
+    // Update actual pair if current value matches a given ID
+    useEffect(() => {
+        if (typeof currentValue === 'string') {
             return;
         }
 
-        if (pair.id) setPair(pair.id);
+        if (currentValue?.id) setPair(currentValue.id);
+    }, [currentValue, setPair]);
+
+    const renderPairText = (side) => (pair) => {
+        // If pair is string, it's typed in so return
+        if (typeof pair === 'string') return pair;
+
+        const token = side === 'left' ? 'token0' : 'token1';
+        return pair[token].symbol;
+    }
+
+    const handleChange = (side) => (value) => {
+        // If pair is string, it's typed in
+        // so just override one side
+        if (typeof value === 'string') {
+            const token = side === 'left' ? 'token0' : 'token1';
+            setCurrentValue(current => ({
+                ...current,
+                id: null,
+                [token]: {
+                    ...[current[token]],
+                    symbol: value
+                }
+            }));
+        } else {
+            setCurrentValue(value);
+        }
     };
 
     return (
@@ -50,13 +79,13 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                         <Combobox
                             className='pair-selector'
                             data={leftSideOptions}
-                            value={defaultValue}
-                            textField={(pair) => pair.token0.symbol}
+                            value={currentValue}
+                            textField={renderPairText('left')}
                             itemComponent={TokenWithLogo('left')}
                             defaultValue={defaultValue}
                             filter='contains'
                             caseSensitive={false}
-                            onChange={handleChange}
+                            onChange={handleChange('left')}
                         />
                     </InputGroup>
                     {isLoading ? (
@@ -64,8 +93,8 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                             🍷
                         </div>
                     ) : (
-                        <div className='pair-selector-separator'>✖️</div>
-                    )}
+                            <div className='pair-selector-separator'>✖️</div>
+                        )}
                     <InputGroup>
                         <InputGroup.Prepend className='token-logo'>
                             <InputGroup.Text>
@@ -75,13 +104,13 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                         <Combobox
                             className='pair-selector'
                             data={rightSideOptions}
-                            value={defaultValue}
-                            textField={(pair) => pair.token1.symbol}
+                            value={currentValue}
+                            textField={renderPairText('right')}
                             itemComponent={TokenWithLogo('right')}
                             defaultValue={defaultValue}
                             filter='contains'
                             caseSensitive={false}
-                            onChange={handleChange}
+                            onChange={handleChange('right')}
                         />
                     </InputGroup>
                 </div>

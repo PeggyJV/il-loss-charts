@@ -16,7 +16,8 @@
     },
     "rules": {
         "prefer-const": "error",
-        "react/react-in-jsx-scope": "off"
+        "react/react-in-jsx-scope": "off",
+        "no-unused-vars": "warn"
     },
     "settings": {
         "react": {
