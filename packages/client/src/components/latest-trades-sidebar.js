@@ -24,13 +24,13 @@ function LatestTradeSidebar({ latestBlock, latestSwaps }) {
     return (
         <Card className='chart-card'>
             <Card.Header>
-                <p>
+                {/* <p>
                     {latestBlock ? (
                         <strong>Latest Block: #{latestBlock}</strong>
                     ) : (
                             <strong>Awaiting New Blocks...</strong>
                         )}
-                </p>
+                </p> */}
                 <div className='sidebar-buttons'>
                     <Button
                         variant={
