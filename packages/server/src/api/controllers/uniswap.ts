@@ -25,7 +25,7 @@ class UniswapController {
             if (Number.isNaN(count) || count < 1)
                 throw new HTTPError(
                     400,
-                    `Invalid count parameter: ${req.query.count}`
+                    `Invalid 'count' parameter: ${req.query.count}`
                 );
         }
 
@@ -38,7 +38,7 @@ class UniswapController {
         // Validate ethereum address
         const validId = isValidEthAddress(pairId);
         if (!validId)
-            throw new HTTPError(400, `ID must be a valid ETH address.`);
+            throw new HTTPError(400, `'id' must be a valid ETH address.`);
 
         const pairData = await UniswapFetcher.getPairOverview(pairId);
         return pairData;
@@ -49,7 +49,7 @@ class UniswapController {
         // Validate ethereum address
         const validId = isValidEthAddress(pairId);
         if (!validId)
-            throw new HTTPError(400, `ID must be a valid ETH address.`);
+            throw new HTTPError(400, `'id' must be a valid ETH address.`);
 
         const swaps = await UniswapFetcher.getSwapsForPair(pairId);
         return swaps;
@@ -60,7 +60,7 @@ class UniswapController {
         // Validate ethereum address
         const validId = isValidEthAddress(pairId);
         if (!validId)
-            throw new HTTPError(400, `ID must be a valid ETH address.`);
+            throw new HTTPError(400, `'id' must be a valid ETH address.`);
 
         const [mints, burns] = await Promise.all([
             UniswapFetcher.getMintsForPair(pairId),
@@ -79,21 +79,20 @@ class UniswapController {
         // Validate ethereum address
         const validId = isValidEthAddress(pairId);
         if (!validId)
-            throw new HTTPError(400, `id must be a valid ETH address.`);
+            throw new HTTPError(400, `'id' must be a valid ETH address.`);
 
         const start: string | undefined = req.query.startDate?.toString();
-        if (!start) throw new HTTPError(400, `startDate is required.`);
+        if (!start) throw new HTTPError(400, `'startDate' is required.`);
 
         const startDate = new Date(start);
         if (startDate.getTime() !== startDate.getTime())
-            throw new HTTPError(400, `Received invalid date for startDate.`);
+            throw new HTTPError(400, `Received invalid date for 'startDate'.`);
 
         const endDate: Date = req.query.endDate
             ? new Date(req.query.endDate.toString())
             : new Date();
         if (endDate.getTime() !== endDate.getTime())
-            throw new HTTPError(400, `Received invalid date for endDate.`);
-
+            throw new HTTPError(400, `Received invalid date for 'endDate'.`);
         const historicalDailyData = await UniswapFetcher.getHistoricalDailyData(
             pairId,
             startDate,
@@ -104,17 +103,17 @@ class UniswapController {
 
     static async getMarketStats(req: Request) {
         const start: string | undefined = req.query.startDate?.toString();
-        if (!start) throw new HTTPError(400, `startDate is required.`);
+        if (!start) throw new HTTPError(400, `'startDate' is required.`);
 
         const startDate = new Date(start);
         if (startDate.getTime() !== startDate.getTime())
-            throw new HTTPError(400, `Received invalid date for startDate.`);
+            throw new HTTPError(400, `Received invalid date for 'startDate'.`);
 
         const endDate: Date = req.query.endDate
             ? new Date(req.query.endDate.toString())
             : new Date();
         if (endDate.getTime() !== endDate.getTime())
-            throw new HTTPError(400, `Received invalid date for endDate.`);
+            throw new HTTPError(400, `Received invalid date for 'endDate'.`);
 
         // Get 25 top pairs
         // TODO: make this changeable by query
@@ -146,29 +145,29 @@ class UniswapController {
         // Validate ethereum address
         const validId = isValidEthAddress(pairId);
         if (!validId)
-            throw new HTTPError(400, `ID must be a valid ETH address.`);
+            throw new HTTPError(400, `'id' must be a valid ETH address.`);
 
         const start: string | undefined = req.query.startDate?.toString();
-        if (!start) throw new HTTPError(400, `startDate is required.`);
+        if (!start) throw new HTTPError(400, `'startDate' is required.`);
 
         const startDate = new Date(start);
         if (startDate.getTime() !== startDate.getTime())
-            throw new HTTPError(400, `Received invalid date for startDate.`);
+            throw new HTTPError(400, `Received invalid date for 'startDate'.`);
 
         const endDate: Date = req.query.endDate
             ? new Date(req.query.endDate.toString())
             : new Date();
         if (endDate.getTime() !== endDate.getTime())
-            throw new HTTPError(400, `Received invalid date for endDate.`);
+            throw new HTTPError(400, `Received invalid date for 'endDate'.`);
 
         if (!req.query.lpLiquidityUSD)
-            throw new HTTPError(400, `lpLiquidityUSD is required.`);
+            throw new HTTPError(400, `'lpLiquidityUSD' is required.`);
         const lpLiquidityUSD: number = parseInt(
             req.query.lpLiquidityUSD?.toString(),
             10
         );
         if (Number.isNaN(lpLiquidityUSD) || lpLiquidityUSD < 0)
-            throw new HTTPError(400, `Invalid lpLiquidityUSD value.`);
+            throw new HTTPError(400, `Invalid 'lpLiquidityUSD' value.`);
 
         const [pairData, historicalDailyData] = await Promise.all([
             UniswapFetcher.getPairOverview(pairId),

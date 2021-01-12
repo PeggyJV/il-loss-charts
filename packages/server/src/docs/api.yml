@@ -1,40 +1,126 @@
 openapi: 3.0.1
 info:
-    title: lp-data-service
-    description: Data tools for DeFi LPs
+    title: Sommelier Impermanent Loss App
+    description: 🍷 The Finest AMM Tools for LPs 
     version: 1.0.0
 servers:
     - url: /api/v1
 tags:
-    - name: Examples
-      description: Simple example endpoints
-    - name: Specification
-      description: The swagger API specification
+    - name: Uniswap
+      description: Uniswap-specific API routes.
+    # - name: Sommelier 
+    #   description: Simple example endpoints
 paths:
-    /examples:
+    /uniswap/ethPrice:
         get:
             tags:
-                - Examples
-            description: Fetch all examples
+                - Uniswap
+            description: Get the current price of ETH.
             responses:
                 200:
-                    description: Returns all examples
-                    content: {}
-        post:
+                    description: Returns the price of ETH.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: object
+                                        properties: 
+                                            ethPrice:
+                                                type: string
+                                                example: "1104.306304294875977668569909674183"
+    /uniswap/pairs:
+        get:
             tags:
-                - Examples
-            description: Create a new example
-            requestBody:
-                description: an example
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/ExampleBody'
-                required: true
+                - Uniswap
+            description: List pairs on Uniswap.
+            parameters:
+                -   in: query
+                    name: count
+                    schema:
+                        type: integer
+                        minimum: 1
+                        maximum: 1000
+                    description: Number of pairs to fetch.
             responses:
+                400:
+                    description: Invalid 'count' parameter.
                 200:
-                    description: Returns all examples
-                    content: {}
+                    description: Returns a list of pairs.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items: 
+                                            $ref: '#/components/schemas/UniswapPair'
+    /uniswap/pairs/{id}:
+        get:
+            tags:
+                - Uniswap
+            description: Get details for a pair on Uniwap.
+            parameters:
+                -   in: path
+                    name: id
+                    description: The contract address of the pair.
+                    required: true
+                    schema:
+                        type: string
+            responses:
+                400:
+                    description: Invalid ETH address sent for 'id'.
+                404:
+                    description: Pair with given 'id' not found.
+                200:
+                    description: Returns an overview for the specified pair.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UniswapPair'
+    /uniswap/pairs/{id}/swaps:
+        get:
+            tags:
+                - Uniswap
+            description: Get 100 most recent swaps for a pair on Uniwap.
+            parameters:
+                -   in: path
+                    name: id
+                    description: The contract address of the pair.
+                    required: true
+                    schema:
+                        type: string
+            responses:
+                400:
+                    description: Invalid ETH address sent for 'id'.
+                404:
+                    description: No swaps found for pair with given 'id'.
+                200:
+                    description: Returns 100 most recent swaps for a given pair.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UniswapPair'
+
+
+                                    
+        # post:
+        #     tags:
+        #         - Examples
+        #     description: Create a new example
+        #     requestBody:
+        #         description: an example
+        #         content:
+        #             application/json:
+        #                 schema:
+        #                     $ref: '#/components/schemas/ExampleBody'
+        #         required: true
+        #     responses:
+        #         200:
+        #             description: Returns all examples
+        #             content: {}
     /examples/{id}:
         get:
             tags:
@@ -63,12 +149,103 @@ paths:
                     content: {}
 components:
     schemas:
-        ExampleBody:
-            title: example
+        UniswapToken:
+            title: Token on Uniswap
             required:
+                - __typename
+                - id
                 - name
+                - symbol
             type: object
             properties:
+                __typename:
+                    type: string
+                    example: Token
+                    description: Data type of the object.
+                id:
+                    type: string
+                    example: "0xdac17f958d2ee523a2206206994597c13d831ec7"
+                    description: Contract address of the token.
                 name:
                     type: string
-                    example: no_stress
+                    example: Ether
+                    description: Human-readable name of the token.
+                symbol:
+                    type: string
+                    example: ETH
+                    description: Shorthand symbol of the token.
+                derivedETH:
+                    type: string
+                    example: "0.023640897"
+                    description: The token's price in ETH.
+                totalLiquidity:
+                    type: string
+                    example: "1046965.090656394596780339"
+                    description: Total amount of liquidity for the token across all Uniwap pairs.
+                tradeVolumeUSD:
+                    type: string
+                    example: "54887716003.4390479961"
+                    description: Total USD volume of all Uniswap trades involving the token.
+        UniswapPair:
+            title: Uniswap Pair
+            required:
+                - __typename
+                - id
+                - token0
+                - token1
+                - reserveUSD
+                - volumeUSD
+            type: object
+            properties:
+                __typename:
+                    type: string
+                    example: Pair
+                    description: Data type of the object.
+                id:
+                    type: string
+                    example: "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852"
+                    description: Contract address of the pair.
+                token0: 
+                    $ref: '#/components/schemas/UniswapToken'
+                token1:
+                    $ref: '#/components/schemas/UniswapToken'
+                reserve0:
+                    type: string
+                    example: "84044.673944760230451376"
+                    description: Pooled amount of the first token in the pair (token0).
+                reserve1:
+                    type: string
+                    example: "91224650.076696"
+                    description: Pooled amount of the second token in the pair (token1).
+                reserveUSD:
+                    type: string
+                    example: "182449421.13873434"
+                    description: Total combined USD value of all assets in the pool.
+                createdAtTimestamp:
+                    type: string
+                    example: "1589850429"
+                    description: Unix timestamp in seconds of the time the pair was created.
+                token0Price:
+                    type: string
+                    example: "0.00092129"
+                    description: The price of the first token (token0) in terms of the second token (token1).
+                token1Price:
+                    type: string
+                    example: "1085.4304716162612"
+                    description: The price of the secondtoken (token1) in terms of the first token (token0).
+                trackedReserveETH:
+                    type: string
+                    example: "168089.347889520460"
+                    description: Total combined ETH value of all assets in the pool.
+                txCount:
+                    type: string
+                    example: "1533912"
+                    description: Total number of all swaps that have taken place in the pool.
+                volumeUSD:
+                    type: string
+                    example: "8650290506.35372607"
+                    description: Total combined USD value of all swaps in the pool.
+                feesUSD:
+                    type: string
+                    example: "1533912"
+                    description: Total combined USD value of all fees collected by LPs in the pool.
