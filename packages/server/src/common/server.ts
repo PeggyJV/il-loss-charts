@@ -51,7 +51,6 @@ export default class ExpressServer {
         );
         const apiDoc = YAML.load(apiSpec);
 
-        console.log('REGISTERING EXPLORER ROUTE');
         app.use('/api/explorer', swaggerUi.serve, swaggerUi.setup(apiDoc));
 
         // TODO re-enable
