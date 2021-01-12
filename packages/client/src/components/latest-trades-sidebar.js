@@ -13,7 +13,7 @@ const formatter = new Intl.NumberFormat('en-US', {
     //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
 });
 
-function LatestTradeSidebar({ latestBlock, latestSwaps }) {
+function LatestTradeSidebar({ latestSwaps }) {
     const [mode, setMode] = useState('swaps');
 
     const { swaps, mintsAndBurns } = latestSwaps;
