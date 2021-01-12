@@ -8,8 +8,8 @@ servers:
 tags:
     - name: Uniswap
       description: Uniswap-specific API routes.
-    # - name: Sommelier 
-    #   description: Simple example endpoints
+    - name: Sommelier 
+      description: Routes for IL management via the Sommelier Protocol.
 paths:
     /uniswap/ethPrice:
         get:
@@ -38,6 +38,7 @@ paths:
             parameters:
                 -   in: query
                     name: count
+                    example: 100
                     schema:
                         type: integer
                         minimum: 1
@@ -66,6 +67,7 @@ paths:
                 -   in: path
                     name: id
                     description: The contract address of the pair.
+                    example: "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852"
                     required: true
                     schema:
                         type: string
@@ -84,11 +86,12 @@ paths:
         get:
             tags:
                 - Uniswap
-            description: Get 100 most recent swaps for a pair on Uniwap.
+            description: Get up to 100 most recent swaps for a pair on Uniswap.
             parameters:
                 -   in: path
                     name: id
                     description: The contract address of the pair.
+                    example: "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852"
                     required: true
                     schema:
                         type: string
@@ -98,11 +101,174 @@ paths:
                 404:
                     description: No swaps found for pair with given 'id'.
                 200:
-                    description: Returns 100 most recent swaps for a given pair.
+                    description: Returns up to 100 most recent swaps for a given pair.
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UniswapPair'
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items: 
+                                            $ref: '#/components/schemas/UniswapSwap'
+    /uniswap/pairs/{id}/addremove:
+        get:
+            tags:
+                - Uniswap
+            description: Get up to 100 most mints or burns (liquidity changes) for a pair on Uniswap.
+            parameters:
+                -   in: path
+                    name: id
+                    example: "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852"
+                    description: The contract address of the pair.
+                    required: true
+                    schema:
+                        type: string
+            responses:
+                400:
+                    description: Invalid ETH address sent for 'id'.
+                404:
+                    description: No mints or burns found for pair with given 'id'.
+                200:
+                    description: Returns up to 100 most recent mints and burns for a given pair, along with a combined list.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items: 
+                                            $ref: '#/components/schemas/UniswapMintOrBurn'
+    /uniswap/pairs/{id}/historical:
+        get:
+            tags:
+                - Uniswap
+            description: Get historical daily data for a pair on Uniswap.
+            parameters:
+                -   in: path
+                    name: id
+                    description: The contract address of the pair.
+                    example: "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852"
+                    required: true
+                    schema:
+                        type: string
+                -   in: query
+                    name: startDate
+                    description: The start date for the historical data window, in YYYY-MM-DD format.
+                    example: "2021-01-01"
+                    required: true
+                    schema:
+                        type: string
+                -   in: query
+                    name: endDate
+                    description: The end date for the historical data window, in YYYY-MM-DD format. Defaults to present.
+                    example: "2021-01-07"
+                    schema:
+                        type: string
+            responses:
+                400:
+                    description: Invalid ETH address sent for 'id', 'startDate' not provided, invalid 'startDate' or 'endDate'.
+                404:
+                    description: No historical data for the given timeframe. Check that the window is at least one day.
+                200:
+                    description: Returns daily historical data in the specified window.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items: 
+                                            $ref: '#/components/schemas/UniswapDailyData'
+    /uniswap/pairs/{id}/stats:
+        get:
+            tags:
+                - Uniswap
+                - Sommelier
+            description: Get statistics over a given time frame for an LP position.
+            parameters:
+                -   in: path
+                    name: id
+                    description: The contract address of the pair.
+                    example: "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852"
+                    required: true
+                    schema:
+                        type: string
+                -   in: query
+                    name: startDate
+                    description: The start date for the historical data window, in YYYY-MM-DD format.
+                    example: "2021-01-01"
+                    required: true
+                    schema:
+                        type: string
+                -   in: query
+                    name: endDate
+                    description: The end date for the historical data window, in YYYY-MM-DD format. Defaults to present.
+                    example: "2021-01-07"
+                    schema:
+                        type: string
+                -   in: query
+                    name: lpLiquidityUSD
+                    description: The amount of liquidity provided by the LP in USD value.
+                    required: true
+                    example: 10000
+                    schema:
+                        type: number
+                        minimum: 0
+            responses:
+                400:
+                    description: Parameter 'startDate' not provided, invalid 'startDate' or 'endDate', 'lpLiquidityUSD' not provided or not a positive integer.
+                404:
+                    description: No historical data for the given timeframe. Check that the window is at least one day.
+                200:
+                    description: Returns aggregated stats for the LP positino.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/LPStatsForPair"
+
+    /uniswap/market:
+        get:
+            tags:
+                - Uniswap
+                - Sommelier
+            description: Get an market overview of the top pairs and stats on return and impermanent loss.
+            parameters:
+                -   in: query
+                    name: startDate
+                    description: The start date for the market stats window, in YYYY-MM-DD format.
+                    example: "2021-01-01"
+                    required: true
+                    schema:
+                        type: string
+                -   in: query
+                    name: endDate
+                    description: The end date for the historical data window, in YYYY-MM-DD format. Defaults to present.
+                    example: "2021-01-07"
+                    schema:
+                        type: string
+            responses:
+                400:
+                    description: Parameter 'startDate' not provided, invalid 'startDate' or 'endDate'.
+                404:
+                    description: No statistical data for the given timeframe. Check that the window is at least one day.
+                200:
+                    description: Returns return and impermanent loss stats for top 25 pairs.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items: 
+                                            $ref: '#/components/schemas/MarketStatsForPair'
+            
+
+
+
 
 
                                     
@@ -121,42 +287,23 @@ paths:
         #         200:
         #             description: Returns all examples
         #             content: {}
-    /examples/{id}:
-        get:
-            tags:
-                - Examples
-            parameters:
-                - name: id
-                  in: path
-                  description: The id of the example to retrieve
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                200:
-                    description: Return the example with the specified id
-                    content: {}
-                404:
-                    description: Example not found
-                    content: {}
     /spec:
         get:
             tags:
                 - Specification
             responses:
                 200:
-                    description: Return the API specification
+                    description: Returns the API specification.
                     content: {}
 components:
     schemas:
         UniswapToken:
-            title: Token on Uniswap
+            title: Uniswap Token
+            type: object
             required:
-                - __typename
                 - id
                 - name
                 - symbol
-            type: object
             properties:
                 __typename:
                     type: string
@@ -188,14 +335,13 @@ components:
                     description: Total USD volume of all Uniswap trades involving the token.
         UniswapPair:
             title: Uniswap Pair
+            type: object
             required:
-                - __typename
                 - id
                 - token0
                 - token1
                 - reserveUSD
                 - volumeUSD
-            type: object
             properties:
                 __typename:
                     type: string
@@ -249,3 +395,247 @@ components:
                     type: string
                     example: "1533912"
                     description: Total combined USD value of all fees collected by LPs in the pool.
+        UniswapSwap:
+            title: Uniswap Swap
+            type: object
+            required:
+                - amount0In
+                - amount0Out
+                - amount1In
+                - amount1Out
+                - amountUSD
+                - pair
+            properties:
+                __typename:
+                    type: string
+                    example: Swap
+                    description: Data type of the object.
+                amount0In:
+                    type: string
+                    example: "2.973727144159123666"
+                    description: Amount of token0 sent in by the taker of the swap. Must be 0 if amount0Out is non-zero.
+                amount0Out:
+                    type: string
+                    example: "0"
+                    description: Amount of token0 received by the taker of the swap. Must be 0 if amount0In is non-zero.
+                amount1In:
+                    type: string
+                    example: "0"
+                    description: Amount of token1 sent in by the taker of the swap. Must be 0 if amount1Out is non-zero.
+                amount1Out:
+                    type: string
+                    example: "3204.166136"
+                    description: Amount of token1 received by the taker of the swap. Must be 0 if amount1In is non-zero.
+                amountUSD:
+                    type: string
+                    example: "3211.612454595126670197539551826186"
+                    description: USD value of the swapped tokens.
+                pair:
+                    $ref: '#/components/schemas/UniswapPair'
+                to:
+                    type: string
+                    example: "0x28a13140fd796a0cd5a79bb464841e6c3ad7b2cc"
+                    description: Address of the taker of the swap.
+        UniswapMintOrBurn:
+            title: Uniswap Mint Or Burn
+            type: object
+            required:
+                - amount0
+                - amount1
+                - amountUSD
+                - pair
+            properties:
+                __typename:
+                    type: string
+                    example: Mint
+                    description: Data type of the object.
+                amount0:
+                    type: string
+                    example: "0.897034644703533706"
+                    description: Amount of token0 added or removed from the pool.
+                amount1:
+                    type: string
+                    example: "969.547699"
+                    description: Amount of token1 added or removed from the pool.
+                liquidity:
+                    type: string
+                    example: "0.000021977326919678"
+                    description: Proportional change of the total liquidity in the pool.
+                pair:
+                    $ref: '#/components/schemas/UniswapPair'
+                createdAtTimestamp:
+                    type: string
+                    example: "1610490292"
+                    description: Unix timestamp in seconds of the time liquidity was added or removed.
+                to:
+                    type: string
+                    example: "0x28a13140fd796a0cd5a79bb464841e6c3ad7b2cc"
+                    description: Address of the account adding or removing liquidity.
+        UniswapDailyData:
+            title: Uniswap Daily Historical Data
+            type: object
+            required: 
+                - reserve0
+                - reserve1
+                - reserveUSD
+                - dailyVolumeToken0
+                - dailyVolumeToken1
+                - dailyVolumeUSD
+                - pairAddress
+                - date
+            properties:
+                __typename:
+                    type: string
+                    example: PairDayData
+                    description: Data type of the object.
+                date:
+                    type: number
+                    example: 1610490292
+                    description: Unix timestamp in seconds of the historical data point.
+                dailyVolumeToken0:
+                    type: string
+                    example: "73662.648903125599853115"
+                    description: Amount of token0 traded in the specified day.
+                dailyVolumeToken1:
+                    type: string
+                    example: "55582125.680062"
+                    description: Amount of token1 traded in the specified day.
+                dailyVolumeUSD:
+                    type: string
+                    example: "55607792.23757445236929244702297876"
+                    description: Combined USD equivalent of all trades in the specified day.
+                pairAddress:
+                    type: string
+                    example: "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852"
+                    description: Contract address of the pair.
+                reserve0:
+                    type: string
+                    example: "102730.915624946031625317"
+                    description: Amount of token0 in the pool at the specified data point.
+                reserve1:
+                    type: string
+                    example: "79614298.470066"
+                    description: Amount of token1 in the pool at the specified data point.
+                reserveUSD:
+                    type: string
+                    example: "159297546.6358876653702590148554321"
+                    description: Total combined USD value of all assets in the pool at the specified data point.
+        MarketStatsForPair:
+            title: Overall Market Stats for Uniswap Pair
+            allOf:
+                -   $ref: '#/components/schemas/UniswapPair'
+                -   $ref: '#/components/schemas/MarketStatsCalculations'
+        MarketStatsCalculations: 
+            type: object
+            required:
+                - ilGross
+                - market
+                - impermanentLoss
+                - volume
+                - liquidity
+                - returnsUSD
+                - returnsETH
+                - pctReturn
+            properties:
+                market:
+                    type: string
+                    example: WETH/USDT
+                    description: Human-readable identifier for the given pair.
+                ilGross:
+                    type: number
+                    example: -44509.65711213385
+                    description: Total USD amount lost to impermanent loss over the specified window.
+                impermanentLoss:
+                    type: number
+                    example: -0.011264443091660366
+                    description: Total impermanent loss as a proportion of the total liquidity in the pool on the start date.
+                volume:
+                    type: number
+                    example: 1317113708.354692
+                    description: Combined USD value equivalent of all trades over the specified window.
+                liquidity:
+                    type: number
+                    example: 180327107.35797074
+                    description: Current USD liquidity of the pool.
+                returnsUSD:
+                    type: number
+                    example: 3951341.113799633
+                    description: Total USD return of the pool (fees minus impermanent loss).
+                returnsUSD:
+                    type: number
+                    example: 3769.983763773433
+                    description: Total ETH return of the pool (fees minus impermanent loss).
+                pctReturn:
+                    type: number
+                    example: 0.02191207507119687
+                    description: Total USD return of the pool as a proportion of the total liquidity at the start date.
+        LPStatsForPair:
+            title: Uniswap LP Stats for Pair
+            type: object
+            required: 
+                - totalFees
+                - runningVolume
+                - runningFees
+                - runningImpermanentLoss
+                - runningReturn
+                - impermanentLoss
+                - totalReturn
+                - days
+            properties:
+                totalFees:
+                    type: string
+                    example: "214.2334725474978266656280801822323365789780133528398"
+                    description: The amount of fees earned by the LP position over the specified window.
+                impermanentLoss:
+                    type: string
+                    example: "-102.5877814053683369"
+                    description: The amount of impermanent loss due to price movement by the LP position over the specified window.
+                totalReturn:
+                    type: string
+                    example: "214.2334725474978266656280801822323365789780133528398"
+                    description: The total return of the LP position over the specified window, equal to fees minus impermanent loss.
+                days:
+                    type: array
+                    description: Array of days that for which stats were calculated.
+                    items:
+                        type: string
+                        example: Jan 1
+                runningVolume:
+                    type: array
+                    description: Array of aggregate volume statistics over the specified window.
+                    items:
+                        type: string
+                        example: Jan 1
+                runningFees:
+                    type: array
+                    description: Array of aggregate fees collected by the LP over the specified window.
+                    items:
+                        type: string
+                        example: "18.8234558048299214697440627877520042079675433441"
+                runningImpermanentLoss:
+                    type: array
+                    description: Array of impermanent loss data points over the specified window.
+                    items:
+                        type: string
+                        example: "-65.9390564701701204"
+                runningReturn:
+                    type: array
+                    description: Array of total return data points given the LP position over the specified window.
+                    items:
+                        type: string
+                        example: "-47.1156006653401989302559372122479957920324566559"
+                days:
+                    type: array
+                    description: Array of days that for which stats were calculated.
+                    items:
+                        type: string
+                        example: Jan 1
+
+
+                        
+
+                
+                
+
+
+

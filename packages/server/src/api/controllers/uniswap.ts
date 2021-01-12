@@ -139,7 +139,7 @@ class UniswapController {
     }
 
     static async getPairStats(req: Request) {
-        const pairId: string | undefined = req.query.id?.toString();
+        const pairId: string | undefined = req.params.id?.toString();
         if (!pairId) throw new HTTPError(400, `id is required.`);
 
         // Validate ethereum address
@@ -217,8 +217,8 @@ export default express
         wrapRequest(UniswapController.getMintsAndBurnsForPair)
     )
     .get(
-        '/historical/:id',
+        '/pairs/:id/historical',
         cacheMiddleware(300),
         wrapRequest(UniswapController.getHistoricalDailyData)
     )
-    .get('/stats', wrapRequest(UniswapController.getPairStats));
+    .get('/pairs/:id/stats', wrapRequest(UniswapController.getPairStats));

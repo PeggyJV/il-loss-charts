@@ -24,6 +24,9 @@ export class HTTPError extends Error {
                 case 500:
                     this.message = 'Internal Server Error';
                     break;
+                default:
+                    this.message = 'Unknown Error';
+                    break;
             }
         }
     }

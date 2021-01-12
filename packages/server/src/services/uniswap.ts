@@ -337,8 +337,8 @@ export default class UniswapFetcher {
         const dayMs = 1000 * 60 * 60 * 24;
 
         if (dailyData.length === 0) {
-            throw new Error(
-                `Could not fetch any historical data for the given timeframe. Make sure the window is at least 1 day.`
+            throw new HTTPError(
+                404, `Could not fetch any historical data for the given timeframe. Make sure the window is at least 1 day.`
             );
         }
 
@@ -446,6 +446,8 @@ export default class UniswapFetcher {
                 `Could not fetch recent mints for pair ${pairId}. Error from response: ${response.error?.toString() || ''
                 }`
             );
+        } else if (mints.length === 0) {
+            throw new HTTPError(404);
         }
 
         return mints;
@@ -486,6 +488,8 @@ export default class UniswapFetcher {
                 `Could not fetch recent burns for pair ${pairId}. Error from response: ${response.error?.toString() || ''
                 }`
             );
+        } else if (burns.length === 0) {
+            throw new HTTPError(404);
         }
 
         return burns;
