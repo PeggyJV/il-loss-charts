@@ -1,0 +1,14 @@
+{
+    "name": "@sommelier/shared-types",
+    "description": "Type definitions for the family of Sommelier apps",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "scripts": {
+        "lint": "eslint src --ext js,ts",
+        "clean": "rimraf dist *.tsbuildinfo",
+        "build": "ts-node build.ts && tsc"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+}

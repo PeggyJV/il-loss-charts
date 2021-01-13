@@ -4,9 +4,8 @@ dotenv.config();
 import TelegramBot from 'node-telegram-bot-api';
 import BigNumber from 'bignumber.js';
 
-import UniswapFetcher from '../../../server/src/services/uniswap';
+import { UniswapFetcher, calculateMarketStats } from 'lp-data-service';
 import { UniswapHourlyData, UniswapPair } from '../../../server/src/types/uniswap';
-import { calculateMarketStats } from '../../../server/src/util/calculate-stats';
 
 let sommBot: TelegramBot | undefined;
 if (process.env.TELEGRAM_BOT_TOKEN) {

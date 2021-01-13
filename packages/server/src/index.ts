@@ -16,3 +16,10 @@ if (!server.httpServer) {
 const wsServer = new WebsocketServer(server.httpServer);
 
 export default Server;
+
+// Other exports for other packages
+
+import UniswapFetcher from 'services/uniswap';
+import { calculateMarketStats } from 'util/calculate-stats';
+
+export { UniswapFetcher, calculateMarketStats };

@@ -1,5 +1,5 @@
 {
-    "name": "sommelier-workers",
+    "name": "@sommelier/workers",
     "version": "1.0.0",
     "description": "Worker scripts for Sommelier.finance",
     "private": true,
@@ -13,6 +13,9 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "lp-data-service": "^1.0.0"
+        "@sommelier/data-service": "^1.0.0",
+        "lp-data-service": "^1.0.0",
+        "shared-types": "^1.0.0",
+        "sommelier-types": "^1.0.0"
     }
 }

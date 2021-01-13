@@ -1,5 +1,5 @@
 {
-    "name": "lp-data-service",
+    "name": "@sommelier/data-service",
     "version": "1.0.0",
     "description": "Data tools for DeFi LPs",
     "main": "dist/index.js",
