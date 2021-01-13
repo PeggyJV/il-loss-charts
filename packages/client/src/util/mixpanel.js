@@ -9,6 +9,8 @@ class MixpanelWrapper {
             this.isActive = true;
             mixpanel.init(token, { debug: true });
             mixpanel.track('page_load');
+        } else {
+            console.warn('No analytics token received.');
         }
     }
 
