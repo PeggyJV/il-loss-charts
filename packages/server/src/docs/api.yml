@@ -265,28 +265,6 @@ paths:
                                         type: array
                                         items: 
                                             $ref: '#/components/schemas/MarketStatsForPair'
-            
-
-
-
-
-
-                                    
-        # post:
-        #     tags:
-        #         - Examples
-        #     description: Create a new example
-        #     requestBody:
-        #         description: an example
-        #         content:
-        #             application/json:
-        #                 schema:
-        #                     $ref: '#/components/schemas/ExampleBody'
-        #         required: true
-        #     responses:
-        #         200:
-        #             description: Returns all examples
-        #             content: {}
     /spec:
         get:
             tags:

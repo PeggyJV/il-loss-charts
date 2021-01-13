@@ -52,6 +52,8 @@ export default class ExpressServer {
         const apiDoc = YAML.load(apiSpec);
 
         app.use('/api/explorer', swaggerUi.serve, swaggerUi.setup(apiDoc));
+        app.use(process.env.OPENAPI_SPEC || '/spec', express.static(apiSpec));
+
 
         // TODO re-enable
         app.use(
@@ -66,8 +68,6 @@ export default class ExpressServer {
         // Catch all
         app.use(function (req, res, next) {
             if (req.url.includes('api')) return next();
-
-            console.log('SERVING APP');
 
             res.sendFile(path.join(clientRoot, 'build', 'index.html'));
         });
