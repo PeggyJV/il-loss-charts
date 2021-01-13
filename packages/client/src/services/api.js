@@ -39,7 +39,7 @@ export class UniswapApiFetcher {
         endDate = new Date()
     ) {
         const response = await fetch(
-            `/api/v1/uniswap/historical/${pairId}?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+            `/api/v1/uniswap/pairs/${pairId}/historical?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
         );
         const { data } = await response.json();
         return data;

@@ -158,11 +158,13 @@ paths:
                     description: The start date for the historical data window, in YYYY-MM-DD format.
                     example: "2021-01-01"
                     required: true
+                    allowReserved: true
                     schema:
                         type: string
                 -   in: query
                     name: endDate
                     description: The end date for the historical data window, in YYYY-MM-DD format. Defaults to present.
+                    allowReserved: true
                     example: "2021-01-07"
                     schema:
                         type: string
@@ -201,12 +203,14 @@ paths:
                     description: The start date for the historical data window, in YYYY-MM-DD format.
                     example: "2021-01-01"
                     required: true
+                    allowReserved: true
                     schema:
                         type: string
                 -   in: query
                     name: endDate
                     description: The end date for the historical data window, in YYYY-MM-DD format. Defaults to present.
                     example: "2021-01-07"
+                    allowReserved: true
                     schema:
                         type: string
                 -   in: query
@@ -240,6 +244,7 @@ paths:
                     name: startDate
                     description: The start date for the market stats window, in YYYY-MM-DD format.
                     example: "2021-01-01"
+                    allowReserved: true
                     required: true
                     schema:
                         type: string
@@ -247,6 +252,7 @@ paths:
                     name: endDate
                     description: The end date for the historical data window, in YYYY-MM-DD format. Defaults to present.
                     example: "2021-01-07"
+                    allowReserved: true
                     schema:
                         type: string
             responses:

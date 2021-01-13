@@ -54,13 +54,12 @@ export default class ExpressServer {
         app.use('/api/explorer', swaggerUi.serve, swaggerUi.setup(apiDoc));
         app.use(process.env.OPENAPI_SPEC || '/spec', express.static(apiSpec));
 
-
         // TODO re-enable
         app.use(
             OpenApiValidator.middleware({
                 apiSpec,
-                validateRequests: false,
-                validateResponses: false,
+                validateRequests: true,
+                validateResponses,
                 ignorePaths: /.*\/spec(\/|$)/,
             })
         );
