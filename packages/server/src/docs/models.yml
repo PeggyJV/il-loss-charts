@@ -1,0 +1,325 @@
+components:
+    schemas:
+        UniswapToken:
+            title: Uniswap Token
+            type: object
+            required:
+                - id
+                - name
+                - symbol
+            properties:
+                __typename:
+                    type: string
+                    example: Token
+                    description: Data type of the object.
+                id:
+                    type: string
+                    example: "0xdac17f958d2ee523a2206206994597c13d831ec7"
+                    description: Contract address of the token.
+                name:
+                    type: string
+                    example: Ether
+                    description: Human-readable name of the token.
+                symbol:
+                    type: string
+                    example: ETH
+                    description: Shorthand symbol of the token.
+                derivedETH:
+                    type: string
+                    example: "0.023640897"
+                    description: The token's price in ETH.
+                totalLiquidity:
+                    type: string
+                    example: "1046965.090656394596780339"
+                    description: Total amount of liquidity for the token across all Uniwap pairs.
+                tradeVolumeUSD:
+                    type: string
+                    example: "54887716003.4390479961"
+                    description: Total USD volume of all Uniswap trades involving the token.
+        UniswapPair:
+            title: Uniswap Pair
+            type: object
+            required:
+                - id
+                - token0
+                - token1
+                - reserveUSD
+                - volumeUSD
+            properties:
+                __typename:
+                    type: string
+                    example: Pair
+                    description: Data type of the object.
+                id:
+                    type: string
+                    example: "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852"
+                    description: Contract address of the pair.
+                token0: 
+                    $ref: '#/components/schemas/UniswapToken'
+                token1:
+                    $ref: '#/components/schemas/UniswapToken'
+                reserve0:
+                    type: string
+                    example: "84044.673944760230451376"
+                    description: Pooled amount of the first token in the pair (token0).
+                reserve1:
+                    type: string
+                    example: "91224650.076696"
+                    description: Pooled amount of the second token in the pair (token1).
+                reserveUSD:
+                    type: string
+                    example: "182449421.13873434"
+                    description: Total combined USD value of all assets in the pool.
+                createdAtTimestamp:
+                    type: string
+                    example: "1589850429"
+                    description: Unix timestamp in seconds of the time the pair was created.
+                token0Price:
+                    type: string
+                    example: "0.00092129"
+                    description: The price of the first token (token0) in terms of the second token (token1).
+                token1Price:
+                    type: string
+                    example: "1085.4304716162612"
+                    description: The price of the secondtoken (token1) in terms of the first token (token0).
+                trackedReserveETH:
+                    type: string
+                    example: "168089.347889520460"
+                    description: Total combined ETH value of all assets in the pool.
+                txCount:
+                    type: string
+                    example: "1533912"
+                    description: Total number of all swaps that have taken place in the pool.
+                volumeUSD:
+                    type: string
+                    example: "8650290506.35372607"
+                    description: Total combined USD value of all swaps in the pool.
+                feesUSD:
+                    type: string
+                    example: "1533912"
+                    description: Total combined USD value of all fees collected by LPs in the pool.
+        UniswapSwap:
+            title: Uniswap Swap
+            type: object
+            required:
+                - amount0In
+                - amount0Out
+                - amount1In
+                - amount1Out
+                - amountUSD
+                - pair
+            properties:
+                __typename:
+                    type: string
+                    example: Swap
+                    description: Data type of the object.
+                amount0In:
+                    type: string
+                    example: "2.973727144159123666"
+                    description: Amount of token0 sent in by the taker of the swap. Must be 0 if amount0Out is non-zero.
+                amount0Out:
+                    type: string
+                    example: "0"
+                    description: Amount of token0 received by the taker of the swap. Must be 0 if amount0In is non-zero.
+                amount1In:
+                    type: string
+                    example: "0"
+                    description: Amount of token1 sent in by the taker of the swap. Must be 0 if amount1Out is non-zero.
+                amount1Out:
+                    type: string
+                    example: "3204.166136"
+                    description: Amount of token1 received by the taker of the swap. Must be 0 if amount1In is non-zero.
+                amountUSD:
+                    type: string
+                    example: "3211.612454595126670197539551826186"
+                    description: USD value of the swapped tokens.
+                pair:
+                    $ref: '#/components/schemas/UniswapPair'
+                to:
+                    type: string
+                    example: "0x28a13140fd796a0cd5a79bb464841e6c3ad7b2cc"
+                    description: Address of the taker of the swap.
+        UniswapMintOrBurn:
+            title: Uniswap Mint Or Burn
+            type: object
+            required:
+                - amount0
+                - amount1
+                - amountUSD
+                - pair
+            properties:
+                __typename:
+                    type: string
+                    example: Mint
+                    description: Data type of the object.
+                amount0:
+                    type: string
+                    example: "0.897034644703533706"
+                    description: Amount of token0 added or removed from the pool.
+                amount1:
+                    type: string
+                    example: "969.547699"
+                    description: Amount of token1 added or removed from the pool.
+                liquidity:
+                    type: string
+                    example: "0.000021977326919678"
+                    description: Proportional change of the total liquidity in the pool.
+                pair:
+                    $ref: '#/components/schemas/UniswapPair'
+                createdAtTimestamp:
+                    type: string
+                    example: "1610490292"
+                    description: Unix timestamp in seconds of the time liquidity was added or removed.
+                to:
+                    type: string
+                    example: "0x28a13140fd796a0cd5a79bb464841e6c3ad7b2cc"
+                    description: Address of the account adding or removing liquidity.
+        UniswapDailyData:
+            title: Uniswap Daily Historical Data
+            type: object
+            required: 
+                - reserve0
+                - reserve1
+                - reserveUSD
+                - dailyVolumeToken0
+                - dailyVolumeToken1
+                - dailyVolumeUSD
+                - pairAddress
+                - date
+            properties:
+                __typename:
+                    type: string
+                    example: PairDayData
+                    description: Data type of the object.
+                date:
+                    type: number
+                    example: 1610490292
+                    description: Unix timestamp in seconds of the historical data point.
+                dailyVolumeToken0:
+                    type: string
+                    example: "73662.648903125599853115"
+                    description: Amount of token0 traded in the specified day.
+                dailyVolumeToken1:
+                    type: string
+                    example: "55582125.680062"
+                    description: Amount of token1 traded in the specified day.
+                dailyVolumeUSD:
+                    type: string
+                    example: "55607792.23757445236929244702297876"
+                    description: Combined USD equivalent of all trades in the specified day.
+                pairAddress:
+                    type: string
+                    example: "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852"
+                    description: Contract address of the pair.
+                reserve0:
+                    type: string
+                    example: "102730.915624946031625317"
+                    description: Amount of token0 in the pool at the specified data point.
+                reserve1:
+                    type: string
+                    example: "79614298.470066"
+                    description: Amount of token1 in the pool at the specified data point.
+                reserveUSD:
+                    type: string
+                    example: "159297546.6358876653702590148554321"
+                    description: Total combined USD value of all assets in the pool at the specified data point.
+        MarketStatsForPair:
+            title: Overall Market Stats for Uniswap Pair
+            allOf:
+                -   $ref: '#/components/schemas/UniswapPair'
+                -   $ref: '#/components/schemas/MarketStatsCalculations'
+        MarketStatsCalculations: 
+            type: object
+            required:
+                - ilGross
+                - market
+                - impermanentLoss
+                - volume
+                - liquidity
+                - returnsUSD
+                - returnsETH
+                - pctReturn
+            properties:
+                market:
+                    type: string
+                    example: WETH/USDT
+                    description: Human-readable identifier for the given pair.
+                ilGross:
+                    type: number
+                    example: -44509.65711213385
+                    description: Total USD amount lost to impermanent loss over the specified window.
+                impermanentLoss:
+                    type: number
+                    example: -0.011264443091660366
+                    description: Total impermanent loss as a proportion of the total liquidity in the pool on the start date.
+                volume:
+                    type: number
+                    example: 1317113708.354692
+                    description: Combined USD value equivalent of all trades over the specified window.
+                liquidity:
+                    type: number
+                    example: 180327107.35797074
+                    description: Current USD liquidity of the pool.
+                returnsUSD:
+                    type: number
+                    example: 3951341.113799633
+                    description: Total USD return of the pool (fees minus impermanent loss).
+                pctReturn:
+                    type: number
+                    example: 0.02191207507119687
+                    description: Total USD return of the pool as a proportion of the total liquidity at the start date.
+        LPStatsForPair:
+            title: Uniswap LP Stats for Pair
+            type: object
+            required: 
+                - totalFees
+                - runningVolume
+                - runningFees
+                - runningImpermanentLoss
+                - runningReturn
+                - impermanentLoss
+                - totalReturn
+                - days
+            properties:
+                totalFees:
+                    type: string
+                    example: "214.2334725474978266656280801822323365789780133528398"
+                    description: The amount of fees earned by the LP position over the specified window.
+                impermanentLoss:
+                    type: string
+                    example: "-102.5877814053683369"
+                    description: The amount of impermanent loss due to price movement by the LP position over the specified window.
+                totalReturn:
+                    type: string
+                    example: "214.2334725474978266656280801822323365789780133528398"
+                    description: The total return of the LP position over the specified window, equal to fees minus impermanent loss.
+                days:
+                    type: array
+                    description: Array of days that for which stats were calculated.
+                    items:
+                        type: string
+                        example: Jan 1
+                runningVolume:
+                    type: array
+                    description: Array of aggregate volume statistics over the specified window.
+                    items:
+                        type: string
+                        example: Jan 1
+                runningFees:
+                    type: array
+                    description: Array of aggregate fees collected by the LP over the specified window.
+                    items:
+                        type: string
+                        example: "18.8234558048299214697440627877520042079675433441"
+                runningImpermanentLoss:
+                    type: array
+                    description: Array of impermanent loss data points over the specified window.
+                    items:
+                        type: string
+                        example: "-65.9390564701701204"
+                runningReturn:
+                    type: array
+                    description: Array of total return data points given the LP position over the specified window.
+                    items:
+                        type: string
+                        example: "-47.1156006653401989302559372122479957920324566559"
