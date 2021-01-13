@@ -7,9 +7,8 @@
     "scripts": {
         "start": "NODE_PATH=dist/ node dist/index.js",
         "clean": "rimraf dist *.tsbuildinfo",
-        "build": "yarn clean && ts-node build.ts && yarn build-docs && tsc",
+        "build": "ts-node build.ts && tsc",
         "build:watch": "ts-node build.ts && tsc -w",
-        "build-docs": "swagger-cli bundle src/docs/api.yml --outfile dist/docs/api.yml --type yaml",
         "dev": "nodemon src/index.ts | pino-pretty",
         "dev:debug": "nodemon --exec \"node -r ts-node/register --inspect-brk\" src/index.ts | pino-pretty",
         "lint": "eslint src --ext js,ts",
@@ -69,7 +68,6 @@
         "prettier": "^2.1.2",
         "shelljs": "^0.8.4",
         "supertest": "^6.0.1",
-        "swagger-cli": "^4.0.4",
         "ts-node": "^9.0.0",
         "tsconfig-paths": "^3.9.0",
         "typescript": "^4.0.5"
