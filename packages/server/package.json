@@ -7,7 +7,7 @@
     "scripts": {
         "start": "NODE_PATH=dist/ node dist/index.js",
         "clean": "rimraf dist *.tsbuildinfo",
-        "build": "ts-node build.ts && yarn build-docs && tsc",
+        "build": "yarn clean && ts-node build.ts && yarn build-docs && tsc",
         "build:watch": "ts-node build.ts && tsc -w",
         "build-docs": "swagger-cli bundle src/docs/api.yml --outfile dist/docs/api.yml --type yaml",
         "dev": "nodemon src/index.ts | pino-pretty",
