@@ -1,0 +1,18 @@
+{
+    "name": "sommelier-workers",
+    "version": "1.0.0",
+    "description": "Worker scripts for Sommelier.finance",
+    "private": true,
+    "scripts": {
+        "lint": "eslint src --ext js,ts",
+        "clean": "rimraf dist *.tsbuildinfo",
+        "build": "tsc",
+        "worker:alerts": "node dist/scripts/il-alerts.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "lp-data-service": "^1.0.0"
+    }
+}

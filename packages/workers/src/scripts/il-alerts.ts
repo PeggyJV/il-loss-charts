@@ -4,9 +4,9 @@ dotenv.config();
 import TelegramBot from 'node-telegram-bot-api';
 import BigNumber from 'bignumber.js';
 
-import UniswapFetcher from '../services/uniswap';
-import { UniswapHourlyData, UniswapPair } from '../types/uniswap';
-import { calculateMarketStats } from '../util/calculate-stats';
+import UniswapFetcher from '../../../server/src/services/uniswap';
+import { UniswapHourlyData, UniswapPair } from '../../../server/src/types/uniswap';
+import { calculateMarketStats } from '../../../server/src/util/calculate-stats';
 
 let sommBot: TelegramBot | undefined;
 if (process.env.TELEGRAM_BOT_TOKEN) {
@@ -64,9 +64,8 @@ async function runAlertCheck(): Promise<void> {
         );
         const msg = `${'🍷'.repeat(
             numGlasses
-        )} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${
-            pair.market
-        }</a> saw a ${returnStr}% return in the last 24 hours!`;
+        )} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${pair.market
+            }</a> saw a ${returnStr}% return in the last 24 hours!`;
         // sommBot.sendMessage(CHAT_ID, msg, { parse_mode: 'HTML' });
         msgs.push(msg);
         console.log('Sent msg to channel for pair', pair.market);
@@ -83,9 +82,8 @@ async function runAlertCheck(): Promise<void> {
         );
         const msg = `${'😢'.repeat(
             numFaces
-        )} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${
-            pair.market
-        }</a> saw a ${ilStr}% impermanent loss in the last 24 hours!`;
+        )} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${pair.market
+            }</a> saw a ${ilStr}% impermanent loss in the last 24 hours!`;
         // sommBot.sendMessage(CHAT_ID, msg, { parse_mode: 'HTML' });
         msgs.push(msg);
         console.log('Sent msg to channel for pair', pair.market);
