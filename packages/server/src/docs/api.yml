@@ -153,21 +153,8 @@ paths:
                     required: true
                     schema:
                         type: string
-                -   in: query
-                    name: startDate
-                    description: The start date for the historical data window, in YYYY-MM-DD format.
-                    example: "2021-01-01"
-                    required: true
-                    allowReserved: true
-                    schema:
-                        type: string
-                -   in: query
-                    name: endDate
-                    description: The end date for the historical data window, in YYYY-MM-DD format. Defaults to present.
-                    allowReserved: true
-                    example: "2021-01-07"
-                    schema:
-                        type: string
+                - $ref: "#/components/parameters/startDate"
+                - $ref: "#/components/parameters/endDate"
             responses:
                 400:
                     description: Invalid ETH address sent for 'id', 'startDate' not provided, invalid 'startDate' or 'endDate'.
@@ -198,21 +185,8 @@ paths:
                     required: true
                     schema:
                         type: string
-                -   in: query
-                    name: startDate
-                    description: The start date for the historical data window, in YYYY-MM-DD format.
-                    example: "2021-01-01"
-                    required: true
-                    allowReserved: true
-                    schema:
-                        type: string
-                -   in: query
-                    name: endDate
-                    description: The end date for the historical data window, in YYYY-MM-DD format. Defaults to present.
-                    example: "2021-01-07"
-                    allowReserved: true
-                    schema:
-                        type: string
+                - $ref: "#/components/parameters/startDate"
+                - $ref: "#/components/parameters/endDate"
                 -   in: query
                     name: lpLiquidityUSD
                     description: The amount of liquidity provided by the LP in USD value.
@@ -240,21 +214,8 @@ paths:
                 - Sommelier
             description: Get an market overview of the top pairs and stats on return and impermanent loss.
             parameters:
-                -   in: query
-                    name: startDate
-                    description: The start date for the market stats window, in YYYY-MM-DD format.
-                    example: "2021-01-01"
-                    allowReserved: true
-                    required: true
-                    schema:
-                        type: string
-                -   in: query
-                    name: endDate
-                    description: The end date for the historical data window, in YYYY-MM-DD format. Defaults to present.
-                    example: "2021-01-07"
-                    allowReserved: true
-                    schema:
-                        type: string
+                - $ref: "#/components/parameters/startDate"
+                - $ref: "#/components/parameters/endDate"
             responses:
                 400:
                     description: Parameter 'startDate' not provided, invalid 'startDate' or 'endDate'.
@@ -614,6 +575,24 @@ components:
                     items:
                         type: string
                         example: Jan 1
+    parameters: 
+        startDate:
+            in: query
+            name: startDate
+            description: The start date for the market stats window, in YYYY-MM-DD format.
+            example: "2021-01-01"
+            allowReserved: true
+            required: true
+            schema:
+                type: string
+        endDate:
+            in: query
+            name: endDate
+            description: The end date for the historical data window, in YYYY-MM-DD format. Defaults to present.
+            example: "2021-01-07"
+            allowReserved: true
+            schema:
+                type: string
 
 
                         
