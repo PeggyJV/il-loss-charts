@@ -25,7 +25,18 @@ async function runAlertCheck(): Promise<void> {
     // For any pair with a 10% 24h change in impermanent loss, send an alert
 
     // Get 100 top pairs
-    const topPairs: UniswapPair[] = await UniswapFetcher.getIlAlertsPairs(100);
+    let topPairs: UniswapPair[];
+
+    try {
+        topPairs = await UniswapFetcher.getIlAlertsPairs(100);
+    } catch (e) {
+        console.error(
+            `Aborting: could not fetch pairs for IL alerts: ${
+                e.message as string
+            }`
+        );
+        process.exit(1);
+    }
 
     // Start 24h ago, compare to now
     const oneDayMs = 24 * 60 * 60 * 1000;
@@ -39,16 +50,34 @@ async function runAlertCheck(): Promise<void> {
         (pair: UniswapPair): Promise<UniswapHourlyData[]> =>
             UniswapFetcher.getHourlyData(pair.id, startDate, endDate)
     );
-    const historicalData: UniswapHourlyData[][] = await Promise.all(
-        historicalFetches
-    );
 
-    // Calculate IL for top 25 pairs by liquidity
-    const marketStats: MarketStats[] = await calculateMarketStats(
-        topPairs,
-        historicalData,
-        'hourly'
-    );
+    let historicalData: UniswapHourlyData[][];
+    let marketStats: MarketStats[];
+
+    try {
+        historicalData = await Promise.all(historicalFetches);
+    } catch (e) {
+        console.error(
+            `Aborting: could not fetch historical data: ${e.message as string}`
+        );
+        process.exit(1);
+    }
+
+    try {
+        // Calculate IL for top 25 pairs by liquidity
+        marketStats = await calculateMarketStats(
+            topPairs,
+            historicalData,
+            'hourly'
+        );
+    } catch (e) {
+        console.error(
+            `Aborting: could not fetch latest market stats: ${
+                e.message as string
+            }`
+        );
+        process.exit(1);
+    }
 
     const highReturnPairs = [...marketStats]
         .sort((a, b) => b.pctReturn - a.pctReturn)
@@ -95,10 +124,18 @@ async function runAlertCheck(): Promise<void> {
         console.log('Sent msg to channel for pair', pair.market);
     });
 
-    // Send one msg per second
-    await sommBot?.sendMessage(CHAT_ID, msgs.join('\n'), {
-        parse_mode: 'HTML',
-    });
+    try {
+        await sommBot?.sendMessage(CHAT_ID, msgs.join('\n'), {
+            parse_mode: 'HTML',
+        });
+    } catch (e) {
+        console.error(
+            `Aborting: error sending a message to Telegram: ${
+                e.message as string
+            }`
+        );
+        process.exit(1);
+    }
 
     process.exit(0);
 }
