@@ -47,7 +47,7 @@ export function calculateLPStats({
         list.length ? list[list.length - 1] : new BigNumber(0);
     let firstDaily = null;
 
-    historicalData.forEach((dailyData, index) => {
+    historicalData.forEach((dailyData) => {
         // Ignore if below lp date
         const currentDate = new Date(dailyData.date * 1000);
         if (currentDate.getTime() < lpDate.getTime()) return;
