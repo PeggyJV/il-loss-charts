@@ -103,6 +103,13 @@ body {
     border-right: none;
 }
 
+.logo-span span {
+    width: 1rem;
+    display: flex;
+    align-items: center;
+    height: 1rem;
+}
+
 .card.pair-selector-card {
     background-color: rgba(0, 0, 0, 0.03);
 }

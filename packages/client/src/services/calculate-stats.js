@@ -43,13 +43,16 @@ export function calculateLPStats({
         return impermanentLoss;
     };
 
+    const getPrevRunningValue = (list) =>
+        list.length ? list[list.length - 1] : new BigNumber(0);
     let firstDaily = null;
+
     historicalData.forEach((dailyData, index) => {
         // Ignore if below lp date
         const currentDate = new Date(dailyData.date * 1000);
         if (currentDate.getTime() < lpDate.getTime()) return;
         if (!firstDaily) firstDaily = dailyData;
-        if (index === 0) return;
+        // if (index === 0) return;
 
         const poolShare = new BigNumber(lpLiquidityUSD).div(
             dailyData.reserveUSD
@@ -59,9 +62,7 @@ export function calculateLPStats({
         const liquidity = new BigNumber(dailyData.reserveUSD);
         const dailyPoolFees = vol.times(Uniswap.FEE_RATIO);
         const dailyFees = dailyPoolFees.times(poolShare);
-        const newRunningFees = (
-            runningFees[runningFees.length - 1] ?? new BigNumber(0)
-        ).plus(dailyFees);
+        const newRunningFees = getPrevRunningValue(runningFees).plus(dailyFees);
         const dailyImpermanentLoss = calculateImpermanentLoss(
             firstDaily,
             dailyData,
@@ -70,15 +71,9 @@ export function calculateLPStats({
         const dailyReturn = newRunningFees.plus(dailyImpermanentLoss);
 
         dailyLiquidity.push(liquidity);
-        runningVolume.push(
-            (runningVolume[runningVolume.length - 1] ?? new BigNumber(0)).plus(
-                vol
-            )
-        );
+        runningVolume.push(getPrevRunningValue(runningVolume).plus(vol));
         runningPoolFees.push(
-            (
-                runningPoolFees[runningPoolFees.length - 1] ?? new BigNumber(0)
-            ).plus(dailyPoolFees)
+            getPrevRunningValue(runningPoolFees).plus(dailyPoolFees)
         );
         runningFees.push(newRunningFees);
         runningImpermanentLoss.push(dailyImpermanentLoss);
@@ -194,7 +189,7 @@ export function calculateLPStats({
         impermanentLoss,
         totalReturn,
         days,
-        fullDates
+        fullDates,
     };
 }
 

@@ -45,20 +45,20 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
 
         const token = side === 'left' ? 'token0' : 'token1';
         return pair[token].symbol;
-    }
+    };
 
     const handleChange = (side) => (value) => {
         // If pair is string, it's typed in
         // so just override one side
         if (typeof value === 'string') {
             const token = side === 'left' ? 'token0' : 'token1';
-            setCurrentValue(current => ({
+            setCurrentValue((current) => ({
                 ...current,
                 id: null,
                 [token]: {
                     ...[current[token]],
-                    symbol: value
-                }
+                    symbol: value,
+                },
             }));
         } else {
             setCurrentValue(value);
@@ -72,7 +72,7 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                 <div className='pair-selector-container'>
                     <InputGroup>
                         <InputGroup.Prepend className='token-logo'>
-                            <InputGroup.Text>
+                            <InputGroup.Text className='logo-span'>
                                 {resolveLogo(defaultValue.token0.id)}
                             </InputGroup.Text>
                         </InputGroup.Prepend>
@@ -93,11 +93,11 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                             🍷
                         </div>
                     ) : (
-                            <div className='pair-selector-separator'>✖️</div>
-                        )}
+                        <div className='pair-selector-separator'>✖️</div>
+                    )}
                     <InputGroup>
                         <InputGroup.Prepend className='token-logo'>
-                            <InputGroup.Text>
+                            <InputGroup.Text className='logo-span'>
                                 {resolveLogo(defaultValue.token1.id)}
                             </InputGroup.Text>
                         </InputGroup.Prepend>
