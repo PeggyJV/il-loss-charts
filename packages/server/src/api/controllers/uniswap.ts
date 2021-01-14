@@ -4,7 +4,7 @@ import { Request } from 'express';
 import cacheMiddleware from 'api/middlewares/cache';
 
 import UniswapFetcher from 'services/uniswap';
-import { UniswapDailyData } from 'types/uniswap';
+import { UniswapDailyData } from '@sommelier/shared-types';
 import { HTTPError } from 'api/util/errors';
 import wrapRequest from 'api/util/wrap-request';
 import { isValidEthAddress } from 'util/eth';

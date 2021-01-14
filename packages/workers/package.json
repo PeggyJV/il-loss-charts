@@ -6,7 +6,7 @@
     "scripts": {
         "lint": "eslint src --ext js,ts",
         "clean": "rimraf dist *.tsbuildinfo",
-        "build": "tsc",
+        "build": "ttsc",
         "worker:alerts": "node dist/scripts/il-alerts.js"
     },
     "keywords": [],
@@ -14,8 +14,6 @@
     "license": "ISC",
     "dependencies": {
         "@sommelier/data-service": "^1.0.0",
-        "lp-data-service": "^1.0.0",
-        "shared-types": "^1.0.0",
-        "sommelier-types": "^1.0.0"
+        "@sommelier/shared-types": "^1.0.0"
     }
 }

@@ -3,12 +3,16 @@
     "description": "Type definitions for the family of Sommelier apps",
     "version": "1.0.0",
     "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "scripts": {
         "lint": "eslint src --ext js,ts",
         "clean": "rimraf dist *.tsbuildinfo",
-        "build": "ts-node build.ts && tsc"
+        "build": "ttsc"
     },
     "keywords": [],
     "author": "",
-    "license": "ISC"
+    "license": "ISC",
+    "dependencies": {
+        "bignumber.js": "^9.0.1"
+    }
 }

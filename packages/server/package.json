@@ -7,8 +7,9 @@
     "scripts": {
         "start": "NODE_PATH=dist/ node dist/index.js",
         "clean": "rimraf dist *.tsbuildinfo",
-        "build": "ts-node build.ts && tsc",
-        "build:watch": "ts-node build.ts && tsc -w",
+        "build": "ttsc && yarn build:copy",
+        "build:watch": "ts-node -C build.ts && ttsc -w",
+        "build:copy": "cp .env dist/.env && cp -R src/docs/ dist/docs/",
         "dev": "nodemon src/index.ts | pino-pretty",
         "dev:debug": "nodemon --exec \"node -r ts-node/register --inspect-brk\" src/index.ts | pino-pretty",
         "lint": "eslint src --ext js,ts",
@@ -19,6 +20,7 @@
     "dependencies": {
         "@alch/alchemy-web3": "^0.1.18",
         "@apollo/client": "^3.3.6",
+        "@sommelier/shared-types": "^1.0.0",
         "bignumber.js": "^9.0.1",
         "body-parser": "^1.19.0",
         "bufferutil": "^4.0.2",
@@ -69,7 +71,6 @@
         "shelljs": "^0.8.4",
         "supertest": "^6.0.1",
         "ts-node": "^9.0.0",
-        "tsconfig-paths": "^3.9.0",
-        "typescript": "^4.0.5"
+        "tsconfig-paths": "^3.9.0"
     }
 }

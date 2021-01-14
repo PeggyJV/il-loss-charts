@@ -3,6 +3,12 @@
     "references": [
         {
             "path": "server"
+        },
+        {
+            "path": "workers"
+        },
+        {
+            "path": "sommelier-types"
         }
     ]
 }

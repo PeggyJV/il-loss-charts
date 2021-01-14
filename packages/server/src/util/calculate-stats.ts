@@ -7,31 +7,11 @@ import {
     UniswapDailyData,
     UniswapHourlyData,
     LiquidityData,
-} from 'types/uniswap';
+    LPStats,
+    MarketStats,
+} from '@sommelier/shared-types';
 
 const FEE_RATIO = 0.003;
-
-export interface LPStats {
-    totalFees: BigNumber;
-    runningVolume: BigNumber[];
-    runningFees: BigNumber[];
-    runningImpermanentLoss: BigNumber[];
-    runningReturn: BigNumber[];
-    impermanentLoss: BigNumber;
-    totalReturn: BigNumber;
-    days: string[];
-}
-
-export interface MarketStats extends UniswapPair {
-    ilGross: number;
-    market: string;
-    impermanentLoss: number;
-    volume: number;
-    liquidity: number;
-    returnsUSD: number;
-    returnsETH: number;
-    pctReturn: number;
-}
 
 // export async function calculateMarketStats(pairs, startDate, endDate) {
 type historicalDataParam = Array<UniswapDailyData[] | UniswapHourlyData[]>;

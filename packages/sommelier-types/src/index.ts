@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 export interface LiquidityData {
     reserve0: string;
     reserve1: string;
@@ -66,4 +67,26 @@ export interface UniswapMintOrBurn {
     to: string;
     pair: Partial<UniswapPair>;
     timestamp: string;
+}
+
+export interface LPStats {
+    totalFees: BigNumber;
+    runningVolume: BigNumber[];
+    runningFees: BigNumber[];
+    runningImpermanentLoss: BigNumber[];
+    runningReturn: BigNumber[];
+    impermanentLoss: BigNumber;
+    totalReturn: BigNumber;
+    days: string[];
+}
+
+export interface MarketStats extends UniswapPair {
+    ilGross: number;
+    market: string;
+    impermanentLoss: number;
+    volume: number;
+    liquidity: number;
+    returnsUSD: number;
+    returnsETH: number;
+    pctReturn: number;
 }

@@ -6,10 +6,27 @@
         "strict": true,
         "esModuleInterop": true,
         "declaration": true,
+        "declarationMap": true,
         "sourceMap": true,
         "incremental": true,
         "moduleResolution": "node",
-        "typeRoots": ["node_modules/@types"],
-        "resolveJsonModule": true
+        "typeRoots": [
+            "node_modules/@types"
+        ],
+        "paths": {
+            "*": [
+                "*"
+            ]
+        },
+        "resolveJsonModule": true,
+        "plugins": [
+            {
+                "transform": "typescript-transform-paths"
+            },
+            {
+                "transform": "typescript-transform-paths",
+                "afterDeclarations": true
+            }
+        ]
     }
 }

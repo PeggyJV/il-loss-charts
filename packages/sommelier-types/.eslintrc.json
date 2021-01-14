@@ -1,8 +1,7 @@
 {
     "parserOptions": {
-        "project": "./packages/server/tsconfig.json",
-        "sourceType": "module",
-        "tsConfigRootDir": "./yolo"
+        "project": "./packages/sommelier-types/tsconfig.json",
+        "sourceType": "module"
     },
     "parser": "@typescript-eslint/parser",
     "extends": [
