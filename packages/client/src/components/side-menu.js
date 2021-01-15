@@ -1,5 +1,5 @@
-import { Button } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
+import ConnectWalletButton from 'components/connect-wallet';
 
 function SideMenu() {
     return (
@@ -13,10 +13,7 @@ function SideMenu() {
                 <NavLink to='/pair'>IL Calculator</NavLink>
             </p>
             <hr />
-            <Button variant='secondary' size='sm' disabled>
-                Connect Wallet
-            </Button>
-            <div style={{ fontSize: '0.8rem' }}>☝️ Coming soon!</div>
+            <ConnectWalletButton />
             <hr />
             <h6 className='centered'>
                 <a href='https://t.me/getsomm'>Join the Sommelier Community</a>
