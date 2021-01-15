@@ -6,11 +6,11 @@ export default function wrapRequest(
     return async (req: Request, res: Response) => {
         try {
             const response = await controllerFn(req, res);
-            res.json({ data: response });
+            return res.json({ data: response });
         } catch (err) {
             console.error('Error:', err);
             const errors = err.errors || [{ message: err.message }];
-            res.status(err.status || 500).json({ errors });
+            return res.status(err.status || 500).json({ errors });
         }
     };
 }

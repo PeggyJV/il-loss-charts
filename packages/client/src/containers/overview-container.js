@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Card } from 'react-bootstrap';
+import { Card, Container } from 'react-bootstrap';
 import BootstrapTable from 'react-bootstrap-table-next';
 import BigNumber from 'bignumber.js';
 import { MarketData } from 'constants/prop-types';
@@ -20,17 +20,37 @@ const formatter = new Intl.NumberFormat('en-US', {
 
 function OverviewContainer() {
     const [marketData, setMarketData] = useState([]);
+    const [currentError, setError] = useState(null);
 
     useEffect(() => {
         const fetchMarketData = async () => {
             // Fetch all pairs
-            const marketData = await Uniswap.getMarketData();
+            const { data: marketData, errors } = await Uniswap.getMarketData();
+
+            if (errors) {
+                // we could not get our market data
+                console.warn(`Could not fetch marekt data: ${errors}`);
+                setError(errors[0]);
+                return;
+            }
+
             setMarketData(marketData);
         };
         fetchMarketData();
     }, []);
 
     window.marketData = marketData;
+
+    if (currentError) {
+        return (
+            <Container>
+                <h2>Oops, the grapes went bad.</h2>
+                <p>Error: {currentError.message}</p>
+
+                <h6>Refresh the page to try again.</h6>
+            </Container>
+        );
+    }
 
     return (
         <div>

@@ -28,6 +28,7 @@ function PairContainer({ allPairs }) {
 
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
+    const [currentError, setError] = useState(null);
 
     // ------------------ Shared State ------------------
 
@@ -56,7 +57,9 @@ function PairContainer({ allPairs }) {
     // Keep track of previous lp stats to prevent entire loading UI from coming up on change
     const lpStats = useMemo(
         () =>
-            !isInitialLoad && calculateLPStats({ ...lpInfo, lpDate, lpShare }),
+            !isInitialLoad &&
+            !currentError &&
+            calculateLPStats({ ...lpInfo, lpDate, lpShare }),
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [lpInfo, lpDate, lpShare, isInitialLoad]
     );
@@ -64,17 +67,39 @@ function PairContainer({ allPairs }) {
     useEffect(() => {
         const fetchPairData = async () => {
             if (!isLoading) setIsLoading(true);
+            if (currentError) return;
 
             // Fetch pair overview when pair ID changes
             // Default to createdAt date if LP date not set
-            const newPair = await Uniswap.getPairOverview(pairId);
+            const { data: newPair, errors } = await Uniswap.getPairOverview(
+                pairId
+            );
+
+            if (errors) {
+                // we could not get data for this new pair
+                console.warn(
+                    `Could not fetch pair data for ${pairId}: ${errors}`
+                );
+                setError(errors[0]);
+                return;
+            }
+
             const pairCreatedAt = new Date(newPair.createdAtTimestamp * 1000);
 
             // Get historical data for pair from start date until now
-            const historicalDailyData = await Uniswap.getHistoricalDailyData(
-                pairId,
-                pairCreatedAt
-            );
+            const {
+                data: historicalDailyData,
+                errors: historicalErrors,
+            } = await Uniswap.getHistoricalDailyData(pairId, pairCreatedAt);
+
+            if (historicalErrors) {
+                // we could not get data for this new pair
+                console.warn(
+                    `Could not fetch historical data for ${pairId}: ${errors}`
+                );
+                setError(errors[0]);
+                return;
+            }
 
             setLPInfo((prevLpInfo) => ({
                 ...prevLpInfo,
@@ -98,6 +123,8 @@ function PairContainer({ allPairs }) {
     }, [pairId]);
 
     const dailyDataAtLPDate = useMemo(() => {
+        if (currentError) return;
+
         if (!lpInfo.historicalData || lpInfo.historicalData.length === 0)
             return {};
 
@@ -124,8 +151,9 @@ function PairContainer({ allPairs }) {
     const { sendJsonMessage, lastJsonMessage } = useWebSocket(config.wsApi);
 
     // Handle websocket message
+    // Ignore if we have an error
     useEffect(() => {
-        if (!lastJsonMessage) return;
+        if (!lastJsonMessage || currentError) return;
 
         const { topic } = lastJsonMessage;
 
@@ -136,7 +164,9 @@ function PairContainer({ allPairs }) {
             if (pairMsg.id === pairId) {
                 setLPInfo({ ...lpInfo, pairData: pairMsg });
             } else {
-                console.warn(`Received pair update over websocket for non-active pair: ${pairMsg.token0.symbol}/${pairMsg.token1.symbol}`);
+                console.warn(
+                    `Received pair update over websocket for non-active pair: ${pairMsg.token0.symbol}/${pairMsg.token1.symbol}`
+                );
             }
         } else if (topic === 'infura:newHeads') {
             const {
@@ -168,6 +198,8 @@ function PairContainer({ allPairs }) {
 
     // Subscribe to updates on pair overview when pair changes
     useEffect(() => {
+        if (currentError) return;
+
         sendJsonMessage({
             op: 'unsubscribe',
             topics: [`uniswap:getPairOverview:${prevPairId}`],
@@ -188,18 +220,35 @@ function PairContainer({ allPairs }) {
     });
 
     useEffect(() => {
+        if (!pairId || currentError) return;
+
         const getLatestSwaps = async () => {
             // Fetch latest block when pair ID changes
             // Default to createdAt date if LP date not set
-            const [latestSwaps, mintsAndBurns] = await Promise.all([
+            const [
+                { data: latestSwaps, errors: swapsErrors },
+                { data: mintsAndBurns, errors: mintBurnErrors },
+            ] = await Promise.all([
                 Uniswap.getLatestSwaps(pairId),
                 Uniswap.getMintsAndBurns(pairId),
             ]);
+
+            const errors = swapsErrors ?? mintBurnErrors;
+
+            if (errors) {
+                // we could not get data for this new pair
+                console.warn(
+                    `Could not fetch trades data for ${pairId}: ${errors}`
+                );
+                setError(errors[0]);
+                return;
+            }
+
             setLatestSwaps({ swaps: latestSwaps, mintsAndBurns });
         };
 
         const refreshPairData = async () => {
-            const newPairData = await Uniswap.getPairOverview(pairId);
+            const { data: newPairData } = await Uniswap.getPairOverview(pairId);
 
             setLPInfo((prevLpInfo) => ({
                 ...prevLpInfo,
@@ -209,9 +258,23 @@ function PairContainer({ allPairs }) {
 
         getLatestSwaps();
         refreshPairData();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pairId, latestBlock]);
 
     // ------------------ Render code ------------------
+
+    // If error, display an error page
+    if (currentError) {
+        return (
+            <Container>
+                <h2>Oops, the grapes went bad.</h2>
+                <p>Error: {currentError.message}</p>
+
+                <h6>Refresh the page to try again.</h6>
+            </Container>
+        );
+    }
 
     // If no lp stats, we haven't completed our first data fetch yet
     if (!lpStats || Object.keys(lpStats).length === 0) {
@@ -280,6 +343,8 @@ function PairContainer({ allPairs }) {
     );
 }
 
-PairContainer.propTypes = { allPairs: PropTypes.shape({ pairs: PropTypes.arrayOf(Pair) }) };
+PairContainer.propTypes = {
+    allPairs: PropTypes.shape({ pairs: PropTypes.arrayOf(Pair) }),
+};
 
 export default PairContainer;

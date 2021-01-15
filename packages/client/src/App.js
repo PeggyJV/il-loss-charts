@@ -23,13 +23,21 @@ function App() {
         isLoading: true,
         pairs: initialData.allPairs,
     });
+    const [currentError, setError] = useState(null);
 
     useEffect(() => {
         const fetchAllPairs = async () => {
             // Fetch all pairs
-            const pairsRaw = await Uniswap.getTopPairs();
+            const { data: pairsRaw, errors } = await Uniswap.getTopPairs();
+
+            if (errors) {
+                // we could not list pairs
+                console.warn(`Could not fetch top pairs: ${errors}`);
+                setError(errors[0]);
+                return;
+            }
+
             const calculated = calculatePairRankings(pairsRaw);
-            window.calculated = calculated;
 
             setAllPairs({
                 isLoading: false,
@@ -40,6 +48,17 @@ function App() {
         };
         fetchAllPairs();
     }, []);
+
+    if (currentError) {
+        return (
+            <Container>
+                <h2>Oops, the grapes went bad.</h2>
+                <p>Error: {currentError.message}</p>
+
+                <h6>Refresh the page to try again.</h6>
+            </Container>
+        );
+    }
 
     if (allPairs.isLoading) {
         return (
