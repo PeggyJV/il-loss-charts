@@ -24,6 +24,7 @@ function App() {
         pairs: initialData.allPairs,
     });
     const [currentError, setError] = useState(null);
+    const [showConnectWallet, setShowConnectWallet] = useState(false);
 
     useEffect(() => {
         const fetchAllPairs = async () => {

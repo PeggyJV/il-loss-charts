@@ -1,7 +1,8 @@
 import { NavLink } from 'react-router-dom';
-import ConnectWalletButton from 'components/connect-wallet';
+import PropTypes from 'prop-types';
+import ConnectWalletButton from 'components/connect-wallet-button';
 
-function SideMenu() {
+function SideMenu({ showModal }) {
     return (
         <>
             <h5 className='side-menu-title'>sommelier.finance</h5>
@@ -13,7 +14,7 @@ function SideMenu() {
                 <NavLink to='/pair'>IL Calculator</NavLink>
             </p>
             <hr />
-            <ConnectWalletButton />
+            <ConnectWalletButton onClick={showModal} />
             <hr />
             <h6 className='centered'>
                 <a href='https://t.me/getsomm'>Join the Sommelier Community</a>
@@ -21,5 +22,7 @@ function SideMenu() {
         </>
     );
 }
+
+SideMenu.propTypes = { showModal: PropTypes.func };
 
 export default SideMenu;
