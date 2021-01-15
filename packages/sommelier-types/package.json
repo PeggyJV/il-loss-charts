@@ -1,5 +1,12 @@
 {
     "name": "@sommelier/shared-types",
+    "license": "Apache-2.0",
+    "licenses": [
+        {
+            "type": "Apache-2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0"
+        }
+    ],
     "description": "Type definitions for the family of Sommelier apps",
     "version": "1.0.0",
     "main": "dist/index.js",
@@ -11,7 +18,6 @@
     },
     "keywords": [],
     "author": "",
-    "license": "ISC",
     "dependencies": {
         "bignumber.js": "^9.0.1"
     }
