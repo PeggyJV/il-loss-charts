@@ -18,7 +18,11 @@ export default function cacheMiddleware(ttl: number): RequestHandler {
         } else {
             res.sendResponse = res.send;
             res.send = (body: unknown) => {
-                memCache.put(key, body, ttl * 1000);
+                if (res.statusCode !== 500) {
+                    // avoid cache if we had a server error
+                    memCache.put(key, body, ttl * 1000);
+                }
+
                 if (res.sendResponse) {
                     res.sendResponse(body);
                 }

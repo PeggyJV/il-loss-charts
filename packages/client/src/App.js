@@ -10,6 +10,7 @@ import { Container } from 'react-bootstrap';
 import OverviewContainer from 'containers/overview-container';
 import PairContainer from 'containers/pair-container';
 import SideMenu from 'components/side-menu';
+import ConnectWalletModal from 'components/connect-wallet-modal';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { calculatePairRankings } from 'services/calculate-stats';
@@ -73,9 +74,13 @@ function App() {
         <Router>
             <div className='app'>
                 <div className='side-menu'>
-                    <SideMenu />
+                    <SideMenu setShowConnectWallet={setShowConnectWallet} />
                 </div>
                 <div className='app-body'>
+                    <ConnectWalletModal
+                        show={showConnectWallet}
+                        setShow={setShowConnectWallet}
+                    />
                     <Switch>
                         <Route path='/pair'>
                             <PairContainer allPairs={allPairs} />

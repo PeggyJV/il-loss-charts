@@ -2,7 +2,9 @@ import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import ConnectWalletButton from 'components/connect-wallet-button';
 
-function SideMenu({ showModal }) {
+function SideMenu({ setShowConnectWallet }) {
+    const showModal = () => setShowConnectWallet(true);
+
     return (
         <>
             <h5 className='side-menu-title'>sommelier.finance</h5>
@@ -23,6 +25,6 @@ function SideMenu({ showModal }) {
     );
 }
 
-SideMenu.propTypes = { showModal: PropTypes.func };
+SideMenu.propTypes = { setShowConnectWallet: PropTypes.func };
 
 export default SideMenu;
