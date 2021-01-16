@@ -232,6 +232,36 @@ paths:
                                         type: array
                                         items: 
                                             $ref: '#/components/schemas/MarketStatsForPair'
+    /uniswap/positions/{address}:
+        get:
+            tags:
+                - Uniswap
+                - Sommelier
+            description: Get a series of snapshots for each liquidity position held by the address.
+            parameters:
+                -   in: path
+                    name: address
+                    description: The address of the wallet.
+                    example: "0xf0c683aec313d2e1ef2f6cf2a84214a46526556a"
+                    required: true
+                    schema:
+                        type: string
+            responses:
+                400:
+                    description: Invalid ETH address sent for 'id'.
+                404:
+                    description: No liquidity positions held by the address.
+                200:
+                    description: Returns snapshots of liquidity positions organized by pair.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items: 
+                                            $ref: '#/components/schemas/LiquidityPositions'
     /spec:
         get:
             tags:
@@ -506,7 +536,7 @@ components:
                     type: number
                     example: 3951341.113799633
                     description: Total USD return of the pool (fees minus impermanent loss).
-                returnsUSD:
+                returnsETH:
                     type: number
                     example: 3769.983763773433
                     description: Total ETH return of the pool (fees minus impermanent loss).
@@ -575,6 +605,57 @@ components:
                     items:
                         type: string
                         example: Jan 1
+        LiquidityPositions:
+            title: Uniswap Liquidity Positions
+            type: object
+            additionalProperties: 
+                $ref: '#/components/schemas/LiquidityPositionSnapshot'
+        LiquidityPositionSnapshot:
+            title: Uniswap Liquidity Position for Pair
+            type: object
+            required:
+                - liquidityTokenBalance
+                - liquidityTokenTotalSupply
+                - pair
+                - timestamp
+            properties:
+                id:
+                    type: string
+                    example: "0x3041cbd36888becc7bbcbc0045e3b1f144466f5f-0xf0c683aec313d2e1ef2f6cf2a84214a46526556a1610764899"
+                    description: A unique identifier for the liquidity position snapshot, in the format {pairId}-{walletAddress}{timestamp}.
+                liquidityPosition:
+                    type: object
+                    properties:
+                        id:
+                            type: string
+                            example: "0x3041cbd36888becc7bbcbc0045e3b1f144466f5f-0xf0c683aec313d2e1ef2f6cf2a84214a46526556a"
+                            description: A unique identifier for the liquidity position, in the format {pairId}-{walletAddress}.
+                        liquidityTokenBalance:
+                            type: string
+                            example: "0.000000000044131501"
+                            description: The amount of LP tokens held by the address.
+                liquidityTokenBalance:
+                    type: string
+                    example: "0.000000000044131501"
+                    description: The amount of LP tokens held by the address.
+                liquidityTokenTotalSupply:
+                    type: string
+                    example: "0.000014792742175772"
+                    description: The total amount of LP tokens held by all LPs in the pool.
+                pair: 
+                    $ref: '#/components/schemas/UniswapPair'
+                reserve0:
+                    type: string
+                    example: "102730.915624946031625317"
+                    description: Amount of token0 in the pool at the time of the snapshot.
+                reserve1:
+                    type: string
+                    example: "79614298.470066"
+                    description: Amount of token1 in the pool at the time of the snapshot.
+                timestamp:
+                    type: number
+                    example: 1610781226
+                    description: The timestamp of the snapshot.
     parameters: 
         startDate:
             in: query

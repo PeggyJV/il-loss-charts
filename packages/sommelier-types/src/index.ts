@@ -19,8 +19,8 @@ export interface UniswapPair extends LiquidityData {
     __typename: 'Pair';
     createdAtTimestamp: string;
     id: string;
-    token0: Token;
-    token1: Token;
+    token0: Partial<Token>;
+    token1: Partial<Token>;
     token0Price: string;
     token1Price: string;
     trackedReserveETH: string;
@@ -89,4 +89,17 @@ export interface MarketStats extends UniswapPair {
     returnsUSD: number;
     returnsETH: number;
     pctReturn: number;
+}
+
+export interface UniswapLiquidityPositionAtTime extends LiquidityData {
+    id: string;
+    liquidityPosition: {
+        id: string;
+        liquidityTokenBalance: string;
+        pair: Partial<UniswapPair>;
+    };
+    liquidityTokenBalance: string;
+    liquidityTokenTotalSupply: string;
+    pair: Partial<UniswapPair>;
+    timestamp: number;
 }

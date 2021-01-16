@@ -14,11 +14,16 @@ import {
     UniswapHourlyData,
     UniswapSwap,
     UniswapMintOrBurn,
+    UniswapLiquidityPositionAtTime,
 } from '@sommelier/shared-types';
 import { HTTPError } from 'api/util/errors';
 interface ApolloResponse<T> {
     data: T;
     error?: ApolloError;
+}
+
+interface LiquidityPositionPairMapping {
+    [pairId: string]: UniswapLiquidityPositionAtTime[];
 }
 export default class UniswapFetcher {
     static FEE_RATIO = 0.003;
@@ -531,5 +536,75 @@ export default class UniswapFetcher {
         }
 
         return { ethPrice };
+    }
+
+    static async getLiquidityPositions(
+        address: string
+    ): Promise<LiquidityPositionPairMapping> {
+        const response: ApolloResponse<{
+            liquidityPositionSnapshots: UniswapLiquidityPositionAtTime[];
+        }> = await UniswapFetcher.client.query({
+            query: gql`
+                    {
+                        liquidityPositionSnapshots(where: { user: "${address.toLowerCase()}" }) {
+                            id
+                            liquidityPosition {
+                                id
+                                liquidityTokenBalance
+                            }
+                            timestamp
+                            reserve0
+                            reserve1
+                            liquidityTokenBalance
+                            liquidityTokenTotalSupply
+                            pair {
+                                id
+                                token0 {
+                                    id
+                                    symbol
+                                }
+                                token1 {
+                                    id
+                                    symbol
+                                }
+                            }
+                        }
+                    }
+                `,
+        });
+
+        const { liquidityPositionSnapshots } = response?.data;
+
+        if (liquidityPositionSnapshots == null) {
+            throw new Error(
+                `Could not fetch liquidity positions for address ${address}. Error from response: ${
+                    response.error?.toString() || ''
+                }`
+            );
+        } else if (liquidityPositionSnapshots.length === 0) {
+            throw new HTTPError(404);
+        }
+
+        // Organize liquidity positions by pair
+        const positions = liquidityPositionSnapshots.reduce(
+            (acc: LiquidityPositionPairMapping, snapshot) => {
+                const { pair } = snapshot;
+
+                if (!pair.id) {
+                    throw new Error('Got snapshot without pair ID');
+                }
+
+                if (!acc[pair.id]) {
+                    acc[pair.id] = [snapshot];
+                } else {
+                    acc[pair.id].push(snapshot);
+                }
+
+                return acc;
+            },
+            {}
+        );
+
+        return positions;
     }
 }

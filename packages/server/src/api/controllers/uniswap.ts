@@ -140,7 +140,7 @@ class UniswapController {
 
     static async getPairStats(req: Request) {
         const pairId: string | undefined = req.params.id?.toString();
-        if (!pairId) throw new HTTPError(400, `id is required.`);
+        if (!pairId) throw new HTTPError(400, `'id' is required.`);
 
         // Validate ethereum address
         const validId = isValidEthAddress(pairId);
@@ -186,6 +186,21 @@ class UniswapController {
         const ethPrice = await UniswapFetcher.getEthPrice();
         return ethPrice;
     }
+
+    static async getLiquidityPositions(req: Request) {
+        const userAddress: string | undefined = req.params.address?.toString();
+        if (!userAddress) throw new HTTPError(400, `'address' is required.`);
+
+        // Validate ethereum address
+        const validId = isValidEthAddress(userAddress);
+        if (!validId)
+            throw new HTTPError(400, `'address' must be a valid ETH address.`);
+
+        const liquidityPositions = await UniswapFetcher.getLiquidityPositions(
+            userAddress
+        );
+        return liquidityPositions;
+    }
 }
 
 export default express
@@ -221,4 +236,8 @@ export default express
         cacheMiddleware(300),
         wrapRequest(UniswapController.getHistoricalDailyData)
     )
-    .get('/pairs/:id/stats', wrapRequest(UniswapController.getPairStats));
+    .get('/pairs/:id/stats', wrapRequest(UniswapController.getPairStats))
+    .get(
+        '/positions/:address',
+        wrapRequest(UniswapController.getLiquidityPositions)
+    );
