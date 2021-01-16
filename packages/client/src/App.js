@@ -26,6 +26,7 @@ function App() {
     });
     const [currentError, setError] = useState(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
+    const [wallet, setWallet] = useState({ account: null, provider: null });
 
     useEffect(() => {
         const fetchAllPairs = async () => {
@@ -74,12 +75,17 @@ function App() {
         <Router>
             <div className='app'>
                 <div className='side-menu'>
-                    <SideMenu setShowConnectWallet={setShowConnectWallet} />
+                    <SideMenu
+                        setShowConnectWallet={setShowConnectWallet}
+                        wallet={wallet}
+                    />
                 </div>
                 <div className='app-body'>
                     <ConnectWalletModal
                         show={showConnectWallet}
                         setShow={setShowConnectWallet}
+                        wallet={wallet}
+                        setWallet={setWallet}
                     />
                     <Switch>
                         <Route path='/pair'>

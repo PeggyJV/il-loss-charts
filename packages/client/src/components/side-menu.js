@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import ConnectWalletButton from 'components/connect-wallet-button';
 
-function SideMenu({ setShowConnectWallet }) {
+function SideMenu({ setShowConnectWallet, wallet }) {
     const showModal = () => setShowConnectWallet(true);
 
     return (
@@ -16,7 +16,7 @@ function SideMenu({ setShowConnectWallet }) {
                 <NavLink to='/pair'>IL Calculator</NavLink>
             </p>
             <hr />
-            <ConnectWalletButton onClick={showModal} />
+            <ConnectWalletButton onClick={showModal} wallet={wallet} />
             <hr />
             <h6 className='centered'>
                 <a href='https://t.me/getsomm'>Join the Sommelier Community</a>
@@ -25,6 +25,12 @@ function SideMenu({ setShowConnectWallet }) {
     );
 }
 
-SideMenu.propTypes = { setShowConnectWallet: PropTypes.func };
+SideMenu.propTypes = {
+    setShowConnectWallet: PropTypes.func,
+    wallet: PropTypes.shape({
+        account: PropTypes.string,
+        provider: PropTypes.string,
+    }).isRequired,
+};
 
 export default SideMenu;

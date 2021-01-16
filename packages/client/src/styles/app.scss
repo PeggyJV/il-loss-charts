@@ -237,6 +237,19 @@ body {
     justify-content: space-around;
 }
 
+.connect-wallet-modal-header {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;    
+}
+
+.connect-wallet-button {
+    width: 10em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 .side-menu {
     background-color: #eeeeee;
     padding: 1em;

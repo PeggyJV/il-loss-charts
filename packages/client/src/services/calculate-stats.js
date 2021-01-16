@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import { format } from 'date-fns';
 
-import Uniswap from './uniswap';
+const FEE_RATIO = 0.003;
 
 export function calculateLPStats({
     pairData,
@@ -60,7 +60,7 @@ export function calculateLPStats({
 
         const vol = new BigNumber(dailyData.dailyVolumeUSD);
         const liquidity = new BigNumber(dailyData.reserveUSD);
-        const dailyPoolFees = vol.times(Uniswap.FEE_RATIO);
+        const dailyPoolFees = vol.times(FEE_RATIO);
         const dailyFees = dailyPoolFees.times(poolShare);
         const newRunningFees = getPrevRunningValue(runningFees).plus(dailyFees);
         const dailyImpermanentLoss = calculateImpermanentLoss(
