@@ -555,10 +555,15 @@ export default class UniswapFetcher {
                             timestamp
                             reserve0
                             reserve1
+                            reserveUSD
                             liquidityTokenBalance
                             liquidityTokenTotalSupply
                             pair {
                                 id
+                                reserve0
+                                reserve1
+                                reserveUSD
+                                volumeUSD
                                 token0 {
                                     id
                                     symbol
