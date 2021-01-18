@@ -3,11 +3,10 @@ import path from 'path';
 import bodyParser from 'body-parser';
 import http from 'http';
 import os from 'os';
+import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-import pino from 'pino-http';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
-import l from './logger';
 
 import errorHandler from '../api/middlewares/error.handler';
 import * as OpenApiValidator from 'express-openapi-validator';
@@ -22,11 +21,7 @@ export default class ExpressServer {
         const clientRoot = path.normalize(__dirname + '/../../../client');
         app.set('appPath', root + 'client');
 
-        app.use(
-            pino({
-                logger: l,
-            })
-        );
+        app.use(morgan('dev'));
 
         app.use(
             bodyParser.json({ limit: process.env.REQUEST_LIMIT || '100kb' })
@@ -80,9 +75,9 @@ export default class ExpressServer {
 
     listen(port: number): Application {
         const welcome = (p: number) => (): void =>
-            l.info(
-                `up and running in ${process.env.NODE_ENV || 'development'
-                } @: ${os.hostname()} on port: ${p}}`
+            console.info(
+                `${new Date().toISOString()} up and running in ${process.env.NODE_ENV || 'development'
+                } @: ${os.hostname()} on port: ${p}`
             );
 
         this.httpServer = http.createServer(app).listen(port, welcome(port));

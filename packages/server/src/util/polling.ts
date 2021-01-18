@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events';
 import { tokenizeTopic } from 'util/parse-topics';
 import services, { DataSource } from 'services';
-import logger from 'common/logger';
 
 // TODO: Normalize errors and re-architect polling vs socket
 class PollingUtil extends EventEmitter {
@@ -30,7 +29,7 @@ class PollingUtil extends EventEmitter {
     unsubscribe(topic: string): void {
         if (!this.activeTopics[topic]) {
             // If topic is not active, no-op
-            logger.info(`Unsubscribe attempt for inactive topic: ${topic}`);
+            console.info(`Unsubscribe attempt for inactive topic: ${topic}`);
             return;
         }
 

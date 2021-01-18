@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { format } from 'date-fns';
+import fs from 'fs';
 
 import UniswapFetcher from 'services/uniswap';
 import {
@@ -69,9 +70,8 @@ export async function calculateMarketStats(
             const firstDaily = historical[0];
             const lastDaily = historical[historical.length - 1];
 
-            const pairReadable = `${pair.token0?.symbol || ''}/${
-                pair.token1?.symbol || 's'
-            }`;
+            const pairReadable = `${pair.token0?.symbol || ''}/${pair.token1?.symbol || 's'
+                }`;
 
             // Skip pair if no data
             // TODO smarter error handling
@@ -392,10 +392,10 @@ export async function calculateStatsForPositions(
         const lastSnapshot = positionSnapshots[positionSnapshots.length - 1];
         let endDate: Date;
 
-        // TODO: Figure out if we should also fetch urrent stats
+        // TODO: Figure out if we should also fetch current stats
         // let fetchCurrent = false;
 
-        if (parseInt(lastSnapshot.liquidityTokenBalance, 10) === 0) {
+        if (new BigNumber(lastSnapshot.liquidityTokenBalance).isZero()) {
             // position is closed, so calculate up until last day
             endDate = new Date(lastSnapshot.timestamp * 1000);
         } else {
@@ -437,20 +437,22 @@ export async function calculateStatsForPositions(
         // for every window between two positions, take correct slice of historical data and calculate stats
         const statsArr: LPStats[] = [];
         for (const [index, snapshot] of positionSnapshots.entries()) {
-            if (index === 0) return;
+            if (index === 0) continue;
 
             const prevSnapshot = positionSnapshots[index - 1];
 
-            if (parseInt(prevSnapshot.liquidityTokenBalance, 10) === 0) {
+            if (new BigNumber(prevSnapshot.liquidityTokenBalance).isZero()) {
                 // nothing to calculate here, since we calculate the trailing
                 // window, and LP had no LP tokens in the trailing window
-                return;
+                continue;
             }
 
             let historicalDataBetween = sliceHistoricalData(
                 prevSnapshot.timestamp,
                 snapshot.timestamp
             );
+
+
 
             if (historicalDataBetween.length === 0) {
                 // If within the same hour, we can't do anything with graph data
@@ -523,6 +525,8 @@ export async function calculateStatsForPositions(
             }
         );
 
+        console.log('RETURNING', aggregatedStats);
+
         return {
             historicalData: historicalDailyData,
             statsWindows: statsArr,
@@ -532,6 +536,9 @@ export async function calculateStatsForPositions(
 
     // get all entries and map
     const stats = await Promise.all(statsPromises);
+    console.log('THIS IS STATS', stats.length);
+    fs.writeFileSync('stats.json', JSON.stringify(stats, null, 4));
+
     const result = entries.reduce((acc: StatsMapping, [pairId], index) => {
         // We know indices match between stats array and entriess
         const statsForPair = stats[index];

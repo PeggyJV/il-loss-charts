@@ -1,6 +1,5 @@
 import http from 'http';
 import ws from 'ws';
-import logger from 'common/logger';
 import WsMessageHandler from 'ws/message-handler';
 
 export default class WebsocketServer {
@@ -19,10 +18,10 @@ export default class WebsocketServer {
     onConnection(): void {
         this._server.on('connection', (ws, req) => {
             const ip = req.socket.remoteAddress;
-            logger.info(`Client connected: ${ip || 'unknown ip'}`);
+            console.info(`Client connected: ${ip || 'unknown ip'}`);
             this.connections.push(ws);
             this.handlers.push(new WsMessageHandler(ws));
-            ws.on('close', () => logger.info('Client disconnected'));
+            ws.on('close', () => console.info('Client disconnected'));
         });
     }
 }
