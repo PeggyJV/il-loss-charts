@@ -174,11 +174,12 @@ class UniswapController {
             UniswapFetcher.getHistoricalDailyData(pairId, startDate, endDate),
         ]);
 
-        const lpStats = calculateLPStats(
+        const lpStats = calculateLPStats({
             pairData,
-            historicalDailyData,
-            lpLiquidityUSD
-        );
+            dailyData: historicalDailyData,
+            lpShare: lpLiquidityUSD,
+            lpDate: startDate,
+        });
         return lpStats;
     }
 

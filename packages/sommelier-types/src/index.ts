@@ -69,15 +69,31 @@ export interface UniswapMintOrBurn {
     timestamp: string;
 }
 
+export interface StatsOverTime {
+    volumeUSD: BigNumber;
+    liquidityUSD: BigNumber;
+    feesUSD: BigNumber;
+    volumeUSDChange?: BigNumber;
+    liquidityUSDChange?: BigNumber;
+    feesUSDChange?: BigNumber;
+}
+
 export interface LPStats {
     totalFees: BigNumber;
     runningVolume: BigNumber[];
     runningFees: BigNumber[];
     runningImpermanentLoss: BigNumber[];
     runningReturn: BigNumber[];
+    dailyLiquidity: BigNumber[];
     impermanentLoss: BigNumber;
     totalReturn: BigNumber;
     days: string[];
+    totalStats?: StatsOverTime;
+    lastDayStats?: StatsOverTime;
+    prevDayStats?: StatsOverTime;
+    lastWeekStats?: StatsOverTime;
+    prevWeekStats?: StatsOverTime;
+    fullDates?: Date[];
 }
 
 export interface MarketStats extends UniswapPair {
