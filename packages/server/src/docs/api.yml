@@ -262,6 +262,39 @@ paths:
                                         type: array
                                         items: 
                                             $ref: '#/components/schemas/LiquidityPositions'
+    /uniswap/positions/{address}/stats:
+        get:
+            tags:
+                - Uniswap
+                - Sommelier
+            description: Get accumulated stats for all liquidity positinos.
+            parameters:
+                -   in: path
+                    name: address
+                    description: The address of the wallet.
+                    example: "0xf0c683aec313d2e1ef2f6cf2a84214a46526556a"
+                    required: true
+                    schema:
+                        type: string
+            responses:
+                400:
+                    description: Invalid ETH address sent for 'id'.
+                404:
+                    description: No liquidity positions held by the address.
+                200:
+                    description: Returns liquidity position snapshots along with aggregated stats
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: object
+                                        properties: 
+                                          positions:
+                                            $ref: '#/components/schemas/LiquidityPositions'
+                                          stats:
+                                            $ref: '#/components/schemas/LiquidityPositionStats'
     /spec:
         get:
             tags:
@@ -656,6 +689,25 @@ components:
                     type: number
                     example: 1610781226
                     description: The timestamp of the snapshot.
+        LiquidityPositionStats:
+            title: Uniswap Liquidity Position Statistics
+            type: object
+            additionalProperties:
+                type: object
+                required:
+                    - historicalData
+                    - statsWindows
+                    - aggregatedStats
+                properties:
+                    historicalData: 
+                        $ref: '#/components/schemas/UniswapDailyData'
+                    statsWindows: 
+                        type: array
+                        items: 
+                            $ref: '#/components/schemas/LPStatsForPair'
+                    aggregatedStats: 
+                        $ref: '#/components/schemas/LPStatsForPair'
+
     parameters: 
         startDate:
             in: query

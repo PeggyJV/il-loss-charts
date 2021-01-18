@@ -8,7 +8,11 @@ import { UniswapDailyData } from '@sommelier/shared-types';
 import { HTTPError } from 'api/util/errors';
 import wrapRequest from 'api/util/wrap-request';
 import { isValidEthAddress } from 'util/eth';
-import { calculateLPStats, calculateMarketStats } from 'util/calculate-stats';
+import {
+    calculateLPStats,
+    calculateMarketStats,
+    calculateStatsForPositions,
+} from 'util/calculate-stats';
 
 // TODO - caching
 // TODO - wrap controllers
@@ -200,7 +204,20 @@ class UniswapController {
         const liquidityPositions = await UniswapFetcher.getLiquidityPositions(
             userAddress
         );
+
         return liquidityPositions;
+    }
+
+    static async getLiquidityPositionStats(req: Request) {
+        const liquidityPositions = await UniswapController.getLiquidityPositions(
+            req
+        );
+
+        const positionStats = await calculateStatsForPositions(
+            liquidityPositions
+        );
+
+        return { positions: liquidityPositions, stats: positionStats };
     }
 }
 
@@ -241,4 +258,8 @@ export default express
     .get(
         '/positions/:address',
         wrapRequest(UniswapController.getLiquidityPositions)
+    )
+    .get(
+        '/positions/:address/stats',
+        wrapRequest(UniswapController.getLiquidityPositionStats)
     );
