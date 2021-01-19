@@ -499,7 +499,7 @@ export async function calculateStatsForPositions(
         // combine all lp stats for each window into one
         const aggregatedStats = statsArr.reduce(
             (acc: LPStats, currentStats) => {
-                return {
+                const stats: LPStats = {
                     totalFees: acc.totalFees.plus(currentStats.totalFees),
                     runningVolume: acc.runningVolume.concat(
                         ...currentStats.runningVolume
@@ -522,6 +522,12 @@ export async function calculateStatsForPositions(
                         ...currentStats.dailyLiquidity
                     ),
                 };
+
+                if (acc.fullDates && currentStats.fullDates) {
+                    stats.fullDates = acc.fullDates.concat(...currentStats.fullDates);
+                }
+
+                return stats;
             }
         );
 

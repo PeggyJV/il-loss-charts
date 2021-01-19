@@ -26,6 +26,8 @@ const formatter = new Intl.NumberFormat('en-US', {
 });
 
 function LPStatsChart({ lpStats }) {
+    console.log('LP STATS', lpStats);
+
     const chartData = [];
     for (const i in lpStats.days) {
         const runningFee = new BigNumber(lpStats.runningFees[i]).toNumber();

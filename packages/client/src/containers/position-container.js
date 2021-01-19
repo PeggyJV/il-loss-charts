@@ -18,7 +18,7 @@ import { UniswapApiFetcher as Uniswap } from 'services/api';
 
 const mixpanel = new Mixpanel();
 
-function PositionContainer({ wallet, setWallet }) {
+function PositionContainer({ wallet }) {
     // ------------------ Loading State - handles interstitial UI ------------------
 
     const [isLoading, setIsLoading] = useState(false);
@@ -121,6 +121,7 @@ function PositionContainer({ wallet, setWallet }) {
             <Row className='top-stats-row'>
                 <Col lg={8}>
                     <PositionSelector
+                        positionData={positionData}
                         pairs={fullPairs}
                         currentPairId={pairId}
                         setPair={setPairId}
