@@ -25,12 +25,12 @@ function OverviewContainer() {
     useEffect(() => {
         const fetchMarketData = async () => {
             // Fetch all pairs
-            const { data: marketData, errors } = await Uniswap.getMarketData();
+            const { data: marketData, error } = await Uniswap.getMarketData();
 
-            if (errors) {
+            if (error) {
                 // we could not get our market data
-                console.warn(`Could not fetch marekt data: ${errors}`);
-                setError(errors[0]);
+                console.warn(`Could not fetch marekt data: ${error.message}`);
+                setError(error);
                 return;
             }
 
@@ -156,6 +156,8 @@ function MarketDataTable({ data }) {
     );
 }
 
-MarketDataTable.propTypes = { data: PropTypes.arrayOf(MarketData) };
+MarketDataTable.propTypes = {
+    data: PropTypes.arrayOf(MarketData),
+};
 
 export default OverviewContainer;

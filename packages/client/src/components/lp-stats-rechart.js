@@ -9,6 +9,7 @@ import {
     YAxis,
     Tooltip,
 } from 'recharts';
+import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
 import { format } from 'date-fns';
 
@@ -27,17 +28,17 @@ const formatter = new Intl.NumberFormat('en-US', {
 function LPStatsChart({ lpStats }) {
     const chartData = [];
     for (const i in lpStats.days) {
-        const runningFee = lpStats.runningFees[i].toNumber();
-        const runningReturn = lpStats.runningReturn[i].toNumber();
+        const runningFee = new BigNumber(lpStats.runningFees[i]).toNumber();
+        const runningReturn = new BigNumber(lpStats.runningReturn[i]).toNumber();
 
         chartData.push({
             fullDate: lpStats.fullDates[i],
             day: lpStats.days[i],
             runningFee,
             runningReturn,
-            runningImpermanentLoss: lpStats.runningImpermanentLoss[
+            runningImpermanentLoss: new BigNumber(lpStats.runningImpermanentLoss[
                 i
-            ].toNumber(),
+            ]).toNumber(),
             returns: [runningFee, runningReturn],
         });
     }
@@ -118,7 +119,7 @@ function CustomTooltip({ active, payload }) {
         impermanentLoss: payload[0].payload.runningImpermanentLoss,
     };
 
-    const tooltipDate = format(payload[0].payload.fullDate, 'MMMM d, yyyy');
+    const tooltipDate = format(new Date(payload[0].payload.fullDate), 'MMMM d, yyyy');
 
     return (
         <LPStatsWidget title={tooltipDate} lpStats={lpStats} />

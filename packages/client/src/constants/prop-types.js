@@ -77,3 +77,14 @@ export const MarketData = PropTypes.shape({
     returnsETH: PropTypes.number.isRequired,
     pctReturn: PropTypes.number.isRequired,
 });
+
+export const PositionData = PropTypes.shape({
+    liquidityPosition: PropTypes.shape({
+        id: PropTypes.string,
+        liquidityTokenBalance: PropTypes.string
+    }),
+    liquidityTokenBalance: PropTypes.string,
+    liquidityTokenTotalSupply: PropTypes.string,
+    pair: Pair,
+    timestamp: PropTypes.number
+});

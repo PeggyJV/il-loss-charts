@@ -9,6 +9,7 @@ import { Container } from 'react-bootstrap';
 
 import OverviewContainer from 'containers/overview-container';
 import PairContainer from 'containers/pair-container';
+import PositionContainer from 'containers/position-container';
 import SideMenu from 'components/side-menu';
 import ConnectWalletModal from 'components/connect-wallet-modal';
 
@@ -27,16 +28,18 @@ function App() {
     const [currentError, setError] = useState(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
     const [wallet, setWallet] = useState({ account: null, provider: null });
+    const [positionData, setPositionData] = useState({ positions: null, stats: null });
 
     useEffect(() => {
         const fetchAllPairs = async () => {
             // Fetch all pairs
-            const { data: pairsRaw, errors } = await Uniswap.getTopPairs();
+            const { data: pairsRaw, error } = await Uniswap.getTopPairs();
 
-            if (errors) {
+            if (error) {
                 // we could not list pairs
-                console.warn(`Could not fetch top pairs: ${errors}`);
-                setError(errors[0]);
+                console.warn(`Could not fetch top pairs: ${error.message}`);
+                window.error = error;
+                setError(error);
                 return;
             }
 
@@ -88,6 +91,9 @@ function App() {
                         setWallet={setWallet}
                     />
                     <Switch>
+                        <Route path='/positions'>
+                            {positionData && <PositionContainer wallet={wallet} positionData={positionData} />}
+                        </Route>
                         <Route path='/pair'>
                             <PairContainer allPairs={allPairs} />
                         </Route>

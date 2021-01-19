@@ -9,6 +9,5 @@ export default function errorHandler(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     next: NextFunction
 ): void {
-    const errors = [{ message: err.message }];
-    res.status(err.status || 500).json({ errors });
+    res.status(err.status || 500).json({ error: err.message });
 }

@@ -12,6 +12,11 @@ function SideMenu({ setShowConnectWallet, wallet }) {
             <p>
                 <NavLink to='/'>Market Overview</NavLink>
             </p>
+            <p>{wallet?.account ?
+                <NavLink to={`/positions`}>LP Positions</NavLink> :
+                <NavLink to='#' className='disabled-link'>LP Positions</NavLink>
+            }
+            </p>
             <p>
                 <NavLink to='/pair'>IL Calculator</NavLink>
             </p>

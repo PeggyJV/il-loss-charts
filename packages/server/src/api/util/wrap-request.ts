@@ -9,8 +9,7 @@ export default function wrapRequest(
             return res.json({ data: response });
         } catch (err) {
             console.error('Error:', err);
-            const errors = err.errors || [{ message: err.message }];
-            return res.status(err.status || 500).json({ errors });
+            return res.status(err.status || 500).json({ error: err.message });
         }
     };
 }

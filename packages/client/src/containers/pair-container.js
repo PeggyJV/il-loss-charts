@@ -71,16 +71,16 @@ function PairContainer({ allPairs }) {
 
             // Fetch pair overview when pair ID changes
             // Default to createdAt date if LP date not set
-            const { data: newPair, errors } = await Uniswap.getPairOverview(
+            const { data: newPair, error } = await Uniswap.getPairOverview(
                 pairId
             );
 
-            if (errors) {
+            if (error) {
                 // we could not get data for this new pair
                 console.warn(
-                    `Could not fetch pair data for ${pairId}: ${errors}`
+                    `Could not fetch pair data for ${pairId}: ${error.message}`
                 );
-                setError(errors[0]);
+                setError(error);
                 return;
             }
 
@@ -89,15 +89,15 @@ function PairContainer({ allPairs }) {
             // Get historical data for pair from start date until now
             const {
                 data: historicalDailyData,
-                errors: historicalErrors,
+                error: historicalErrors,
             } = await Uniswap.getHistoricalDailyData(pairId, pairCreatedAt);
 
             if (historicalErrors) {
                 // we could not get data for this new pair
                 console.warn(
-                    `Could not fetch historical data for ${pairId}: ${errors}`
+                    `Could not fetch historical data for ${pairId}: ${error.message}`
                 );
-                setError(errors[0]);
+                setError(error);
                 return;
             }
 
@@ -226,21 +226,21 @@ function PairContainer({ allPairs }) {
             // Fetch latest block when pair ID changes
             // Default to createdAt date if LP date not set
             const [
-                { data: latestSwaps, errors: swapsErrors },
-                { data: mintsAndBurns, errors: mintBurnErrors },
+                { data: latestSwaps, error: swapsErrors },
+                { data: mintsAndBurns, error: mintBurnErrors },
             ] = await Promise.all([
                 Uniswap.getLatestSwaps(pairId),
                 Uniswap.getMintsAndBurns(pairId),
             ]);
 
-            const errors = swapsErrors ?? mintBurnErrors;
+            const error = swapsErrors ?? mintBurnErrors;
 
-            if (errors) {
+            if (error) {
                 // we could not get data for this new pair
                 console.warn(
-                    `Could not fetch trades data for ${pairId}: ${errors}`
+                    `Could not fetch trades data for ${pairId}: ${error.messages}`
                 );
-                setError(errors[0]);
+                setError(error);
                 return;
             }
 
@@ -344,7 +344,7 @@ function PairContainer({ allPairs }) {
 }
 
 PairContainer.propTypes = {
-    allPairs: PropTypes.shape({ pairs: PropTypes.arrayOf(Pair) }),
+    allPairs: PropTypes.shape({ pairs: PropTypes.arrayOf(Pair) })
 };
 
 export default PairContainer;

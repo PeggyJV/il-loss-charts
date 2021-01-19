@@ -525,8 +525,6 @@ export async function calculateStatsForPositions(
             }
         );
 
-        console.log('RETURNING', aggregatedStats);
-
         return {
             historicalData: historicalDailyData,
             statsWindows: statsArr,
@@ -536,8 +534,6 @@ export async function calculateStatsForPositions(
 
     // get all entries and map
     const stats = await Promise.all(statsPromises);
-    console.log('THIS IS STATS', stats.length);
-    fs.writeFileSync('stats.json', JSON.stringify(stats, null, 4));
 
     const result = entries.reduce((acc: StatsMapping, [pairId], index) => {
         // We know indices match between stats array and entriess

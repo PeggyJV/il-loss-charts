@@ -272,6 +272,17 @@ body {
     list-style-type: none;
 }
 
+.disabled-link {
+    color: gray;
+    cursor: initial;
+}
+
+.disabled-link:hover {
+    color: gray;
+    cursor: initial;
+    text-decoration: none;
+}
+
 .il-market-container {
     height: 45em;
     overflow: scroll;
