@@ -117,39 +117,28 @@ function PositionContainer({ wallet, setWallet }) {
 
     return (
         <Container fluid>
-            <Header />
             <TelegramCTA />
-            <Row noGutters>
-                <Col lg={10}>
-                    <Row className='top-stats-row'>
-                        <Col lg={4}>
-                            {/* <PositionSelector
-                                pairs={fullPairs}
-                                currentPairId={pairId}
-                                setPair={setPairId}
-                                isLoading={isLoading}
-                            /> */}
-                        </Col>
-                        <Col lg={8}>
-                            {/* <TotalPositionStats
+            <Row className='top-stats-row'>
+                <Col lg={8}>
+                    <PositionSelector
+                        pairs={fullPairs}
+                        currentPairId={pairId}
+                        setPair={setPairId}
+                        isLoading={isLoading}
+                    />
+                </Col>
+                <Col lg={8}>
+                    {/* <TotalPositionStats
                                 allPairs={allPairs}
                                 lpInfo={lpInfo}
                                 lpStats={lpStats}
                             /> */}
-                        </Col>
-                    </Row>
-                    <Row noGutters>
-                        <Col lg={9}>
-                            {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
-                            <LPStatsChart lpStats={currentStats} />
-                        </Col>
-                    </Row>
                 </Col>
-                <Col lg={2}>
-                    {/* <LPSnapshotsTable /> */}
-                    <LPStatsWidget
-                        lpStats={currentStats}
-                    />
+            </Row>
+            <Row noGutters>
+                <Col>
+                    {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
+                    <LPStatsChart lpStats={currentStats} />
                 </Col>
             </Row>
         </Container>
