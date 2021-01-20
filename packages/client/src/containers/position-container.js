@@ -26,13 +26,6 @@ function PositionContainer({ wallet }) {
     // TODO sort position by volume
     const [pairId, setPairId] = useState(positionData?.positions ? Object.keys(positionData.positions)[0] : null);
 
-    // Keep track of previous pair ID so we can unsubscribe
-    const prevPairIdRef = useRef();
-    useEffect(() => {
-        prevPairIdRef.current = pairId;
-    });
-    const prevPairId = prevPairIdRef.current;
-
     // const currentPosition = positions[pairId];
     window.positionData = positionData;
     const currentStats = pairId ? positionData.stats?.[pairId].aggregatedStats : null;

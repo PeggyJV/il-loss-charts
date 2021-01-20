@@ -1,8 +1,9 @@
 // Import Bootstrap and its default variables
 @import '~bootstrap/scss/bootstrap.scss';
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;400;500;700&display=swap');
 
 body {
-    font-family: 'Lucida Grande', Helvetica, Arial, sans-serif;
+    font-family: 'Noto Sans JP', sans-serif;
 }
 
 .wine-bounce {
@@ -70,7 +71,7 @@ body {
 }
 
 .app-body {
-    width: 100%;
+    max-width: calc(100% - 250px);
     padding: 1em;
 }
 
@@ -251,37 +252,8 @@ body {
     text-overflow: ellipsis;
 }
 
-.side-menu {
-    background-color: #eeeeee;
-    padding: 1em;
-}
-
-.side-menu-title {
-    font-weight: 700;
-}
-
 .app {
     display: flex;
-}
-
-.side-menu {
-    min-height: 100vh;
-    height: 100%;
-}
-
-.side-menu-list {
-    list-style-type: none;
-}
-
-.disabled-link {
-    color: gray;
-    cursor: initial;
-}
-
-.disabled-link:hover {
-    color: gray;
-    cursor: initial;
-    text-decoration: none;
 }
 
 .il-market-container {

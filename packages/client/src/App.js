@@ -93,14 +93,14 @@ function App() {
 
     return (
         <Router>
-            <div className='app'>
-                <div className='side-menu'>
+            <div className='app' id='app-wrap'>
+                <div className='side-menu-wrapper'>
                     <SideMenu
                         setShowConnectWallet={setShowConnectWallet}
                         wallet={wallet}
                     />
                 </div>
-                <div className='app-body'>
+                <div className='app-body' id='app-body'>
                     <ConnectWalletModal
                         show={showConnectWallet}
                         setShow={setShowConnectWallet}

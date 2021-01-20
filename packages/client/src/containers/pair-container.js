@@ -94,7 +94,7 @@ function PairContainer({ allPairs }) {
             if (historicalErrors) {
                 // we could not get data for this new pair
                 console.warn(
-                    `Could not fetch historical data for ${pairId}: ${error.message}`
+                    `Could not fetch historical data for ${pairId}: ${historicalErrors.message}`
                 );
                 setError(error);
                 return;
