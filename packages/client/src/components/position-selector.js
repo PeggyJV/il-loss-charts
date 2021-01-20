@@ -65,27 +65,32 @@ function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionDa
         );
     };
 
+    const renderPairText = (pair) => {
+        if (typeof pair === 'string') return pair;
+        return `${pair.token0.symbol}/${pair.token1.symbol} (${getPositionText(pair)})`;
+    }
+
     return (
         <Card className='pair-selector-card'>
             <Card.Body>
                 <Card.Title className='stats-card-title'>Open and Closed Positions</Card.Title>
                 <div className='pair-selector-container'>
-                    {isLoading && (
-                        <div className='wine-spin pair-selector-separator'>
-                            🍷
-                        </div>
-                    )}
                     <Combobox
                         className='pair-selector'
                         data={pairs}
-                        value={currentValue}
-                        textField={(pair) => `${pair.token0.symbol}/${pair.token1.symbol}`}
+                        textField={renderPairText}
                         itemComponent={renderPair}
+                        value={defaultValue}
                         defaultValue={defaultValue}
                         filter='contains'
                         caseSensitive={false}
                         onChange={setCurrentValue}
                     />
+                    {isLoading && (
+                        <div className='wine-spin pair-selector-separator'>
+                            🍷
+                        </div>
+                    )}
                 </div>
             </Card.Body>
         </Card >

@@ -7,6 +7,8 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 
+import Cookies from 'universal-cookie';
+
 import OverviewContainer from 'containers/overview-container';
 import PairContainer from 'containers/pair-container';
 import PositionContainer from 'containers/position-container';
@@ -18,8 +20,24 @@ import { calculatePairRankings } from 'services/calculate-stats';
 
 import initialData from 'constants/initialData.json';
 
+const cookies = new Cookies();
+
 function App() {
     // ------------------ Initial Mount - API calls for first render ------------------
+
+    // Try to read wallet from cookies
+    const walletFromCookie = cookies.get('current_wallet');
+
+    let initialWalletState;
+    if (walletFromCookie && walletFromCookie.account && walletFromCookie.provider) {
+        initialWalletState = walletFromCookie;
+    } else {
+        if (walletFromCookie) {
+            console.warn(`Tried to load wallet from cookie, but it was not correctly formed.`);
+        }
+
+        initialWalletState = { account: null, provider: null };
+    }
 
     const [allPairs, setAllPairs] = useState({
         isLoading: true,
@@ -27,8 +45,7 @@ function App() {
     });
     const [currentError, setError] = useState(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
-    const [wallet, setWallet] = useState({ account: null, provider: null });
-    const [positionData, setPositionData] = useState({ positions: null, stats: null });
+    const [wallet, setWallet] = useState(initialWalletState);
 
     useEffect(() => {
         const fetchAllPairs = async () => {
@@ -92,7 +109,7 @@ function App() {
                     />
                     <Switch>
                         <Route path='/positions'>
-                            {positionData && <PositionContainer wallet={wallet} positionData={positionData} />}
+                            <PositionContainer wallet={wallet} />
                         </Route>
                         <Route path='/pair'>
                             <PairContainer allPairs={allPairs} />

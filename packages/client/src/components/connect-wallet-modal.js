@@ -1,5 +1,8 @@
 import PropTypes from 'prop-types';
 import { Button, Modal } from 'react-bootstrap';
+import Cookies from 'universal-cookie';
+
+const cookies = new Cookies();
 
 function ConnectWalletModal({ show, setShow, setWallet, wallet }) {
     const handleClose = () => setShow(false);
@@ -13,15 +16,19 @@ function ConnectWalletModal({ show, setShow, setWallet, wallet }) {
         });
         const [account] = accounts;
         setWallet({ account, provider: 'metamask' });
+        // Save wallet in cookie so it says on reload, with 24h ttl
+        cookies.set('current_wallet', { account, provider: 'metamask' }, { expires: new Date(Date.now() + 1000 * 60 * 60 * 24) });
 
         ethereum.on('accountsChanged', (accounts) => {
             const [account] = accounts;
             setWallet({ account, provider: 'metamask' });
+            cookies.set('current_wallet', { account, provider: 'metamask' }, { expires: new Date(Date.now() + 1000 * 60 * 60 * 24) });
         });
     };
 
     const disconnectWallet = () => {
         setWallet({ account: null, provider: null });
+        cookies.remove('current_wallet');
     };
 
     const titleText = wallet?.account

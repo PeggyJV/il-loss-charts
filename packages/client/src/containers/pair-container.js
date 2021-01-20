@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import { Pair } from 'constants/prop-types';
 import Mixpanel from 'util/mixpanel';
 
-import Header from 'components/header';
 import PairSelector from 'components/pair-selector';
 import LPInput from 'components/lp-input';
 import LPStatsWidget from 'components/lp-stats-widget';
@@ -287,7 +286,7 @@ function PairContainer({ allPairs }) {
 
     return (
         <Container fluid>
-            <Header />
+            <h4>Impermanent Loss Calculator</h4>
             <TelegramCTA />
             <Row noGutters>
                 <Col lg={10}>

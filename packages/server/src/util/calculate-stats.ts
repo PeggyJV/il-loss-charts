@@ -393,7 +393,7 @@ export async function calculateStatsForPositions(
         let endDate: Date;
 
         // TODO: Figure out if we should also fetch current stats
-        // let fetchCurrent = false;
+        let fetchCurrent = false;
 
         if (new BigNumber(lastSnapshot.liquidityTokenBalance).isZero()) {
             // position is closed, so calculate up until last day
@@ -401,7 +401,7 @@ export async function calculateStatsForPositions(
         } else {
             // Position is still open, so calculate up until now
             endDate = new Date();
-            // fetchCurrent = true;
+            fetchCurrent = true;
         }
 
         // get historical data
@@ -452,10 +452,9 @@ export async function calculateStatsForPositions(
                 snapshot.timestamp
             );
 
-
-
-            if (historicalDataBetween.length === 0) {
-                // If within the same hour, we can't do anything with graph data
+            if (historicalDataBetween.length < 2) {
+                // If within the same day, we can't do anything with graph data
+                // So try to get hourlies - if within the same hour, we can't get data
                 const hourlyStartDate = new Date(prevSnapshot.timestamp * 1000);
                 const hourlyEndDate = new Date(snapshot.timestamp * 1000);
                 historicalDataBetween = await UniswapFetcher.getHourlyData(
@@ -496,40 +495,99 @@ export async function calculateStatsForPositions(
             statsArr.push(lpStats);
         }
 
-        // combine all lp stats for each window into one
-        const aggregatedStats = statsArr.reduce(
-            (acc: LPStats, currentStats) => {
-                const stats: LPStats = {
-                    totalFees: acc.totalFees.plus(currentStats.totalFees),
-                    runningVolume: acc.runningVolume.concat(
-                        ...currentStats.runningVolume
-                    ),
-                    runningFees: acc.runningFees.concat(
-                        ...currentStats.runningFees
-                    ),
-                    runningImpermanentLoss: acc.runningImpermanentLoss.concat(
-                        ...currentStats.runningImpermanentLoss
-                    ),
-                    runningReturn: acc.runningReturn.concat(
-                        ...currentStats.runningReturn
-                    ),
-                    impermanentLoss: acc.impermanentLoss.plus(
-                        currentStats.impermanentLoss
-                    ),
-                    totalReturn: acc.totalReturn.plus(currentStats.totalReturn),
-                    days: acc.days.concat(...currentStats.days),
-                    dailyLiquidity: acc.dailyLiquidity.concat(
-                        ...currentStats.dailyLiquidity
-                    ),
-                };
+        if (fetchCurrent) {
+            const prevSnapshot = positionSnapshots[positionSnapshots.length - 1];
 
-                if (acc.fullDates && currentStats.fullDates) {
-                    stats.fullDates = acc.fullDates.concat(...currentStats.fullDates);
+            // also calculate final window until now
+            let historicalDataBetween = sliceHistoricalData(
+                prevSnapshot.timestamp,
+                Math.floor(endDate.getTime() / 1000)
+            );
+
+            if (historicalDataBetween.length < 2) {
+                // If within the same day, we can't do anything with graph data
+                // So try to get hourlies - if within the same hour, we can't get data
+                const hourlyStartDate = new Date(prevSnapshot.timestamp * 1000);
+                const hourlyEndDate = endDate;
+                historicalDataBetween = await UniswapFetcher.getHourlyData(
+                    pairId,
+                    hourlyStartDate,
+                    hourlyEndDate
+                );
+
+                // We can't do anything here, it's within the same hour
+                // TODO: Look into augmenting subgraph for 5m increments
+                // (requires connecting to cloud SQL and modifying subgraph)
+            }
+
+            if (historicalDataBetween.length > 1) {
+                let lpStats: LPStats;
+                const lpLiquidityUSD = calculateUSDLiquidity(prevSnapshot);
+
+                // Calculate stats for historical data window
+                // Get starting liquidity from previous snapshot
+                if (isDailyDataList(historicalDataBetween)) {
+                    lpStats = calculateLPStats({
+                        dailyData: historicalDataBetween,
+                        lpShare: lpLiquidityUSD.toNumber(),
+                        lpDate: new Date(prevSnapshot.timestamp * 1000),
+                    });
+                } else if (isHourlyDataList(historicalDataBetween)) {
+                    lpStats = calculateLPStats({
+                        hourlyData: historicalDataBetween,
+                        lpShare: lpLiquidityUSD.toNumber(),
+                        lpDate: new Date(prevSnapshot.timestamp * 1000),
+                    });
+                } else {
+                    throw new Error(
+                        'Could not determine if historical data is daily or hourly'
+                    );
                 }
 
-                return stats;
+                statsArr.push(lpStats);
             }
-        );
+        }
+
+        let aggregatedStats: LPStats;
+
+        if (statsArr.length < 2) {
+            aggregatedStats = statsArr[0];
+        } else {
+            // combine all lp stats for each window into one
+            aggregatedStats = statsArr.reduce(
+                (acc: LPStats, currentStats) => {
+                    const stats: LPStats = {
+                        totalFees: acc.totalFees.plus(currentStats.totalFees),
+                        runningVolume: acc.runningVolume.concat(
+                            ...currentStats.runningVolume
+                        ),
+                        runningFees: acc.runningFees.concat(
+                            ...currentStats.runningFees
+                        ),
+                        runningImpermanentLoss: acc.runningImpermanentLoss.concat(
+                            ...currentStats.runningImpermanentLoss
+                        ),
+                        runningReturn: acc.runningReturn.concat(
+                            ...currentStats.runningReturn
+                        ),
+                        impermanentLoss: acc.impermanentLoss.plus(
+                            currentStats.impermanentLoss
+                        ),
+                        totalReturn: acc.totalReturn.plus(currentStats.totalReturn),
+                        days: acc.days.concat(...currentStats.days),
+                        dailyLiquidity: acc.dailyLiquidity.concat(
+                            ...currentStats.dailyLiquidity
+                        ),
+                    };
+
+                    if (acc.fullDates && currentStats.fullDates) {
+                        stats.fullDates = acc.fullDates.concat(...currentStats.fullDates);
+                    }
+
+                    return stats;
+                }
+            );
+        }
 
         return {
             historicalData: historicalDailyData,

@@ -1,17 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { PositionData, DailyData, HourlyData, LPStats } from 'constants/prop-types';
 import Mixpanel from 'util/mixpanel';
 
-import Header from 'components/header';
 import PositionSelector from 'components/position-selector';
-import LPInput from 'components/lp-input';
-import LPStatsWidget from 'components/lp-stats-widget';
 import LPStatsChart from 'components/lp-stats-rechart';
-import LatestTradesSidebar from 'components/latest-trades-sidebar';
-import TotalPoolStats from 'components/total-pool-stats';
+import USDValueWidget from 'components/usd-value-widget';
 import TelegramCTA from 'components/telegram-cta';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
@@ -117,9 +111,10 @@ function PositionContainer({ wallet }) {
 
     return (
         <Container fluid>
+            <h4>LP Positions on Uniswap</h4>
             <TelegramCTA />
             <Row className='top-stats-row'>
-                <Col lg={8}>
+                <Col lg={3}>
                     <PositionSelector
                         positionData={positionData}
                         pairs={fullPairs}
@@ -129,11 +124,20 @@ function PositionContainer({ wallet }) {
                     />
                 </Col>
                 <Col lg={8}>
-                    {/* <TotalPositionStats
-                                allPairs={allPairs}
-                                lpInfo={lpInfo}
-                                lpStats={lpStats}
-                            /> */}
+                    <div className='pool-stats-container'>
+                        <USDValueWidget
+                            title={'Fees Earned'}
+                            value={positionData.stats[pairId].aggregatedStats.totalFees}
+                        />
+                        <USDValueWidget
+                            title={'Impermanent Loss'}
+                            value={positionData.stats[pairId].aggregatedStats.impermanentLoss}
+                        />
+                        <USDValueWidget
+                            title={'Total Return'}
+                            value={positionData.stats[pairId].aggregatedStats.totalReturn}
+                        />
+                    </div>
                 </Col>
             </Row>
             <Row noGutters>
