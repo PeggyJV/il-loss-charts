@@ -71,8 +71,12 @@ Note: Beware of modifying this element as it can break the animations - you shou
     outline: none;
 }
 
+.bm-item svg {
+    margin-right: 1em;
+}
+
 .bm-item.side-menu-link a {
-    font-weight: 400;
+    font-weight: 500;
     font-size: 1rem;
     color: #555555;
 }
