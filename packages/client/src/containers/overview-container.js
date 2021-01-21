@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import { Card, Container } from 'react-bootstrap';
+import { Link, useHistory } from 'react-router-dom';
+import { Container } from 'react-bootstrap';
 import BootstrapTable from 'react-bootstrap-table-next';
 import BigNumber from 'bignumber.js';
 import { MarketData } from 'constants/prop-types';
@@ -68,14 +68,18 @@ function OverviewContainer() {
 }
 
 function MarketDataTable({ data }) {
+    const history = useHistory();
+
     const formatPair = ({ id, token0, token1 }) => {
         return (
             <span>
                 {resolveLogo(token0.id)}{' '}
-                <Link to={`/pair?id=${id}`}>
-                    {token0.symbol}/{token1.symbol}
-                </Link>{' '}
-                {resolveLogo(token1.id)}
+                <span className='market-data-pair-span'>
+                    <Link to={`/pair?id=${id}`}>
+                        {token0.symbol}/{token1.symbol}
+                    </Link>
+                </span>
+                {' '}{resolveLogo(token1.id)}
             </span>
         );
     };
@@ -141,18 +145,25 @@ function MarketDataTable({ data }) {
         }));
     window.sortedIL = sortedIl;
 
+    const onRowClick = (e, pair) => {
+        history.push(`/pair?id=${pair.id}`)
+    }
+
     return (
         <>
             <hr />
             <div className='il-market-container'>
                 <BootstrapTable
                     headerClasses='market-data-table-header'
+                    rowClasses='market-data-table-row'
                     keyField='index'
                     data={sortedIl}
                     columns={columns}
                     rowStyle={{ borderLeft: 0, borderRight: 0 }}
                     bordered={false}
                     condensed={true}
+                    rowEvents={{ onClick: onRowClick }}
+                    hover
                 />
             </div>
         </>
@@ -160,7 +171,7 @@ function MarketDataTable({ data }) {
 }
 
 MarketDataTable.propTypes = {
-    data: PropTypes.arrayOf(MarketData),
+    data: PropTypes.arrayOf(MarketData)
 };
 
 export default OverviewContainer;

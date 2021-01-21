@@ -72,7 +72,7 @@ body {
 
 .app-body {
     max-width: calc(100% - 250px);
-    padding: 1em;
+    padding: 2em;
 }
 
 .page-title {
@@ -99,6 +99,14 @@ body {
 
 .market-data-table-header th {
     border-top: 0;
+}
+
+.market-data-table-row:hover {
+    cursor: pointer;
+}
+
+.market-data-pair-span {
+    font-weight: 500;
 }
 
 .pair-selector {
