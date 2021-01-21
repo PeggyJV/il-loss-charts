@@ -142,17 +142,20 @@ function MarketDataTable({ data }) {
     window.sortedIL = sortedIl;
 
     return (
-        <Card body className='il-market-container'>
-            <BootstrapTable
-                keyField='index'
-                data={sortedIl}
-                columns={columns}
-                rowStyle={{ borderLeft: 0, borderRight: 0 }}
-                bordered={false}
-                condensed={true}
-                striped
-            />
-        </Card>
+        <>
+            <hr />
+            <div className='il-market-container'>
+                <BootstrapTable
+                    headerClasses='market-data-table-header'
+                    keyField='index'
+                    data={sortedIl}
+                    columns={columns}
+                    rowStyle={{ borderLeft: 0, borderRight: 0 }}
+                    bordered={false}
+                    condensed={true}
+                />
+            </div>
+        </>
     );
 }
 

@@ -97,6 +97,10 @@ body {
     border: 0;
 }
 
+.market-data-table-header th {
+    border-top: 0;
+}
+
 .pair-selector {
     width: calc(100% - 42px);
 }
