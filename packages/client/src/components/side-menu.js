@@ -5,6 +5,7 @@ import ConnectWalletButton from 'components/connect-wallet-button';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartArea, faHandHoldingUsd, faSearchDollar } from '@fortawesome/free-solid-svg-icons';
+import { faTelegram } from '@fortawesome/free-brands-svg-icons';
 
 import 'styles/burger-menu.scss';
 
@@ -21,6 +22,9 @@ function SideMenu({ setShowConnectWallet, wallet }) {
             outerContainerId='app-wrap'
         >
             <h5 className='side-menu-title'>sommelier.finance</h5>
+            <div>
+                <ConnectWalletButton onClick={showModal} wallet={wallet} />
+            </div>
             <p className='side-menu-link'>
                 <NavLink to='/'>
                     <FontAwesomeIcon icon={faChartArea} />
@@ -44,12 +48,13 @@ function SideMenu({ setShowConnectWallet, wallet }) {
                     {' '}IL Calculator
                 </NavLink>
             </p>
-            <div>
-                <ConnectWalletButton onClick={showModal} wallet={wallet} />
-            </div>
             <hr />
             <h6>
-                <a href='https://t.me/getsomm'>Join the Community</a>
+                <a href='https://t.me/getsomm'>
+                    <FontAwesomeIcon icon={faTelegram} />
+                    {' '}
+                    Join the Community
+                </a>
             </h6>
         </Menu>
     );

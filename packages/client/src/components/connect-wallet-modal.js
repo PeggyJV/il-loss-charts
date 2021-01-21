@@ -2,6 +2,8 @@ import PropTypes from 'prop-types';
 import { Button, Modal } from 'react-bootstrap';
 import Cookies from 'universal-cookie';
 
+import { ReactComponent as MetamaskLogo } from 'styles/metamask-logo.svg';
+
 const cookies = new Cookies();
 
 function ConnectWalletModal({ show, setShow, setWallet, wallet }) {
@@ -38,15 +40,16 @@ function ConnectWalletModal({ show, setShow, setWallet, wallet }) {
     return (
         <Modal show={show} onHide={handleClose}>
             <Modal.Header className='connect-wallet-modal-header' closeButton>
-                <Modal.Title>{titleText}</Modal.Title>
+                <Modal.Title className='connect-wallet-modal-title'>{titleText}</Modal.Title>
             </Modal.Header>
             <Modal.Body className='connect-wallet-modal'>
                 <Button
+                    className='connect-wallet-modal-option'
                     variant='outline-secondary'
                     disabled={!hasMetamask}
                     onClick={connectMetaMask}
                 >
-                    Metamask
+                    <MetamaskLogo />
                 </Button>
             </Modal.Body>
             {wallet && (

@@ -239,17 +239,22 @@ body {
     justify-content: space-around;
 }
 
-.connect-wallet-modal-header {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;    
-}
-
-.connect-wallet-button {
-    width: 10em;
+.connect-wallet-modal-title {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    font-size: 1.2rem;
+}
+
+.connect-wallet-button {
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.connect-wallet-modal-option svg {
+    width: 10em;
 }
 
 .app {

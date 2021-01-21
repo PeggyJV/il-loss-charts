@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 
 function ConnectWalletButton({ onClick, wallet }) {
     const account = wallet?.account;
-    const buttonText = account || 'Connect Wallet';
+    const buttonText = account ? `Connected: ${account}` : 'Connect Wallet';
+    const buttonVariant = account ? 'success' : 'primary';
 
     return (
         <>
             <Button
-                variant='primary'
+                variant={buttonVariant}
                 size='sm'
                 className='connect-wallet-button'
                 onClick={onClick}
