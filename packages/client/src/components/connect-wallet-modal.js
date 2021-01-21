@@ -43,6 +43,7 @@ function ConnectWalletModal({ show, setShow, setWallet, wallet }) {
                 <Modal.Title className='connect-wallet-modal-title'>{titleText}</Modal.Title>
             </Modal.Header>
             <Modal.Body className='connect-wallet-modal'>
+                <p className='centered'>Choose a wallet provider to connect with.</p>
                 <Button
                     className='connect-wallet-modal-option'
                     variant='outline-secondary'
