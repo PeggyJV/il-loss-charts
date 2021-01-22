@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Card } from 'react-bootstrap';
+import { Button, Card, CardDeck } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
 import { Pair, DailyData, LPStats } from 'constants/prop-types';
@@ -44,6 +44,7 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }) {
 
     return (
         <div className='pool-stats-container'>
+            {/* <CardDeck> */}
             <USDValueWidget
                 title={`${prefix} USD Volume`}
                 badge={`#${allPairs.lookups[lpInfo.pairData.id].volumeRanking}`}
@@ -88,7 +89,7 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }) {
                     onClick={() => handleSetWindow('day')}
                 >
                     24H
-                </Button>
+                    </Button>
                 <Button
                     variant={window === 'week' ? 'primary' : 'outline-primary'}
                     size='sm'
@@ -96,9 +97,10 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }) {
                     onClick={() => handleSetWindow('week')}
                 >
                     7D
-                </Button>
+                    </Button>
             </Card>
-        </div>
+            {/* </CardDeck> */}
+        </div >
     );
 }
 

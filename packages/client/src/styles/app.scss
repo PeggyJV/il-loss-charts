@@ -213,6 +213,10 @@ body {
     justify-content: space-evenly;
 }
 
+.window-button-card .card-body {
+    text-align: right;
+}
+
 .pool-stats-container {
     display: flex;
     flex-wrap: wrap;
@@ -232,7 +236,9 @@ body {
 
 .window-button {
     flex: 1;
-    width: 5em;
+    width: 4em;
+    margin-bottom: 0.5em;
+    font-size: 0.8em;
     text-align: center;
 }
 
