@@ -170,13 +170,11 @@ body {
 }
 
 .loading-container {
-    margin-top: 10em;
-    position: fixed;
     width: 10%;
-    left: 45%;
+    margin-top: 10em;
+    align-self: center;
     // opacity: 0.7;
     background-color: #ffffff;
-    text-align: center;
 }
 
 .stats-card-title {
