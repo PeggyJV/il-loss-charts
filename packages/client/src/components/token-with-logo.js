@@ -3,7 +3,6 @@ import { Pair } from 'constants/prop-types';
 
 const TokenWithLogo = (side) => {
     const TokenOnGivenSide = ({ item: pair }, logoPosition = 'left') => {
-        console.log('THIS IS PAIR', pair);
         let token;
 
         if (side === 'left') token = pair.token0;

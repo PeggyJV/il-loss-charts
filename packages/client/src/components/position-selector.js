@@ -1,22 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Card, InputGroup } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import { Combobox } from 'react-widgets';
 import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
 
 import { Pair, PositionData, LPStats, DailyData, HourlyData } from 'constants/prop-types';
+import { formatUSD } from 'util/formats';
 
 import TokenWithLogo from 'components/token-with-logo';
-import LPStatsChart from './lp-stats-rechart';
-
-const formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-
-    // These options are needed to round to whole numbers if that's what you want.
-    //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-    //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
-});
 
 function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionData }) {
     let defaultValue;
@@ -49,7 +40,7 @@ function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionDa
             // determine USD value of position
             const poolShare = tokenBalance.div(new BigNumber(mostRecentPosition.liquidityTokenTotalSupply));
             const usdValue = new BigNumber(mostRecentPosition.reserveUSD).times(poolShare).toNumber();
-            return formatter.format(usdValue);
+            return formatUSD(usdValue);
         }
     };
 

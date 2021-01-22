@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import Mixpanel from 'util/mixpanel';
@@ -6,7 +6,7 @@ import Mixpanel from 'util/mixpanel';
 import PositionSelector from 'components/position-selector';
 import LPStatsChart from 'components/lp-stats-rechart';
 import USDValueWidget from 'components/usd-value-widget';
-import TelegramCTA from 'components/telegram-cta';
+import PositionsTable from 'components/positions-table';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 
@@ -105,9 +105,11 @@ function PositionContainer({ wallet }) {
     return (
         <Container fluid>
             <h4>LP Positions on Uniswap</h4>
-            <TelegramCTA />
+            <hr />
+            <PositionsTable positionData={positionData} />
+            <hr />
             <Row className='top-stats-row'>
-                <Col lg={3}>
+                <Col lg={4}>
                     <PositionSelector
                         positionData={positionData}
                         pairs={fullPairs}
@@ -134,7 +136,7 @@ function PositionContainer({ wallet }) {
                 </Col>
             </Row>
             <Row noGutters>
-                <Col>
+                <Col lg={12}>
                     {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
                     <LPStatsChart lpStats={currentStats} />
                 </Col>

@@ -12,15 +12,7 @@ import {
 } from 'victory';
 
 import { LPStats } from 'constants/prop-types';
-
-const formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-
-    // These options are needed to round to whole numbers if that's what you want.
-    //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-    //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
-});
+import { formatUSD } from 'util/formats';
 
 function formatTooltipText({
     runningFee,
@@ -30,9 +22,9 @@ function formatTooltipText({
 }) {
     return [
         `${day}`,
-        `Total Fees: ${formatter.format(runningFee)}`,
-        `Impermanent Loss: ${formatter.format(runningImpermanentLoss)}`,
-        `Total Return: ${formatter.format(runningReturn)}`,
+        `Total Fees: ${formatUSD(runningFee)}`,
+        `Impermanent Loss: ${formatUSD(runningImpermanentLoss)}`,
+        `Total Return: ${formatUSD(runningReturn)}`,
     ].join('\n');
 }
 
@@ -97,7 +89,7 @@ function LPStatsChart({ lpStats }) {
                     tickLabelComponent={
                         <VictoryLabel dx={18} textAnchor='start' />
                     }
-                    tickFormat={(t) => formatter.format(t)}
+                    tickFormat={formatUSD}
                     style={{
                         ticks: { size: 0 },
                         tickLabels: { fontSize: 11 },

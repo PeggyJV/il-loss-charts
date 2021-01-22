@@ -1,17 +1,10 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { MintOrBurn, Swap } from 'constants/prop-types';
 import { Card, ListGroup, Button } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 
-const formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-
-    // These options are needed to round to whole numbers if that's what you want.
-    //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-    //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
-});
+import { MintOrBurn, Swap } from 'constants/prop-types';
+import { formatUSD } from 'util/formats';
 
 function LatestTradeSidebar({ latestSwaps }) {
     const [mode, setMode] = useState('swaps');
@@ -109,7 +102,7 @@ function MintBurnInfo({ action }) {
         }/${new BigNumber(action.amount1).toFixed(3)} ${action.pair.token1.symbol}`;
     return (
         <ListGroup.Item className='sidebar-item'>
-            {icon} {actionName} {formatter.format(action.amountUSD)} (
+            {icon} {actionName} {formatUSD(action.amountUSD)} (
             {pairAmounts})
         </ListGroup.Item>
     );

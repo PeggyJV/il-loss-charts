@@ -15,15 +15,7 @@ import { format } from 'date-fns';
 
 import LPStatsWidget from 'components/lp-stats-widget';
 import { LPStats } from 'constants/prop-types';
-
-const formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-
-    // These options are needed to round to whole numbers if that's what you want.
-    //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-    //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
-});
+import { formatUSD } from 'util/formats';
 
 function LPStatsChart({ lpStats }) {
     const chartData = [];
@@ -146,7 +138,7 @@ function YAxisTick({ x, y, stroke = 'none', payload }) {
                 fontSize='0.8rem'
             >
                 <tspan dx='15' dy='0.355em'>
-                    {formatter.format(payload.value)}
+                    {formatUSD(payload.value)}
                 </tspan>
             </text>
         </g>
