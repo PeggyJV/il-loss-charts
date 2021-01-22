@@ -3,10 +3,11 @@ import { Container, Row, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import Mixpanel from 'util/mixpanel';
 
-import PositionSelector from 'components/position-selector';
+// import PositionSelector from 'components/position-selector';
 import LPStatsChart from 'components/lp-stats-rechart';
 import USDValueWidget from 'components/usd-value-widget';
 import PositionsTable from 'components/positions-table';
+import { resolveLogo } from 'components/token-with-logo';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 
@@ -28,8 +29,10 @@ function PositionContainer({ wallet }) {
 
     // const currentPosition = positions[pairId];
     window.positionData = positionData;
+    window.pairId = pairId;
     const currentStats = pairId ? positionData.stats?.[pairId].aggregatedStats : null;
-    const fullPairs = positionData.positions ? Object.values(positionData.positions).map((positionSnapshots) => positionSnapshots[0].pair) : [];
+    // const fullPairs = positionData.positions ? Object.values(positionData.positions).map((positionSnapshots) => positionSnapshots[0].pair) : [];
+    const pair = positionData.positions && pairId ? positionData.positions[pairId][0].pair : null;
 
     // ------------------ Position State - fetches LP-specific position data ------------------
 
@@ -106,17 +109,15 @@ function PositionContainer({ wallet }) {
         <Container fluid>
             <h4>LP Positions on Uniswap</h4>
             <hr />
-            <PositionsTable positionData={positionData} />
+            <PositionsTable positionData={positionData} pairId={pairId} setPairId={setPairId} />
             <hr />
             <Row className='top-stats-row'>
-                <Col lg={4}>
-                    <PositionSelector
-                        positionData={positionData}
-                        pairs={fullPairs}
-                        currentPairId={pairId}
-                        setPair={setPairId}
-                        isLoading={isLoading}
-                    />
+                <Col lg={4} className='pair-text-large'>
+                    <span>
+                        {resolveLogo(pair.token0.id)}{' '}
+                        {pair.token0.symbol}/{pair.token1.symbol}
+                        {' '}{resolveLogo(pair.token1.id)}
+                    </span>
                 </Col>
                 <Col lg={8}>
                     <div className='pool-stats-container'>

@@ -125,7 +125,7 @@ body {
 }
 
 .card.pair-selector-card {
-    background-color: rgba(0, 0, 0, 0.03);
+    background: rgb(247,247,251);
 }
 
 .top-stats-row {
@@ -222,6 +222,10 @@ body {
     flex-grow: 1;
 }
 
+.stats-card.gray {
+    background: rgb(247,247,251);    
+}
+
 .window-button-card {
     width: 6em;
 }
@@ -267,6 +271,17 @@ body {
 
 .connect-wallet-modal-option svg {
     width: 10em;
+}
+
+.positions-table-pair-span {
+    color: #007bff;
+}
+
+.pair-text-large {
+    display: flex;
+    align-items: center;
+    font-size: 2em;
+    padding-left: 2em;
 }
 
 .app {

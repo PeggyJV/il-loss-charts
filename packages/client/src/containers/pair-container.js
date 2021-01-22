@@ -288,10 +288,10 @@ function PairContainer({ allPairs }) {
         <Container fluid>
             <h4>Impermanent Loss Calculator</h4>
             <TelegramCTA />
-            <Row noGutters>
+            <Row>
                 <Col lg={10}>
                     <Row className='top-stats-row'>
-                        <Col lg={4}>
+                        <Col className='stats-row-col' lg={4}>
                             <PairSelector
                                 pairs={allPairs.pairs}
                                 currentPairId={pairId}
@@ -299,7 +299,7 @@ function PairContainer({ allPairs }) {
                                 isLoading={isLoading}
                             />
                         </Col>
-                        <Col lg={8}>
+                        <Col className='stats-row-col' lg={8}>
                             <TotalPoolStats
                                 allPairs={allPairs}
                                 lpInfo={lpInfo}

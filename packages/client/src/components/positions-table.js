@@ -1,5 +1,4 @@
 import BootstrapTable from 'react-bootstrap-table-next';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
 
@@ -8,7 +7,7 @@ import { formatUSD } from 'util/formats';
 import { resolveLogo } from 'components/token-with-logo';
 
 
-function PositionsTable({ positionData: { positions, stats } }) {
+function PositionsTable({ positionData: { positions, stats }, pairId, setPairId }) {
     const tableData = Object.entries(positions).map(([pairId, positionSnapshots], index) => {
         const mostRecentPosition = positionSnapshots[positionSnapshots.length - 1];
         const { pair, liquidityTokenBalance, liquidityTokenTotalSupply, reserveUSD } = mostRecentPosition;
@@ -18,6 +17,7 @@ function PositionsTable({ positionData: { positions, stats } }) {
             .times(reserveUSD);
 
         return {
+            pairId,
             index: index + 1,
             market: { id: pairId, token0: pair.token0, token1: pair.token1 },
             impermanentLoss: stats[pairId].aggregatedStats.impermanentLoss,
@@ -25,17 +25,15 @@ function PositionsTable({ positionData: { positions, stats } }) {
             fees: stats[pairId].aggregatedStats.totalFees,
             returnsUSD: stats[pairId].aggregatedStats.totalReturn
         };
-    }).sort((a, b) => a.liquidity - b.liquidity);
+    }).sort((a, b) => b.liquidity - a.liquidity);
 
 
-    const formatPair = ({ id, token0, token1 }) => {
+    const formatPair = ({ token0, token1 }) => {
         return (
             <span>
                 {resolveLogo(token0.id)}{' '}
-                <span className='market-data-pair-span'>
-                    <Link to={`/pair?id=${id}`}>
-                        {token0.symbol}/{token1.symbol}
-                    </Link>
+                <span className='market-data-pair-span positions-table-pair-span'>
+                    {token0.symbol}/{token1.symbol}
                 </span>
                 {' '}{resolveLogo(token1.id)}
             </span>
@@ -43,7 +41,7 @@ function PositionsTable({ positionData: { positions, stats } }) {
     };
 
     const formatPct = (val) => `${new BigNumber(val).times(100).toFixed(2)}%`;
-    const formatLiquidity = (val) => new BigNumber(val).isZero() ? 'Closed' : formatUSD(val);
+    const formatLiquidity = (val) => new BigNumber(val).isZero() ? 'Position Closed' : formatUSD(val);
 
 
     const columns = [
@@ -61,7 +59,7 @@ function PositionsTable({ positionData: { positions, stats } }) {
             dataField: 'liquidity',
             text: 'USD Liquidity Position',
             sort: true,
-            formatter: formatUSD,
+            formatter: formatLiquidity,
         },
         {
             dataField: 'fees',
@@ -83,9 +81,7 @@ function PositionsTable({ positionData: { positions, stats } }) {
         }
     ];
 
-    const onRowClick = (e, pair) => {
-        console.log('Got this pair', pair);
-    }
+    const onRowClick = (e, row) => { setPairId(row.pairId); };
 
     return (
         <BootstrapTable
@@ -111,7 +107,9 @@ PositionsTable.propTypes = {
             statsWindows: PropTypes.arrayOf(LPStats),
             aggregatedStats: LPStats
         }))
-    })
+    }),
+    pairId: PropTypes.string,
+    setPairId: PropTypes.func
 };
 
 export default PositionsTable;
