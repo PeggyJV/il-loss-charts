@@ -85,8 +85,7 @@ export default class UniswapFetcher {
 
         if (pair == null && response.error) {
             throw new Error(
-                `Could not find pair with ID ${pairId}. Error from response: ${
-                    response.error?.toString() || ''
+                `Could not find pair with ID ${pairId}. Error from response: ${response.error?.toString() || ''
                 }`
             );
         } else if (pair == null) {
@@ -133,8 +132,7 @@ export default class UniswapFetcher {
 
         if (pairs == null || pairs.length === 0) {
             throw new Error(
-                `Could not fetch top pairs. Error from response: ${
-                    response.error?.toString() || ''
+                `Could not fetch top pairs. Error from response: ${response.error?.toString() || ''
                 }`
             );
         }
@@ -179,8 +177,7 @@ export default class UniswapFetcher {
 
         if (pairs == null || pairs.length === 0) {
             throw new Error(
-                `Could not fetch pairs subject to alerting. Error from response: ${
-                    response.error?.toString() || ''
+                `Could not fetch pairs subject to alerting. Error from response: ${response.error?.toString() || ''
                 }`
             );
         }
@@ -202,8 +199,8 @@ export default class UniswapFetcher {
                             where: {
                                 pairAddress: "${pairId}",
                                 date_gt: ${Math.floor(
-                                    startDate.getTime() / 1000
-                                )}
+                startDate.getTime() / 1000
+            )}
                                 date_lt: ${Math.floor(endDate.getTime() / 1000)}
                             }
                         ) {
@@ -224,8 +221,7 @@ export default class UniswapFetcher {
 
         if (pairDayDatas == null) {
             throw new Error(
-                `Could not fetch daily data for pair ${pairId}. Error from response: ${
-                    response.error?.toString() || ''
+                `Could not fetch daily data for pair ${pairId}. Error from response: ${response.error?.toString() || ''
                 }`
             );
         }
@@ -246,12 +242,11 @@ export default class UniswapFetcher {
                         pairHourDatas(orderBy: hourStartUnix, orderDirection: asc,
                             where: {
                                 pair: "${pairId}",
-                                hourStartUnix_gt: ${
-                                    Math.floor(startDate.getTime() / 1000) - 1
-                                }
+                                hourStartUnix_gt: ${Math.floor(startDate.getTime() / 1000) - 1
+                }
                                 hourStartUnix_lt: ${Math.floor(
-                                    endDate.getTime() / 1000
-                                )}
+                    endDate.getTime() / 1000
+                )}
                             }
                         ) {
                             pair {
@@ -273,8 +268,7 @@ export default class UniswapFetcher {
 
         if (pairHourDatas == null) {
             throw new Error(
-                `Could not fetch daily data for pair ${pairId}. Error from response: ${
-                    response.error?.toString() || ''
+                `Could not fetch daily data for pair ${pairId}. Error from response: ${response.error?.toString() || ''
                 }`
             );
         }
@@ -392,9 +386,11 @@ export default class UniswapFetcher {
                         ) {
                             pair {
                                 token0 {
+                                    id
                                     symbol
                                 }
                                 token1 {
+                                    id
                                     symbol
                                 }
                             }
@@ -413,8 +409,7 @@ export default class UniswapFetcher {
 
         if (swaps == null) {
             throw new Error(
-                `Could not fetch recent swaps for pair ${pairId}. Error from response: ${
-                    response.error?.toString() || ''
+                `Could not fetch recent swaps for pair ${pairId}. Error from response: ${response.error?.toString() || ''
                 }`
             );
         } else if (swaps.length === 0) {
@@ -456,8 +451,7 @@ export default class UniswapFetcher {
 
         if (mints == null) {
             throw new Error(
-                `Could not fetch recent mints for pair ${pairId}. Error from response: ${
-                    response.error?.toString() || ''
+                `Could not fetch recent mints for pair ${pairId}. Error from response: ${response.error?.toString() || ''
                 }`
             );
         } else if (mints.length === 0) {
@@ -478,9 +472,11 @@ export default class UniswapFetcher {
                         ) {
                             pair {
                                 token0 {
+                                    id
                                     symbol
                                 }
                                 token1 {
+                                    id
                                     symbol
                                 }
                             }
@@ -499,8 +495,7 @@ export default class UniswapFetcher {
 
         if (burns == null) {
             throw new Error(
-                `Could not fetch recent burns for pair ${pairId}. Error from response: ${
-                    response.error?.toString() || ''
+                `Could not fetch recent burns for pair ${pairId}. Error from response: ${response.error?.toString() || ''
                 }`
             );
         } else if (burns.length === 0) {
@@ -529,8 +524,7 @@ export default class UniswapFetcher {
 
         if (ethPrice == null) {
             throw new Error(
-                `Could not fetch ethPrice. Error from response: ${
-                    response.error?.toString() || ''
+                `Could not fetch ethPrice. Error from response: ${response.error?.toString() || ''
                 }`
             );
         }
@@ -582,8 +576,7 @@ export default class UniswapFetcher {
 
         if (liquidityPositionSnapshots == null) {
             throw new Error(
-                `Could not fetch liquidity positions for address ${address}. Error from response: ${
-                    response.error?.toString() || ''
+                `Could not fetch liquidity positions for address ${address}. Error from response: ${response.error?.toString() || ''
                 }`
             );
         } else if (liquidityPositionSnapshots.length === 0) {
