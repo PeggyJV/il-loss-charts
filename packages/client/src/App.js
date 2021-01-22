@@ -7,37 +7,21 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 
-import Cookies from 'universal-cookie';
-
 import OverviewContainer from 'containers/overview-container';
 import PairContainer from 'containers/pair-container';
 import PositionContainer from 'containers/position-container';
 import SideMenu from 'components/side-menu';
 import ConnectWalletModal from 'components/connect-wallet-modal';
 
+import useWallet from 'hooks/use-wallet';
+
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { calculatePairRankings } from 'services/calculate-stats';
 
 import initialData from 'constants/initialData.json';
 
-const cookies = new Cookies();
-
 function App() {
     // ------------------ Initial Mount - API calls for first render ------------------
-
-    // Try to read wallet from cookies
-    const walletFromCookie = cookies.get('current_wallet');
-
-    let initialWalletState;
-    if (walletFromCookie && walletFromCookie.account && walletFromCookie.provider) {
-        initialWalletState = walletFromCookie;
-    } else {
-        if (walletFromCookie) {
-            console.warn(`Tried to load wallet from cookie, but it was not correctly formed.`);
-        }
-
-        initialWalletState = { account: null, provider: null };
-    }
 
     const [allPairs, setAllPairs] = useState({
         isLoading: true,
@@ -45,7 +29,7 @@ function App() {
     });
     const [currentError, setError] = useState(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
-    const [wallet, setWallet] = useState(initialWalletState);
+    const { wallet, connectMetaMask, disconnectWallet, availableProviders } = useWallet();
 
     useEffect(() => {
         const fetchAllPairs = async () => {
@@ -105,7 +89,9 @@ function App() {
                         show={showConnectWallet}
                         setShow={setShowConnectWallet}
                         wallet={wallet}
-                        setWallet={setWallet}
+                        connectMetaMask={connectMetaMask}
+                        disconnectWallet={disconnectWallet}
+                        availableProviders={availableProviders}
                     />
                     <Switch>
                         <Route path='/positions'>

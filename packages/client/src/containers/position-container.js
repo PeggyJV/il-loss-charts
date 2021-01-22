@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import Mixpanel from 'util/mixpanel';
@@ -24,20 +24,19 @@ function PositionContainer({ wallet }) {
     // ------------------ Shared State ------------------
 
     // Initialize pair to be first position in wallet
-    // TODO sort position by volume
     const [pairId, setPairId] = useState(positionData?.positions ? Object.keys(positionData.positions)[0] : null);
 
     // const currentPosition = positions[pairId];
     window.positionData = positionData;
     window.pairId = pairId;
-    const currentStats = pairId ? positionData.stats?.[pairId].aggregatedStats : null;
+    const currentStats = pairId ? positionData.stats?.[pairId]?.aggregatedStats : null;
     // const fullPairs = positionData.positions ? Object.values(positionData.positions).map((positionSnapshots) => positionSnapshots[0].pair) : [];
-    const pair = positionData.positions && pairId ? positionData.positions[pairId][0].pair : null;
+    const pair = positionData.positions && pairId ? positionData.positions[pairId]?.[0].pair : null;
 
     // ------------------ Position State - fetches LP-specific position data ------------------
 
     useEffect(() => {
-        if (!pairId && positionData?.positions) {
+        if (positionData?.positions && (!pairId || !positionData.positions[pairId])) {
             // get from position
             setPairId(Object.keys(positionData.positions)[0]);
         }
@@ -50,6 +49,8 @@ function PositionContainer({ wallet }) {
             if (currentError) return;
 
             const { data: positionData, error } = await Uniswap.getPositionStats(wallet.account);
+
+            console.log('Got new position data');
 
             if (error) {
                 // we could not list pairs
@@ -150,8 +151,7 @@ PositionContainer.propTypes = {
     wallet: PropTypes.shape({
         account: PropTypes.string,
         provider: PropTypes.string,
-    }).isRequired,
-    setWallet: PropTypes.func,
+    }).isRequired
 };
 
 export default PositionContainer;

@@ -40,10 +40,7 @@ function PositionsTable({ positionData: { positions, stats }, pairId, setPairId 
         );
     };
 
-    const formatPct = (val) => `${new BigNumber(val).times(100).toFixed(2)}%`;
     const formatLiquidity = (val) => new BigNumber(val).isZero() ? 'Position Closed' : formatUSD(val);
-
-
     const columns = [
         {
             dataField: 'index',
@@ -71,7 +68,7 @@ function PositionsTable({ positionData: { positions, stats }, pairId, setPairId 
             dataField: 'impermanentLoss',
             text: 'Impermanent Loss',
             sort: true,
-            formatter: formatPct,
+            formatter: formatUSD,
         },
         {
             dataField: 'returnsUSD',
