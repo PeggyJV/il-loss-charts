@@ -54,6 +54,10 @@ Note: Beware of modifying this element as it can break the animations - you shou
     text-decoration: none;
 }
 
+.bm-item.side-menu-link.side-menu-active {
+    background-color: rgb(220,220,230);    
+}
+
 .bm-item.side-menu-title {
   color: #333333;
   margin-bottom: 2em;

@@ -1,6 +1,7 @@
 import Menu from 'react-burger-menu/lib/menus/push';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import ConnectWalletButton from 'components/connect-wallet-button';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,7 +11,14 @@ import { faTelegram } from '@fortawesome/free-brands-svg-icons';
 import 'styles/burger-menu.scss';
 
 function SideMenu({ setShowConnectWallet, wallet }) {
+    const location = useLocation();
     const showModal = () => setShowConnectWallet(true);
+
+    const getSideLinkClass = (path) =>
+        classNames({
+            'side-menu-link': true,
+            'side-menu-active': path === location.pathname
+        });
 
     return (
         <Menu
@@ -25,13 +33,13 @@ function SideMenu({ setShowConnectWallet, wallet }) {
             <div>
                 <ConnectWalletButton onClick={showModal} wallet={wallet} />
             </div>
-            <p className='side-menu-link'>
+            <p className={getSideLinkClass('/')}>
                 <NavLink to='/'>
                     <FontAwesomeIcon icon={faChartArea} />
                     {' '}Market Overview
                 </NavLink>
             </p>
-            <p className='side-menu-link'>{wallet?.account ?
+            <p className={getSideLinkClass('/positions')}>{wallet?.account ?
                 <NavLink to={`/positions`}>
                     <FontAwesomeIcon icon={faHandHoldingUsd} />
                     {' '}LP Positions
@@ -42,7 +50,7 @@ function SideMenu({ setShowConnectWallet, wallet }) {
                 </NavLink>
             }
             </p>
-            <p className='side-menu-link'>
+            <p className={getSideLinkClass('/pair')}>
                 <NavLink to='/pair'>
                     <FontAwesomeIcon icon={faSearchDollar} />
                     {' '}IL Calculator
