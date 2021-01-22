@@ -82,6 +82,15 @@ function PositionsTable({ positionData: { positions, stats }, pairId, setPairId 
     ];
 
     const onRowClick = (e, row) => { setPairId(row.pairId); };
+    const getRowStyle = (row) => {
+        const styles = { borderLeft: 0, borderRight: 0 };
+
+        if (row.pairId === pairId) {
+            styles.backgroundColor = 'rgba(0, 0, 0, 0.075)';
+        }
+
+        return styles;
+    }
 
     return (
         <BootstrapTable
@@ -90,7 +99,7 @@ function PositionsTable({ positionData: { positions, stats }, pairId, setPairId 
             keyField='index'
             data={tableData}
             columns={columns}
-            rowStyle={{ borderLeft: 0, borderRight: 0 }}
+            rowStyle={getRowStyle}
             bordered={false}
             condensed={true}
             rowEvents={{ onClick: onRowClick }}
