@@ -22,6 +22,44 @@ This repo houses the web application for [Sommelier.finance](https://app.sommeli
 * [Infura](https://infura.io/) - We use Infura as our Ethereum provider, with a roadmap for adding additional providers and redundancies on our backend.
 * [web3js](https://web3js.readthedocs.io/en/v1.3.0/) - used for connecting to client wallets (e.g. Metamask) and transaction construction and signing.
 
-
 ## Setup
+
+Sommelier has a standard monorepo setup using [Yarn Workspaces](https://classic.yarnpkg.com/blog/2017/08/02/introducing-workspaces/) and [Lerna](https://github.com/lerna/lerna). This allows one to run commands at the project root and apply that command to all packages.
+
+To set up the app for local development:
+
+```
+git clone https://github.com/PeggyJV/il-loss-charts
+cd il-loss-charts
+
+yarn # Running 'yarn' once at workspace roots installs all dependencies for each package
+
+### Local Development
+
+yarn dev # starts both express server and CRA webpack server in same shell, with re-compile on save for both server and client
+
+### Building and Running
+
+yarn build # builds each package
+yarn prod # runs the server only, which serves the client bundle
+
+### Linting
+
+yarn lint # lints each package serially
+```
+
+Lerna infers package topology to ensure that all lint/build tasks run in the proper order based on inter-package dependencies.
+
+## API Documentation
+
+The `server` package uses [OpenAPI](https://github.com/PeggyJV/il-loss-charts) for documentation. You can see compiled documentation at [https://app.sommelier.finance/api/explorer/](https://app.sommelier.finance/api/explorer/) or [http://localhost:3001/api/explorer](http://localhost:3001/api/explorer) (when running locally).
+
+The documentation source is at `packages/server/src/docs/api.yml`. When adding a new API route, make sure to update this file. The server uses [Express OpenAPI Validator](https://www.npmjs.com/package/express-openapi-validator) so if your route is not correctly documented, it will not be validated correctly and will not work as expected.
+
+## TODOs
+
+You can see all TODOs for this repo in the [Issues](https://github.com/PeggyJV/il-loss-charts/issues) section. Feel free to submit any suggestion as an issue!
+
+
+
 
