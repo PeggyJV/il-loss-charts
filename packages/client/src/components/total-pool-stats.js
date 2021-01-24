@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Card, CardDeck } from 'react-bootstrap';
+import { Button, Card } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
 import { Pair, DailyData, LPStats } from 'constants/prop-types';

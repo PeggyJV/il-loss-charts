@@ -44,7 +44,16 @@ function PairContainer({ allPairs }) {
     useEffect(() => {
         const query = new URLSearchParams(location.search);
         const pairId = query.get('id');
-        if (pairId) setPairId(pairId);
+        if (pairId) return setPairId(pairId);
+
+        // lookup by symbol
+        const symbol = query.get('symbol');
+        const pairForSymbol = allPairs.pairs.find((pair) => {
+            const pairSymbol = `${pair.token0.symbol}/${pair.token1.symbol}`;
+            return symbol === pairSymbol;
+        });
+
+        if (pairForSymbol) setPairId(pairForSymbol.id);
     }, [location]);
 
     // ------------------ LP State - handles lp-specific info ------------------
@@ -142,6 +151,7 @@ function PairContainer({ allPairs }) {
         );
         setLPDate(firstDay);
         return lpInfo.historicalData[0];
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [lpInfo, lpDate]);
 
     // ------------------ Websocket State - handles subscriptions ------------------
