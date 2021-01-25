@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js';
 import { format } from 'date-fns';
-import fs from 'fs';
 
 import UniswapFetcher from 'services/uniswap';
 import {

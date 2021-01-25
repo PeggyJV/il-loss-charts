@@ -2,7 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-widgets/dist/css/react-widgets.css';
 import 'styles/app.scss';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactElement } from 'react';
 
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
@@ -18,14 +18,16 @@ import useWallet from 'hooks/use-wallet';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { calculatePairRankings } from 'services/calculate-stats';
 
-import initialData from 'constants/initialData.json';
+import { AllPairsState } from 'types/states';
 
-function App() {
+function App(): ReactElement {
     // ------------------ Initial Mount - API calls for first render ------------------
 
-    const [allPairs, setAllPairs] = useState({
+    const [allPairs, setAllPairs] = useState<AllPairsState>({
         isLoading: true,
-        pairs: initialData.allPairs,
+        pairs: null,
+        lookups: null,
+        byLiquidity: null
     });
     const [currentError, setError] = useState(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
@@ -39,7 +41,7 @@ function App() {
             if (error) {
                 // we could not list pairs
                 console.warn(`Could not fetch top pairs: ${error.message}`);
-                window.error = error;
+                (window as any).error = error;
                 setError(error);
                 return;
             }

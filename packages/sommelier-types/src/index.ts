@@ -119,3 +119,16 @@ export interface UniswapLiquidityPositionAtTime extends LiquidityData {
     pair: Partial<UniswapPair>;
     timestamp: number;
 }
+
+type HistoricalData = UniswapDailyData | UniswapHourlyData;
+
+export interface LPPositionData {
+    positions: { [pairId: string]: UniswapLiquidityPositionAtTime[] },
+    stats: {
+        [pairId: string]: {
+            historicalData: HistoricalData[];
+            aggregatedStats: LPStats;
+            statsWindows: LPStats[];
+        }
+    }
+}

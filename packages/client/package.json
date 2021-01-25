@@ -88,6 +88,7 @@
     "devDependencies": {
         "@babel/eslint-parser": "^7.12.1",
         "@babel/plugin-proposal-class-properties": "^7.12.1",
+        "@types/react-router-dom": "^5.1.7",
         "eslint-plugin-react": "^7.22.0",
         "eslint-plugin-react-hooks": "^4.2.0"
     }
