@@ -1,7 +1,15 @@
 import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
-function ConnectWalletButton({ onClick, wallet }) {
+import { Wallet } from 'types/states';
+
+function ConnectWalletButton({
+    onClick,
+    wallet
+}: {
+    onClick: () => void,
+    wallet: Wallet
+}) {
     const account = wallet?.account;
     const buttonText = account ? `Connected: ${account}` : 'Connect Wallet';
     const buttonVariant = account ? 'success' : 'primary';

@@ -3,16 +3,29 @@ import PropTypes from 'prop-types';
 import { Card, ListGroup, Button } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 
+import { Token, UniswapSwap, UniswapMintOrBurn } from '@sommelier/shared-types';
+
 import { MintOrBurn, Swap } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 
-function LatestTradeSidebar({ latestSwaps }) {
+function LatestTradeSidebar(
+    { latestSwaps }: {
+        latestSwaps: {
+            swaps: UniswapSwap[],
+            mintsAndBurns: {
+                mints: UniswapMintOrBurn[],
+                burns: UniswapMintOrBurn[],
+                combined: UniswapMintOrBurn[],
+            }
+        }
+    }
+) {
     const [mode, setMode] = useState('swaps');
 
     const { swaps, mintsAndBurns } = latestSwaps;
     if (!swaps || !mintsAndBurns) return null;
 
-    window.mintsAndBurns = mintsAndBurns;
+    (window as any).mintsAndBurns = mintsAndBurns;
 
     return (
         <Card className='chart-card'>
@@ -75,14 +88,25 @@ LatestTradeSidebar.propTypes = {
     })
 };
 
-function SwapInfo({ swap }) {
+function SwapInfo({ swap }: { swap: UniswapSwap }) {
     const outSide = new BigNumber(swap.amount0Out).eq(0) ? '1' : '0';
-    const inSide = outSide === '0' ? '1' : '0';
 
-    const outToken = swap.pair[`token${outSide}`].symbol;
-    const inToken = swap.pair[`token${inSide}`].symbol;
-    const outAmount = new BigNumber(swap[`amount${outSide}Out`]).toFixed(3);
-    const inAmount = new BigNumber(swap[`amount${inSide}In`]).toFixed(3);
+    let outToken: string;
+    let inToken: string;
+    let outAmount: string;
+    let inAmount: string;
+
+    if (outSide === '1') {
+        outToken = (swap.pair.token1 as Token).symbol;
+        inToken = (swap.pair.token0 as Token).symbol;
+        outAmount = new BigNumber(swap.amount1Out).toFixed(3);
+        inAmount = new BigNumber(swap.amount0In).toFixed(3);
+    } else {
+        outToken = (swap.pair.token0 as Token).symbol;
+        inToken = (swap.pair.token1 as Token).symbol;
+        outAmount = new BigNumber(swap.amount0Out).toFixed(3);
+        inAmount = new BigNumber(swap.amount1In).toFixed(3);
+    }
 
     const arrowIcon = outSide === '1' ? '⬅️' : '➡️';
 
@@ -95,11 +119,11 @@ function SwapInfo({ swap }) {
 
 SwapInfo.propTypes = { swap: Swap.isRequired };
 
-function MintBurnInfo({ action }) {
+function MintBurnInfo({ action }: { action: UniswapMintOrBurn }) {
     const icon = action.__typename === 'Mint' ? '💰' : '🔥';
     const actionName = action.__typename === 'Mint' ? 'Add' : 'Remove';
-    const pairAmounts = `${new BigNumber(action.amount0).toFixed(3)} ${action.pair.token0.symbol
-        }/${new BigNumber(action.amount1).toFixed(3)} ${action.pair.token1.symbol}`;
+    const pairAmounts = `${new BigNumber(action.amount0).toFixed(3)} ${(action.pair.token0 as Token).symbol
+        }/${new BigNumber(action.amount1).toFixed(3)} ${(action.pair.token1 as Token).symbol}`;
     return (
         <ListGroup.Item className='sidebar-item'>
             {icon} {actionName} {formatUSD(action.amountUSD)} (

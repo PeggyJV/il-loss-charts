@@ -1,9 +1,21 @@
 import PropTypes from 'prop-types';
 import { Button, Modal } from 'react-bootstrap';
 
+import useWallet from 'hooks/use-wallet';
+
 import { ReactComponent as MetamaskLogo } from 'styles/metamask-logo.svg';
 
-function ConnectWalletModal({ show, setShow, wallet, connectMetaMask, disconnectWallet, availableProviders }) {
+function ConnectWalletModal({
+    show,
+    setShow,
+    wallet,
+    connectMetaMask,
+    disconnectWallet,
+    availableProviders
+}: ReturnType<typeof useWallet> & {
+    show: boolean,
+    setShow: (show: boolean) => void
+}) {
     const handleClose = () => setShow(false);
 
     const titleText = wallet?.account
