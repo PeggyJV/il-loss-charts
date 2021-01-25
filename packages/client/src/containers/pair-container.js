@@ -9,7 +9,7 @@ import Mixpanel from 'util/mixpanel';
 import PairSelector from 'components/pair-selector';
 import LPInput from 'components/lp-input';
 import LPStatsWidget from 'components/lp-stats-widget';
-import LPStatsChart from 'components/lp-stats-rechart';
+import LPStatsChart from 'components/lp-stats-chart';
 import LatestTradesSidebar from 'components/latest-trades-sidebar';
 import TotalPoolStats from 'components/total-pool-stats';
 import TelegramCTA from 'components/telegram-cta';

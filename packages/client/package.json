@@ -90,6 +90,7 @@
         "@babel/plugin-proposal-class-properties": "^7.12.1",
         "@types/mixpanel-browser": "^2.35.4",
         "@types/react-router-dom": "^5.1.7",
+        "@types/react-widgets": "^4.4.3",
         "eslint-plugin-react": "^7.22.0",
         "eslint-plugin-react-hooks": "^4.2.0"
     }

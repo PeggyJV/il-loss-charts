@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Form, Card } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import { Pair, DailyData } from 'constants/prop-types';
-
 import BigNumber from 'bignumber.js';
 import { DateTimePicker } from 'react-widgets';
 import dateFnsLocalizer, { defaultFormats } from 'react-widgets-date-fns';
+
+import { UniswapPair, UniswapDailyData } from '@sommelier/shared-types';
+import { Pair, DailyData } from 'constants/prop-types';
 
 import 'styles/lp-input.scss';
 
@@ -19,10 +20,17 @@ function LPInput({
     lpShare,
     setLPShare,
     dailyDataAtLPDate,
+}: {
+    lpDate: Date,
+    setLPDate: (newLPDate?: Date) => void,
+    pairData: UniswapPair,
+    lpShare: number,
+    setLPShare: (newLPShare: number) => void,
+    dailyDataAtLPDate: UniswapDailyData
 }) {
     const { token0, token1 } = pairData;
 
-    const calcAmounts = (lpShare, dailyDataAtLPDate) => {
+    const calcAmounts = (lpShare: number, dailyDataAtLPDate: UniswapDailyData): void => {
         const poolShare = new BigNumber(lpShare).div(
             dailyDataAtLPDate.reserveUSD
         );
@@ -38,7 +46,7 @@ function LPInput({
         setToken1Amt(token1Amt);
     };
 
-    const updateShare = (denom, value) => {
+    const updateShare = (denom: 'USD' | 'token0' | 'token1', value: number) => {
         if (denom === 'USD') {
             const poolShare = new BigNumber(value).div(
                 dailyDataAtLPDate.reserveUSD
@@ -102,7 +110,7 @@ function LPInput({
                     <Form.Label>LP Date</Form.Label>
                     <div>
                         <DateTimePicker
-                            className='lp-date-picker form-control'
+                            containerClassName='lp-date-picker form-control'
                             min={new Date('2020-05-18')}
                             max={new Date()}
                             format='yyyy-MM-dd'
@@ -117,7 +125,7 @@ function LPInput({
                     <Form.Control
                         type='text'
                         onChange={(event) =>
-                            updateShare('USD', event.target.value)
+                            updateShare('USD', parseFloat(event.target.value))
                         }
                         value={usdAmt}
                     />
@@ -127,7 +135,7 @@ function LPInput({
                     <Form.Control
                         type='text'
                         onChange={(event) =>
-                            updateShare('token0', event.target.value)
+                            updateShare('token0', parseFloat(event.target.value))
                         }
                         value={token0Amt}
                     />
@@ -137,7 +145,7 @@ function LPInput({
                     <Form.Control
                         type='text'
                         onChange={(event) =>
-                            updateShare('token1', event.target.value)
+                            updateShare('token1', parseFloat(event.target.value))
                         }
                         value={token1Amt}
                     />

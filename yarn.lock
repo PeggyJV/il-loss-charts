@@ -3232,6 +3232,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-widgets@^4.4.3":
+  version "4.4.3"
+  resolved "https://registry.yarnpkg.com/@types/react-widgets/-/react-widgets-4.4.3.tgz#f8eb5cf1b199b410d307d83812ecab086b2ce67d"
+  integrity sha512-ouy/fY99pUR/glM3vA5zhqIajNcVT5ENm75hHarWsIP+JkPJAg1gYgEQbkLlh77prQ9vM42cKxIkYzGw1d2GGA==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react@*", "@types/react@^17.0.0":
   version "17.0.0"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.0.tgz#5af3eb7fad2807092f0046a1302b7823e27919b8"

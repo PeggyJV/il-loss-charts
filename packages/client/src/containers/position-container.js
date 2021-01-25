@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Mixpanel from 'util/mixpanel';
 
 // import PositionSelector from 'components/position-selector';
-import LPStatsChart from 'components/lp-stats-rechart';
+import LPStatsChart from 'components/lp-stats-chart';
 import USDValueWidget from 'components/usd-value-widget';
 import PositionsTable from 'components/positions-table';
 import { resolveLogo } from 'components/token-with-logo';
