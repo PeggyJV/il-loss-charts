@@ -257,3 +257,37 @@ export function calculateLPStats({
         fullDates,
     };
 }
+
+export function calculatePairRankings(pairs: UniswapPair[]) {
+    const byVolume = [...pairs].sort((a, b) =>
+        new BigNumber(a.volumeUSD).minus(new BigNumber(b.volumeUSD)).toNumber()
+    );
+    const byLiquidity = [...pairs].sort((a, b) =>
+        new BigNumber(b.reserveUSD)
+            .minus(new BigNumber(a.reserveUSD))
+            .toNumber()
+    );
+    const liquidityLookup: { [pairId: string]: UniswapPair } = byLiquidity.reduce(
+        (acc, pair, index) => ({ ...acc, [pair.id]: index + 1 }),
+        {}
+    );
+
+    const pairLookups = pairs.reduce(
+        (acc, pair, index) => ({
+            ...acc,
+            [pair.id]: {
+                ...pair,
+                volumeRanking: index + 1,
+                liquidityRanking: liquidityLookup[pair.id],
+            },
+        }),
+        {}
+    );
+
+    return {
+        byVolume,
+        byLiquidity,
+        pairs,
+        pairLookups,
+    };
+}

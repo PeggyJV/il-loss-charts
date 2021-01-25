@@ -1,10 +1,17 @@
 import { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';
 
+import { Provider, Wallet } from 'types/states';
+
 const cookies = new Cookies();
 
-export default function useWallet() {
-    const ethereum = window.ethereum;
+export default function useWallet(): {
+    wallet: Wallet,
+    connectMetaMask: () => Promise<void>,
+    disconnectWallet: () => void,
+    availableProviders: { [providerName in Provider]: boolean }
+} {
+    const ethereum = (window as any).ethereum;
     const availableProviders = {
         metamask: ethereum?.isMetaMask
     };
@@ -25,7 +32,7 @@ export default function useWallet() {
 
     const [wallet, setWallet] = useState(initialWalletState);
 
-    ethereum.on('accountsChanged', (accounts) => {
+    ethereum.on('accountsChanged', (accounts: string[]) => {
         const [account] = accounts;
         if (account) {
             setWallet({ account, provider: 'metamask' });

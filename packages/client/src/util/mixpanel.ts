@@ -1,5 +1,7 @@
 import mixpanel from 'mixpanel-browser';
 
+type TrackingArgs = [string, any];
+
 class MixpanelWrapper {
     isActive = false;
 
@@ -14,7 +16,7 @@ class MixpanelWrapper {
         }
     }
 
-    track(...args) {
+    track(...args: TrackingArgs) {
         // No-op if not using
         if (!this.isActive) return;
         mixpanel.track(...args);
