@@ -2,12 +2,19 @@ import { useEffect, useState } from 'react';
 import { Card, InputGroup } from 'react-bootstrap';
 import { Combobox } from 'react-widgets';
 import PropTypes from 'prop-types';
-import { Pair } from 'constants/prop-types';
 
+import { UniswapPair } from '@sommelier/shared-types';
+
+import { Pair } from 'constants/prop-types';
 import TokenWithLogo, { resolveLogo } from 'components/token-with-logo';
 
-function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
-    let defaultValue;
+function PairSelector({ pairs, currentPairId, setPair, isLoading }: {
+    pairs: UniswapPair[],
+    currentPairId: string,
+    setPair: (pairId: string) => void,
+    isLoading: boolean
+}) {
+    let defaultValue = pairs[0];
     for (const pair of pairs) {
         if (pair.id === currentPairId) {
             defaultValue = pair;
@@ -39,22 +46,22 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
         if (currentValue?.id) setPair(currentValue.id);
     }, [currentValue, setPair]);
 
-    const renderPairText = (side) => (pair) => {
+    const renderPairText = (side: 'left' | 'right') => (pair: string | UniswapPair): string => {
         // If pair is string, it's typed in so return
         if (typeof pair === 'string') return pair;
 
         const token = side === 'left' ? 'token0' : 'token1';
-        return pair[token].symbol;
+        return pair[token].symbol as string;
     };
 
-    const handleChange = (side) => (value) => {
+    const handleChange = (side: 'left' | 'right') => (value: string | UniswapPair): void => {
         // If pair is string, it's typed in
         // so just override one side
         if (typeof value === 'string') {
             const token = side === 'left' ? 'token0' : 'token1';
             setCurrentValue((current) => ({
                 ...current,
-                id: null,
+                id: '',
                 [token]: {
                     ...[current[token]],
                     symbol: value,
@@ -77,6 +84,7 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                             </InputGroup.Text>
                         </InputGroup.Prepend>
                         <Combobox
+                            // @ts-expect-error: className is not on the props definition but does propagate to component
                             className='pair-selector'
                             data={leftSideOptions}
                             value={currentValue}
@@ -93,8 +101,8 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                             🍷
                         </div>
                     ) : (
-                        <div className='pair-selector-separator'>✖️</div>
-                    )}
+                            <div className='pair-selector-separator'>✖️</div>
+                        )}
                     <InputGroup>
                         <InputGroup.Prepend className='token-logo'>
                             <InputGroup.Text className='logo-span'>
@@ -102,6 +110,7 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }) {
                             </InputGroup.Text>
                         </InputGroup.Prepend>
                         <Combobox
+                            // @ts-expect-error: className is not on the props definition but does propagate to component
                             className='pair-selector'
                             data={rightSideOptions}
                             value={currentValue}

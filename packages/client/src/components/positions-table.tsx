@@ -1,14 +1,30 @@
+import { SyntheticEvent } from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
+
+import { Token, LPPositionData } from '@sommelier/shared-types';
 
 import { PositionData, LPStats, DailyData, HourlyData } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 import { resolveLogo } from 'components/token-with-logo';
 
+interface PositionTableRow {
+    pairId: string;
+    index: number;
+    market: { id: string, token0?: Partial<Token>, token1?: Partial<Token> };
+    impermanentLoss: BigNumber;
+    liquidity: BigNumber;
+    fees: BigNumber;
+    returnsUSD: BigNumber;
+}
 
-function PositionsTable({ positionData: { positions, stats }, pairId, setPairId }) {
-    const tableData = Object.entries(positions).map(([pairId, positionSnapshots], index) => {
+function PositionsTable({ positionData: { positions, stats }, pairId, setPairId }: {
+    positionData: LPPositionData,
+    pairId: string,
+    setPairId: (pairId: string) => void
+}) {
+    const tableData: PositionTableRow[] = Object.entries(positions).map(([pairId, positionSnapshots], index) => {
         const mostRecentPosition = positionSnapshots[positionSnapshots.length - 1];
         const { pair, liquidityTokenBalance, liquidityTokenTotalSupply, reserveUSD } = mostRecentPosition;
 
@@ -25,10 +41,10 @@ function PositionsTable({ positionData: { positions, stats }, pairId, setPairId 
             fees: stats[pairId].aggregatedStats.totalFees,
             returnsUSD: stats[pairId].aggregatedStats.totalReturn
         };
-    }).sort((a, b) => b.liquidity - a.liquidity);
+    }).sort((a, b) => b.liquidity.toNumber() - a.liquidity.toNumber());
 
 
-    const formatPair = ({ token0, token1 }) => {
+    const formatPair = ({ token0, token1 }: { token0: Token, token1: Token }) => {
         return (
             <span>
                 {resolveLogo(token0.id)}{' '}
@@ -40,7 +56,7 @@ function PositionsTable({ positionData: { positions, stats }, pairId, setPairId 
         );
     };
 
-    const formatLiquidity = (val) => new BigNumber(val).isZero() ? 'Position Closed' : formatUSD(val);
+    const formatLiquidity = (val: BigNumber) => val.isZero() ? 'Position Closed' : formatUSD(val.toNumber());
     const columns = [
         {
             dataField: 'index',
@@ -78,9 +94,11 @@ function PositionsTable({ positionData: { positions, stats }, pairId, setPairId 
         }
     ];
 
-    const onRowClick = (e, row) => { setPairId(row.pairId); };
-    const getRowStyle = (row) => {
-        const styles = { borderLeft: 0, borderRight: 0 };
+    const onRowClick = (e: SyntheticEvent, row: PositionTableRow) => { setPairId(row.pairId); };
+    const getRowStyle = (row: PositionTableRow) => {
+        const styles: {
+            borderLeft: number, borderRight: number, backgroundColor?: string
+        } = { borderLeft: 0, borderRight: 0 };
 
         if (row.pairId === pairId) {
             styles.backgroundColor = 'rgba(0, 0, 0, 0.075)';

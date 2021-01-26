@@ -89,8 +89,11 @@
         "@babel/eslint-parser": "^7.12.1",
         "@babel/plugin-proposal-class-properties": "^7.12.1",
         "@types/mixpanel-browser": "^2.35.4",
+        "@types/react-bootstrap-table-next": "^4.0.10",
+        "@types/react-burger-menu": "^2.6.2",
         "@types/react-router-dom": "^5.1.7",
         "@types/react-widgets": "^4.4.3",
+        "@types/recharts": "^1.8.19",
         "eslint-plugin-react": "^7.22.0",
         "eslint-plugin-react-hooks": "^4.2.0"
     }

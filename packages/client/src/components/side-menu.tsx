@@ -9,12 +9,16 @@ import { faChartArea, faHandHoldingUsd, faSearchDollar } from '@fortawesome/free
 import { faTelegram } from '@fortawesome/free-brands-svg-icons';
 
 import 'styles/burger-menu.scss';
+import { Wallet } from 'types/states';
 
-function SideMenu({ setShowConnectWallet, wallet }) {
+function SideMenu({ setShowConnectWallet, wallet }: {
+    setShowConnectWallet: (wallet: boolean) => void,
+    wallet: Wallet
+}) {
     const location = useLocation();
     const showModal = () => setShowConnectWallet(true);
 
-    const getSideLinkClass = (path) =>
+    const getSideLinkClass = (path: string) =>
         classNames({
             'side-menu-link': true,
             'side-menu-active': path === location.pathname

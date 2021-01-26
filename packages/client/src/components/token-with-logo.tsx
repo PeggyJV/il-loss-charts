@@ -1,8 +1,10 @@
-import logoMappings from 'constants/trustwallet-mappings';
+import { UniswapPair } from '@sommelier/shared-types';
+
+import logoMappings from 'constants/trustwallet-mappings.json';
 import { Pair } from 'constants/prop-types';
 
-const TokenWithLogo = (side) => {
-    const TokenOnGivenSide = ({ item: pair }, logoPosition = 'left') => {
+const TokenWithLogo = (side: 'left' | 'right') => {
+    const TokenOnGivenSide = ({ item: pair }: { item: UniswapPair }, logoPosition = 'left') => {
         let token;
 
         if (side === 'left') token = pair.token0;
@@ -31,8 +33,12 @@ const TokenWithLogo = (side) => {
 
 TokenWithLogo.displayName = 'TokenWithLogo';
 
-export function resolveLogo(addressLower) {
-    const address = logoMappings[addressLower];
+export function resolveLogo(addressLower?: string) {
+    let address: string | undefined = undefined;
+
+    if (addressLower && addressLower in logoMappings) {
+        address = logoMappings[addressLower as keyof typeof logoMappings];
+    }
 
     if (!address) return <span>🍇</span>;
 

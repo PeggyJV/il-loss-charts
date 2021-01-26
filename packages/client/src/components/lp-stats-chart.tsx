@@ -13,18 +13,29 @@ import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
 import { format } from 'date-fns';
 
+import { LPStats as ILPStats } from '@sommelier/shared-types';
+
 import LPStatsWidget from 'components/lp-stats-widget';
 import { LPStats } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 
-function LPStatsChart({ lpStats }) {
-    const chartData = [];
+interface LPStatsDataPoint {
+    fullDate?: Date,
+    day: string,
+    runningFee: number,
+    runningReturn: number,
+    runningImpermanentLoss: number,
+    returns: [number, number]
+}
+
+function LPStatsChart({ lpStats }: { lpStats: ILPStats }) {
+    const chartData: LPStatsDataPoint[] = [];
     for (const i in lpStats.days) {
         const runningFee = new BigNumber(lpStats.runningFees[i]).toNumber();
         const runningReturn = new BigNumber(lpStats.runningReturn[i]).toNumber();
 
         chartData.push({
-            fullDate: lpStats.fullDates[i],
+            fullDate: lpStats.fullDates?.[i],
             day: lpStats.days[i],
             runningFee,
             runningReturn,
@@ -43,7 +54,7 @@ function LPStatsChart({ lpStats }) {
                 <ComposedChart
                     data={chartData}
                     margin={{ top: 10, right: 10, bottom: 10, left: -50 }}
-                    padding={{ left: -100 }}
+                    // padding={{ left: -100 }}
                     height={563}
                 >
                     <defs>
@@ -77,7 +88,7 @@ function LPStatsChart({ lpStats }) {
                     />
                     <YAxis
                         axisLine={false}
-                        tick={<YAxisTick />}
+                        tick={YAxisTick}
                         tickLine={false}
                         padding={{ bottom: 20 }}
                     />
@@ -94,7 +105,7 @@ function LPStatsChart({ lpStats }) {
                         strokeWidth={2}
                         dot={false}
                     />
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip content={CustomTooltip} />
                 </ComposedChart>
             </ResponsiveContainer>
         </Card>
@@ -103,18 +114,22 @@ function LPStatsChart({ lpStats }) {
 
 LPStatsChart.propTypes = { lpStats: LPStats };
 
-function CustomTooltip({ active, payload }) {
+function CustomTooltip({ active, payload }: { active: boolean, payload: [{ payload: LPStatsDataPoint }] }) {
     if (!active || !payload) return null;
     const lpStats = {
-        totalFees: payload[0].payload.runningFee,
-        totalReturn: payload[0].payload.runningReturn,
-        impermanentLoss: payload[0].payload.runningImpermanentLoss,
+        totalFees: new BigNumber(payload[0].payload.runningFee),
+        totalReturn: new BigNumber(payload[0].payload.runningReturn),
+        impermanentLoss: new BigNumber(payload[0].payload.runningImpermanentLoss),
     };
+
+    if (!payload[0].payload.fullDate) {
+        throw new Error(`Could not render tooltip - data point did not have fullDate`);
+    }
 
     const tooltipDate = format(new Date(payload[0].payload.fullDate), 'MMMM d, yyyy');
 
     return (
-        <LPStatsWidget title={tooltipDate} lpStats={lpStats} />
+        <LPStatsWidget title={tooltipDate} lpStats={lpStats as Partial<ILPStats>} />
     );
 }
 
@@ -123,7 +138,12 @@ CustomTooltip.propTypes = {
     payload: PropTypes.array,
 };
 
-function YAxisTick({ x, y, stroke = 'none', payload }) {
+function YAxisTick({ x, y, stroke = 'none', payload }: {
+    x: number,
+    y: number,
+    stroke: string,
+    payload: { value: number }
+}) {
     return (
         <g className='recharts-layer recharts-cartesian-axis-tick'>
             <text

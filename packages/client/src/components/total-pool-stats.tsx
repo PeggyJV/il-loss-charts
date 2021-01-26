@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Button, Card } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
+
+import { AllPairsState } from 'types/states';
 import { Pair, DailyData, LPStats } from 'constants/prop-types';
 import USDValueWidget from 'components/usd-value-widget';
 
-function PercentChangeStat({ value }) {
+function PercentChangeStat({ value }: { value: BigNumber }) {
     const sign = value.isPositive() ? '↗' : '↘';
     const className = value.isPositive() ? 'pct-change-up' : 'pct-change-down';
 
@@ -18,8 +20,12 @@ function PercentChangeStat({ value }) {
 
 PercentChangeStat.propTypes = { value: PropTypes.instanceOf(BigNumber) };
 
-function TotalPoolStats({ allPairs, lpInfo, lpStats }) {
-    const [window, setWindow] = useState('total');
+type StatsWindow = 'total' | 'day' | 'week';
+
+function TotalPoolStats({ allPairs, lpInfo, lpStats }: {
+    allPairs: AllPairsState
+}) {
+    const [window, setWindow] = useState<StatsWindow>('total');
 
     const { totalStats, lastDayStats, lastWeekStats } = lpStats;
 
@@ -34,7 +40,7 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }) {
         throw new Error('Unknown stats window');
     }
 
-    const handleSetWindow = (selectedWindow) => {
+    const handleSetWindow = (selectedWindow: StatsWindow) => {
         // Reset to total if already clicked
         if (window === selectedWindow) setWindow('total');
         else setWindow(selectedWindow);

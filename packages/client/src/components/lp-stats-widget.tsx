@@ -1,21 +1,19 @@
 import PropTypes from 'prop-types';
 import { Card, Table } from 'react-bootstrap';
+import BigNumber from 'bignumber.js';
+
+import { LPStats as ILPStats } from '@sommelier/shared-types';
+
 import { LPStats } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 
-function LPStatsWidget({ lpStats, title }) {
+function LPStatsWidget({ lpStats, title }: { lpStats: Partial<ILPStats>, title?: string }) {
     if (!lpStats.totalFees) return null;
 
-    const displayValue = (value) => {
-        const intVal = parseInt(value, 10);
-        if (Number.isNaN(intVal)) {
-            throw new Error(
-                `Could not parse value for LP stats widget: ${value}`
-            );
-        }
-
-        return formatUSD(intVal);
-    };
+    const displayValue = (value?: BigNumber) => {
+        if (!value) throw new Error(`Could not display nonexist value in LPStatsWidget`);
+        return formatUSD(value.toFixed(3));
+    }
 
     return (
         <Card className='lp-stats-card'>

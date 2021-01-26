@@ -4,12 +4,20 @@ import { Combobox } from 'react-widgets';
 import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
 
+import { UniswapPair, LPPositionData } from '@sommelier/shared-types';
+
 import { Pair, PositionData, LPStats, DailyData, HourlyData } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 
 import TokenWithLogo from 'components/token-with-logo';
 
-function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionData }) {
+function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionData }: {
+    pairs: UniswapPair[],
+    currentPairId: string,
+    setPair: (pairId: string) => void,
+    isLoading: boolean,
+    positionData: LPPositionData
+}) {
     let defaultValue;
     for (const pair of pairs) {
         if (pair.id === currentPairId) {
@@ -29,7 +37,7 @@ function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionDa
         if (currentValue?.id) setPair(currentValue.id);
     }, [currentValue, setPair]);
 
-    const getPositionText = (pair) => {
+    const getPositionText = (pair: UniswapPair) => {
         const allPositions = positionData.positions[pair.id];
         const mostRecentPosition = allPositions[allPositions.length - 1];
         const tokenBalance = new BigNumber(mostRecentPosition.liquidityTokenBalance);
@@ -44,10 +52,7 @@ function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionDa
         }
     };
 
-    const renderPair = (listItem) => {
-        // If listItem is string, it's typed in so return
-        if (typeof listItem === 'string') return listItem;
-
+    const PairItem = (listItem: { item: UniswapPair, value: UniswapPair }) => {
         return (
             <span>
                 {TokenWithLogo('left')(listItem)}/{TokenWithLogo('right')(listItem, 'right')}{' '}
@@ -56,7 +61,7 @@ function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionDa
         );
     };
 
-    const renderPairText = (pair) => {
+    const renderPairText = (pair: string | UniswapPair) => {
         if (typeof pair === 'string') return pair;
         return `${pair.token0.symbol}/${pair.token1.symbol} (${getPositionText(pair)})`;
     }
@@ -67,10 +72,11 @@ function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionDa
                 <Card.Title className='stats-card-title'>Open and Closed Positions</Card.Title>
                 <div className='pair-selector-container'>
                     <Combobox
+                        // @ts-expect-error: className is not on the props definition but does propagate to component
                         className='pair-selector'
                         data={pairs}
                         textField={renderPairText}
-                        itemComponent={renderPair}
+                        itemComponent={PairItem}
                         value={defaultValue}
                         defaultValue={defaultValue}
                         filter='contains'
