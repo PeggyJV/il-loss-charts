@@ -5,7 +5,10 @@ import {
 export interface AllPairsState {
     isLoading: boolean;
     pairs: UniswapPair[] | null,
-    lookups: { [pairId: string]: UniswapPair } | null,
+    lookups: {
+        [pairId: string]:
+        UniswapPair & { volumeRanking: number, liquidityRanking: number }
+    } | null,
     byLiquidity: UniswapPair[] | null
 }
 

@@ -1,7 +1,7 @@
-import { ReactElement } from 'react';
+import { ReactChild } from 'react';
 import { useTransition, animated } from 'react-spring';
 
-function FadeOnChange({ children }: { children: ReactElement[] }) {
+function FadeOnChange({ children }: { children: ReactChild }) {
     const transitions = useTransition(children, null, {
         from: { position: 'absolute', opacity: 0 },
         enter: { opacity: 1 },
@@ -10,11 +10,13 @@ function FadeOnChange({ children }: { children: ReactElement[] }) {
         duration: 500,
     } as any); // 'duration' is allowed but not in typedef
 
-    return transitions.map(({ item, key, props }) => (
-        <animated.span key={key} style={props}>
-            {item}
-        </animated.span>
-    ));
+    return <>
+        {transitions.map(({ item, key, props }) => (
+            <animated.span key={key} style={props}>
+                {item}
+            </animated.span>
+        ))}
+    </>;
 }
 
 export default FadeOnChange;

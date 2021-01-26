@@ -258,7 +258,15 @@ export function calculateLPStats({
     };
 }
 
-export function calculatePairRankings(pairs: UniswapPair[]) {
+export function calculatePairRankings(pairs: UniswapPair[]): {
+    byVolume: UniswapPair[],
+    byLiquidity: UniswapPair[],
+    pairs: UniswapPair[],
+    pairLookups: {
+        [pairId: string]:
+        UniswapPair & { volumeRanking: number, liquidityRanking: number }
+    }
+} {
     const byVolume = [...pairs].sort((a, b) =>
         new BigNumber(a.volumeUSD).minus(new BigNumber(b.volumeUSD)).toNumber()
     );

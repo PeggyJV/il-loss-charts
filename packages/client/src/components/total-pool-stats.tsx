@@ -3,11 +3,15 @@ import { Button, Card } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
 
+import { UniswapPair, UniswapDailyData, LPStats as ILPStats } from '@sommelier/shared-types';
+
 import { AllPairsState } from 'types/states';
 import { Pair, DailyData, LPStats } from 'constants/prop-types';
 import USDValueWidget from 'components/usd-value-widget';
 
-function PercentChangeStat({ value }: { value: BigNumber }) {
+function PercentChangeStat({ value }: { value?: BigNumber }) {
+    if (!value) throw new Error('Passed falsy value to PercentChangeStat');
+
     const sign = value.isPositive() ? '↗' : '↘';
     const className = value.isPositive() ? 'pct-change-up' : 'pct-change-down';
 
@@ -23,7 +27,12 @@ PercentChangeStat.propTypes = { value: PropTypes.instanceOf(BigNumber) };
 type StatsWindow = 'total' | 'day' | 'week';
 
 function TotalPoolStats({ allPairs, lpInfo, lpStats }: {
-    allPairs: AllPairsState
+    allPairs: AllPairsState,
+    lpInfo: {
+        pairData: UniswapPair,
+        historicalData: UniswapDailyData[]
+    },
+    lpStats: ILPStats
 }) {
     const [window, setWindow] = useState<StatsWindow>('total');
 
@@ -53,36 +62,36 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }: {
             {/* <CardDeck> */}
             <USDValueWidget
                 title={`${prefix} USD Volume`}
-                badge={`#${allPairs.lookups[lpInfo.pairData.id].volumeRanking}`}
-                value={stats.volumeUSD}
+                badge={`#${allPairs?.lookups?.[lpInfo.pairData.id]?.volumeRanking}`}
+                value={stats?.volumeUSD}
                 footnote={
                     window !== 'total' && (
                         <PercentChangeStat
-                            value={stats.volumeUSDChange.times(100)}
+                            value={stats?.volumeUSDChange?.times(100)}
                         />
                     )
                 }
             />
             <USDValueWidget
                 title={'Total Liquidity'}
-                badge={`#${allPairs.lookups[lpInfo.pairData.id].liquidityRanking}`}
-                value={stats.liquidityUSD}
+                badge={`#${allPairs?.lookups?.[lpInfo.pairData.id]?.liquidityRanking}`}
+                value={stats?.liquidityUSD}
                 footnote={
                     window !== 'total' && (
                         <PercentChangeStat
-                            value={stats.liquidityUSDChange.times(100)}
+                            value={stats?.liquidityUSDChange?.times(100)}
                         />
                     )
                 }
             />
             <USDValueWidget
                 title={`${prefix} Fees Collected`}
-                badge={`#${allPairs.lookups[lpInfo.pairData.id].volumeRanking}`}
-                value={stats.feesUSD}
+                badge={`#${allPairs?.lookups?.[lpInfo.pairData.id]?.volumeRanking}`}
+                value={stats?.feesUSD}
                 footnote={
                     window !== 'total' && (
                         <PercentChangeStat
-                            value={stats.feesUSDChange.times(100)}
+                            value={stats?.feesUSDChange?.times(100)}
                         />
                     )
                 }
