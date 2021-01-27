@@ -24,7 +24,7 @@ function OverviewContainer() {
 
             if (error) {
                 // we could not get our market data
-                console.warn(`Could not fetch marekt data: ${error.message}`);
+                console.warn(`Could not fetch market data: ${error.message}`);
                 setError(error);
                 return;
             }
