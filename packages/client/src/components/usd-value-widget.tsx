@@ -9,7 +9,7 @@ import FadeOnChange from 'components/fade-on-change';
 function USDValueWidget({ title, value, footnote, badge }: {
     title: string,
     value?: BigNumber,
-    footnote: JSX.Element,
+    footnote: JSX.Element | false,
     badge: string
 }) {
     if (!value) throw new Error('Passed falsy value to USDValueWidget');
@@ -26,9 +26,11 @@ function USDValueWidget({ title, value, footnote, badge }: {
                 <Card.Text className='stats-card-body'>
                     <FadeOnChange>{displayValue}</FadeOnChange>
                 </Card.Text>
-                <p className='card-footnote'>
-                    <FadeOnChange>{footnote}</FadeOnChange>
-                </p>
+                {footnote &&
+                    <p className='card-footnote'>
+                        <FadeOnChange>{footnote}</FadeOnChange>
+                    </p>
+                }
             </Card.Body>
         </Card>
     );

@@ -22,7 +22,7 @@ function LPInput({
     dailyDataAtLPDate,
 }: {
     lpDate: Date,
-    setLPDate: (newLPDate?: Date) => void,
+    setLPDate: (newLPDate: Date) => void,
     pairData: UniswapPair,
     lpShare: number,
     setLPShare: (newLPShare: number) => void,
@@ -115,7 +115,7 @@ function LPInput({
                             max={new Date()}
                             format='yyyy-MM-dd'
                             value={lpDate}
-                            onChange={setLPDate}
+                            onChange={(newDate?: Date) => newDate && setLPDate(newDate)}
                             time={false}
                         />
                     </div>

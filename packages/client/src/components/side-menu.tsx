@@ -1,4 +1,4 @@
-import Menu from 'react-burger-menu/lib/menus/push';
+import { push as Menu } from 'react-burger-menu';
 import { NavLink, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';

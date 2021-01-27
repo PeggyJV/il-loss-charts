@@ -18,7 +18,7 @@ import useWallet from 'hooks/use-wallet';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { calculatePairRankings } from 'services/calculate-stats';
 
-import { AllPairsState } from 'types/states';
+import { AllPairsState, IError } from 'types/states';
 
 function App(): ReactElement {
     // ------------------ Initial Mount - API calls for first render ------------------
@@ -29,7 +29,7 @@ function App(): ReactElement {
         lookups: null,
         byLiquidity: null
     });
-    const [currentError, setError] = useState(null);
+    const [currentError, setError] = useState<IError | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
     const { wallet, connectMetaMask, disconnectWallet, availableProviders } = useWallet();
 
@@ -46,14 +46,16 @@ function App(): ReactElement {
                 return;
             }
 
-            const calculated = calculatePairRankings(pairsRaw);
+            if (pairsRaw) {
+                const calculated = calculatePairRankings(pairsRaw);
 
-            setAllPairs({
-                isLoading: false,
-                pairs: calculated.pairs,
-                lookups: calculated.pairLookups,
-                byLiquidity: calculated.byLiquidity,
-            });
+                setAllPairs({
+                    isLoading: false,
+                    pairs: calculated.pairs,
+                    lookups: calculated.pairLookups,
+                    byLiquidity: calculated.byLiquidity,
+                });
+            }
         };
         fetchAllPairs();
     }, []);
@@ -103,7 +105,7 @@ function App(): ReactElement {
                             <PairContainer allPairs={allPairs} />
                         </Route>
                         <Route path='/'>
-                            <OverviewContainer allPairs={allPairs} />
+                            <OverviewContainer />
                         </Route>
                     </Switch>
                 </div>

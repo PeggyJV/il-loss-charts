@@ -1,5 +1,5 @@
 import {
-    UniswapPair
+    UniswapPair, UniswapDailyData
 } from '@sommelier/shared-types';
 
 export interface AllPairsState {
@@ -17,4 +17,13 @@ export type Provider = 'metamask';
 export interface Wallet {
     account: string;
     provider: Provider
+}
+
+export interface LPInfoState {
+    pairData: UniswapPair,
+    historicalData: UniswapDailyData[]
+}
+
+export interface IError {
+    message: string;
 }

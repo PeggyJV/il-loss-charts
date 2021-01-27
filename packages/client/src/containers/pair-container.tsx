@@ -3,7 +3,16 @@ import { Container, Row, Col } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 import PropTypes from 'prop-types';
+
+import config from 'config';
+
+import { UniswapPair, UniswapSwap, UniswapMintOrBurn, UniswapDailyData } from '@sommelier/shared-types';
+
+import { AllPairsState, LPInfoState, IError } from 'types/states';
 import { Pair } from 'constants/prop-types';
+import initialData from 'constants/initialData.json';
+import { UniswapApiFetcher as Uniswap } from 'services/api';
+import { calculateLPStats } from 'services/calculate-stats';
 import Mixpanel from 'util/mixpanel';
 
 import PairSelector from 'components/pair-selector';
@@ -14,27 +23,21 @@ import LatestTradesSidebar from 'components/latest-trades-sidebar';
 import TotalPoolStats from 'components/total-pool-stats';
 import TelegramCTA from 'components/telegram-cta';
 
-import initialData from 'constants/initialData.json';
-import { UniswapApiFetcher as Uniswap } from 'services/api';
-import { calculateLPStats } from 'services/calculate-stats';
-
-import config from 'config';
-
 const mixpanel = new Mixpanel();
 
-function PairContainer({ allPairs }) {
+function PairContainer({ allPairs }: { allPairs: AllPairsState }) {
     // ------------------ Loading State - handles interstitial UI ------------------
 
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
-    const [currentError, setError] = useState(null);
+    const [currentError, setError] = useState<IError | null>(null);
 
     // ------------------ Shared State ------------------
 
     const [pairId, setPairId] = useState(initialData.pairId);
 
     // Keep track of previous pair ID so we can unsubscribe
-    const prevPairIdRef = useRef();
+    const prevPairIdRef = useRef<string>();
     useEffect(() => {
         prevPairIdRef.current = pairId;
     });
@@ -45,6 +48,9 @@ function PairContainer({ allPairs }) {
         const query = new URLSearchParams(location.search);
         const pairId = query.get('id');
         if (pairId) return setPairId(pairId);
+
+        // We can't query if no pairs
+        if (!allPairs.pairs) return;
 
         // lookup by symbol
         const symbol = query.get('symbol');
@@ -58,7 +64,7 @@ function PairContainer({ allPairs }) {
 
     // ------------------ LP State - handles lp-specific info ------------------
 
-    const [lpInfo, setLPInfo] = useState({});
+    const [lpInfo, setLPInfo] = useState<LPInfoState | null>(null);
     const [lpDate, setLPDate] = useState(new Date(initialData.lpDate));
     const [lpShare, setLPShare] = useState(initialData.lpShare);
 
@@ -92,37 +98,40 @@ function PairContainer({ allPairs }) {
                 return;
             }
 
-            const pairCreatedAt = new Date(newPair.createdAtTimestamp * 1000);
+            if (newPair) {
+                const createdAt = parseInt(newPair.createdAtTimestamp, 10);
+                const pairCreatedAt = new Date(createdAt * 1000);
 
-            // Get historical data for pair from start date until now
-            const {
-                data: historicalDailyData,
-                error: historicalErrors,
-            } = await Uniswap.getHistoricalDailyData(pairId, pairCreatedAt);
+                // Get historical data for pair from start date until now
+                const {
+                    data: historicalDailyData,
+                    error: historicalErrors,
+                } = await Uniswap.getHistoricalDailyData(pairId, pairCreatedAt);
 
-            if (historicalErrors) {
-                // we could not get data for this new pair
-                console.warn(
-                    `Could not fetch historical data for ${pairId}: ${historicalErrors.message}`
-                );
-                setError(error);
-                return;
+                if (historicalErrors) {
+                    // we could not get data for this new pair
+                    console.warn(
+                        `Could not fetch historical data for ${pairId}: ${historicalErrors.message}`
+                    );
+                    setError(historicalErrors);
+                    return;
+                }
+
+                setLPInfo((prevLpInfo) => ({
+                    ...prevLpInfo,
+                    pairData: newPair,
+                    historicalData: historicalDailyData,
+                } as LPInfoState));
+
+                mixpanel.track('pair_query', {
+                    pairId,
+                    token0: newPair.token0.symbol,
+                    token1: newPair.token1.symbol,
+                });
+
+                setIsLoading(false);
+                if (isInitialLoad) setIsInitialLoad(false);
             }
-
-            setLPInfo((prevLpInfo) => ({
-                ...prevLpInfo,
-                pairData: newPair,
-                historicalData: historicalDailyData,
-            }));
-
-            mixpanel.track('pair_query', {
-                pairId,
-                token0: newPair.token0.symbol,
-                token1: newPair.token1.symbol,
-            });
-
-            setIsLoading(false);
-            if (isInitialLoad) setIsInitialLoad(false);
         };
 
         fetchPairData();
@@ -130,11 +139,12 @@ function PairContainer({ allPairs }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pairId]);
 
-    const dailyDataAtLPDate = useMemo(() => {
-        if (currentError) return;
+    const dailyDataAtLPDate = useMemo((): UniswapDailyData | null => {
+        if (currentError) return null;
+        if (!lpInfo) return null;
 
         if (!lpInfo.historicalData || lpInfo.historicalData.length === 0)
-            return {};
+            return null;
 
         // Find daily data that matches LP date
         for (const dailyData of lpInfo.historicalData) {
@@ -144,7 +154,7 @@ function PairContainer({ allPairs }) {
             }
         }
 
-        if (lpInfo.historicalData.length === 0) return;
+        if (lpInfo.historicalData.length === 0) return null;
         const firstDay = new Date(lpInfo.historicalData[0].date * 1000);
         console.warn(
             `Could not find LP date in historical data: ${lpDate}. Setting to first day, which is ${firstDay}.`
@@ -156,7 +166,7 @@ function PairContainer({ allPairs }) {
 
     // ------------------ Websocket State - handles subscriptions ------------------
 
-    const [latestBlock, setLatestBlock] = useState(null);
+    const [latestBlock, setLatestBlock] = useState<number | null>(null);
     const { sendJsonMessage, lastJsonMessage } = useWebSocket(config.wsApi);
 
     // Handle websocket message
@@ -168,10 +178,10 @@ function PairContainer({ allPairs }) {
 
         let blockNumber;
         if (topic.startsWith('uniswap:getPairOverview') && !isLoading) {
-            const { data: pairMsg } = lastJsonMessage;
+            const { data: pairMsg }: { data: UniswapPair } = lastJsonMessage;
 
             if (pairMsg.id === pairId) {
-                setLPInfo({ ...lpInfo, pairData: pairMsg });
+                setLPInfo({ ...lpInfo, pairData: pairMsg } as LPInfoState);
             } else {
                 console.warn(
                     `Received pair update over websocket for non-active pair: ${pairMsg.token0.symbol}/${pairMsg.token1.symbol}`
@@ -180,7 +190,7 @@ function PairContainer({ allPairs }) {
         } else if (topic === 'infura:newHeads') {
             const {
                 data: { number: blockNumberHex },
-            } = lastJsonMessage;
+            }: { data: { number: string } } = lastJsonMessage;
             blockNumber = parseInt(blockNumberHex.slice(2), 16);
             setLatestBlock(blockNumber);
         } else if (topic === 'infura:newBlockHeaders') {
@@ -223,7 +233,14 @@ function PairContainer({ allPairs }) {
 
     // ------------------ Market Data State - fetches non-LP specific market data ------------------
 
-    const [latestSwaps, setLatestSwaps] = useState({
+    const [latestSwaps, setLatestSwaps] = useState<{
+        swaps: UniswapSwap[] | null,
+        mintsAndBurns: {
+            mints: UniswapMintOrBurn[],
+            burns: UniswapMintOrBurn[],
+            combined: UniswapMintOrBurn[],
+        } | null
+    }>({
         swaps: null,
         mintsAndBurns: null,
     });
@@ -247,13 +264,15 @@ function PairContainer({ allPairs }) {
             if (error) {
                 // we could not get data for this new pair
                 console.warn(
-                    `Could not fetch trades data for ${pairId}: ${error.messages}`
+                    `Could not fetch trades data for ${pairId}: ${error.message}`
                 );
                 setError(error);
                 return;
             }
 
-            setLatestSwaps({ swaps: latestSwaps, mintsAndBurns });
+            if (latestSwaps && mintsAndBurns) {
+                setLatestSwaps({ swaps: latestSwaps, mintsAndBurns });
+            }
         };
 
         const refreshPairData = async () => {
@@ -262,7 +281,7 @@ function PairContainer({ allPairs }) {
             setLPInfo((prevLpInfo) => ({
                 ...prevLpInfo,
                 pairData: newPairData,
-            }));
+            } as LPInfoState));
         };
 
         getLatestSwaps();
@@ -286,7 +305,7 @@ function PairContainer({ allPairs }) {
     }
 
     // If no lp stats, we haven't completed our first data fetch yet
-    if (!lpStats || Object.keys(lpStats).length === 0) {
+    if (!allPairs.pairs || !lpInfo || !lpStats || !dailyDataAtLPDate || Object.keys(lpStats).length === 0) {
         return (
             <Container className='loading-container'>
                 <div className='wine-bounce'>🍷</div>
@@ -339,10 +358,7 @@ function PairContainer({ allPairs }) {
                         setLPShare={setLPShare}
                         dailyDataAtLPDate={dailyDataAtLPDate}
                     />
-                    <LPStatsWidget
-                        lpStats={lpStats}
-                        pairData={lpInfo.pairData}
-                    />
+                    <LPStatsWidget lpStats={lpStats} />
                 </Col>
             </Row>
             {/* <Row>

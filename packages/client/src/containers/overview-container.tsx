@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, SyntheticEvent } from 'react';
 import PropTypes from 'prop-types';
 import { Link, useHistory } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import BootstrapTable from 'react-bootstrap-table-next';
 import BigNumber from 'bignumber.js';
+
+import { UniswapPair, MarketStats } from '@sommelier/shared-types';
+import { IError } from 'types/states';
 
 import { MarketData } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
@@ -11,8 +14,8 @@ import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { resolveLogo } from 'components/token-with-logo';
 
 function OverviewContainer() {
-    const [marketData, setMarketData] = useState([]);
-    const [currentError, setError] = useState(null);
+    const [marketData, setMarketData] = useState<MarketStats[] | null>(null);
+    const [currentError, setError] = useState<IError | null>(null);
 
     useEffect(() => {
         const fetchMarketData = async () => {
@@ -26,12 +29,15 @@ function OverviewContainer() {
                 return;
             }
 
-            setMarketData(marketData);
+            if (marketData) {
+                setMarketData(marketData);
+            }
+
         };
         fetchMarketData();
     }, []);
 
-    window.marketData = marketData;
+    (window as any).marketData = marketData;
 
     if (currentError) {
         return (
@@ -59,10 +65,10 @@ function OverviewContainer() {
     );
 }
 
-function MarketDataTable({ data }) {
+function MarketDataTable({ data }: { data: MarketStats[] }) {
     const history = useHistory();
 
-    const formatPair = ({ id, token0, token1 }) => {
+    const formatPair = ({ id, token0, token1 }: UniswapPair) => {
         return (
             <span>
                 {resolveLogo(token0.id)}{' '}
@@ -76,7 +82,7 @@ function MarketDataTable({ data }) {
         );
     };
 
-    const formatPct = (val) => `${new BigNumber(val).times(100).toFixed(2)}%`;
+    const formatPct = (val: number) => `${new BigNumber(val).times(100).toFixed(2)}%`;
 
     const columns = [
         {
@@ -123,7 +129,7 @@ function MarketDataTable({ data }) {
             dataField: 'returnsETH',
             text: 'ETH Returns',
             sort: true,
-            formatter: (val) => val.toFixed(4),
+            formatter: (val: BigNumber) => val.toFixed(4),
         },
     ];
 
@@ -134,9 +140,10 @@ function MarketDataTable({ data }) {
             index: index + 1,
             market: { id: d.id, token0: d.token0, token1: d.token1 },
         }));
-    window.sortedIL = sortedIl;
 
-    const onRowClick = (e, pair) => {
+    (window as any).sortedIL = sortedIl;
+
+    const onRowClick = (e: SyntheticEvent, pair: UniswapPair) => {
         history.push(`/pair?id=${pair.id}`)
     }
 

@@ -3,6 +3,9 @@ import { Container, Row, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import Mixpanel from 'util/mixpanel';
 
+import { LPPositionData } from '@sommelier/shared-types';
+import { Wallet, IError } from 'types/states';
+
 // import PositionSelector from 'components/position-selector';
 import LPStatsChart from 'components/lp-stats-chart';
 import USDValueWidget from 'components/usd-value-widget';
@@ -13,13 +16,13 @@ import { UniswapApiFetcher as Uniswap } from 'services/api';
 
 const mixpanel = new Mixpanel();
 
-function PositionContainer({ wallet }) {
+function PositionContainer({ wallet }: { wallet: Wallet }) {
     // ------------------ Loading State - handles interstitial UI ------------------
 
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
-    const [currentError, setError] = useState(null);
-    const [positionData, setPositionData] = useState({ positions: null, stats: null });
+    const [currentError, setError] = useState<IError | null>(null);
+    const [positionData, setPositionData] = useState<LPPositionData | null>(null);
 
     // ------------------ Shared State ------------------
 
@@ -27,11 +30,11 @@ function PositionContainer({ wallet }) {
     const [pairId, setPairId] = useState(positionData?.positions ? Object.keys(positionData.positions)[0] : null);
 
     // const currentPosition = positions[pairId];
-    window.positionData = positionData;
-    window.pairId = pairId;
-    const currentStats = pairId ? positionData.stats?.[pairId]?.aggregatedStats : null;
+    (window as any).positionData = positionData;
+    (window as any).pairId = pairId;
+    const currentStats = pairId ? positionData?.stats?.[pairId]?.aggregatedStats : null;
     // const fullPairs = positionData.positions ? Object.values(positionData.positions).map((positionSnapshots) => positionSnapshots[0].pair) : [];
-    const pair = positionData.positions && pairId ? positionData.positions[pairId]?.[0].pair : null;
+    const pair = positionData?.positions && pairId ? positionData?.positions[pairId]?.[0].pair : null;
 
     // ------------------ Position State - fetches LP-specific position data ------------------
 
@@ -124,15 +127,15 @@ function PositionContainer({ wallet }) {
                     <div className='pool-stats-container'>
                         <USDValueWidget
                             title={'Fees Earned'}
-                            value={positionData.stats[pairId].aggregatedStats.totalFees}
+                            value={positionData?.stats[pairId]?.aggregatedStats.totalFees}
                         />
                         <USDValueWidget
                             title={'Impermanent Loss'}
-                            value={positionData.stats[pairId].aggregatedStats.impermanentLoss}
+                            value={positionData?.stats[pairId]?.aggregatedStats.impermanentLoss}
                         />
                         <USDValueWidget
                             title={'Total Return'}
-                            value={positionData.stats[pairId].aggregatedStats.totalReturn}
+                            value={positionData?.stats[pairId]?.aggregatedStats.totalReturn}
                         />
                     </div>
                 </Col>

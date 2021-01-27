@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import { UniswapPair, UniswapDailyData, LPStats as ILPStats } from '@sommelier/shared-types';
 
-import { AllPairsState } from 'types/states';
+import { AllPairsState, LPInfoState } from 'types/states';
 import { Pair, DailyData, LPStats } from 'constants/prop-types';
 import USDValueWidget from 'components/usd-value-widget';
 
@@ -28,10 +28,7 @@ type StatsWindow = 'total' | 'day' | 'week';
 
 function TotalPoolStats({ allPairs, lpInfo, lpStats }: {
     allPairs: AllPairsState,
-    lpInfo: {
-        pairData: UniswapPair,
-        historicalData: UniswapDailyData[]
-    },
+    lpInfo: LPInfoState,
     lpStats: ILPStats
 }) {
     const [window, setWindow] = useState<StatsWindow>('total');

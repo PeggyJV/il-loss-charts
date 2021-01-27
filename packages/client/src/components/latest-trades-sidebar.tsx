@@ -11,16 +11,17 @@ import { formatUSD } from 'util/formats';
 function LatestTradeSidebar(
     { latestSwaps }: {
         latestSwaps: {
-            swaps: UniswapSwap[],
+            swaps: UniswapSwap[] | null,
             mintsAndBurns: {
                 mints: UniswapMintOrBurn[],
                 burns: UniswapMintOrBurn[],
                 combined: UniswapMintOrBurn[],
-            }
-        }
+            } | null
+        } | null
     }
 ) {
     const [mode, setMode] = useState('swaps');
+    if (!latestSwaps) return null;
 
     const { swaps, mintsAndBurns } = latestSwaps;
     if (!swaps || !mintsAndBurns) return null;
