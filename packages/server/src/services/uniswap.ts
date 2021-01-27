@@ -151,7 +151,8 @@ export default class UniswapFetcher {
                             orderDirection: desc, 
                             orderBy: volumeUSD,
                             where: {
-                                volumeUSD_lt: 1000000
+                                volumeUSD_lt: 100000000,
+                                reserveUSD_gt: 500000
                             }
                         ) {
                             id
