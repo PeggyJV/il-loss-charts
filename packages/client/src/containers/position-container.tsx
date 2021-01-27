@@ -3,7 +3,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import Mixpanel from 'util/mixpanel';
 
-import { LPPositionData } from '@sommelier/shared-types';
+import { LPPositionData, Token } from '@sommelier/shared-types';
 import { Wallet, IError } from 'types/states';
 
 // import PositionSelector from 'components/position-selector';
@@ -53,8 +53,6 @@ function PositionContainer({ wallet }: { wallet: Wallet }) {
 
             const { data: positionData, error } = await Uniswap.getPositionStats(wallet.account);
 
-            console.log('Got new position data');
-
             if (error) {
                 // we could not list pairs
                 console.warn(`Could not get position stats: ${error.message}`);
@@ -62,7 +60,9 @@ function PositionContainer({ wallet }: { wallet: Wallet }) {
                 return;
             }
 
-            setPositionData(positionData);
+            if (positionData) {
+                setPositionData(positionData);
+            }
 
             setIsLoading(false);
             if (isInitialLoad) setIsInitialLoad(false);
@@ -73,7 +73,7 @@ function PositionContainer({ wallet }: { wallet: Wallet }) {
         }
 
         if (wallet.account) {
-            fetchPositionsForWallet();
+            void fetchPositionsForWallet();
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -101,7 +101,7 @@ function PositionContainer({ wallet }: { wallet: Wallet }) {
         );
     }
 
-    if (!currentStats) {
+    if (!currentStats || !pairId || !pair || !positionData) {
         return (
             <Container className='loading-container'>
                 <div className='wine-bounce'>🍷</div>
@@ -118,9 +118,9 @@ function PositionContainer({ wallet }: { wallet: Wallet }) {
             <Row className='top-stats-row'>
                 <Col lg={4} className='pair-text-large'>
                     <span>
-                        {resolveLogo(pair.token0.id)}{' '}
-                        {pair.token0.symbol}/{pair.token1.symbol}
-                        {' '}{resolveLogo(pair.token1.id)}
+                        {resolveLogo((pair.token0 as Token).id)}{' '}
+                        {(pair.token0 as Token).symbol}/{(pair.token1 as Token).symbol}
+                        {' '}{resolveLogo((pair.token1 as Token).id)}
                     </span>
                 </Col>
                 <Col lg={8}>

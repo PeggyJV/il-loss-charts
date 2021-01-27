@@ -34,7 +34,7 @@ function OverviewContainer() {
             }
 
         };
-        fetchMarketData();
+        void fetchMarketData();
     }, []);
 
     (window as any).marketData = marketData;

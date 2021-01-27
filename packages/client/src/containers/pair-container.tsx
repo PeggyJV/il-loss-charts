@@ -55,7 +55,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }) {
         // lookup by symbol
         const symbol = query.get('symbol');
         const pairForSymbol = allPairs.pairs.find((pair) => {
-            const pairSymbol = `${pair.token0.symbol}/${pair.token1.symbol}`;
+            const pairSymbol = `${pair.token0.symbol || ''}/${pair.token1.symbol || ''}`;
             return symbol === pairSymbol;
         });
 
@@ -134,7 +134,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }) {
             }
         };
 
-        fetchPairData();
+        void fetchPairData();
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pairId]);
@@ -157,7 +157,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }) {
         if (lpInfo.historicalData.length === 0) return null;
         const firstDay = new Date(lpInfo.historicalData[0].date * 1000);
         console.warn(
-            `Could not find LP date in historical data: ${lpDate}. Setting to first day, which is ${firstDay}.`
+            `Could not find LP date in historical data: ${lpDate.toISOString()}. Setting to first day, which is ${firstDay.toISOString()}.`
         );
         setLPDate(firstDay);
         return lpInfo.historicalData[0];
@@ -184,7 +184,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }) {
                 setLPInfo({ ...lpInfo, pairData: pairMsg } as LPInfoState);
             } else {
                 console.warn(
-                    `Received pair update over websocket for non-active pair: ${pairMsg.token0.symbol}/${pairMsg.token1.symbol}`
+                    `Received pair update over websocket for non-active pair: ${pairMsg.token0.symbol || ''}/${pairMsg.token1.symbol || ''}`
                 );
             }
         } else if (topic === 'infura:newHeads') {
@@ -219,10 +219,13 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }) {
     useEffect(() => {
         if (currentError) return;
 
-        sendJsonMessage({
-            op: 'unsubscribe',
-            topics: [`uniswap:getPairOverview:${prevPairId}`],
-        });
+        if (prevPairId) {
+            sendJsonMessage({
+                op: 'unsubscribe',
+                topics: [`uniswap:getPairOverview:${prevPairId}`],
+            });
+        }
+
         sendJsonMessage({
             op: 'subscribe',
             topics: [`uniswap:getPairOverview:${pairId}`],
@@ -284,8 +287,8 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }) {
             } as LPInfoState));
         };
 
-        getLatestSwaps();
-        refreshPairData();
+        void getLatestSwaps();
+        void refreshPairData();
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pairId, latestBlock]);

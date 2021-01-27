@@ -57,7 +57,8 @@ function App(): ReactElement {
                 });
             }
         };
-        fetchAllPairs();
+
+        void fetchAllPairs();
     }, []);
 
     if (currentError) {

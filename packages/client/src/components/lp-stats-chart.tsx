@@ -28,9 +28,10 @@ interface LPStatsDataPoint {
     returns: [number, number]
 }
 
-function LPStatsChart({ lpStats }: { lpStats: ILPStats }) {
+function LPStatsChart({ lpStats }: { lpStats: ILPStats }): JSX.Element {
     const chartData: LPStatsDataPoint[] = [];
-    for (const i in lpStats.days) {
+
+    lpStats.days.forEach((stats, i) => {
         const runningFee = new BigNumber(lpStats.runningFees[i]).toNumber();
         const runningReturn = new BigNumber(lpStats.runningReturn[i]).toNumber();
 
@@ -44,7 +45,7 @@ function LPStatsChart({ lpStats }: { lpStats: ILPStats }) {
             ]).toNumber(),
             returns: [runningFee, runningReturn],
         });
-    }
+    });
 
     const showXAxisTicks = window.innerWidth > 700;
 

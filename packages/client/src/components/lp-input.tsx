@@ -27,7 +27,7 @@ function LPInput({
     lpShare: number,
     setLPShare: (newLPShare: number) => void,
     dailyDataAtLPDate: UniswapDailyData
-}) {
+}): JSX.Element {
     const { token0, token1 } = pairData;
 
     const calcAmounts = (lpShare: number, dailyDataAtLPDate: UniswapDailyData): void => {
@@ -88,10 +88,6 @@ function LPInput({
             setToken1Amt(value);
 
             setLPShare(usdValue);
-        } else {
-            throw new Error(
-                `Tried to update share with invalid denom: ${denom}`
-            );
         }
     };
 
@@ -131,7 +127,7 @@ function LPInput({
                     />
                 </Form.Group>
                 <Form.Group>
-                    <Form.Label>{`${token0.symbol} Liquidity`}</Form.Label>
+                    <Form.Label>{`${token0.symbol || ''} Liquidity`}</Form.Label>
                     <Form.Control
                         type='text'
                         onChange={(event) =>
@@ -141,7 +137,7 @@ function LPInput({
                     />
                 </Form.Group>
                 <Form.Group>
-                    <Form.Label>{`${token1.symbol} Liquidity`}</Form.Label>
+                    <Form.Label>{`${token1.symbol || ''} Liquidity`}</Form.Label>
                     <Form.Control
                         type='text'
                         onChange={(event) =>

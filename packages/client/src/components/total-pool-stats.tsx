@@ -59,7 +59,7 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }: {
             {/* <CardDeck> */}
             <USDValueWidget
                 title={`${prefix} USD Volume`}
-                badge={`#${allPairs?.lookups?.[lpInfo.pairData.id]?.volumeRanking}`}
+                badge={`#${allPairs?.lookups?.[lpInfo.pairData.id]?.volumeRanking || ''}`}
                 value={stats?.volumeUSD}
                 footnote={
                     window !== 'total' && (
@@ -71,7 +71,7 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }: {
             />
             <USDValueWidget
                 title={'Total Liquidity'}
-                badge={`#${allPairs?.lookups?.[lpInfo.pairData.id]?.liquidityRanking}`}
+                badge={`#${allPairs?.lookups?.[lpInfo.pairData.id]?.liquidityRanking || ''}`}
                 value={stats?.liquidityUSD}
                 footnote={
                     window !== 'total' && (
@@ -83,7 +83,7 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }: {
             />
             <USDValueWidget
                 title={`${prefix} Fees Collected`}
-                badge={`#${allPairs?.lookups?.[lpInfo.pairData.id]?.volumeRanking}`}
+                badge={`#${allPairs?.lookups?.[lpInfo.pairData.id]?.volumeRanking || ''}`}
                 value={stats?.feesUSD}
                 footnote={
                     window !== 'total' && (

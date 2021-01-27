@@ -9,9 +9,9 @@ import FadeOnChange from 'components/fade-on-change';
 function USDValueWidget({ title, value, footnote, badge }: {
     title: string,
     value?: BigNumber,
-    footnote: JSX.Element | false,
-    badge: string
-}) {
+    footnote?: JSX.Element | false,
+    badge?: string
+}): JSX.Element {
     if (!value) throw new Error('Passed falsy value to USDValueWidget');
 
     const displayValue = formatUSD(value.toNumber());
