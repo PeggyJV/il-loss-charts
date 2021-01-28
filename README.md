@@ -16,7 +16,7 @@ This repo houses the web application for [Sommelier.finance](https://app.sommeli
 
 ## Ecosystem Dependencies
 
-* [Cosmos](https://cosmos.network/) - The Sommelier protocol is built on the Cosmos network - meaning faster tranasctions, lower fees, and a universe of interoperability.
+* [Cosmos](https://cosmos.network/) - The Sommelier protocol is built on the Cosmos network - meaning faster transactions, lower fees, and a universe of interoperability.
 * [Uniswap](https://uniswap.org/) - Sommelier began as a tool for LP positions on Uniswap. More AMM integrations are coming soon!
 * [The Graph](https://thegraph.com/) - Sommelier uses a custom implementation of the [Uniswap V2 Subgraph](https://thegraph.com/explorer/subgraph/uniswap/uniswap-v2) for indexing and query Uniswap event data.
 * [Infura](https://infura.io/) - We use Infura as our Ethereum provider, with a roadmap for adding additional providers and redundancies on our backend.

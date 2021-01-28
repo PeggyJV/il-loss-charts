@@ -69,30 +69,30 @@ export interface UniswapMintOrBurn {
     timestamp: string;
 }
 
-export interface StatsOverTime {
-    volumeUSD: BigNumber;
-    liquidityUSD: BigNumber;
-    feesUSD: BigNumber;
-    volumeUSDChange?: BigNumber;
-    liquidityUSDChange?: BigNumber;
-    feesUSDChange?: BigNumber;
+export interface StatsOverTime<T = BigNumber> {
+    volumeUSD: T;
+    liquidityUSD: T;
+    feesUSD: T;
+    volumeUSDChange?: T;
+    liquidityUSDChange?: T;
+    feesUSDChange?: T;
 }
 
-export interface LPStats {
-    totalFees: BigNumber;
-    runningVolume: BigNumber[];
-    runningFees: BigNumber[];
-    runningImpermanentLoss: BigNumber[];
-    runningReturn: BigNumber[];
-    dailyLiquidity: BigNumber[];
-    impermanentLoss: BigNumber;
-    totalReturn: BigNumber;
+export interface LPStats<T = BigNumber> {
+    totalFees: T;
+    runningVolume: T[];
+    runningFees: T[];
+    runningImpermanentLoss: T[];
+    runningReturn: T[];
+    dailyLiquidity: T[];
+    impermanentLoss: T;
+    totalReturn: T;
     days: string[];
-    totalStats?: StatsOverTime;
-    lastDayStats?: StatsOverTime;
-    prevDayStats?: StatsOverTime;
-    lastWeekStats?: StatsOverTime;
-    prevWeekStats?: StatsOverTime;
+    totalStats?: StatsOverTime<T>;
+    lastDayStats?: StatsOverTime<T>;
+    prevDayStats?: StatsOverTime<T>;
+    lastWeekStats?: StatsOverTime<T>;
+    prevWeekStats?: StatsOverTime<T>;
     fullDates?: Date[];
 }
 
@@ -118,4 +118,17 @@ export interface UniswapLiquidityPositionAtTime extends LiquidityData {
     liquidityTokenTotalSupply: string;
     pair: Partial<UniswapPair>;
     timestamp: number;
+}
+
+type HistoricalData = UniswapDailyData | UniswapHourlyData;
+
+export interface LPPositionData<T = BigNumber> {
+    positions: { [pairId: string]: UniswapLiquidityPositionAtTime[] },
+    stats: {
+        [pairId: string]: {
+            historicalData: HistoricalData[];
+            aggregatedStats: LPStats<T>;
+            statsWindows: LPStats<T>[];
+        }
+    }
 }
