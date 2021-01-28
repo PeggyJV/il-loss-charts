@@ -3,7 +3,7 @@ import { Button, Card } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
 
-import { UniswapPair, UniswapDailyData, LPStats as ILPStats } from '@sommelier/shared-types';
+import { LPStats as ILPStats } from '@sommelier/shared-types';
 
 import { AllPairsState, LPInfoState } from 'types/states';
 import { Pair, DailyData, LPStats } from 'constants/prop-types';
@@ -30,7 +30,7 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }: {
     allPairs: AllPairsState,
     lpInfo: LPInfoState,
     lpStats: ILPStats
-}) {
+}): JSX.Element {
     const [window, setWindow] = useState<StatsWindow>('total');
 
     const { totalStats, lastDayStats, lastWeekStats } = lpStats;

@@ -62,18 +62,16 @@ paths:
         get:
             tags:
                 - Uniswap
-            description: List top performing pairs on uniswap with stats.
+            description: List top performing pairs on uniswap with stats within the last 24 hours.
             parameters:
                 -   in: query
                     name: count
-                    example: 100
+                    example: 10
                     schema:
                         type: integer
                         minimum: 1
                         maximum: 1000
                     description: Number of pairs to fetch.
-                - $ref: "#/components/parameters/startDate"
-                - $ref: "#/components/parameters/endDate"
             responses:
                 400:
                     description: Parameter 'startDate' not provided, invalid 'startDate' or 'endDate'.

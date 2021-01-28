@@ -4,27 +4,43 @@ import {
     UniswapSwap,
     UniswapMintOrBurn,
     UniswapDailyData,
-    LPPositionData
+    LPPositionData,
 } from '@sommelier/shared-types';
 
 import { IError } from 'types/states';
 
-type ApiResponse<T> = { data?: T, error?: IError };
+type ApiResponse<T> = { data?: T; error?: IError };
 
 export class UniswapApiFetcher {
-    static async getPairOverview(pairId: string): Promise<ApiResponse<UniswapPair>> {
+    static async getPairOverview(
+        pairId: string
+    ): Promise<ApiResponse<UniswapPair>> {
         const response = await fetch(`/api/v1/uniswap/pairs/${pairId}`);
-        const { data, error } = await (response.json() as Promise<ApiResponse<UniswapPair>>);
+        const { data, error } = await (response.json() as Promise<
+            ApiResponse<UniswapPair>
+        >);
         return { data, error };
     }
 
-    static async getLatestSwaps(pairId: string): Promise<ApiResponse<UniswapSwap[]>> {
+    static async getLatestSwaps(
+        pairId: string
+    ): Promise<ApiResponse<UniswapSwap[]>> {
         const response = await fetch(`/api/v1/uniswap/pairs/${pairId}/swaps`);
-        const { data, error } = await (response.json() as Promise<ApiResponse<UniswapSwap[]>>);
+        const { data, error } = await (response.json() as Promise<
+            ApiResponse<UniswapSwap[]>
+        >);
         return { data, error };
     }
 
-    static async getMintsAndBurns(pairId: string): Promise<ApiResponse<{ mints: UniswapMintOrBurn[], burns: UniswapMintOrBurn[], combined: UniswapMintOrBurn[] }>> {
+    static async getMintsAndBurns(
+        pairId: string
+    ): Promise<
+        ApiResponse<{
+            mints: UniswapMintOrBurn[];
+            burns: UniswapMintOrBurn[];
+            combined: UniswapMintOrBurn[];
+        }>
+    > {
         const response = await fetch(
             `/api/v1/uniswap/pairs/${pairId}/addremove`
         );
@@ -32,17 +48,33 @@ export class UniswapApiFetcher {
         return { data, error };
     }
 
-    static async getTopPairs(count = 1000): Promise<ApiResponse<UniswapPair[]>> {
+    static async getTopPairs(
+        count = 1000
+    ): Promise<ApiResponse<UniswapPair[]>> {
         const response = await fetch(`/api/v1/uniswap/pairs?count=${count}`);
-        const { data, error } = await (response.json() as Promise<ApiResponse<UniswapPair[]>>);
+        const { data, error } = await (response.json() as Promise<
+            ApiResponse<UniswapPair[]>
+        >);
         return { data, error };
     }
 
-    static async getMarketData(startDate = '2020-12-01'): Promise<ApiResponse<MarketStats[]>> {
+    static async getMarketData(
+        startDate = '2020-12-01'
+    ): Promise<ApiResponse<MarketStats[]>> {
         const response = await fetch(
             `/api/v1/uniswap/market?startDate=${startDate}`
         );
-        const { data, error } = await (response.json() as Promise<ApiResponse<MarketStats[]>>);
+        const { data, error } = await (response.json() as Promise<
+            ApiResponse<MarketStats[]>
+        >);
+        return { data, error };
+    }
+
+    static async getTopPerformingPairs(): Promise<ApiResponse<MarketStats[]>> {
+        const response = await fetch(`/api/v1/uniswap/pairs/performance`);
+        const { data, error } = await (response.json() as Promise<
+            ApiResponse<MarketStats[]>
+        >);
         return { data, error };
     }
 
@@ -54,13 +86,21 @@ export class UniswapApiFetcher {
         const response = await fetch(
             `/api/v1/uniswap/pairs/${pairId}/historical?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
         );
-        const { data, error } = await (response.json() as Promise<ApiResponse<UniswapDailyData[]>>);
+        const { data, error } = await (response.json() as Promise<
+            ApiResponse<UniswapDailyData[]>
+        >);
         return { data, error };
     }
 
-    static async getPositionStats(address: string): Promise<ApiResponse<LPPositionData<string>>> {
-        const response = await fetch(`/api/v1/uniswap/positions/${address}/stats`);
-        const { data, error } = await (response.json() as Promise<ApiResponse<LPPositionData<string>>>);
+    static async getPositionStats(
+        address: string
+    ): Promise<ApiResponse<LPPositionData<string>>> {
+        const response = await fetch(
+            `/api/v1/uniswap/positions/${address}/stats`
+        );
+        const { data, error } = await (response.json() as Promise<
+            ApiResponse<LPPositionData<string>>
+        >);
         return { data, error };
     }
 }

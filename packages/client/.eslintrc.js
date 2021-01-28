@@ -5,7 +5,7 @@ module.exports = {
     env: {
         es2021: true,
         browser: true,
-        node: true
+        node: true,
     },
     parserOptions: {
         project: path.join(__dirname, './tsconfig.json'),
@@ -14,17 +14,17 @@ module.exports = {
     extends: [
         '../../.eslintrc.json',
         'plugin:react/recommended',
-        'plugin:react-hooks/recommended'
+        'plugin:react-hooks/recommended',
     ],
     rules: {
         'react/react-in-jsx-scope': 'off',
         'no-unused-vars': 'off',
-        '@typescript-eslint/no-unused-vars': ['error'],
-        '@typescript-eslint/no-explicit-any': 'off'
+        '@typescript-eslint/no-unused-vars': ['warn'],
+        '@typescript-eslint/no-explicit-any': 'off',
     },
     settings: {
         react: {
-            version: 'detect'
-        }
-    }
-}
+            version: 'detect',
+        },
+    },
+};

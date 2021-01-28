@@ -22,7 +22,7 @@ type StatsMapping = { [pairId: string]: StatsMappingValue };
 
 const isDailyData = (data: HistoricalData): data is UniswapDailyData =>
     Object.prototype.hasOwnProperty.call(data, 'dailyVolumeUSD');
-// const isHourlyData = (data: HistoricalData): data is UniswapDailyData => Object.prototype.hasOwnProperty.call(data, 'hourlyVolumeUSD');
+// const isHourlyData = (fdata: HistoricalData): data is UniswapDailyData => Object.prototype.hasOwnProperty.call(data, 'hourlyVolumeUSD');
 const isDailyDataList = (data: HistoricalData[]): data is UniswapDailyData[] =>
     Object.prototype.hasOwnProperty.call(data[0], 'dailyVolumeUSD');
 const isHourlyDataList = (
@@ -69,8 +69,9 @@ export async function calculateMarketStats(
             const firstDaily = historical[0];
             const lastDaily = historical[historical.length - 1];
 
-            const pairReadable = `${pair.token0?.symbol || ''}/${pair.token1?.symbol || 's'
-                }`;
+            const pairReadable = `${pair.token0?.symbol || ''}/${
+                pair.token1?.symbol || 's'
+            }`;
 
             // Skip pair if no data
             // TODO smarter error handling
@@ -495,7 +496,8 @@ export async function calculateStatsForPositions(
         }
 
         if (fetchCurrent) {
-            const prevSnapshot = positionSnapshots[positionSnapshots.length - 1];
+            const prevSnapshot =
+                positionSnapshots[positionSnapshots.length - 1];
 
             // also calculate final window until now
             let historicalDataBetween = sliceHistoricalData(
@@ -553,39 +555,39 @@ export async function calculateStatsForPositions(
             aggregatedStats = statsArr[0];
         } else {
             // combine all lp stats for each window into one
-            aggregatedStats = statsArr.reduce(
-                (acc: LPStats, currentStats) => {
-                    const stats: LPStats = {
-                        totalFees: acc.totalFees.plus(currentStats.totalFees),
-                        runningVolume: acc.runningVolume.concat(
-                            ...currentStats.runningVolume
-                        ),
-                        runningFees: acc.runningFees.concat(
-                            ...currentStats.runningFees
-                        ),
-                        runningImpermanentLoss: acc.runningImpermanentLoss.concat(
-                            ...currentStats.runningImpermanentLoss
-                        ),
-                        runningReturn: acc.runningReturn.concat(
-                            ...currentStats.runningReturn
-                        ),
-                        impermanentLoss: acc.impermanentLoss.plus(
-                            currentStats.impermanentLoss
-                        ),
-                        totalReturn: acc.totalReturn.plus(currentStats.totalReturn),
-                        days: acc.days.concat(...currentStats.days),
-                        dailyLiquidity: acc.dailyLiquidity.concat(
-                            ...currentStats.dailyLiquidity
-                        ),
-                    };
+            aggregatedStats = statsArr.reduce((acc: LPStats, currentStats) => {
+                const stats: LPStats = {
+                    totalFees: acc.totalFees.plus(currentStats.totalFees),
+                    runningVolume: acc.runningVolume.concat(
+                        ...currentStats.runningVolume
+                    ),
+                    runningFees: acc.runningFees.concat(
+                        ...currentStats.runningFees
+                    ),
+                    runningImpermanentLoss: acc.runningImpermanentLoss.concat(
+                        ...currentStats.runningImpermanentLoss
+                    ),
+                    runningReturn: acc.runningReturn.concat(
+                        ...currentStats.runningReturn
+                    ),
+                    impermanentLoss: acc.impermanentLoss.plus(
+                        currentStats.impermanentLoss
+                    ),
+                    totalReturn: acc.totalReturn.plus(currentStats.totalReturn),
+                    days: acc.days.concat(...currentStats.days),
+                    dailyLiquidity: acc.dailyLiquidity.concat(
+                        ...currentStats.dailyLiquidity
+                    ),
+                };
 
-                    if (acc.fullDates && currentStats.fullDates) {
-                        stats.fullDates = acc.fullDates.concat(...currentStats.fullDates);
-                    }
-
-                    return stats;
+                if (acc.fullDates && currentStats.fullDates) {
+                    stats.fullDates = acc.fullDates.concat(
+                        ...currentStats.fullDates
+                    );
                 }
-            );
+
+                return stats;
+            });
         }
 
         return {

@@ -12,15 +12,26 @@ import { MarketData } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { resolveLogo } from 'components/token-with-logo';
+import TopPairsWidget from 'components/top-pairs-widget';
+import TelegramCTA from 'components/telegram-cta';
 
-function OverviewContainer() {
+function OverviewContainer(): JSX.Element {
     const [marketData, setMarketData] = useState<MarketStats[] | null>(null);
+    const [topPairs, setTopPairs] = useState<MarketStats[] | null>(null);
     const [currentError, setError] = useState<IError | null>(null);
 
     useEffect(() => {
         const fetchMarketData = async () => {
             // Fetch all pairs
-            const { data: marketData, error } = await Uniswap.getMarketData();
+            const [
+                { data: marketData, error: marketDataError },
+                { data: topPairs, error: topPairsError }
+            ] = await Promise.all([
+                Uniswap.getMarketData(),
+                Uniswap.getTopPerformingPairs()
+            ]);
+
+            const error = marketDataError ?? topPairsError;
 
             if (error) {
                 // we could not get our market data
@@ -33,11 +44,16 @@ function OverviewContainer() {
                 setMarketData(marketData);
             }
 
+            if (topPairs) {
+                setTopPairs(topPairs);
+            }
+
         };
         void fetchMarketData();
     }, []);
 
     (window as any).marketData = marketData;
+    (window as any).topPairs = topPairs;
 
     if (currentError) {
         return (
@@ -50,8 +66,18 @@ function OverviewContainer() {
         );
     }
 
+
+
     return (
         <div>
+            <h4>LP Opportunities on Uniswap</h4>
+            <p>
+                <em>
+                    * These are the highest return pairs on Uniswap over the past 24 hours.
+                </em>
+            </p>
+            {topPairs && <TopPairsWidget topPairs={topPairs} />}
+            <TelegramCTA mode='plural' />
             <h4>Highest Impermanent Loss Pairs on Uniswap since December 1</h4>
             <p>
                 <em>

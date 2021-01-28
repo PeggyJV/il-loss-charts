@@ -4,7 +4,11 @@ import { Request } from 'express';
 import cacheMiddleware from 'api/middlewares/cache';
 
 import UniswapFetcher from 'services/uniswap';
-import { UniswapDailyData } from '@sommelier/shared-types';
+import {
+    UniswapDailyData,
+    UniswapHourlyData,
+    UniswapPair,
+} from '@sommelier/shared-types';
 import { HTTPError } from 'api/util/errors';
 import wrapRequest from 'api/util/wrap-request';
 import { isValidEthAddress } from 'util/eth';
@@ -51,28 +55,20 @@ class UniswapController {
                 );
         }
 
-        const start: string | undefined = req.query.startDate?.toString();
-        if (!start) throw new HTTPError(400, `'startDate' is required.`);
-
-        const startDate = new Date(start);
-        if (startDate.getTime() !== startDate.getTime())
-            throw new HTTPError(400, `Received invalid date for 'startDate'.`);
-
-        const endDate: Date = req.query.endDate
-            ? new Date(req.query.endDate.toString())
-            : new Date();
-        if (endDate.getTime() !== endDate.getTime())
-            throw new HTTPError(400, `Received invalid date for 'endDate'.`);
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        const startDate = new Date(Date.now() - oneDayMs);
+        const endDate = new Date();
 
         // Get 25 top pairs
         // TODO: make this changeable by query
         const topPairs = await UniswapFetcher.getTopPerformingPairs(count);
 
         // TODO: Save requests by only fetching first and last day
-        const historicalFetches = topPairs.map((pair) =>
-            UniswapFetcher.getHistoricalDailyData(pair.id, startDate, endDate)
+        const historicalFetches = topPairs.map(
+            (pair: UniswapPair): Promise<UniswapHourlyData[]> =>
+                UniswapFetcher.getHourlyData(pair.id, startDate, endDate)
         );
-        const historicalData: UniswapDailyData[][] = await Promise.all(
+        const historicalData: UniswapHourlyData[][] = await Promise.all(
             historicalFetches
         );
 
@@ -80,10 +76,14 @@ class UniswapController {
         const marketStats = await calculateMarketStats(
             topPairs,
             historicalData,
-            'daily'
+            'hourly'
         );
 
-        return marketStats;
+        const statsByReturn = [...marketStats].sort(
+            (a, b) => b.pctReturn - a.pctReturn
+        );
+
+        return statsByReturn;
     }
 
     static async getPairOverview(req: Request) {
