@@ -14,7 +14,7 @@ import { Wallet } from 'types/states';
 function SideMenu({ setShowConnectWallet, wallet }: {
     setShowConnectWallet: (wallet: boolean) => void,
     wallet: Wallet
-}) {
+}): JSX.Element {
     const location = useLocation();
     const showModal = () => setShowConnectWallet(true);
 

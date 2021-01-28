@@ -6,6 +6,7 @@ import { Provider, Wallet } from 'types/states';
 const cookies = new Cookies();
 
 export default function useWallet(): {
+    ethereum?: any,
     wallet: Wallet,
     connectMetaMask: () => Promise<void>,
     disconnectWallet: () => void,
@@ -32,16 +33,20 @@ export default function useWallet(): {
 
     const [wallet, setWallet] = useState(initialWalletState);
 
-    ethereum.on('accountsChanged', (accounts: string[]) => {
-        const [account] = accounts;
-        if (account) {
-            setWallet({ account, provider: 'metamask' });
-        } else {
-            disconnectWallet();
-        }
-    });
+    if (ethereum) {
+        ethereum.on('accountsChanged', (accounts: string[]) => {
+            const [account] = accounts;
+            if (account) {
+                setWallet({ account, provider: 'metamask' });
+            } else {
+                disconnectWallet();
+            }
+        });
+    }
 
     const connectMetaMask = async () => {
+        if (!ethereum) return;
+
         const accounts = await ethereum.request({
             method: 'eth_requestAccounts',
         });
@@ -64,5 +69,5 @@ export default function useWallet(): {
         }
     }, [wallet]);
 
-    return { wallet, connectMetaMask, disconnectWallet, availableProviders };
+    return { ethereum, wallet, connectMetaMask, disconnectWallet, availableProviders };
 }

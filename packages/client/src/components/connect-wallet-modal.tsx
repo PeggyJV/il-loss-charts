@@ -15,7 +15,7 @@ function ConnectWalletModal({
 }: ReturnType<typeof useWallet> & {
     show: boolean,
     setShow: (show: boolean) => void
-}) {
+}): JSX.Element {
     const handleClose = () => setShow(false);
 
     const titleText = wallet?.account
