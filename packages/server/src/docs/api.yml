@@ -58,6 +58,38 @@ paths:
                                         type: array
                                         items: 
                                             $ref: '#/components/schemas/UniswapPair'
+    /uniswap/pairs/performance:
+        get:
+            tags:
+                - Uniswap
+            description: List top performing pairs on uniswap with stats.
+            parameters:
+                -   in: query
+                    name: count
+                    example: 100
+                    schema:
+                        type: integer
+                        minimum: 1
+                        maximum: 1000
+                    description: Number of pairs to fetch.
+                - $ref: "#/components/parameters/startDate"
+                - $ref: "#/components/parameters/endDate"
+            responses:
+                400:
+                    description: Parameter 'startDate' not provided, invalid 'startDate' or 'endDate'.
+                404:
+                    description: No statistical data for the given timeframe. Check that the window is at least one day.
+                200:
+                    description: Returns return and impermanent loss stats for curated pairs.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items: 
+                                            $ref: '#/components/schemas/MarketStatsForPair'
     /uniswap/pairs/{id}:
         get:
             tags:

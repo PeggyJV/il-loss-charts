@@ -37,6 +37,55 @@ class UniswapController {
         return topPairs;
     }
 
+    static async getTopPerformingPairs(req: Request) {
+        // Like topPairs, but sorted by returns and with
+        // stats included
+        let count: number | undefined;
+
+        if (typeof req.query.count === 'string') {
+            count = parseInt(req.query.count, 10);
+            if (Number.isNaN(count) || count < 1)
+                throw new HTTPError(
+                    400,
+                    `Invalid 'count' parameter: ${req.query.count}`
+                );
+        }
+
+        const start: string | undefined = req.query.startDate?.toString();
+        if (!start) throw new HTTPError(400, `'startDate' is required.`);
+
+        const startDate = new Date(start);
+        if (startDate.getTime() !== startDate.getTime())
+            throw new HTTPError(400, `Received invalid date for 'startDate'.`);
+
+        const endDate: Date = req.query.endDate
+            ? new Date(req.query.endDate.toString())
+            : new Date();
+        if (endDate.getTime() !== endDate.getTime())
+            throw new HTTPError(400, `Received invalid date for 'endDate'.`);
+
+        // Get 25 top pairs
+        // TODO: make this changeable by query
+        const topPairs = await UniswapFetcher.getTopPerformingPairs(count);
+
+        // TODO: Save requests by only fetching first and last day
+        const historicalFetches = topPairs.map((pair) =>
+            UniswapFetcher.getHistoricalDailyData(pair.id, startDate, endDate)
+        );
+        const historicalData: UniswapDailyData[][] = await Promise.all(
+            historicalFetches
+        );
+
+        // Calculate IL for top 25 pairs by liquidity
+        const marketStats = await calculateMarketStats(
+            topPairs,
+            historicalData,
+            'daily'
+        );
+
+        return marketStats;
+    }
+
     static async getPairOverview(req: Request) {
         const pairId: string = req.params.id;
         // Validate ethereum address
@@ -233,6 +282,11 @@ export default express
         '/pairs',
         cacheMiddleware(300),
         wrapRequest(UniswapController.getTopPairs)
+    )
+    .get(
+        '/pairs/performance',
+        cacheMiddleware(300),
+        wrapRequest(UniswapController.getTopPerformingPairs)
     )
     .get(
         '/pairs/:id',

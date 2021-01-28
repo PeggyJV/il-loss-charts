@@ -28,11 +28,10 @@ async function runAlertCheck(): Promise<void> {
     let topPairs: UniswapPair[];
 
     try {
-        topPairs = await UniswapFetcher.getIlAlertsPairs(100);
+        topPairs = await UniswapFetcher.getTopPerformingPairs(100);
     } catch (e) {
         console.error(
-            `Aborting: could not fetch pairs for IL alerts: ${
-                e.message as string
+            `Aborting: could not fetch pairs for IL alerts: ${e.message as string
             }`
         );
         process.exit(1);
@@ -72,8 +71,7 @@ async function runAlertCheck(): Promise<void> {
         );
     } catch (e) {
         console.error(
-            `Aborting: could not fetch latest market stats: ${
-                e.message as string
+            `Aborting: could not fetch latest market stats: ${e.message as string
             }`
         );
         process.exit(1);
@@ -97,9 +95,8 @@ async function runAlertCheck(): Promise<void> {
         );
         const msg = `${'🍷'.repeat(
             numGlasses
-        )} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${
-            pair.market
-        }</a> saw a ${returnStr}% return in the last 24 hours!`;
+        )} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${pair.market
+            }</a> saw a ${returnStr}% return in the last 24 hours!`;
         // sommBot.sendMessage(CHAT_ID, msg, { parse_mode: 'HTML' });
         msgs.push(msg);
         console.log('Sent msg to channel for pair', pair.market);
@@ -116,9 +113,8 @@ async function runAlertCheck(): Promise<void> {
         );
         const msg = `${'😢'.repeat(
             numFaces
-        )} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${
-            pair.market
-        }</a> saw a ${ilStr}% impermanent loss in the last 24 hours!`;
+        )} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${pair.market
+            }</a> saw a ${ilStr}% impermanent loss in the last 24 hours!`;
         // sommBot.sendMessage(CHAT_ID, msg, { parse_mode: 'HTML' });
         msgs.push(msg);
         console.log('Sent msg to channel for pair', pair.market);
@@ -130,8 +126,7 @@ async function runAlertCheck(): Promise<void> {
         });
     } catch (e) {
         console.error(
-            `Aborting: error sending a message to Telegram: ${
-                e.message as string
+            `Aborting: error sending a message to Telegram: ${e.message as string
             }`
         );
         process.exit(1);
