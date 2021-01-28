@@ -13,24 +13,24 @@ interface PositionTableRow {
     pairId: string;
     index: number;
     market: { id: string, token0?: Partial<Token>, token1?: Partial<Token> };
-    impermanentLoss: BigNumber;
-    liquidity: BigNumber;
-    fees: BigNumber;
-    returnsUSD: BigNumber;
+    impermanentLoss: string;
+    liquidity: string;
+    fees: string;
+    returnsUSD: string;
 }
 
 function PositionsTable({ positionData: { positions, stats }, pairId, setPairId }: {
-    positionData: LPPositionData,
+    positionData: LPPositionData<string>,
     pairId: string,
     setPairId: (pairId: string) => void
-}) {
+}): JSX.Element {
     const tableData: PositionTableRow[] = Object.entries(positions).map(([pairId, positionSnapshots], index) => {
         const mostRecentPosition = positionSnapshots[positionSnapshots.length - 1];
         const { pair, liquidityTokenBalance, liquidityTokenTotalSupply, reserveUSD } = mostRecentPosition;
 
         const liquidity = new BigNumber(liquidityTokenBalance)
             .div(liquidityTokenTotalSupply)
-            .times(reserveUSD);
+            .times(reserveUSD).toFixed(4);
 
         return {
             pairId,
@@ -41,7 +41,7 @@ function PositionsTable({ positionData: { positions, stats }, pairId, setPairId 
             fees: stats[pairId].aggregatedStats.totalFees,
             returnsUSD: stats[pairId].aggregatedStats.totalReturn
         };
-    }).sort((a, b) => b.liquidity.toNumber() - a.liquidity.toNumber());
+    }).sort((a, b) => parseInt(b.liquidity, 10) - parseInt(a.liquidity, 10));
 
 
     const formatPair = ({ token0, token1 }: { token0: Token, token1: Token }) => {
@@ -56,7 +56,7 @@ function PositionsTable({ positionData: { positions, stats }, pairId, setPairId 
         );
     };
 
-    const formatLiquidity = (val: BigNumber) => val.isZero() ? 'Position Closed' : formatUSD(val.toNumber());
+    const formatLiquidity = (val: string | BigNumber): string => new BigNumber(val).isZero() ? 'Position Closed' : formatUSD(new BigNumber(val).toNumber());
     const columns = [
         {
             dataField: 'index',

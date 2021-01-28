@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 
 import config from 'config';
 
-import { UniswapPair, UniswapSwap, UniswapMintOrBurn, UniswapDailyData } from '@sommelier/shared-types';
+import { UniswapPair, UniswapSwap, UniswapMintOrBurn, UniswapDailyData, LPStats } from '@sommelier/shared-types';
 
 import { AllPairsState, LPInfoState, IError } from 'types/states';
 import { Pair } from 'constants/prop-types';
@@ -25,7 +25,7 @@ import TelegramCTA from 'components/telegram-cta';
 
 const mixpanel = new Mixpanel();
 
-function PairContainer({ allPairs }: { allPairs: AllPairsState }) {
+function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
     // ------------------ Loading State - handles interstitial UI ------------------
 
     const [isLoading, setIsLoading] = useState(false);
@@ -69,11 +69,17 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }) {
     const [lpShare, setLPShare] = useState(initialData.lpShare);
 
     // Keep track of previous lp stats to prevent entire loading UI from coming up on change
-    const lpStats = useMemo(
-        () =>
-            !isInitialLoad &&
-            !currentError &&
-            calculateLPStats({ ...lpInfo, lpDate, lpShare }),
+    const lpStats: LPStats | null = useMemo(
+        () => {
+            if (isInitialLoad || currentError) return null;
+
+            return calculateLPStats({
+                pairData: lpInfo?.pairData,
+                dailyData: lpInfo?.historicalData,
+                lpDate,
+                lpShare
+            });
+        },
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [lpInfo, lpDate, lpShare, isInitialLoad]
     );

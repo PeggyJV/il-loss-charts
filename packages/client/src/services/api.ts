@@ -58,9 +58,9 @@ export class UniswapApiFetcher {
         return { data, error };
     }
 
-    static async getPositionStats(address: string): Promise<ApiResponse<LPPositionData>> {
+    static async getPositionStats(address: string): Promise<ApiResponse<LPPositionData<string>>> {
         const response = await fetch(`/api/v1/uniswap/positions/${address}/stats`);
-        const { data, error } = await (response.json() as Promise<ApiResponse<LPPositionData>>);
+        const { data, error } = await (response.json() as Promise<ApiResponse<LPPositionData<string>>>);
         return { data, error };
     }
 }

@@ -233,7 +233,7 @@ export function calculateLPStats({
     });
 
     if (!firstDaily) {
-        throw new Error('No provided histortical data after LP date');
+        throw new Error('No provided historical data after LP date');
     }
 
     const totalFees = runningFees[runningFees.length - 1];

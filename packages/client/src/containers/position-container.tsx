@@ -16,13 +16,13 @@ import { UniswapApiFetcher as Uniswap } from 'services/api';
 
 const mixpanel = new Mixpanel();
 
-function PositionContainer({ wallet }: { wallet: Wallet }) {
+function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
     // ------------------ Loading State - handles interstitial UI ------------------
 
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [currentError, setError] = useState<IError | null>(null);
-    const [positionData, setPositionData] = useState<LPPositionData | null>(null);
+    const [positionData, setPositionData] = useState<LPPositionData<string> | null>(null);
 
     // ------------------ Shared State ------------------
 

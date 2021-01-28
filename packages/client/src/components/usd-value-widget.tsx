@@ -1,20 +1,18 @@
 import { Badge, Card } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import BigNumber from 'bignumber.js';
 
 import { formatUSD } from 'util/formats';
 import FadeOnChange from 'components/fade-on-change';
 
-
 function USDValueWidget({ title, value, footnote, badge }: {
     title: string,
-    value?: BigNumber,
+    value?: string,
     footnote?: JSX.Element | false,
     badge?: string
 }): JSX.Element {
     if (!value) throw new Error('Passed falsy value to USDValueWidget');
 
-    const displayValue = formatUSD(value.toNumber());
+    const displayValue = formatUSD(value);
 
     return (
         <Card className='stats-card no-border'>

@@ -28,7 +28,7 @@ interface LPStatsDataPoint {
     returns: [number, number]
 }
 
-function LPStatsChart({ lpStats }: { lpStats: ILPStats }): JSX.Element {
+function LPStatsChart({ lpStats }: { lpStats: ILPStats<BigNumber | string> }): JSX.Element {
     const chartData: LPStatsDataPoint[] = [];
 
     lpStats.days.forEach((stats, i) => {

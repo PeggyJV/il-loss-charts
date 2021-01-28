@@ -60,7 +60,7 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }: {
             <USDValueWidget
                 title={`${prefix} USD Volume`}
                 badge={`#${allPairs?.lookups?.[lpInfo.pairData.id]?.volumeRanking || ''}`}
-                value={stats?.volumeUSD}
+                value={stats?.volumeUSD?.toFixed(4)}
                 footnote={
                     window !== 'total' && (
                         <PercentChangeStat
@@ -72,7 +72,7 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }: {
             <USDValueWidget
                 title={'Total Liquidity'}
                 badge={`#${allPairs?.lookups?.[lpInfo.pairData.id]?.liquidityRanking || ''}`}
-                value={stats?.liquidityUSD}
+                value={stats?.liquidityUSD?.toFixed(4)}
                 footnote={
                     window !== 'total' && (
                         <PercentChangeStat
@@ -84,7 +84,7 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats }: {
             <USDValueWidget
                 title={`${prefix} Fees Collected`}
                 badge={`#${allPairs?.lookups?.[lpInfo.pairData.id]?.volumeRanking || ''}`}
-                value={stats?.feesUSD}
+                value={stats?.feesUSD?.toFixed(4)}
                 footnote={
                     window !== 'total' && (
                         <PercentChangeStat

@@ -106,7 +106,8 @@ function LPInput({
                     <Form.Label>LP Date</Form.Label>
                     <div>
                         <DateTimePicker
-                            containerClassName='lp-date-picker form-control'
+                            // @ts-expect-error: className is not on the props definition but does propagate to component
+                            className='lp-date-picker form-control'
                             min={new Date('2020-05-18')}
                             max={new Date()}
                             format='yyyy-MM-dd'
