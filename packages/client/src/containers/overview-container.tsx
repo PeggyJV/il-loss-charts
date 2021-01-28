@@ -70,7 +70,7 @@ function OverviewContainer(): JSX.Element {
 
     return (
         <div>
-            <h4>LP Opportunities on Uniswap</h4>
+            <h3>LP Opportunities on Uniswap</h3>
             <p>
                 <em>
                     * These are the highest return pairs on Uniswap over the past 24 hours.
@@ -78,7 +78,7 @@ function OverviewContainer(): JSX.Element {
             </p>
             {topPairs && <TopPairsWidget topPairs={topPairs} />}
             <TelegramCTA mode='plural' />
-            <h4>Highest Impermanent Loss Pairs on Uniswap since December 1</h4>
+            <h5>Highest Impermanent Loss Pairs on Uniswap since December 1</h5>
             <p>
                 <em>
                     * The impermanent loss percentage is a reflection of the
