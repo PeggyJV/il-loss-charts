@@ -334,3 +334,9 @@ th .caret-4-desc:before {
 th .caret-4-desc:after {
     content: '\2193';
 }
+
+@media (max-width: 1200px) {
+  .app-body {
+    width: 100%;
+  }
+}
