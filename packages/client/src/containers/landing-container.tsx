@@ -70,23 +70,24 @@ function OverviewContainer(): JSX.Element {
 
     return (
         <div>
-            <h3>LP Opportunities on Uniswap</h3>
-            <p>
+            <h3>Top 5 LP Opportunities on Uniswap</h3>
+            {/* <p>
                 <em>
                     * These are the highest return pairs on Uniswap over the past 24 hours.
                 </em>
-            </p>
+            </p> */}
+            <p>Not financial advice. This is an alpha project. Trade at your own risk.</p>
             {topPairs && <TopPairsWidget topPairs={topPairs} />}
             <TelegramCTA mode='plural' />
-            <h5>Highest Impermanent Loss Pairs on Uniswap since December 1</h5>
+            {/* <h5>Highest Impermanent Loss Pairs on Uniswap since December 1</h5>
             <p>
                 <em>
                     * The impermanent loss percentage is a reflection of the
                     amount of IL due to price fluctation relative to the total
                     return of the pool.
                 </em>
-            </p>
-            {marketData && <MarketDataTable data={marketData} />}
+            </p> */}
+            {/* {marketData && <MarketDataTable data={marketData} />} */}
         </div>
     );
 }

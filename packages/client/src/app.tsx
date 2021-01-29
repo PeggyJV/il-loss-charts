@@ -7,9 +7,10 @@ import { useState, useEffect, ReactElement } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 
-import OverviewContainer from 'containers/overview-container';
+import LandingContainer from 'containers/landing-container';
+import MarketContainer from 'containers/market-container';
 import PairContainer from 'containers/pair-container';
-import PositionContainer from 'containers/position-container';
+// import PositionContainer from 'containers/position-container';
 import SideMenu from 'components/side-menu';
 import ConnectWalletModal from 'components/connect-wallet-modal';
 
@@ -99,14 +100,17 @@ function App(): ReactElement {
                         availableProviders={availableProviders}
                     />
                     <Switch>
-                        <Route path='/positions'>
+                        {/* <Route path='/positions'>
                             <PositionContainer wallet={wallet} />
+                        </Route> */}
+                        <Route path='/market'>
+                            <MarketContainer />
                         </Route>
                         <Route path='/pair'>
                             <PairContainer allPairs={allPairs} />
                         </Route>
                         <Route path='/'>
-                            <OverviewContainer />
+                            <LandingContainer />
                         </Route>
                     </Switch>
                 </div>

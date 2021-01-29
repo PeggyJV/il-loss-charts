@@ -111,7 +111,7 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
 
     return (
         <Container fluid>
-            <h4>LP Positions on Uniswap</h4>
+            <h4>Your LP Positions on Uniswap</h4>
             <hr />
             <PositionsTable positionData={positionData} pairId={pairId} setPairId={setPairId} />
             <hr />

@@ -4,11 +4,18 @@ function TelegramCTA({ mode = 'single' }: { mode?: 'single' | 'plural' }): JSX.E
     return (
         <>
             <hr />
-            <p>
+            {/* <p>
                 🍷 Track impermanent loss for {mode === 'plural' ? 'these pairs' : 'this pair'} (and many others) on the{' '}
                 <a href='https://t.me/getsomm_alerts'>
                     Sommelier IL Alerts Telegram!
                 </a>
+            </p> */}
+            <p>
+                🍷 Join the
+                <a href='https://t.me/getsomm_alerts'>
+                    {' '}Sommelier.Finance
+                </a>
+                {' '}Community!
             </p>
             <hr />
         </>

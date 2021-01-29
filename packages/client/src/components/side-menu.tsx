@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import ConnectWalletButton from 'components/connect-wallet-button';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChartArea, faHandHoldingUsd, faSearchDollar } from '@fortawesome/free-solid-svg-icons';
+import { faChartArea, faHandHoldingUsd, faSearchDollar, faCalculator } from '@fortawesome/free-solid-svg-icons';
 import { faTelegram } from '@fortawesome/free-brands-svg-icons';
 
 import 'styles/burger-menu.scss';
@@ -39,11 +39,17 @@ function SideMenu({ setShowConnectWallet, wallet }: {
             </div>
             <p className={getSideLinkClass('/')}>
                 <NavLink to='/'>
+                    <FontAwesomeIcon icon={faSearchDollar} />
+                    {' '}LP Opportunities
+                </NavLink>
+            </p>
+            <p className={getSideLinkClass('/market')}>
+                <NavLink to='/market'>
                     <FontAwesomeIcon icon={faChartArea} />
                     {' '}Market Overview
                 </NavLink>
             </p>
-            <p className={getSideLinkClass('/positions')}>{wallet?.account ?
+            {/* <p className={getSideLinkClass('/positions')}>{wallet?.account ?
                 <NavLink to={`/positions`}>
                     <FontAwesomeIcon icon={faHandHoldingUsd} />
                     {' '}LP Positions
@@ -53,10 +59,10 @@ function SideMenu({ setShowConnectWallet, wallet }: {
                     {' '}LP Positions
                 </NavLink>
             }
-            </p>
+            </p> */}
             <p className={getSideLinkClass('/pair')}>
                 <NavLink to='/pair'>
-                    <FontAwesomeIcon icon={faSearchDollar} />
+                    <FontAwesomeIcon icon={faCalculator} />
                     {' '}IL Calculator
                 </NavLink>
             </p>

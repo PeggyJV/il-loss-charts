@@ -17,7 +17,7 @@ function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionDa
     setPair: (pairId: string) => void,
     isLoading: boolean,
     positionData: LPPositionData
-}) {
+}): JSX.Element {
     let defaultValue;
     for (const pair of pairs) {
         if (pair.id === currentPairId) {
