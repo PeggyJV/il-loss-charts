@@ -6,7 +6,7 @@ import { useState, useEffect, ReactElement } from 'react';
 
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
-import { useMediaQuery } from 'react-responsive'
+import { useMediaQuery } from 'react-responsive';
 
 import LandingContainer from 'containers/landing-container';
 import MarketContainer from 'containers/market-container';

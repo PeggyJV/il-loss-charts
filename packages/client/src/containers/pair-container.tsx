@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
+import { useMediaQuery } from 'react-responsive';
 import useWebSocket from 'react-use-websocket';
 import PropTypes from 'prop-types';
 
@@ -26,6 +27,8 @@ import TelegramCTA from 'components/telegram-cta';
 const mixpanel = new Mixpanel();
 
 function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
+    const isBigScreen = useMediaQuery({ query: '(min-width: 1200px)' });
+
     // ------------------ Loading State - handles interstitial UI ------------------
 
     const [isLoading, setIsLoading] = useState(false);
@@ -349,16 +352,33 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                         </Col>
                     </Row>
                     <Row noGutters>
-                        <Col lg={3} className='trades-sidebar'>
-                            <LatestTradesSidebar
-                                latestBlock={latestBlock}
-                                latestSwaps={latestSwaps}
-                            />
-                        </Col>
-                        <Col lg={9}>
-                            {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
-                            <LPStatsChart lpStats={lpStats} />
-                        </Col>
+                        {isBigScreen ?
+                            <>
+                                <Col lg={3} className='trades-sidebar'>
+                                    <LatestTradesSidebar
+                                        latestBlock={latestBlock}
+                                        latestSwaps={latestSwaps}
+                                    />
+                                </Col>
+                                <Col lg={9}>
+                                    {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
+                                    <LPStatsChart lpStats={lpStats} />
+                                </Col>
+                            </>
+                            :
+                            <>
+                                <Col lg={9}>
+                                    {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
+                                    <LPStatsChart lpStats={lpStats} />
+                                </Col>
+                                <Col lg={3} className='trades-sidebar'>
+                                    <LatestTradesSidebar
+                                        latestBlock={latestBlock}
+                                        latestSwaps={latestSwaps}
+                                    />
+                                </Col>
+                            </>
+                        }
                     </Row>
                 </Col>
                 <Col lg={2}>
