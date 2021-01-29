@@ -81,10 +81,10 @@ async function runAlertCheck(): Promise<void> {
 
     const highReturnPairs = [...marketStats]
         .sort((a, b) => b.pctReturn - a.pctReturn)
-        .filter((pair) => pair.pctReturn > 0.05);
+        .filter((pair) => pair.pctReturn > 0.01);
     const highIlPairs = [...marketStats]
         .sort((a, b) => a.impermanentLoss - b.impermanentLoss)
-        .filter((pair) => pair.impermanentLoss < -0.05);
+        .filter((pair) => pair.impermanentLoss < -0.01);
 
     const msgs: string[] = [];
 
