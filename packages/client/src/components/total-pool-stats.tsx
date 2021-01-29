@@ -26,12 +26,13 @@ PercentChangeStat.propTypes = { value: PropTypes.instanceOf(BigNumber) };
 
 type StatsWindow = 'total' | 'day' | 'week';
 
-function TotalPoolStats({ allPairs, lpInfo, lpStats }: {
+function TotalPoolStats({ allPairs, lpInfo, lpStats, defaultWindow = 'total' }: {
     allPairs: AllPairsState,
     lpInfo: LPInfoState,
-    lpStats: ILPStats
+    lpStats: ILPStats,
+    defaultWindow?: 'total' | 'day' | 'week'
 }): JSX.Element {
-    const [window, setWindow] = useState<StatsWindow>('total');
+    const [window, setWindow] = useState<StatsWindow>(defaultWindow);
 
     const { totalStats, lastDayStats, lastWeekStats } = lpStats;
 

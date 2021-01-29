@@ -34,10 +34,10 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
 
     // ------------------ Shared State ------------------
 
-    const [pairId, setPairId] = useState(initialData.pairId);
+    const [pairId, setPairId] = useState<string | null>(null);
 
     // Keep track of previous pair ID so we can unsubscribe
-    const prevPairIdRef = useRef<string>();
+    const prevPairIdRef = useRef<string | null>();
     useEffect(() => {
         prevPairIdRef.current = pairId;
     });
@@ -87,7 +87,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
     useEffect(() => {
         const fetchPairData = async () => {
             if (!isLoading) setIsLoading(true);
-            if (currentError) return;
+            if (currentError || !pairId) return;
 
             // Fetch pair overview when pair ID changes
             // Default to createdAt date if LP date not set
@@ -223,7 +223,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
 
     // Subscribe to updates on pair overview when pair changes
     useEffect(() => {
-        if (currentError) return;
+        if (currentError || !pairId) return;
 
         if (prevPairId) {
             sendJsonMessage({
@@ -285,6 +285,8 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
         };
 
         const refreshPairData = async () => {
+            if (!pairId) return;
+
             const { data: newPairData } = await Uniswap.getPairOverview(pairId);
 
             setLPInfo((prevLpInfo) => ({
@@ -314,7 +316,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
     }
 
     // If no lp stats, we haven't completed our first data fetch yet
-    if (!allPairs.pairs || !lpInfo || !lpStats || !dailyDataAtLPDate || Object.keys(lpStats).length === 0) {
+    if (!allPairs.pairs || !pairId || !lpInfo || !lpStats || !dailyDataAtLPDate || Object.keys(lpStats).length === 0) {
         return (
             <Container className='loading-container'>
                 <div className='wine-bounce'>🍷</div>
@@ -342,6 +344,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                                 allPairs={allPairs}
                                 lpInfo={lpInfo}
                                 lpStats={lpStats}
+                                defaultWindow='day'
                             />
                         </Col>
                     </Row>
