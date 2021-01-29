@@ -111,7 +111,9 @@ body {
 
 .pair-selector {
     width: calc(100% - 42px);
+    font-size: 0.8em;
 }
+
 .token-logo .input-group-text {
     background-color: #ffffff;
     border-right: none;
@@ -205,6 +207,7 @@ body {
 .pair-selector-separator {
     display: flex;
     align-items: center;
+    justify-content: center;
     margin: 0 0.25em;
 }
 
@@ -338,5 +341,17 @@ th .caret-4-desc:after {
 @media (max-width: 1200px) {
   .app-body {
     width: 100%;
+  }
+  
+  .lp-input-card {
+      margin-bottom: 2em;
+  }
+
+  .lp-stats-card {
+      margin-top: 0;
+  }
+
+  .pair-selector-container {
+      display: block;
   }
 }

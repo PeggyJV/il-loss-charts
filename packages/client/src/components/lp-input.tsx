@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Form, Card } from 'react-bootstrap';
+import { Form, Card, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
 import { DateTimePicker } from 'react-widgets';
+import { useMediaQuery } from 'react-responsive';
 import dateFnsLocalizer, { defaultFormats } from 'react-widgets-date-fns';
 
 import { UniswapPair, UniswapDailyData } from '@sommelier/shared-types';
@@ -28,6 +29,9 @@ function LPInput({
     setLPShare: (newLPShare: number) => void,
     dailyDataAtLPDate: UniswapDailyData
 }): JSX.Element {
+    const isLargestBreakpoint = useMediaQuery({ query: '(min-width: 1500px)' });
+    const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
+
     const { token0, token1 } = pairData;
 
     const calcAmounts = (lpShare: number, dailyDataAtLPDate: UniswapDailyData): void => {
@@ -98,6 +102,72 @@ function LPInput({
     useEffect(() => {
         calcAmounts(lpShare, dailyDataAtLPDate);
     }, [lpShare, dailyDataAtLPDate]);
+
+    if (!isLargestBreakpoint && !isMobile) {
+        return (
+            <Card className='lp-input-card'>
+                <Card.Body className='lp-input-form'>
+                    <Form.Row>
+                        <Col>
+                            <Form.Group>
+                                <Form.Label>LP Date</Form.Label>
+                                <div>
+                                    <DateTimePicker
+                                        // @ts-expect-error: className is not on the props definition but does propagate to component
+                                        className='lp-date-picker form-control'
+                                        min={new Date('2020-05-18')}
+                                        max={new Date()}
+                                        format='yyyy-MM-dd'
+                                        value={lpDate}
+                                        onChange={(newDate?: Date) => newDate && setLPDate(newDate)}
+                                        time={false}
+                                    />
+                                </div>
+                            </Form.Group>
+                        </Col>
+                        <Col>
+                            <Form.Group>
+                                <Form.Label>USD Liquidity</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    onChange={(event) =>
+                                        updateShare('USD', parseFloat(event.target.value))
+                                    }
+                                    value={usdAmt}
+                                />
+                            </Form.Group>
+                        </Col>
+                    </Form.Row>
+                    <Form.Row>
+                        <Col>
+                            <Form.Group>
+                                <Form.Label>{`${token0.symbol || ''} Liquidity`}</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    onChange={(event) =>
+                                        updateShare('token0', parseFloat(event.target.value))
+                                    }
+                                    value={token0Amt}
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col>
+                            <Form.Group>
+                                <Form.Label>{`${token1.symbol || ''} Liquidity`}</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    onChange={(event) =>
+                                        updateShare('token1', parseFloat(event.target.value))
+                                    }
+                                    value={token1Amt}
+                                />
+                            </Form.Group>
+                        </Col>
+                    </Form.Row>
+                </Card.Body>
+            </Card>
+        )
+    }
 
     return (
         <Card className='lp-input-card'>

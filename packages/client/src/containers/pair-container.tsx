@@ -27,7 +27,8 @@ import TelegramCTA from 'components/telegram-cta';
 const mixpanel = new Mixpanel();
 
 function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
-    const isBigScreen = useMediaQuery({ query: '(min-width: 1200px)' });
+    const isDesktop = useMediaQuery({ query: '(min-width: 1200px)' });
+    const isLargestBreakpoint = useMediaQuery({ query: '(min-width: 1500px)' });
 
     // ------------------ Loading State - handles interstitial UI ------------------
 
@@ -332,7 +333,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
             <h4>Impermanent Loss Calculator</h4>
             <TelegramCTA />
             <Row>
-                <Col lg={10}>
+                <Col lg={isLargestBreakpoint ? 10 : 12}>
                     <Row className='top-stats-row'>
                         <Col className='stats-row-col' lg={4}>
                             <PairSelector
@@ -352,7 +353,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                         </Col>
                     </Row>
                     <Row noGutters>
-                        {isBigScreen ?
+                        {isDesktop ?
                             <>
                                 <Col lg={3} className='trades-sidebar'>
                                     <LatestTradesSidebar
@@ -381,18 +382,39 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                         }
                     </Row>
                 </Col>
-                <Col lg={2}>
-                    <LPInput
-                        {...lpInfo}
-                        lpDate={lpDate}
-                        lpShare={lpShare}
-                        setLPDate={setLPDate}
-                        setLPShare={setLPShare}
-                        dailyDataAtLPDate={dailyDataAtLPDate}
-                    />
-                    <LPStatsWidget lpStats={lpStats} />
-                </Col>
+                {isLargestBreakpoint &&
+                    <>
+                        <Col lg={2}>
+                            <LPInput
+                                {...lpInfo}
+                                lpDate={lpDate}
+                                lpShare={lpShare}
+                                setLPDate={setLPDate}
+                                setLPShare={setLPShare}
+                                dailyDataAtLPDate={dailyDataAtLPDate}
+                            />
+                            <LPStatsWidget lpStats={lpStats} />
+                        </Col>
+                    </>
+                }
             </Row>
+            {!isLargestBreakpoint &&
+                <Row>
+                    <Col lg={8}>
+                        <LPInput
+                            {...lpInfo}
+                            lpDate={lpDate}
+                            lpShare={lpShare}
+                            setLPDate={setLPDate}
+                            setLPShare={setLPShare}
+                            dailyDataAtLPDate={dailyDataAtLPDate}
+                        />
+                    </Col>
+                    <Col lg={4}>
+                        <LPStatsWidget lpStats={lpStats} />
+                    </Col>
+                </Row>
+            }
             {/* <Row>
                 <RealtimeStatusBar latestBlock={latestBlock} />
             </Row> */}
