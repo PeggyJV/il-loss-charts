@@ -1,5 +1,6 @@
 import { push as Menu } from 'react-burger-menu';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useMediaQuery } from 'react-responsive';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import ConnectWalletButton from 'components/connect-wallet-button';
@@ -17,6 +18,7 @@ function SideMenu({ setShowConnectWallet, wallet }: {
 }): JSX.Element {
     const location = useLocation();
     const showModal = () => setShowConnectWallet(true);
+    const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
 
     const getSideLinkClass = (path: string) =>
         classNames({
@@ -26,9 +28,9 @@ function SideMenu({ setShowConnectWallet, wallet }: {
 
     return (
         <Menu
-            isOpen
-            noOverlay
-            customCrossIcon={false}
+            isOpen={!isMobile}
+            noOverlay={!isMobile}
+            customCrossIcon={isMobile ? undefined : false}
             width={250}
             pageWrapId='app-body'
             outerContainerId='app-wrap'

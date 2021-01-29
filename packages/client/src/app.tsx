@@ -86,14 +86,20 @@ function App(): ReactElement {
     return (
         <Router>
             <div className='app' id='app-wrap'>
-                {isBigScreen &&
+                {/* {isBigScreen &&
                     <div className='side-menu-wrapper'>
                         <SideMenu
                             setShowConnectWallet={setShowConnectWallet}
                             wallet={wallet}
                         />
                     </div>
-                }
+                } */}
+                <div className='side-menu-wrapper'>
+                    <SideMenu
+                        setShowConnectWallet={setShowConnectWallet}
+                        wallet={wallet}
+                    />
+                </div>
                 <div className='app-body' id='app-body'>
                     <ConnectWalletModal
                         show={showConnectWallet}
