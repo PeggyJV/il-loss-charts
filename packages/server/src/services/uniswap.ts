@@ -17,6 +17,7 @@ import {
     UniswapLiquidityPositionAtTime,
 } from '@sommelier/shared-types';
 import { HTTPError } from 'api/util/errors';
+
 interface ApolloResponse<T> {
     data: T;
     error?: ApolloError;

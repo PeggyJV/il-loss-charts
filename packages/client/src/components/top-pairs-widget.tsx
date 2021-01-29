@@ -44,7 +44,7 @@ function TopPairsWidget({ topPairs }: {
         <div className='pool-stats-container'>
             <CardDeck>
                 {topPairs.slice(0, 5).map((pairStats, index) =>
-                    <Card key={index} style={{ width: '25em' }} body>
+                    <Card key={index} style={{ width: '12em', minWidth: '12em', maxWidth: '12em', marginBottom: '1em' }} body>
                         <Card.Title>{formatPair(pairStats)}</Card.Title>
                         <Card.Text className='annualized-apy-card-text'>
                             <strong>

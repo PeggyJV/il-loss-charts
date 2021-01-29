@@ -1,21 +1,14 @@
-import { useEffect, useState, SyntheticEvent } from 'react';
-import PropTypes from 'prop-types';
-import { Link, useHistory } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
-import BootstrapTable from 'react-bootstrap-table-next';
-import BigNumber from 'bignumber.js';
 
-import { UniswapPair, MarketStats } from '@sommelier/shared-types';
+import { MarketStats } from '@sommelier/shared-types';
 import { IError } from 'types/states';
 
-import { MarketData } from 'constants/prop-types';
-import { formatUSD } from 'util/formats';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
-import { resolveLogo } from 'components/token-with-logo';
 import TopPairsWidget from 'components/top-pairs-widget';
 import TelegramCTA from 'components/telegram-cta';
 
-function OverviewContainer(): JSX.Element {
+function LandingContainer(): JSX.Element {
     const [marketData, setMarketData] = useState<MarketStats[] | null>(null);
     const [topPairs, setTopPairs] = useState<MarketStats[] | null>(null);
     const [currentError, setError] = useState<IError | null>(null);
@@ -92,111 +85,4 @@ function OverviewContainer(): JSX.Element {
     );
 }
 
-function MarketDataTable({ data }: { data: MarketStats[] }) {
-    const history = useHistory();
-
-    const formatPair = ({ id, token0, token1 }: UniswapPair) => {
-        return (
-            <span>
-                {resolveLogo(token0.id)}{' '}
-                <span className='market-data-pair-span'>
-                    <Link to={`/pair?id=${id}`}>
-                        {token0.symbol}/{token1.symbol}
-                    </Link>
-                </span>
-                {' '}{resolveLogo(token1.id)}
-            </span>
-        );
-    };
-
-    const formatPct = (val: number) => `${new BigNumber(val).times(100).toFixed(2)}%`;
-
-    const columns = [
-        {
-            dataField: 'index',
-            text: '#',
-            sort: true,
-        },
-        {
-            dataField: 'market',
-            text: 'Market',
-            formatter: formatPair,
-        },
-        {
-            dataField: 'impermanentLoss',
-            text: 'Impermanent Loss %',
-            sort: true,
-            formatter: formatPct,
-        },
-        {
-            dataField: 'ilGross',
-            text: 'Impermanent Loss',
-            sort: true,
-            formatter: formatUSD,
-        },
-        {
-            dataField: 'liquidity',
-            text: 'USD Liquidity',
-            sort: true,
-            formatter: formatUSD,
-        },
-        {
-            dataField: 'volume',
-            text: 'USD Volume',
-            sort: true,
-            formatter: formatUSD,
-        },
-        {
-            dataField: 'returnsUSD',
-            text: 'USD Returns',
-            sort: true,
-            formatter: formatUSD,
-        },
-        {
-            dataField: 'returnsETH',
-            text: 'ETH Returns',
-            sort: true,
-            formatter: (val: BigNumber) => val.toFixed(4),
-        },
-    ];
-
-    const sortedIl = [...data]
-        .sort((a, b) => a.impermanentLoss - b.impermanentLoss)
-        .map((d, index) => ({
-            ...d,
-            index: index + 1,
-            market: { id: d.id, token0: d.token0, token1: d.token1 },
-        }));
-
-    (window as any).sortedIL = sortedIl;
-
-    const onRowClick = (e: SyntheticEvent, pair: UniswapPair) => {
-        history.push(`/pair?id=${pair.id}`)
-    }
-
-    return (
-        <>
-            <hr />
-            <div className='il-market-container'>
-                <BootstrapTable
-                    headerClasses='market-data-table-header'
-                    rowClasses='market-data-table-row'
-                    keyField='index'
-                    data={sortedIl}
-                    columns={columns}
-                    rowStyle={{ borderLeft: 0, borderRight: 0 }}
-                    bordered={false}
-                    condensed={true}
-                    rowEvents={{ onClick: onRowClick }}
-                    hover
-                />
-            </div>
-        </>
-    );
-}
-
-MarketDataTable.propTypes = {
-    data: PropTypes.arrayOf(MarketData)
-};
-
-export default OverviewContainer;
+export default LandingContainer;
