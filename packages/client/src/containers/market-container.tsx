@@ -10,10 +10,10 @@ import { IError } from 'types/states';
 
 import { MarketData } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
+import mixpanel from 'util/mixpanel';
+
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { resolveLogo } from 'components/token-with-logo';
-import TopPairsWidget from 'components/top-pairs-widget';
-import TelegramCTA from 'components/telegram-cta';
 
 function OverviewContainer(): JSX.Element {
     const [marketData, setMarketData] = useState<MarketStats[] | null>(null);
