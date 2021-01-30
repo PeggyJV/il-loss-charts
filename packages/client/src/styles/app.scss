@@ -88,10 +88,6 @@ body {
     text-align: right;
 }
 
-.lp-stats-card {
-    margin-top: 4em;
-}
-
 .card.no-border {
     // height: 120px;
     border: 0;
@@ -137,6 +133,10 @@ body {
 .chart-card {
     height: 563px;
     padding: 0;
+}
+
+.lp-input-card {
+    margin-bottom: 2em;
 }
 
 .lp-stats-widget {
@@ -338,19 +338,13 @@ th .caret-4-desc:after {
     content: '\2193';
 }
 
-@media (max-width: 1200px) {
-  .app-body {
-    width: 100%;
-  }
-  
-  .lp-input-card {
-      margin-bottom: 2em;
-  }
-
+@media (max-width: 1500px) {
   .lp-stats-card {
       margin-top: 0;
   }
+}
 
+@media (max-width: 1200px) {
   .pair-selector-container {
       display: block;
   }
@@ -358,6 +352,7 @@ th .caret-4-desc:after {
 
 @media (max-width: 500px) {
   .app-body {
-      margin-top: 3em;
+    width: 100%;
+    margin-top: 3em;
   }
 }
