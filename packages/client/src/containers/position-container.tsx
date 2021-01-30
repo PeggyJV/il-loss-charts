@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import Mixpanel from 'util/mixpanel';
+import mixpanel from 'util/mixpanel';
 
 import { LPPositionData, Token } from '@sommelier/shared-types';
 import { Wallet, IError } from 'types/states';
@@ -13,8 +13,6 @@ import PositionsTable from 'components/positions-table';
 import { resolveLogo } from 'components/token-with-logo';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
-
-const mixpanel = new Mixpanel();
 
 function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
     // ------------------ Loading State - handles interstitial UI ------------------
@@ -37,6 +35,10 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
     const pair = positionData?.positions && pairId ? positionData?.positions[pairId]?.[0].pair : null;
 
     // ------------------ Position State - fetches LP-specific position data ------------------
+
+    useEffect(() => {
+        mixpanel.track('pageview:position', {});
+    }, []);
 
     useEffect(() => {
         if (positionData?.positions && (!pairId || !positionData.positions[pairId])) {
@@ -67,7 +69,7 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
             setIsLoading(false);
             if (isInitialLoad) setIsInitialLoad(false);
 
-            mixpanel.track('positions_query', {
+            mixpanel.track('positions:query', {
                 address: wallet.account
             });
         }

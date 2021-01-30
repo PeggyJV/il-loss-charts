@@ -3,6 +3,7 @@ import { Container } from 'react-bootstrap';
 
 import { MarketStats } from '@sommelier/shared-types';
 import { IError } from 'types/states';
+import mixpanel from 'util/mixpanel';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import TopPairsWidget from 'components/top-pairs-widget';
@@ -12,6 +13,10 @@ function LandingContainer(): JSX.Element {
     const [marketData, setMarketData] = useState<MarketStats[] | null>(null);
     const [topPairs, setTopPairs] = useState<MarketStats[] | null>(null);
     const [currentError, setError] = useState<IError | null>(null);
+
+    useEffect(() => {
+        mixpanel.track('pageview:landing', {});
+    }, []);
 
     useEffect(() => {
         const fetchMarketData = async () => {

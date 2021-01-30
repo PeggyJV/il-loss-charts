@@ -21,6 +21,10 @@ function OverviewContainer(): JSX.Element {
     const [currentError, setError] = useState<IError | null>(null);
 
     useEffect(() => {
+        mixpanel.track('pageview:market', {});
+    }, []);
+
+    useEffect(() => {
         const fetchMarketData = async () => {
             // Fetch all pairs
             const [

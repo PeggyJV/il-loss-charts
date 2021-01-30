@@ -23,4 +23,4 @@ class MixpanelWrapper {
     }
 }
 
-export default MixpanelWrapper;
+export default new MixpanelWrapper();

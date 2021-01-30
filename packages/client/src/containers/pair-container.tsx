@@ -14,7 +14,7 @@ import { Pair } from 'constants/prop-types';
 import initialData from 'constants/initialData.json';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { calculateLPStats } from 'services/calculate-stats';
-import Mixpanel from 'util/mixpanel';
+import mixpanel from 'util/mixpanel';
 
 import PairSelector from 'components/pair-selector';
 import LPInput from 'components/lp-input';
@@ -23,8 +23,6 @@ import LPStatsChart from 'components/lp-stats-chart';
 import LatestTradesSidebar from 'components/latest-trades-sidebar';
 import TotalPoolStats from 'components/total-pool-stats';
 import TelegramCTA from 'components/telegram-cta';
-
-const mixpanel = new Mixpanel();
 
 function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
     const isDesktop = useMediaQuery({ query: '(min-width: 1200px)' });
@@ -51,7 +49,13 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
     useEffect(() => {
         const query = new URLSearchParams(location.search);
         const pairId = query.get('id');
-        if (pairId) return setPairId(pairId);
+        if (pairId) {
+            mixpanel.track('pair:clickthrough', {
+                pairId,
+            });
+
+            return setPairId(pairId);
+        }
 
         // We can't query if no pairs
         if (!allPairs.pairs) return;
@@ -63,11 +67,23 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
             return symbol === pairSymbol;
         });
 
-        if (pairForSymbol) return setPairId(pairForSymbol.id);
+        if (pairForSymbol) {
+            mixpanel.track('pair:clickthrough', {
+                pairId: pairForSymbol.id,
+                token0: pairForSymbol.token0.symbol,
+                token1: pairForSymbol.token1.symbol
+            });
+
+            return setPairId(pairForSymbol.id);
+        }
 
         // There is no pair in the query, so set to default
         if (!pairId) return setPairId(initialData.pairId);
     }, [location]);
+
+    useEffect(() => {
+        mixpanel.track('pageview:il_calculator', {});
+    }, []);
 
     // ------------------ LP State - handles lp-specific info ------------------
 
@@ -136,7 +152,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                     historicalData: historicalDailyData,
                 } as LPInfoState));
 
-                mixpanel.track('pair_query', {
+                mixpanel.track('pair:query', {
                     pairId,
                     token0: newPair.token0.symbol,
                     token1: newPair.token1.symbol,

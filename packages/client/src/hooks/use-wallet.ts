@@ -2,30 +2,37 @@ import { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';
 
 import { Provider, Wallet } from 'types/states';
+import mixpanel from 'util/mixpanel';
 
 const cookies = new Cookies();
 
 export default function useWallet(): {
-    ethereum?: any,
-    wallet: Wallet,
-    connectMetaMask: () => Promise<void>,
-    disconnectWallet: () => void,
-    availableProviders: { [providerName in Provider]: boolean }
+    ethereum?: any;
+    wallet: Wallet;
+    connectMetaMask: () => Promise<void>;
+    disconnectWallet: () => void;
+    availableProviders: { [providerName in Provider]: boolean };
 } {
     const ethereum = (window as any).ethereum;
     const availableProviders = {
-        metamask: ethereum?.isMetaMask
+        metamask: ethereum?.isMetaMask,
     };
 
     // Try to read wallet from cookies
     const walletFromCookie = cookies.get('current_wallet');
 
     let initialWalletState;
-    if (walletFromCookie && walletFromCookie.account && walletFromCookie.provider) {
+    if (
+        walletFromCookie &&
+        walletFromCookie.account &&
+        walletFromCookie.provider
+    ) {
         initialWalletState = walletFromCookie;
     } else {
         if (walletFromCookie) {
-            console.warn(`Tried to load wallet from cookie, but it was not correctly formed.`);
+            console.warn(
+                `Tried to load wallet from cookie, but it was not correctly formed.`
+            );
         }
 
         initialWalletState = { account: null, provider: null };
@@ -37,7 +44,9 @@ export default function useWallet(): {
         ethereum.on('accountsChanged', (accounts: string[]) => {
             const [account] = accounts;
             if (account) {
-                setWallet({ account, provider: 'metamask' });
+                const walletObj = { account, provider: 'metamask' };
+                mixpanel.track('wallet', walletObj);
+                setWallet(walletObj);
             } else {
                 disconnectWallet();
             }
@@ -51,7 +60,9 @@ export default function useWallet(): {
             method: 'eth_requestAccounts',
         });
         const [account] = accounts;
-        setWallet({ account, provider: 'metamask' });
+        const walletObj = { account, provider: 'metamask' };
+        mixpanel.track('wallet', walletObj);
+        setWallet(walletObj);
     };
 
     const disconnectWallet = () => {
@@ -62,12 +73,20 @@ export default function useWallet(): {
     // re-set cookie when wallet state changes
     useEffect(() => {
         if (wallet && wallet.account) {
-            cookies.set('current_wallet', wallet, { expires: new Date(Date.now() + 1000 * 60 * 60 * 24) });
+            cookies.set('current_wallet', wallet, {
+                expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+            });
         } else {
             // wallet was un-set, remove cookie
             cookies.remove('current_wallet');
         }
     }, [wallet]);
 
-    return { ethereum, wallet, connectMetaMask, disconnectWallet, availableProviders };
+    return {
+        ethereum,
+        wallet,
+        connectMetaMask,
+        disconnectWallet,
+        availableProviders,
+    };
 }
