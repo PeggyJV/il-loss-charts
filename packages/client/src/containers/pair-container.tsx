@@ -63,7 +63,10 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
             return symbol === pairSymbol;
         });
 
-        if (pairForSymbol) setPairId(pairForSymbol.id);
+        if (pairForSymbol) return setPairId(pairForSymbol.id);
+
+        // There is no pair in the query, so set to default
+        if (!pairId) return setPairId(initialData.pairId);
     }, [location]);
 
     // ------------------ LP State - handles lp-specific info ------------------
