@@ -7,13 +7,22 @@ import { LPStats as ILPStats } from '@sommelier/shared-types';
 import { LPStats } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 
-function LPStatsWidget({ lpStats, title }: { lpStats: Partial<ILPStats>, title?: string }) {
+function LPStatsWidget({
+    lpStats,
+    title,
+}: {
+    lpStats: Partial<ILPStats>;
+    title?: string;
+}): JSX.Element | null {
     if (!lpStats.totalFees) return null;
 
     const displayValue = (value?: BigNumber) => {
-        if (!value) throw new Error(`Could not display nonexist value in LPStatsWidget`);
+        if (!value)
+            throw new Error(
+                `Could not display nonexist value in LPStatsWidget`
+            );
         return formatUSD(value.toFixed(3));
-    }
+    };
 
     return (
         <Card className='lp-stats-card'>

@@ -170,7 +170,7 @@ paths:
                                         type: array
                                         items: 
                                             $ref: '#/components/schemas/UniswapMintOrBurn'
-    /uniswap/pairs/{id}/historical:
+    /uniswap/pairs/{id}/historical/daily:
         get:
             tags:
                 - Uniswap
@@ -201,6 +201,37 @@ paths:
                                         type: array
                                         items: 
                                             $ref: '#/components/schemas/UniswapDailyData'
+    /uniswap/pairs/{id}/historical/hourly:
+        get:
+            tags:
+                - Uniswap
+            description: Get historical hourly data for a pair on Uniswap.
+            parameters:
+                -   in: path
+                    name: id
+                    description: The contract address of the pair.
+                    example: "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852"
+                    required: true
+                    schema:
+                        type: string
+                - $ref: "#/components/parameters/startDate"
+                - $ref: "#/components/parameters/endDate"
+            responses:
+                400:
+                    description: Invalid ETH address sent for 'id', 'startDate' not provided, invalid 'startDate' or 'endDate'.
+                404:
+                    description: No historical data for the given timeframe. Check that the window is at least one hour.
+                200:
+                    description: Returns daily historical data in the specified window.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items: 
+                                            $ref: '#/components/schemas/UniswapHourlyData'
     /uniswap/pairs/{id}/stats:
         get:
             tags:
@@ -546,6 +577,53 @@ components:
                     type: string
                     example: "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852"
                     description: Contract address of the pair.
+                reserve0:
+                    type: string
+                    example: "102730.915624946031625317"
+                    description: Amount of token0 in the pool at the specified data point.
+                reserve1:
+                    type: string
+                    example: "79614298.470066"
+                    description: Amount of token1 in the pool at the specified data point.
+                reserveUSD:
+                    type: string
+                    example: "159297546.6358876653702590148554321"
+                    description: Total combined USD value of all assets in the pool at the specified data point.
+        UniswapHourlyData:
+            title: Uniswap Hourly Historical Data
+            type: object
+            required: 
+                - reserve0
+                - reserve1
+                - reserveUSD
+                - dailyVolumeToken0
+                - dailyVolumeToken1
+                - dailyVolumeUSD
+                - pairAddress
+                - date
+            properties:
+                __typename:
+                    type: string
+                    example: PairHourData
+                    description: Data type of the object.
+                hourStartUnix:
+                    type: number
+                    example: 1610490292
+                    description: Unix timestamp in seconds of the historical data point.
+                hourlyVolumeToken0:
+                    type: string
+                    example: "73662.648903125599853115"
+                    description: Amount of token0 traded in the specified hour.
+                hourlyVolumeToken1:
+                    type: string
+                    example: "55582125.680062"
+                    description: Amount of token1 traded in the specified hour.
+                hourlyVolumeUSD:
+                    type: string
+                    example: "55607792.23757445236929244702297876"
+                    description: Combined USD equivalent of all trades in the specified hour.
+                pair:
+                    $ref: '#/components/schemas/UniswapPair'
                 reserve0:
                     type: string
                     example: "102730.915624946031625317"

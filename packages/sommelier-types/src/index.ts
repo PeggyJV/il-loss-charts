@@ -39,7 +39,7 @@ export interface UniswapDailyData extends LiquidityData {
 }
 
 export interface UniswapHourlyData extends LiquidityData {
-    __typename: 'PairDayData';
+    __typename: 'PairHourData';
     pair: Partial<UniswapPair>;
     hourStartUnix: number;
     hourlyVolumeToken0: string;
@@ -123,12 +123,12 @@ export interface UniswapLiquidityPositionAtTime extends LiquidityData {
 type HistoricalData = UniswapDailyData | UniswapHourlyData;
 
 export interface LPPositionData<T = BigNumber> {
-    positions: { [pairId: string]: UniswapLiquidityPositionAtTime[] },
+    positions: { [pairId: string]: UniswapLiquidityPositionAtTime[] };
     stats: {
         [pairId: string]: {
             historicalData: HistoricalData[];
             aggregatedStats: LPStats<T>;
             statsWindows: LPStats<T>[];
-        }
-    }
+        };
+    };
 }

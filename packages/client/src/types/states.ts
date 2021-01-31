@@ -1,29 +1,36 @@
 import {
-    UniswapPair, UniswapDailyData
+    UniswapPair,
+    UniswapDailyData,
+    UniswapHourlyData,
 } from '@sommelier/shared-types';
 
 export interface AllPairsState {
     isLoading: boolean;
-    pairs: UniswapPair[] | null,
+    pairs: UniswapPair[] | null;
     lookups: {
-        [pairId: string]:
-        UniswapPair & { volumeRanking: number, liquidityRanking: number }
-    } | null,
-    byLiquidity: UniswapPair[] | null
+        [pairId: string]: UniswapPair & {
+            volumeRanking: number;
+            liquidityRanking: number;
+        };
+    } | null;
+    byLiquidity: UniswapPair[] | null;
 }
 
 export type Provider = 'metamask';
 
 export interface Wallet {
     account: string;
-    provider: Provider
+    provider: Provider;
 }
 
 export interface LPInfoState {
-    pairData: UniswapPair,
-    historicalData: UniswapDailyData[]
+    pairData: UniswapPair;
+    historicalDailyData: UniswapDailyData[];
+    historicalHourlyData: UniswapHourlyData[];
 }
 
 export interface IError {
     message: string;
 }
+
+export type StatsWindow = 'total' | 'day' | 'week';

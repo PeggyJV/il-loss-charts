@@ -1,11 +1,10 @@
-import { useState } from 'react';
 import { Button, Card } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
 
 import { LPStats as ILPStats } from '@sommelier/shared-types';
 
-import { AllPairsState, LPInfoState } from 'types/states';
+import { AllPairsState, LPInfoState, StatsWindow } from 'types/states';
 import { Pair, DailyData, LPStats } from 'constants/prop-types';
 import USDValueWidget from 'components/usd-value-widget';
 
@@ -24,24 +23,27 @@ function PercentChangeStat({ value }: { value?: BigNumber }) {
 
 PercentChangeStat.propTypes = { value: PropTypes.instanceOf(BigNumber) };
 
-type StatsWindow = 'total' | 'day' | 'week';
-
-function TotalPoolStats({ allPairs, lpInfo, lpStats, defaultWindow = 'total' }: {
-    allPairs: AllPairsState,
-    lpInfo: LPInfoState,
-    lpStats: ILPStats,
-    defaultWindow?: 'total' | 'day' | 'week'
+function TotalPoolStats({
+    allPairs,
+    lpInfo,
+    lpStats,
+    defaultWindow = 'total',
+    setWindow,
+}: {
+    allPairs: AllPairsState;
+    lpInfo: LPInfoState;
+    lpStats: ILPStats;
+    defaultWindow?: StatsWindow;
+    setWindow: (window: StatsWindow) => void;
 }): JSX.Element {
-    const [window, setWindow] = useState<StatsWindow>(defaultWindow);
-
     const { totalStats, lastDayStats, lastWeekStats } = lpStats;
 
     let stats;
-    if (window === 'total') {
+    if (defaultWindow === 'total') {
         stats = totalStats;
-    } else if (window === 'day') {
+    } else if (defaultWindow === 'day') {
         stats = lastDayStats;
-    } else if (window === 'week') {
+    } else if (defaultWindow === 'week') {
         stats = lastWeekStats;
     } else {
         throw new Error('Unknown stats window');
@@ -49,21 +51,24 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats, defaultWindow = 'total' }: 
 
     const handleSetWindow = (selectedWindow: StatsWindow) => {
         // Reset to total if already clicked
-        if (window === selectedWindow) setWindow('total');
+        if (defaultWindow === selectedWindow) setWindow('total');
         else setWindow(selectedWindow);
     };
 
-    const prefix = window === 'day' ? '24h' : window === 'week' ? '7d' : '';
+    const prefix =
+        defaultWindow === 'day' ? '24h' : defaultWindow === 'week' ? '7d' : '';
 
     return (
         <div className='pool-stats-container'>
             {/* <CardDeck> */}
             <USDValueWidget
                 title={`${prefix} USD Volume`}
-                badge={`#${allPairs?.lookups?.[lpInfo.pairData.id]?.volumeRanking || ''}`}
+                badge={`#${
+                    allPairs?.lookups?.[lpInfo.pairData.id]?.volumeRanking || ''
+                }`}
                 value={stats?.volumeUSD?.toFixed(4)}
                 footnote={
-                    window !== 'total' && (
+                    defaultWindow !== 'total' && (
                         <PercentChangeStat
                             value={stats?.volumeUSDChange?.times(100)}
                         />
@@ -72,10 +77,13 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats, defaultWindow = 'total' }: 
             />
             <USDValueWidget
                 title={'Total Liquidity'}
-                badge={`#${allPairs?.lookups?.[lpInfo.pairData.id]?.liquidityRanking || ''}`}
+                badge={`#${
+                    allPairs?.lookups?.[lpInfo.pairData.id]?.liquidityRanking ||
+                    ''
+                }`}
                 value={stats?.liquidityUSD?.toFixed(4)}
                 footnote={
-                    window !== 'total' && (
+                    defaultWindow !== 'total' && (
                         <PercentChangeStat
                             value={stats?.liquidityUSDChange?.times(100)}
                         />
@@ -84,10 +92,12 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats, defaultWindow = 'total' }: 
             />
             <USDValueWidget
                 title={`${prefix} Fees Collected`}
-                badge={`#${allPairs?.lookups?.[lpInfo.pairData.id]?.volumeRanking || ''}`}
+                badge={`#${
+                    allPairs?.lookups?.[lpInfo.pairData.id]?.volumeRanking || ''
+                }`}
                 value={stats?.feesUSD?.toFixed(4)}
                 footnote={
-                    window !== 'total' && (
+                    defaultWindow !== 'total' && (
                         <PercentChangeStat
                             value={stats?.feesUSDChange?.times(100)}
                         />
@@ -96,24 +106,28 @@ function TotalPoolStats({ allPairs, lpInfo, lpStats, defaultWindow = 'total' }: 
             />
             <Card className='stats-card window-button-card no-border' body>
                 <Button
-                    variant={window === 'day' ? 'primary' : 'outline-primary'}
+                    variant={
+                        defaultWindow === 'day' ? 'primary' : 'outline-primary'
+                    }
                     size='sm'
                     className='window-button'
                     onClick={() => handleSetWindow('day')}
                 >
                     24H
-                    </Button>
+                </Button>
                 <Button
-                    variant={window === 'week' ? 'primary' : 'outline-primary'}
+                    variant={
+                        defaultWindow === 'week' ? 'primary' : 'outline-primary'
+                    }
                     size='sm'
                     className='window-button'
                     onClick={() => handleSetWindow('week')}
                 >
                     7D
-                    </Button>
+                </Button>
             </Card>
             {/* </CardDeck> */}
-        </div >
+        </div>
     );
 }
 

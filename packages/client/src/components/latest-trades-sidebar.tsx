@@ -8,18 +8,18 @@ import { Token, UniswapSwap, UniswapMintOrBurn } from '@sommelier/shared-types';
 import { MintOrBurn, Swap } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 
-function LatestTradeSidebar(
-    { latestSwaps }: {
-        latestSwaps: {
-            swaps: UniswapSwap[] | null,
-            mintsAndBurns: {
-                mints: UniswapMintOrBurn[],
-                burns: UniswapMintOrBurn[],
-                combined: UniswapMintOrBurn[],
-            } | null
-        } | null
-    }
-) {
+function LatestTradeSidebar({
+    latestSwaps,
+}: {
+    latestSwaps: {
+        swaps: UniswapSwap[] | null;
+        mintsAndBurns: {
+            mints: UniswapMintOrBurn[];
+            burns: UniswapMintOrBurn[];
+            combined: UniswapMintOrBurn[];
+        } | null;
+    } | null;
+}): JSX.Element | null {
     const [mode, setMode] = useState('swaps');
     if (!latestSwaps) return null;
 
@@ -85,8 +85,8 @@ LatestTradeSidebar.propTypes = {
             mints: PropTypes.arrayOf(MintOrBurn).isRequired,
             burns: PropTypes.arrayOf(MintOrBurn).isRequired,
             combined: PropTypes.arrayOf(MintOrBurn).isRequired,
-        })
-    })
+        }),
+    }),
 };
 
 function SwapInfo({ swap }: { swap: UniswapSwap }) {
@@ -123,12 +123,14 @@ SwapInfo.propTypes = { swap: Swap.isRequired };
 function MintBurnInfo({ action }: { action: UniswapMintOrBurn }) {
     const icon = action.__typename === 'Mint' ? '💰' : '🔥';
     const actionName = action.__typename === 'Mint' ? 'Add' : 'Remove';
-    const pairAmounts = `${new BigNumber(action.amount0).toFixed(3)} ${(action.pair.token0 as Token).symbol
-        }/${new BigNumber(action.amount1).toFixed(3)} ${(action.pair.token1 as Token).symbol}`;
+    const pairAmounts = `${new BigNumber(action.amount0).toFixed(3)} ${
+        (action.pair.token0 as Token).symbol
+    }/${new BigNumber(action.amount1).toFixed(3)} ${
+        (action.pair.token1 as Token).symbol
+    }`;
     return (
         <ListGroup.Item className='sidebar-item'>
-            {icon} {actionName} {formatUSD(action.amountUSD)} (
-            {pairAmounts})
+            {icon} {actionName} {formatUSD(action.amountUSD)} ({pairAmounts})
         </ListGroup.Item>
     );
 }

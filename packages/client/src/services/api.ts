@@ -4,6 +4,7 @@ import {
     UniswapSwap,
     UniswapMintOrBurn,
     UniswapDailyData,
+    UniswapHourlyData,
     LPPositionData,
 } from '@sommelier/shared-types';
 
@@ -84,10 +85,24 @@ export class UniswapApiFetcher {
         endDate = new Date()
     ): Promise<ApiResponse<UniswapDailyData[]>> {
         const response = await fetch(
-            `/api/v1/uniswap/pairs/${pairId}/historical?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+            `/api/v1/uniswap/pairs/${pairId}/historical/daily?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
         );
         const { data, error } = await (response.json() as Promise<
             ApiResponse<UniswapDailyData[]>
+        >);
+        return { data, error };
+    }
+
+    static async getHistoricalHourlyData(
+        pairId: string,
+        startDate: Date,
+        endDate = new Date()
+    ): Promise<ApiResponse<UniswapHourlyData[]>> {
+        const response = await fetch(
+            `/api/v1/uniswap/pairs/${pairId}/historical/hourly?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+        );
+        const { data, error } = await (response.json() as Promise<
+            ApiResponse<UniswapHourlyData[]>
         >);
         return { data, error };
     }

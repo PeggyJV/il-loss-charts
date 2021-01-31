@@ -154,6 +154,34 @@ class UniswapController {
         return historicalDailyData;
     }
 
+    static async getHistoricalHourlyData(req: Request) {
+        const pairId: string = req.params.id;
+        // Validate ethereum address
+        const validId = isValidEthAddress(pairId);
+        if (!validId)
+            throw new HTTPError(400, `'id' must be a valid ETH address.`);
+
+        // TODO: Validate we can't go >1 week backs
+        const start: string | undefined = req.query.startDate?.toString();
+        if (!start) throw new HTTPError(400, `'startDate' is required.`);
+
+        const startDate = new Date(start);
+        if (startDate.getTime() !== startDate.getTime())
+            throw new HTTPError(400, `Received invalid date for 'startDate'.`);
+
+        const endDate: Date = req.query.endDate
+            ? new Date(req.query.endDate.toString())
+            : new Date();
+        if (endDate.getTime() !== endDate.getTime())
+            throw new HTTPError(400, `Received invalid date for 'endDate'.`);
+        const historicalHourlyData = await UniswapFetcher.getHistoricalHourlyData(
+            pairId,
+            startDate,
+            endDate
+        );
+        return historicalHourlyData;
+    }
+
     static async getMarketStats(req: Request) {
         const start: string | undefined = req.query.startDate?.toString();
         if (!start) throw new HTTPError(400, `'startDate' is required.`);
@@ -304,9 +332,14 @@ export default express
         wrapRequest(UniswapController.getMintsAndBurnsForPair)
     )
     .get(
-        '/pairs/:id/historical',
+        '/pairs/:id/historical/daily',
         cacheMiddleware(300),
         wrapRequest(UniswapController.getHistoricalDailyData)
+    )
+    .get(
+        '/pairs/:id/historical/hourly',
+        cacheMiddleware(300),
+        wrapRequest(UniswapController.getHistoricalHourlyData)
     )
     .get('/pairs/:id/stats', wrapRequest(UniswapController.getPairStats))
     .get(

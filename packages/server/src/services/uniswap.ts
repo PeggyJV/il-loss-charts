@@ -383,6 +383,55 @@ export default class UniswapFetcher {
         return dailyData;
     }
 
+    static async getHistoricalHourlyData(
+        pairId: string,
+        startDate: Date,
+        endDate = new Date()
+    ): Promise<UniswapHourlyData[]> {
+        let lastStartDate = startDate;
+        let hourlyData = await UniswapFetcher.getHourlyData(
+            pairId,
+            startDate,
+            endDate
+        );
+        const endDateTimestamp = Math.floor(endDate.getTime() / 1000);
+        const dayMs = 1000 * 60 * 60 * 24;
+
+        if (hourlyData.length === 0) {
+            throw new HTTPError(
+                404,
+                `Could not fetch any historical hourly data for the given timeframe. Make sure the window is at least 1 day.`
+            );
+        }
+
+        // Keep fetching until we pass the end date
+        while (
+            hourlyData[hourlyData.length - 1].hourStartUnix <=
+                endDateTimestamp &&
+            Math.floor(lastStartDate.getTime() / 1000) <= endDateTimestamp
+        ) {
+            lastStartDate = new Date(
+                hourlyData[hourlyData.length - 1].hourStartUnix * 1000 + dayMs
+            ); // skip ahead 24 hrs
+            const oldLength = hourlyData.length;
+            hourlyData = [
+                ...hourlyData,
+                ...(await UniswapFetcher.getHourlyData(
+                    pairId,
+                    lastStartDate,
+                    endDate
+                )),
+            ];
+
+            // Nothing more to add
+            if (hourlyData.length === oldLength) {
+                break;
+            }
+        }
+
+        return hourlyData;
+    }
+
     static async getSwapsForPair(pairId: string): Promise<UniswapSwap[]> {
         const response: ApolloResponse<{
             swaps: UniswapSwap[];

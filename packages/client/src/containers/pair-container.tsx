@@ -7,9 +7,15 @@ import PropTypes from 'prop-types';
 
 import config from 'config';
 
-import { UniswapPair, UniswapSwap, UniswapMintOrBurn, UniswapDailyData, LPStats } from '@sommelier/shared-types';
+import {
+    UniswapPair,
+    UniswapSwap,
+    UniswapMintOrBurn,
+    UniswapDailyData,
+    LPStats,
+} from '@sommelier/shared-types';
 
-import { AllPairsState, LPInfoState, IError } from 'types/states';
+import { AllPairsState, LPInfoState, IError, StatsWindow } from 'types/states';
 import { Pair } from 'constants/prop-types';
 import initialData from 'constants/initialData.json';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
@@ -37,6 +43,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
     // ------------------ Shared State ------------------
 
     const [pairId, setPairId] = useState<string | null>(null);
+    const [timeWindow, setWindow] = useState<StatsWindow>('total');
 
     // Keep track of previous pair ID so we can unsubscribe
     const prevPairIdRef = useRef<string | null>();
@@ -48,6 +55,13 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
     const location = useLocation();
     useEffect(() => {
         const query = new URLSearchParams(location.search);
+
+        // Check window (either 24h or 7d)
+        const timeWindow = query.get('timeWindow');
+        if (timeWindow && ['day', 'week', 'total'].includes(timeWindow)) {
+            setWindow(timeWindow as StatsWindow);
+        }
+
         const pairId = query.get('id');
         if (pairId) {
             mixpanel.track('pair:clickthrough', {
@@ -63,7 +77,9 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
         // lookup by symbol
         const symbol = query.get('symbol');
         const pairForSymbol = allPairs.pairs.find((pair) => {
-            const pairSymbol = `${pair.token0.symbol || ''}/${pair.token1.symbol || ''}`;
+            const pairSymbol = `${pair.token0.symbol || ''}/${
+                pair.token1.symbol || ''
+            }`;
             return symbol === pairSymbol;
         });
 
@@ -71,7 +87,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
             mixpanel.track('pair:clickthrough', {
                 pairId: pairForSymbol.id,
                 token0: pairForSymbol.token0.symbol,
-                token1: pairForSymbol.token1.symbol
+                token1: pairForSymbol.token1.symbol,
             });
 
             return setPairId(pairForSymbol.id);
@@ -96,12 +112,36 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
         () => {
             if (isInitialLoad || currentError) return null;
 
-            return calculateLPStats({
-                pairData: lpInfo?.pairData,
-                dailyData: lpInfo?.historicalData,
-                lpDate,
-                lpShare
-            });
+            let lpStats: LPStats | null = null;
+            console.log('THIS IS TIME WINDOW', timeWindow);
+            if (timeWindow === 'total') {
+                lpStats = calculateLPStats({
+                    pairData: lpInfo?.pairData,
+                    dailyData: lpInfo?.historicalDailyData,
+                    lpDate,
+                    lpShare,
+                });
+            } else if (timeWindow === 'week') {
+                lpStats = calculateLPStats({
+                    pairData: lpInfo?.pairData,
+                    hourlyData: lpInfo?.historicalHourlyData,
+                    lpDate,
+                    lpShare,
+                });
+            } else if (timeWindow === 'day') {
+                const lastDayHourlyData = lpInfo?.historicalHourlyData?.slice(
+                    -24
+                );
+
+                lpStats = calculateLPStats({
+                    pairData: lpInfo?.pairData,
+                    hourlyData: lastDayHourlyData,
+                    lpDate,
+                    lpShare,
+                });
+            }
+
+            return lpStats;
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [lpInfo, lpDate, lpShare, isInitialLoad]
@@ -130,13 +170,22 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
             if (newPair) {
                 const createdAt = parseInt(newPair.createdAtTimestamp, 10);
                 const pairCreatedAt = new Date(createdAt * 1000);
+                const oneWeekAgo = new Date(
+                    Date.now() - 60 * 60 * 24 * 7 * 1000
+                );
 
                 // Get historical data for pair from start date until now
-                const {
-                    data: historicalDailyData,
-                    error: historicalErrors,
-                } = await Uniswap.getHistoricalDailyData(pairId, pairCreatedAt);
+                // Also fetch last 7 days hourly
+                // and get last 24h from last 7 days
+                const [
+                    { data: historicalDailyData, error: dailyDataError },
+                    { data: historicalHourlyData, error: hourlyDataError },
+                ] = await Promise.all([
+                    Uniswap.getHistoricalDailyData(pairId, pairCreatedAt),
+                    Uniswap.getHistoricalHourlyData(pairId, oneWeekAgo),
+                ]);
 
+                const historicalErrors = dailyDataError ?? hourlyDataError;
                 if (historicalErrors) {
                     // we could not get data for this new pair
                     console.warn(
@@ -146,11 +195,15 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                     return;
                 }
 
-                setLPInfo((prevLpInfo) => ({
-                    ...prevLpInfo,
-                    pairData: newPair,
-                    historicalData: historicalDailyData,
-                } as LPInfoState));
+                setLPInfo(
+                    (prevLpInfo) =>
+                        ({
+                            ...prevLpInfo,
+                            pairData: newPair,
+                            historicalDailyData,
+                            historicalHourlyData,
+                        } as LPInfoState)
+                );
 
                 mixpanel.track('pair:query', {
                     pairId,
@@ -172,24 +225,27 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
         if (currentError) return null;
         if (!lpInfo) return null;
 
-        if (!lpInfo.historicalData || lpInfo.historicalData.length === 0)
+        if (
+            !lpInfo.historicalDailyData ||
+            lpInfo.historicalDailyData.length === 0
+        )
             return null;
 
         // Find daily data that matches LP date
-        for (const dailyData of lpInfo.historicalData) {
+        for (const dailyData of lpInfo.historicalDailyData) {
             const currentDate = new Date(dailyData.date * 1000);
             if (currentDate.getTime() === lpDate.getTime()) {
                 return dailyData;
             }
         }
 
-        if (lpInfo.historicalData.length === 0) return null;
-        const firstDay = new Date(lpInfo.historicalData[0].date * 1000);
+        if (lpInfo.historicalDailyData.length === 0) return null;
+        const firstDay = new Date(lpInfo.historicalDailyData[0].date * 1000);
         console.warn(
             `Could not find LP date in historical data: ${lpDate.toISOString()}. Setting to first day, which is ${firstDay.toISOString()}.`
         );
         setLPDate(firstDay);
-        return lpInfo.historicalData[0];
+        return lpInfo.historicalDailyData[0];
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [lpInfo, lpDate]);
 
@@ -213,7 +269,9 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                 setLPInfo({ ...lpInfo, pairData: pairMsg } as LPInfoState);
             } else {
                 console.warn(
-                    `Received pair update over websocket for non-active pair: ${pairMsg.token0.symbol || ''}/${pairMsg.token1.symbol || ''}`
+                    `Received pair update over websocket for non-active pair: ${
+                        pairMsg.token0.symbol || ''
+                    }/${pairMsg.token1.symbol || ''}`
                 );
             }
         } else if (topic === 'infura:newHeads') {
@@ -266,12 +324,12 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
     // ------------------ Market Data State - fetches non-LP specific market data ------------------
 
     const [latestSwaps, setLatestSwaps] = useState<{
-        swaps: UniswapSwap[] | null,
+        swaps: UniswapSwap[] | null;
         mintsAndBurns: {
-            mints: UniswapMintOrBurn[],
-            burns: UniswapMintOrBurn[],
-            combined: UniswapMintOrBurn[],
-        } | null
+            mints: UniswapMintOrBurn[];
+            burns: UniswapMintOrBurn[];
+            combined: UniswapMintOrBurn[];
+        } | null;
     }>({
         swaps: null,
         mintsAndBurns: null,
@@ -312,10 +370,13 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
 
             const { data: newPairData } = await Uniswap.getPairOverview(pairId);
 
-            setLPInfo((prevLpInfo) => ({
-                ...prevLpInfo,
-                pairData: newPairData,
-            } as LPInfoState));
+            setLPInfo(
+                (prevLpInfo) =>
+                    ({
+                        ...prevLpInfo,
+                        pairData: newPairData,
+                    } as LPInfoState)
+            );
         };
 
         void getLatestSwaps();
@@ -339,7 +400,14 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
     }
 
     // If no lp stats, we haven't completed our first data fetch yet
-    if (!allPairs.pairs || !pairId || !lpInfo || !lpStats || !dailyDataAtLPDate || Object.keys(lpStats).length === 0) {
+    if (
+        !allPairs.pairs ||
+        !pairId ||
+        !lpInfo ||
+        !lpStats ||
+        !dailyDataAtLPDate ||
+        Object.keys(lpStats).length === 0
+    ) {
         return (
             <Container className='loading-container'>
                 <div className='wine-bounce'>🍷</div>
@@ -367,12 +435,13 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                                 allPairs={allPairs}
                                 lpInfo={lpInfo}
                                 lpStats={lpStats}
-                                defaultWindow='day'
+                                defaultWindow={timeWindow}
+                                setWindow={setWindow}
                             />
                         </Col>
                     </Row>
                     <Row noGutters>
-                        {isDesktop ?
+                        {isDesktop ? (
                             <>
                                 <Col lg={3} className='trades-sidebar'>
                                     <LatestTradesSidebar
@@ -385,7 +454,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                                     <LPStatsChart lpStats={lpStats} />
                                 </Col>
                             </>
-                            :
+                        ) : (
                             <>
                                 <Col lg={9}>
                                     {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
@@ -398,10 +467,10 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                                     />
                                 </Col>
                             </>
-                        }
+                        )}
                     </Row>
                 </Col>
-                {isLargestBreakpoint &&
+                {isLargestBreakpoint && (
                     <>
                         <Col lg={2}>
                             <LPInput
@@ -415,9 +484,9 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                             <LPStatsWidget lpStats={lpStats} />
                         </Col>
                     </>
-                }
+                )}
             </Row>
-            {!isLargestBreakpoint &&
+            {!isLargestBreakpoint && (
                 <Row>
                     <Col lg={8}>
                         <LPInput
@@ -433,7 +502,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                         <LPStatsWidget lpStats={lpStats} />
                     </Col>
                 </Row>
-            }
+            )}
             {/* <Row>
                 <RealtimeStatusBar latestBlock={latestBlock} />
             </Row> */}
@@ -442,7 +511,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
 }
 
 PairContainer.propTypes = {
-    allPairs: PropTypes.shape({ pairs: PropTypes.arrayOf(Pair) })
+    allPairs: PropTypes.shape({ pairs: PropTypes.arrayOf(Pair) }),
 };
 
 export default PairContainer;

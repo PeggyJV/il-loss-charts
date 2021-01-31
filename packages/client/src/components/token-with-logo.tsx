@@ -4,7 +4,10 @@ import logoMappings from 'constants/trustwallet-mappings.json';
 import { Pair } from 'constants/prop-types';
 
 const TokenWithLogo = (side: 'left' | 'right') => {
-    const TokenOnGivenSide = ({ item: pair }: { item: UniswapPair }, logoPosition = 'left') => {
+    const TokenOnGivenSide = (
+        { item: pair }: { item: UniswapPair },
+        logoPosition = 'left'
+    ) => {
         let token;
 
         if (side === 'left') token = pair.token0;
@@ -33,7 +36,7 @@ const TokenWithLogo = (side: 'left' | 'right') => {
 
 TokenWithLogo.displayName = 'TokenWithLogo';
 
-export function resolveLogo(addressLower?: string) {
+export function resolveLogo(addressLower?: string): JSX.Element {
     let address: string | undefined = undefined;
 
     if (addressLower && addressLower in logoMappings) {

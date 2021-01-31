@@ -6,7 +6,6 @@ import { useState, useEffect, ReactElement } from 'react';
 
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
-import { useMediaQuery } from 'react-responsive';
 
 import LandingContainer from 'containers/landing-container';
 import MarketContainer from 'containers/market-container';
@@ -29,12 +28,16 @@ function App(): ReactElement {
         isLoading: true,
         pairs: null,
         lookups: null,
-        byLiquidity: null
+        byLiquidity: null,
     });
     const [currentError, setError] = useState<IError | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
-    const { wallet, connectMetaMask, disconnectWallet, availableProviders } = useWallet();
-    const isBigScreen = useMediaQuery({ query: '(min-width: 1200px)' });
+    const {
+        wallet,
+        connectMetaMask,
+        disconnectWallet,
+        availableProviders,
+    } = useWallet();
 
     useEffect(() => {
         const fetchAllPairs = async () => {

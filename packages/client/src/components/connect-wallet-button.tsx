@@ -5,11 +5,11 @@ import { Wallet } from 'types/states';
 
 function ConnectWalletButton({
     onClick,
-    wallet
+    wallet,
 }: {
-    onClick: () => void,
-    wallet: Wallet
-}) {
+    onClick: () => void;
+    wallet: Wallet;
+}): JSX.Element {
     const account = wallet?.account;
     const buttonText = account ? `Connected: ${account}` : 'Connect Wallet';
     const buttonVariant = account ? 'success' : 'primary';

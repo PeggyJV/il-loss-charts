@@ -8,12 +8,17 @@ import { UniswapPair } from '@sommelier/shared-types';
 import { Pair } from 'constants/prop-types';
 import TokenWithLogo, { resolveLogo } from 'components/token-with-logo';
 
-function PairSelector({ pairs, currentPairId, setPair, isLoading }: {
-    pairs: UniswapPair[],
-    currentPairId: string,
-    setPair: (pairId: string) => void,
-    isLoading: boolean
-}) {
+function PairSelector({
+    pairs,
+    currentPairId,
+    setPair,
+    isLoading,
+}: {
+    pairs: UniswapPair[];
+    currentPairId: string;
+    setPair: (pairId: string) => void;
+    isLoading: boolean;
+}): JSX.Element {
     let defaultValue = pairs[0];
     for (const pair of pairs) {
         if (pair.id === currentPairId) {
@@ -46,7 +51,9 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }: {
         if (currentValue?.id) setPair(currentValue.id);
     }, [currentValue, setPair]);
 
-    const renderPairText = (side: 'left' | 'right') => (pair: string | UniswapPair): string => {
+    const renderPairText = (side: 'left' | 'right') => (
+        pair: string | UniswapPair
+    ): string => {
         // If pair is string, it's typed in so return
         if (typeof pair === 'string') return pair;
 
@@ -54,7 +61,9 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }: {
         return pair[token].symbol as string;
     };
 
-    const handleChange = (side: 'left' | 'right') => (value: string | UniswapPair): void => {
+    const handleChange = (side: 'left' | 'right') => (
+        value: string | UniswapPair
+    ): void => {
         // If pair is string, it's typed in
         // so just override one side
         if (typeof value === 'string') {
@@ -101,8 +110,8 @@ function PairSelector({ pairs, currentPairId, setPair, isLoading }: {
                             🍷
                         </div>
                     ) : (
-                            <div className='pair-selector-separator'>✖️</div>
-                        )}
+                        <div className='pair-selector-separator'>✖️</div>
+                    )}
                     <InputGroup>
                         <InputGroup.Prepend className='token-logo'>
                             <InputGroup.Text className='logo-span'>
