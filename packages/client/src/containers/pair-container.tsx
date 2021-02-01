@@ -114,12 +114,25 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
 
             let lpStats: LPStats | null = null;
             if (timeWindow === 'total') {
-                lpStats = calculateLPStats({
-                    pairData: lpInfo?.pairData,
-                    dailyData: lpInfo?.historicalDailyData,
-                    lpDate,
-                    lpShare,
-                });
+                // If less than 7 data points, default to hourly anyway
+                if (
+                    lpInfo?.historicalDailyData?.length &&
+                    lpInfo.historicalDailyData.length > 7
+                ) {
+                    lpStats = calculateLPStats({
+                        pairData: lpInfo?.pairData,
+                        dailyData: lpInfo?.historicalDailyData,
+                        lpDate,
+                        lpShare,
+                    });
+                } else {
+                    lpStats = calculateLPStats({
+                        pairData: lpInfo?.pairData,
+                        hourlyData: lpInfo?.historicalHourlyData,
+                        lpDate,
+                        lpShare,
+                    });
+                }
             } else if (timeWindow === 'week') {
                 lpStats = calculateLPStats({
                     pairData: lpInfo?.pairData,
