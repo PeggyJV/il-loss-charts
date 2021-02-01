@@ -12,6 +12,7 @@ import {
     UniswapSwap,
     UniswapMintOrBurn,
     UniswapDailyData,
+    UniswapHourlyData,
     LPStats,
 } from '@sommelier/shared-types';
 
@@ -233,7 +234,10 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pairId]);
 
-    const dailyDataAtLPDate = useMemo((): UniswapDailyData | null => {
+    const dataAtLPDate = useMemo(():
+        | UniswapDailyData
+        | UniswapHourlyData
+        | null => {
         if (currentError) return null;
         if (!lpInfo) return null;
 
@@ -243,23 +247,61 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
         )
             return null;
 
-        // Find daily data that matches LP date
-        for (const dailyData of lpInfo.historicalDailyData) {
-            const currentDate = new Date(dailyData.date * 1000);
-            if (currentDate.getTime() === lpDate.getTime()) {
-                return dailyData;
+        if (timeWindow === 'total') {
+            // Find daily data that matches LP date
+            for (const dailyData of lpInfo.historicalDailyData) {
+                const currentDate = new Date(dailyData.date * 1000);
+                if (currentDate.getTime() === lpDate.getTime()) {
+                    return dailyData;
+                }
             }
-        }
 
-        if (lpInfo.historicalDailyData.length === 0) return null;
-        const firstDay = new Date(lpInfo.historicalDailyData[0].date * 1000);
-        console.warn(
-            `Could not find LP date in historical data: ${lpDate.toISOString()}. Setting to first day, which is ${firstDay.toISOString()}.`
-        );
-        setLPDate(firstDay);
-        return lpInfo.historicalDailyData[0];
+            if (lpInfo.historicalDailyData.length === 0) return null;
+            const firstDay = new Date(
+                lpInfo.historicalDailyData[0].date * 1000
+            );
+            console.warn(
+                `Could not find LP date in historical data: ${lpDate.toISOString()}. Setting to first day, which is ${firstDay.toISOString()}.`
+            );
+            setLPDate(firstDay);
+            return lpInfo.historicalDailyData[0];
+        } else if (timeWindow === 'week') {
+            for (const hourlyData of lpInfo.historicalHourlyData) {
+                const currentDate = new Date(hourlyData.hourStartUnix * 1000);
+                if (currentDate.getTime() === lpDate.getTime()) {
+                    return hourlyData;
+                }
+            }
+            if (lpInfo.historicalHourlyData.length === 0) return null;
+            const firstHour = new Date(
+                lpInfo.historicalHourlyData[0].hourStartUnix * 1000
+            );
+            console.warn(
+                `Could not find LP date in historical data: ${lpDate.toISOString()}. Setting to first day, which is ${firstHour.toISOString()}.`
+            );
+            setLPDate(firstHour);
+            return lpInfo.historicalHourlyData[0];
+        } else {
+            // If LP Date before one day ago, then set LPDate to one day ago
+            const historicalDataOneDay = lpInfo.historicalHourlyData.slice(-24);
+            for (const hourlyData of historicalDataOneDay) {
+                const currentDate = new Date(hourlyData.hourStartUnix * 1000);
+                if (currentDate.getTime() === lpDate.getTime()) {
+                    return hourlyData;
+                }
+            }
+            if (historicalDataOneDay.length === 0) return null;
+            const firstHour = new Date(
+                historicalDataOneDay[0].hourStartUnix * 1000
+            );
+            console.warn(
+                `Could not find LP date in historical data: ${lpDate.toISOString()}. Setting to first day, which is ${firstHour.toISOString()}.`
+            );
+            setLPDate(firstHour);
+            return historicalDataOneDay[0];
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [lpInfo, lpDate]);
+    }, [lpInfo, lpDate, timeWindow]);
 
     // ------------------ Websocket State - handles subscriptions ------------------
 
@@ -417,7 +459,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
         !pairId ||
         !lpInfo ||
         !lpStats ||
-        !dailyDataAtLPDate ||
+        !dataAtLPDate ||
         Object.keys(lpStats).length === 0
     ) {
         return (
@@ -491,7 +533,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                                 lpShare={lpShare}
                                 setLPDate={setLPDate}
                                 setLPShare={setLPShare}
-                                dailyDataAtLPDate={dailyDataAtLPDate}
+                                dataAtLPDate={dataAtLPDate}
                             />
                             <LPStatsWidget lpStats={lpStats} />
                         </Col>
@@ -507,7 +549,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                             lpShare={lpShare}
                             setLPDate={setLPDate}
                             setLPShare={setLPShare}
-                            dailyDataAtLPDate={dailyDataAtLPDate}
+                            dataAtLPDate={dataAtLPDate}
                         />
                     </Col>
                     <Col lg={4}>

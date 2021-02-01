@@ -72,10 +72,8 @@ function LPStatsChart({
         stroke: string;
         payload: { value: number; index: number };
     }) {
-        console.log('THIS IS PAYLOAD', tickInterval, payload);
         const tickDate = new Date(payload.value);
         const lastVisible = payload.index - tickInterval - 1;
-        console.log('THIS IS LAST INTERVAL', lastVisible);
 
         let printDay;
         if (lastVisible >= 0) {

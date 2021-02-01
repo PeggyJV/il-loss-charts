@@ -6,8 +6,8 @@ import { DateTimePicker } from 'react-widgets';
 import { useMediaQuery } from 'react-responsive';
 import dateFnsLocalizer, { defaultFormats } from 'react-widgets-date-fns';
 
-import { UniswapPair, UniswapDailyData } from '@sommelier/shared-types';
-import { Pair, DailyData } from 'constants/prop-types';
+import { UniswapPair, LiquidityData } from '@sommelier/shared-types';
+import { Pair, DailyData, HourlyData } from 'constants/prop-types';
 
 import 'styles/lp-input.scss';
 
@@ -20,30 +20,27 @@ function LPInput({
     pairData,
     lpShare,
     setLPShare,
-    dailyDataAtLPDate,
+    dataAtLPDate,
 }: {
-    lpDate: Date,
-    setLPDate: (newLPDate: Date) => void,
-    pairData: UniswapPair,
-    lpShare: number,
-    setLPShare: (newLPShare: number) => void,
-    dailyDataAtLPDate: UniswapDailyData
+    lpDate: Date;
+    setLPDate: (newLPDate: Date) => void;
+    pairData: UniswapPair;
+    lpShare: number;
+    setLPShare: (newLPShare: number) => void;
+    dataAtLPDate: LiquidityData;
 }): JSX.Element {
     const isLargestBreakpoint = useMediaQuery({ query: '(min-width: 1500px)' });
     const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
 
     const { token0, token1 } = pairData;
 
-    const calcAmounts = (lpShare: number, dailyDataAtLPDate: UniswapDailyData): void => {
-        const poolShare = new BigNumber(lpShare).div(
-            dailyDataAtLPDate.reserveUSD
-        );
-        const token0Amt = poolShare
-            .times(dailyDataAtLPDate.reserve0)
-            .toNumber();
-        const token1Amt = poolShare
-            .times(dailyDataAtLPDate.reserve1)
-            .toNumber();
+    const calcAmounts = (
+        lpShare: number,
+        dataAtLPDate: LiquidityData
+    ): void => {
+        const poolShare = new BigNumber(lpShare).div(dataAtLPDate.reserveUSD);
+        const token0Amt = poolShare.times(dataAtLPDate.reserve0).toNumber();
+        const token1Amt = poolShare.times(dataAtLPDate.reserve1).toNumber();
 
         setUsdAmt(lpShare);
         setToken0Amt(token0Amt);
@@ -52,43 +49,29 @@ function LPInput({
 
     const updateShare = (denom: 'USD' | 'token0' | 'token1', value: number) => {
         if (denom === 'USD') {
-            const poolShare = new BigNumber(value).div(
-                dailyDataAtLPDate.reserveUSD
-            );
+            const poolShare = new BigNumber(value).div(dataAtLPDate.reserveUSD);
             setUsdAmt(value);
-            setToken0Amt(
-                poolShare.times(dailyDataAtLPDate.reserve0).toNumber()
-            );
-            setToken1Amt(
-                poolShare.times(dailyDataAtLPDate.reserve1).toNumber()
-            );
+            setToken0Amt(poolShare.times(dataAtLPDate.reserve0).toNumber());
+            setToken1Amt(poolShare.times(dataAtLPDate.reserve1).toNumber());
 
             setLPShare(value);
         } else if (denom === 'token0') {
-            const poolShare = new BigNumber(value).div(
-                dailyDataAtLPDate.reserve0
-            );
+            const poolShare = new BigNumber(value).div(dataAtLPDate.reserve0);
             const usdValue = poolShare
-                .times(dailyDataAtLPDate.reserveUSD)
+                .times(dataAtLPDate.reserveUSD)
                 .toNumber();
             setUsdAmt(usdValue);
             setToken0Amt(value);
-            setToken1Amt(
-                poolShare.times(dailyDataAtLPDate.reserve1).toNumber()
-            );
+            setToken1Amt(poolShare.times(dataAtLPDate.reserve1).toNumber());
 
             setLPShare(usdValue);
         } else if (denom === 'token1') {
-            const poolShare = new BigNumber(value).div(
-                dailyDataAtLPDate.reserve1
-            );
+            const poolShare = new BigNumber(value).div(dataAtLPDate.reserve1);
             const usdValue = poolShare
-                .times(dailyDataAtLPDate.reserveUSD)
+                .times(dataAtLPDate.reserveUSD)
                 .toNumber();
             setUsdAmt(usdValue);
-            setToken0Amt(
-                poolShare.times(dailyDataAtLPDate.reserve1).toNumber()
-            );
+            setToken0Amt(poolShare.times(dataAtLPDate.reserve1).toNumber());
             setToken1Amt(value);
 
             setLPShare(usdValue);
@@ -100,8 +83,8 @@ function LPInput({
     const [token1Amt, setToken1Amt] = useState(0);
 
     useEffect(() => {
-        calcAmounts(lpShare, dailyDataAtLPDate);
-    }, [lpShare, dailyDataAtLPDate]);
+        calcAmounts(lpShare, dataAtLPDate);
+    }, [lpShare, dataAtLPDate]);
 
     if (!isLargestBreakpoint && !isMobile) {
         return (
@@ -119,7 +102,9 @@ function LPInput({
                                         max={new Date()}
                                         format='yyyy-MM-dd'
                                         value={lpDate}
-                                        onChange={(newDate?: Date) => newDate && setLPDate(newDate)}
+                                        onChange={(newDate?: Date) =>
+                                            newDate && setLPDate(newDate)
+                                        }
                                         time={false}
                                     />
                                 </div>
@@ -131,7 +116,10 @@ function LPInput({
                                 <Form.Control
                                     type='text'
                                     onChange={(event) =>
-                                        updateShare('USD', parseFloat(event.target.value))
+                                        updateShare(
+                                            'USD',
+                                            parseFloat(event.target.value)
+                                        )
                                     }
                                     value={usdAmt}
                                 />
@@ -141,11 +129,16 @@ function LPInput({
                     <Form.Row>
                         <Col>
                             <Form.Group>
-                                <Form.Label>{`${token0.symbol || ''} Liquidity`}</Form.Label>
+                                <Form.Label>{`${
+                                    token0.symbol || ''
+                                } Liquidity`}</Form.Label>
                                 <Form.Control
                                     type='text'
                                     onChange={(event) =>
-                                        updateShare('token0', parseFloat(event.target.value))
+                                        updateShare(
+                                            'token0',
+                                            parseFloat(event.target.value)
+                                        )
                                     }
                                     value={token0Amt}
                                 />
@@ -153,11 +146,16 @@ function LPInput({
                         </Col>
                         <Col>
                             <Form.Group>
-                                <Form.Label>{`${token1.symbol || ''} Liquidity`}</Form.Label>
+                                <Form.Label>{`${
+                                    token1.symbol || ''
+                                } Liquidity`}</Form.Label>
                                 <Form.Control
                                     type='text'
                                     onChange={(event) =>
-                                        updateShare('token1', parseFloat(event.target.value))
+                                        updateShare(
+                                            'token1',
+                                            parseFloat(event.target.value)
+                                        )
                                     }
                                     value={token1Amt}
                                 />
@@ -166,7 +164,7 @@ function LPInput({
                     </Form.Row>
                 </Card.Body>
             </Card>
-        )
+        );
     }
 
     return (
@@ -182,7 +180,9 @@ function LPInput({
                             max={new Date()}
                             format='yyyy-MM-dd'
                             value={lpDate}
-                            onChange={(newDate?: Date) => newDate && setLPDate(newDate)}
+                            onChange={(newDate?: Date) =>
+                                newDate && setLPDate(newDate)
+                            }
                             time={false}
                         />
                     </div>
@@ -198,21 +198,31 @@ function LPInput({
                     />
                 </Form.Group>
                 <Form.Group>
-                    <Form.Label>{`${token0.symbol || ''} Liquidity`}</Form.Label>
+                    <Form.Label>{`${
+                        token0.symbol || ''
+                    } Liquidity`}</Form.Label>
                     <Form.Control
                         type='text'
                         onChange={(event) =>
-                            updateShare('token0', parseFloat(event.target.value))
+                            updateShare(
+                                'token0',
+                                parseFloat(event.target.value)
+                            )
                         }
                         value={token0Amt}
                     />
                 </Form.Group>
                 <Form.Group>
-                    <Form.Label>{`${token1.symbol || ''} Liquidity`}</Form.Label>
+                    <Form.Label>{`${
+                        token1.symbol || ''
+                    } Liquidity`}</Form.Label>
                     <Form.Control
                         type='text'
                         onChange={(event) =>
-                            updateShare('token1', parseFloat(event.target.value))
+                            updateShare(
+                                'token1',
+                                parseFloat(event.target.value)
+                            )
                         }
                         value={token1Amt}
                     />
@@ -228,7 +238,7 @@ LPInput.propTypes = {
     pairData: Pair.isRequired,
     lpShare: PropTypes.number.isRequired,
     setLPShare: PropTypes.func.isRequired,
-    dailyDataAtLPDate: DailyData.isRequired,
+    dataAtLPDate: PropTypes.oneOf([DailyData, HourlyData]).isRequired,
 };
 
 export default LPInput;
