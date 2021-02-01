@@ -21,6 +21,7 @@ import { formatUSD } from 'util/formats';
 
 interface LPStatsDataPoint {
     fullDate?: Date;
+    dateStr?: string;
     tick: string;
     runningFee: number;
     runningReturn: number;
@@ -43,6 +44,7 @@ function LPStatsChart({
 
         chartData.push({
             fullDate: lpStats.fullDates?.[i],
+            dateStr: lpStats.fullDates?.[i]?.toISOString(),
             tick: lpStats.ticks[i],
             runningFee,
             runningReturn,
@@ -56,6 +58,71 @@ function LPStatsChart({
     (window as any).chartData = chartData;
 
     const showXAxisTicks = window.innerWidth > 700;
+
+    const tickInterval = Math.floor(chartData.length / 10);
+
+    function XAxisTick({
+        x,
+        y,
+        stroke = 'none',
+        payload,
+    }: {
+        x: number;
+        y: number;
+        stroke: string;
+        payload: { value: number; index: number };
+    }) {
+        console.log('THIS IS PAYLOAD', tickInterval, payload);
+        const tickDate = new Date(payload.value);
+        const lastVisible = payload.index - tickInterval - 1;
+        console.log('THIS IS LAST INTERVAL', lastVisible);
+
+        let printDay;
+        if (lastVisible >= 0) {
+            const lastTick = chartData[lastVisible];
+            const currentDay = new Date(payload.value).getDay();
+            const lastDay = lastTick.fullDate?.getDay();
+
+            if (currentDay !== lastDay) {
+                printDay = true;
+            }
+        } else {
+            printDay = true;
+        }
+
+        return (
+            <g className='recharts-layer recharts-cartesian-axis-tick'>
+                <text
+                    width='100'
+                    height='513'
+                    x={x}
+                    y={y}
+                    stroke={stroke}
+                    fill='#666'
+                    className='recharts-text recharts-cartesian-axis-tick-value'
+                    textAnchor='middle'
+                    fontSize='0.8rem'
+                >
+                    <tspan dx='15' dy='0.355em'>
+                        {format(tickDate, 'HH:mm')}
+                    </tspan>
+                    {printDay && (
+                        <tspan dx='-37' dy='1.355em'>
+                            {format(tickDate, 'MMM d')}
+                        </tspan>
+                    )}
+                </text>
+            </g>
+        );
+    }
+
+    XAxisTick.propTypes = {
+        x: PropTypes.number,
+        y: PropTypes.number,
+        stroke: PropTypes.string,
+        payload: PropTypes.object,
+        tickInterval: PropTypes.number,
+    };
 
     return (
         <Card body className='no-border'>
@@ -88,9 +155,9 @@ function LPStatsChart({
                     </defs>
                     <CartesianGrid vertical={false} strokeDasharray='3 3' />
                     <XAxis
-                        dataKey='tick'
-                        tick={showXAxisTicks}
-                        interval={Math.floor(chartData.length / 10)}
+                        dataKey='dateStr'
+                        tick={showXAxisTicks && XAxisTick}
+                        interval={tickInterval}
                         tickLine={false}
                         tickMargin={10}
                         padding={{ left: 60, right: 20 }}
@@ -167,7 +234,6 @@ CustomTooltip.propTypes = {
     active: PropTypes.bool,
     payload: PropTypes.array,
 };
-
 function YAxisTick({
     x,
     y,
