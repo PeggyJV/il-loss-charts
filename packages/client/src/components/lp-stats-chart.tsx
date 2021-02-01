@@ -20,32 +20,40 @@ import { LPStats } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 
 interface LPStatsDataPoint {
-    fullDate?: Date,
-    day: string,
-    runningFee: number,
-    runningReturn: number,
-    runningImpermanentLoss: number,
-    returns: [number, number]
+    fullDate?: Date;
+    tick: string;
+    runningFee: number;
+    runningReturn: number;
+    runningImpermanentLoss: number;
+    returns: [number, number];
 }
 
-function LPStatsChart({ lpStats }: { lpStats: ILPStats<BigNumber | string> }): JSX.Element {
+function LPStatsChart({
+    lpStats,
+}: {
+    lpStats: ILPStats<BigNumber | string>;
+}): JSX.Element {
     const chartData: LPStatsDataPoint[] = [];
 
-    lpStats.days.forEach((stats, i) => {
+    lpStats.ticks.forEach((stats, i) => {
         const runningFee = new BigNumber(lpStats.runningFees[i]).toNumber();
-        const runningReturn = new BigNumber(lpStats.runningReturn[i]).toNumber();
+        const runningReturn = new BigNumber(
+            lpStats.runningReturn[i]
+        ).toNumber();
 
         chartData.push({
             fullDate: lpStats.fullDates?.[i],
-            day: lpStats.days[i],
+            tick: lpStats.ticks[i],
             runningFee,
             runningReturn,
-            runningImpermanentLoss: new BigNumber(lpStats.runningImpermanentLoss[
-                i
-            ]).toNumber(),
+            runningImpermanentLoss: new BigNumber(
+                lpStats.runningImpermanentLoss[i]
+            ).toNumber(),
             returns: [runningFee, runningReturn],
         });
     });
+
+    (window as any).chartData = chartData;
 
     const showXAxisTicks = window.innerWidth > 700;
 
@@ -80,9 +88,9 @@ function LPStatsChart({ lpStats }: { lpStats: ILPStats<BigNumber | string> }): J
                     </defs>
                     <CartesianGrid vertical={false} strokeDasharray='3 3' />
                     <XAxis
-                        dataKey='day'
+                        dataKey='tick'
                         tick={showXAxisTicks}
-                        interval={30}
+                        interval={Math.floor(chartData.length / 10)}
                         tickLine={false}
                         tickMargin={10}
                         padding={{ left: 60, right: 20 }}
@@ -115,22 +123,43 @@ function LPStatsChart({ lpStats }: { lpStats: ILPStats<BigNumber | string> }): J
 
 LPStatsChart.propTypes = { lpStats: LPStats };
 
-function CustomTooltip({ active, payload }: { active: boolean, payload: [{ payload: LPStatsDataPoint }] }) {
+function CustomTooltip({
+    active,
+    payload,
+}: {
+    active: boolean;
+    payload: [{ payload: LPStatsDataPoint }];
+}) {
     if (!active || !payload) return null;
     const lpStats = {
         totalFees: new BigNumber(payload[0].payload.runningFee),
         totalReturn: new BigNumber(payload[0].payload.runningReturn),
-        impermanentLoss: new BigNumber(payload[0].payload.runningImpermanentLoss),
+        impermanentLoss: new BigNumber(
+            payload[0].payload.runningImpermanentLoss
+        ),
     };
 
     if (!payload[0].payload.fullDate) {
-        throw new Error(`Could not render tooltip - data point did not have fullDate`);
+        throw new Error(
+            `Could not render tooltip - data point did not have fullDate`
+        );
     }
 
-    const tooltipDate = format(new Date(payload[0].payload.fullDate), 'MMMM d, yyyy');
+    const tooltipDate = format(
+        new Date(payload[0].payload.fullDate),
+        'MMMM d, yyyy'
+    );
+    const tooltipTime = format(
+        new Date(payload[0].payload.fullDate),
+        'HH:mm:ss'
+    );
 
     return (
-        <LPStatsWidget title={tooltipDate} lpStats={lpStats as Partial<ILPStats>} />
+        <LPStatsWidget
+            title={tooltipDate}
+            subtitle={tooltipTime}
+            lpStats={lpStats as Partial<ILPStats>}
+        />
     );
 }
 
@@ -139,11 +168,16 @@ CustomTooltip.propTypes = {
     payload: PropTypes.array,
 };
 
-function YAxisTick({ x, y, stroke = 'none', payload }: {
-    x: number,
-    y: number,
-    stroke: string,
-    payload: { value: number }
+function YAxisTick({
+    x,
+    y,
+    stroke = 'none',
+    payload,
+}: {
+    x: number;
+    y: number;
+    stroke: string;
+    payload: { value: number };
 }) {
     return (
         <g className='recharts-layer recharts-cartesian-axis-tick'>

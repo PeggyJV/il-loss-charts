@@ -87,7 +87,7 @@ export interface LPStats<T = BigNumber> {
     dailyLiquidity: T[];
     impermanentLoss: T;
     totalReturn: T;
-    days: string[];
+    ticks: string[];
     totalStats?: StatsOverTime<T>;
     lastDayStats?: StatsOverTime<T>;
     prevDayStats?: StatsOverTime<T>;

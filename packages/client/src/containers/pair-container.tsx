@@ -113,7 +113,6 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
             if (isInitialLoad || currentError) return null;
 
             let lpStats: LPStats | null = null;
-            console.log('THIS IS TIME WINDOW', timeWindow);
             if (timeWindow === 'total') {
                 lpStats = calculateLPStats({
                     pairData: lpInfo?.pairData,
@@ -144,7 +143,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
             return lpStats;
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [lpInfo, lpDate, lpShare, isInitialLoad]
+        [lpInfo, lpDate, lpShare, isInitialLoad, timeWindow]
     );
 
     useEffect(() => {

@@ -10,9 +10,11 @@ import { formatUSD } from 'util/formats';
 function LPStatsWidget({
     lpStats,
     title,
+    subtitle,
 }: {
     lpStats: Partial<ILPStats>;
     title?: string;
+    subtitle?: string;
 }): JSX.Element | null {
     if (!lpStats.totalFees) return null;
 
@@ -28,6 +30,9 @@ function LPStatsWidget({
         <Card className='lp-stats-card'>
             <Card.Body className='lp-stats-widget'>
                 {title && <p>{title}</p>}
+                {subtitle && (
+                    <p className='stats-widget-subtitle'>{subtitle}</p>
+                )}
                 <Table borderless className='lp-stats-table'>
                     <tbody>
                         <tr>
@@ -63,6 +68,10 @@ function LPStatsWidget({
     );
 }
 
-LPStatsWidget.propTypes = { lpStats: LPStats, title: PropTypes.string };
+LPStatsWidget.propTypes = {
+    lpStats: LPStats,
+    title: PropTypes.string,
+    subtitle: PropTypes.string,
+};
 
 export default LPStatsWidget;

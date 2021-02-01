@@ -155,7 +155,7 @@ export function calculateLPStats({
     const runningImpermanentLoss: BigNumber[] = [];
     const runningReturn: BigNumber[] = [];
     const fullDates: Date[] = [];
-    const days: string[] = [];
+    const ticks: string[] = [];
 
     const calculateImpermanentLoss = (
         startDailyData: LiquidityData,
@@ -230,7 +230,7 @@ export function calculateLPStats({
         runningReturn.push(dailyReturn);
 
         fullDates.push(currentDate);
-        days.push(format(currentDate, 'MMM d'));
+        ticks.push(format(currentDate, 'MMM d'));
     });
 
     if (!firstDaily) {
@@ -256,7 +256,7 @@ export function calculateLPStats({
             runningReturn,
             impermanentLoss,
             totalReturn,
-            days,
+            ticks,
             fullDates,
         };
     }
@@ -361,7 +361,7 @@ export function calculateLPStats({
         runningReturn,
         impermanentLoss,
         totalReturn,
-        days,
+        ticks,
         fullDates,
     };
 }
@@ -574,7 +574,7 @@ export async function calculateStatsForPositions(
                         currentStats.impermanentLoss
                     ),
                     totalReturn: acc.totalReturn.plus(currentStats.totalReturn),
-                    days: acc.days.concat(...currentStats.days),
+                    ticks: acc.ticks.concat(...currentStats.ticks),
                     dailyLiquidity: acc.dailyLiquidity.concat(
                         ...currentStats.dailyLiquidity
                     ),

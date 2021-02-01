@@ -42,7 +42,8 @@ export default class ExpressServer {
         const apiSpec = path.join(__dirname, '../docs/api.yml');
         const validateResponses = !!(
             process.env.OPENAPI_ENABLE_RESPONSE_VALIDATION &&
-            process.env.OPENAPI_ENABLE_RESPONSE_VALIDATION.toLowerCase() === 'true'
+            process.env.OPENAPI_ENABLE_RESPONSE_VALIDATION.toLowerCase() ===
+                'true'
         );
         const apiDoc = YAML.load(apiSpec);
 
@@ -63,6 +64,8 @@ export default class ExpressServer {
         app.use(function (req, res, next) {
             if (req.url.includes('api')) return next();
 
+            console.log('LOADING PAGE THIS IP', req.ip);
+
             res.sendFile(path.join(clientRoot, 'build', 'index.html'));
         });
     }
@@ -76,7 +79,8 @@ export default class ExpressServer {
     listen(port: number): Application {
         const welcome = (p: number) => (): void =>
             console.info(
-                `${new Date().toISOString()} up and running in ${process.env.NODE_ENV || 'development'
+                `${new Date().toISOString()} up and running in ${
+                    process.env.NODE_ENV || 'development'
                 } @: ${os.hostname()} on port: ${p}`
             );
 

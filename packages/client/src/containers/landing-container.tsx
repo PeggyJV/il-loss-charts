@@ -23,10 +23,10 @@ function LandingContainer(): JSX.Element {
             // Fetch all pairs
             const [
                 { data: marketData, error: marketDataError },
-                { data: topPairs, error: topPairsError }
+                { data: topPairs, error: topPairsError },
             ] = await Promise.all([
                 Uniswap.getMarketData(),
-                Uniswap.getTopPerformingPairs()
+                Uniswap.getTopPerformingPairs(),
             ]);
 
             const error = marketDataError ?? topPairsError;
@@ -45,7 +45,6 @@ function LandingContainer(): JSX.Element {
             if (topPairs) {
                 setTopPairs(topPairs);
             }
-
         };
         void fetchMarketData();
     }, []);
@@ -64,17 +63,18 @@ function LandingContainer(): JSX.Element {
         );
     }
 
-
-
     return (
         <div>
-            <h3>Top 5 LP Opportunities on Uniswap</h3>
+            <h3>Top LP Opportunities on Uniswap in the Past 24 Hours</h3>
             {/* <p>
                 <em>
                     * These are the highest return pairs on Uniswap over the past 24 hours.
                 </em>
             </p> */}
-            <p>Not financial advice. This is an alpha project. Trade at your own risk.</p>
+            <p>
+                Not financial advice. This is an alpha project. Trade at your
+                own risk.
+            </p>
             {topPairs && <TopPairsWidget topPairs={topPairs} />}
             <TelegramCTA mode='plural' />
             {/* <h5>Highest Impermanent Loss Pairs on Uniswap since December 1</h5>

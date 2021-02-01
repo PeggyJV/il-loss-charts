@@ -47,7 +47,7 @@ export function calculateLPStats({
     const runningImpermanentLoss: BigNumber[] = [];
     const runningReturn: BigNumber[] = [];
     const fullDates: Date[] = [];
-    const days: string[] = [];
+    const ticks: string[] = [];
 
     const calculateImpermanentLoss = (
         startDailyData: LiquidityData,
@@ -122,7 +122,20 @@ export function calculateLPStats({
         runningReturn.push(dailyReturn);
 
         fullDates.push(currentDate);
-        days.push(format(currentDate, 'MMM d'));
+
+        // If we're at a full day or the day has turned over
+        const dayTurnedOver =
+            currentDate.getUTCDay() -
+                (fullDates[fullDates.length - 2]?.getUTCDay() ||
+                    currentDate.getUTCDay()) >
+            0;
+        if (currentDate.getHours() === 0 || dayTurnedOver) {
+            // Push a full day format - i.e. Feb 02
+            ticks.push(format(currentDate, 'MMM d'));
+        } else {
+            // Push the time
+            ticks.push(format(currentDate, 'HH:mm'));
+        }
     });
 
     if (!firstDaily) {
@@ -148,7 +161,7 @@ export function calculateLPStats({
             runningReturn,
             impermanentLoss,
             totalReturn,
-            days,
+            ticks,
             fullDates,
         };
     }
@@ -253,19 +266,23 @@ export function calculateLPStats({
         runningReturn,
         impermanentLoss,
         totalReturn,
-        days,
+        ticks,
         fullDates,
     };
 }
 
-export function calculatePairRankings(pairs: UniswapPair[]): {
-    byVolume: UniswapPair[],
-    byLiquidity: UniswapPair[],
-    pairs: UniswapPair[],
+export function calculatePairRankings(
+    pairs: UniswapPair[]
+): {
+    byVolume: UniswapPair[];
+    byLiquidity: UniswapPair[];
+    pairs: UniswapPair[];
     pairLookups: {
-        [pairId: string]:
-        UniswapPair & { volumeRanking: number, liquidityRanking: number }
-    }
+        [pairId: string]: UniswapPair & {
+            volumeRanking: number;
+            liquidityRanking: number;
+        };
+    };
 } {
     const byVolume = [...pairs].sort((a, b) =>
         new BigNumber(a.volumeUSD).minus(new BigNumber(b.volumeUSD)).toNumber()
@@ -275,7 +292,9 @@ export function calculatePairRankings(pairs: UniswapPair[]): {
             .minus(new BigNumber(a.reserveUSD))
             .toNumber()
     );
-    const liquidityLookup: { [pairId: string]: UniswapPair } = byLiquidity.reduce(
+    const liquidityLookup: {
+        [pairId: string]: UniswapPair;
+    } = byLiquidity.reduce(
         (acc, pair, index) => ({ ...acc, [pair.id]: index + 1 }),
         {}
     );
