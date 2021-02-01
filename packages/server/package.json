@@ -39,6 +39,7 @@
         "express-openapi-validator": "^4.10.2",
         "graphql": "^15.4.0",
         "memory-cache": "^0.2.0",
+        "mixpanel": "^0.13.0",
         "morgan": "^1.10.0",
         "node-telegram-bot-api": "^0.51.0",
         "swagger-ui-express": "^4.1.6",

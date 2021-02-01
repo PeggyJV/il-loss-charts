@@ -7,12 +7,18 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
+import Mixpanel from 'mixpanel';
 
 import errorHandler from '../api/middlewares/error.handler';
 import * as OpenApiValidator from 'express-openapi-validator';
 
-const app = express();
+let mixpanel: Mixpanel.Mixpanel;
 
+if (process.env.MIXPANEL_TOKEN) {
+    mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN);
+}
+
+const app = express();
 export default class ExpressServer {
     public httpServer?: http.Server;
 
@@ -64,7 +70,7 @@ export default class ExpressServer {
         app.use(function (req, res, next) {
             if (req.url.includes('api')) return next();
 
-            console.log('LOADING PAGE THIS IP', req.ip);
+            mixpanel.track('server:page_load', { ip: req.ip });
 
             res.sendFile(path.join(clientRoot, 'build', 'index.html'));
         });
