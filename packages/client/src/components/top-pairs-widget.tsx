@@ -12,13 +12,11 @@ function PercentChangeStat({ value }: { value?: number }): JSX.Element {
     if (!value) throw new Error('Passed falsy value to PercentChangeStat');
 
     const valueBn = new BigNumber(value);
-    const className = valueBn.isPositive() ? 'pct-change-up' : 'pct-change-down';
+    const className = valueBn.isPositive()
+        ? 'pct-change-up'
+        : 'pct-change-down';
 
-    return (
-        <span className={className}>
-            {valueBn.times(100).toFixed(2)}%
-        </span>
-    );
+    return <span className={className}>{valueBn.times(100).toFixed(2)}%</span>;
 }
 
 const formatPair = ({ id, token0, token1 }: UniswapPair) => {
@@ -26,29 +24,42 @@ const formatPair = ({ id, token0, token1 }: UniswapPair) => {
         <span>
             {resolveLogo(token0.id)}{' '}
             <span className='market-data-pair-span'>
-                <Link to={`/pair?id=${id}`}>
+                <Link to={`/pair?id=${id}&timeWindow=day`}>
                     {token0.symbol}/{token1.symbol}
                 </Link>
-            </span>
-            {' '}{resolveLogo(token1.id)}
+            </span>{' '}
+            {resolveLogo(token1.id)}
         </span>
     );
 };
 
 PercentChangeStat.propTypes = { value: PropTypes.instanceOf(BigNumber) };
 
-function TopPairsWidget({ topPairs }: {
-    topPairs: MarketStats[],
+function TopPairsWidget({
+    topPairs,
+}: {
+    topPairs: MarketStats[];
 }): JSX.Element {
     return (
         <div className='pool-stats-container'>
             <CardDeck>
-                {topPairs.slice(0, 5).map((pairStats, index) =>
-                    <Card key={index} style={{ width: '15em', minWidth: '15em', maxWidth: '15em', marginBottom: '1em' }} body>
+                {topPairs.slice(0, 5).map((pairStats, index) => (
+                    <Card
+                        key={index}
+                        style={{
+                            width: '15em',
+                            minWidth: '15em',
+                            maxWidth: '15em',
+                            marginBottom: '1em',
+                        }}
+                        body
+                    >
                         <Card.Title>{formatPair(pairStats)}</Card.Title>
                         <Card.Text className='annualized-apy-card-text'>
                             <strong>
-                                <PercentChangeStat value={pairStats.pctReturn * 365} />{' '}
+                                <PercentChangeStat
+                                    value={pairStats.pctReturn * 365}
+                                />{' '}
                                 Annualized APY
                             </strong>
                         </Card.Text>
@@ -57,7 +68,7 @@ function TopPairsWidget({ topPairs }: {
                             24h return
                         </Card.Text>
                     </Card>
-                )}
+                ))}
             </CardDeck>
         </div>
     );
