@@ -65,7 +65,7 @@ function LandingContainer(): JSX.Element {
 
     return (
         <div>
-            <h3>Top LP Opportunities on Uniswap in the Past 24 Hours</h3>
+            <h3>Top LP Opportunities in the Past 24 Hours</h3>
             {/* <p>
                 <em>
                     * These are the highest return pairs on Uniswap over the past 24 hours.
