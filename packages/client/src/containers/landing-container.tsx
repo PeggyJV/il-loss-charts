@@ -77,6 +77,8 @@ function LandingContainer(): JSX.Element {
             </p>
             {topPairs && <TopPairsWidget topPairs={topPairs} />}
             <TelegramCTA mode='plural' />
+            <h3>Top LP Opportunities in the Past 7 Days</h3>
+
             {/* <h5>Highest Impermanent Loss Pairs on Uniswap since December 1</h5>
             <p>
                 <em>

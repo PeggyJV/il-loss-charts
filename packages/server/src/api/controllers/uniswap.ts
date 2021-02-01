@@ -18,9 +18,6 @@ import {
     calculateStatsForPositions,
 } from 'util/calculate-stats';
 
-// TODO - caching
-// TODO - wrap controllers
-// TODO - create data types for all response shapes
 // TODO - error handling for e.g. eth address that does not match a pair
 
 // Controllers should parse query/body, validate params, and pass to service to do the work.
