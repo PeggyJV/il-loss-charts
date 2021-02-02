@@ -143,7 +143,7 @@ export default class UniswapFetcher {
         return pairs;
     }
 
-    static async getDailyTopPerformingPairs(
+    static async getCurrentTopPerformingPairs(
         count = 100
     ): Promise<UniswapPair[]> {
         const response: ApolloResponse<{

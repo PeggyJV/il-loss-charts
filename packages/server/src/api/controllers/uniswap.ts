@@ -58,7 +58,9 @@ class UniswapController {
 
         // Get 25 top pairs
         // TODO: make this changeable by query
-        const topPairs = await UniswapFetcher.getDailyTopPerformingPairs(count);
+        const topPairs = await UniswapFetcher.getCurrentTopPerformingPairs(
+            count
+        );
 
         // TODO: Save requests by only fetching first and last day
         const historicalFetches = topPairs.map(
@@ -81,6 +83,81 @@ class UniswapController {
         );
 
         return statsByReturn;
+    }
+
+    static async getWeeklyTopPerformingPairs(req: Request) {
+        // Like topPairs, but sorted by returns and with
+        // stats included
+        let count: number | undefined;
+
+        if (typeof req.query.count === 'string') {
+            count = parseInt(req.query.count, 10);
+            if (Number.isNaN(count) || count < 1)
+                throw new HTTPError(
+                    400,
+                    `Invalid 'count' parameter: ${req.query.count}`
+                );
+        }
+
+        const oneWeekMs = 24 * 60 * 60 * 1000 * 7;
+        const startDate = new Date(Date.now() - oneWeekMs);
+        const endDate = new Date();
+
+        // Get 25 top pairs
+        // TODO: make this changeable by query
+        const topPairs = await UniswapFetcher.getCurrentTopPerformingPairs(
+            count
+        );
+
+        // Fetch first hour and last hour
+
+        const historicalFetches = topPairs.map(
+            async (pair: UniswapPair): Promise<UniswapHourlyData[]> => {
+                // One hour gap between first start and end date
+                const firstStartDate = startDate;
+                const firstEndDate = new Date(
+                    startDate.getTime() + 1000 * 60 * 60
+                );
+                const firstHour = UniswapFetcher.getHourlyData(
+                    pair.id,
+                    firstStartDate,
+                    firstEndDate
+                );
+
+                const secondStartDate = new Date(
+                    endDate.getTime() - 1000 * 60 * 60
+                );
+                const secondEndDate = endDate;
+                const lastHour = UniswapFetcher.getHourlyData(
+                    pair.id,
+                    secondStartDate,
+                    secondEndDate
+                );
+
+                const [firstFetch, lastFetch] = await Promise.all([
+                    firstHour,
+                    lastHour,
+                ]);
+                return [...firstFetch, ...lastFetch];
+            }
+        );
+
+        const historicalData: UniswapHourlyData[][] = await Promise.all(
+            historicalFetches
+        );
+
+        // Calculate IL for top 25 pairs by liquidity
+        const marketStats = await calculateMarketStats(
+            topPairs,
+            historicalData,
+            'hourly'
+        );
+
+        const statsByReturn = [...marketStats].sort(
+            (a, b) => b.pctReturn - a.pctReturn
+        );
+
+        return { statsByReturn, historicalData };
     }
 
     static async getPairOverview(req: Request) {
@@ -312,6 +389,11 @@ export default express
         '/pairs/performance/daily',
         cacheMiddleware(300),
         wrapRequest(UniswapController.getDailyTopPerformingPairs)
+    )
+    .get(
+        '/pairs/performance/weekly',
+        cacheMiddleware(300),
+        wrapRequest(UniswapController.getWeeklyTopPerformingPairs)
     )
     .get(
         '/pairs/:id',
