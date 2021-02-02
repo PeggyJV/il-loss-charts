@@ -10,8 +10,11 @@ import TopPairsWidget from 'components/top-pairs-widget';
 import TelegramCTA from 'components/telegram-cta';
 
 function LandingContainer(): JSX.Element {
-    const [marketData, setMarketData] = useState<MarketStats[] | null>(null);
-    const [topPairs, setTopPairs] = useState<MarketStats[] | null>(null);
+    // const [marketData, setMarketData] = useState<MarketStats[] | null>(null);
+    const [topPairs, setTopPairs] = useState<{
+        daily: MarketStats[];
+        weekly: MarketStats[];
+    } | null>(null);
     const [currentError, setError] = useState<IError | null>(null);
 
     useEffect(() => {
@@ -22,14 +25,14 @@ function LandingContainer(): JSX.Element {
         const fetchMarketData = async () => {
             // Fetch all pairs
             const [
-                { data: marketData, error: marketDataError },
-                { data: topPairs, error: topPairsError },
+                { data: topWeeklyPairs, error: topWeeklyPairsError },
+                { data: topDailyPairs, error: topDailyPairsError },
             ] = await Promise.all([
-                Uniswap.getMarketData(),
-                Uniswap.getTopPerformingPairs(),
+                Uniswap.getWeeklyTopPerformingPairs(),
+                Uniswap.getDailyTopPerformingPairs(),
             ]);
 
-            const error = marketDataError ?? topPairsError;
+            const error = topWeeklyPairsError ?? topDailyPairsError;
 
             if (error) {
                 // we could not get our market data
@@ -38,18 +41,18 @@ function LandingContainer(): JSX.Element {
                 return;
             }
 
-            if (marketData) {
-                setMarketData(marketData);
-            }
+            // if (marketData) {
+            //     setMarketData(marketData);
+            // }
 
-            if (topPairs) {
-                setTopPairs(topPairs);
+            if (topWeeklyPairs && topDailyPairs) {
+                setTopPairs({ daily: topDailyPairs, weekly: topWeeklyPairs });
             }
         };
         void fetchMarketData();
     }, []);
 
-    (window as any).marketData = marketData;
+    // (window as any).marketData = marketData;
     (window as any).topPairs = topPairs;
 
     if (currentError) {
@@ -75,9 +78,15 @@ function LandingContainer(): JSX.Element {
                 Not financial advice. This is an alpha project. Trade at your
                 own risk.
             </p>
-            {topPairs && <TopPairsWidget topPairs={topPairs} />}
-            <TelegramCTA mode='plural' />
+            {topPairs?.daily && (
+                <TopPairsWidget topPairs={topPairs.daily} mode='daily' />
+            )}
+            <hr />
             <h3>Top LP Opportunities in the Past 7 Days</h3>
+            {topPairs?.weekly && (
+                <TopPairsWidget topPairs={topPairs.weekly} mode='weekly' />
+            )}
+            <TelegramCTA mode='plural' />
 
             {/* <h5>Highest Impermanent Loss Pairs on Uniswap since December 1</h5>
             <p>

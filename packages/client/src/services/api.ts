@@ -71,8 +71,22 @@ export class UniswapApiFetcher {
         return { data, error };
     }
 
-    static async getTopPerformingPairs(): Promise<ApiResponse<MarketStats[]>> {
-        const response = await fetch(`/api/v1/uniswap/pairs/performance`);
+    static async getDailyTopPerformingPairs(): Promise<
+        ApiResponse<MarketStats[]>
+    > {
+        const response = await fetch(`/api/v1/uniswap/pairs/performance/daily`);
+        const { data, error } = await (response.json() as Promise<
+            ApiResponse<MarketStats[]>
+        >);
+        return { data, error };
+    }
+
+    static async getWeeklyTopPerformingPairs(): Promise<
+        ApiResponse<MarketStats[]>
+    > {
+        const response = await fetch(
+            `/api/v1/uniswap/pairs/performance/weekly`
+        );
         const { data, error } = await (response.json() as Promise<
             ApiResponse<MarketStats[]>
         >);

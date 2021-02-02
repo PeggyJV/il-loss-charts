@@ -29,13 +29,14 @@ function OverviewContainer(): JSX.Element {
             // Fetch all pairs
             const [
                 { data: marketData, error: marketDataError },
-                { data: topPairs, error: topPairsError }
+                // { data: topPairs, error: topPairsError }
             ] = await Promise.all([
                 Uniswap.getMarketData(),
-                Uniswap.getTopPerformingPairs()
+                // Uniswap.getDailyTopPerformingPairs()
             ]);
 
-            const error = marketDataError ?? topPairsError;
+            const error = marketDataError;
+            // const error = marketDataError ?? topPairsError;
 
             if (error) {
                 // we could not get our market data
@@ -51,7 +52,6 @@ function OverviewContainer(): JSX.Element {
             if (topPairs) {
                 setTopPairs(topPairs);
             }
-
         };
         void fetchMarketData();
     }, []);
@@ -96,13 +96,14 @@ function MarketDataTable({ data }: { data: MarketStats[] }) {
                     <Link to={`/pair?id=${id}`}>
                         {token0.symbol}/{token1.symbol}
                     </Link>
-                </span>
-                {' '}{resolveLogo(token1.id)}
+                </span>{' '}
+                {resolveLogo(token1.id)}
             </span>
         );
     };
 
-    const formatPct = (val: number) => `${new BigNumber(val).times(100).toFixed(2)}%`;
+    const formatPct = (val: number) =>
+        `${new BigNumber(val).times(100).toFixed(2)}%`;
 
     const columns = [
         {
@@ -164,8 +165,8 @@ function MarketDataTable({ data }: { data: MarketStats[] }) {
     (window as any).sortedIL = sortedIl;
 
     const onRowClick = (e: SyntheticEvent, pair: UniswapPair) => {
-        history.push(`/pair?id=${pair.id}`)
-    }
+        history.push(`/pair?id=${pair.id}`);
+    };
 
     return (
         <>
@@ -189,7 +190,7 @@ function MarketDataTable({ data }: { data: MarketStats[] }) {
 }
 
 MarketDataTable.propTypes = {
-    data: PropTypes.arrayOf(MarketData)
+    data: PropTypes.arrayOf(MarketData),
 };
 
 export default OverviewContainer;

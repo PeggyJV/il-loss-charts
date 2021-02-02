@@ -37,9 +37,13 @@ PercentChangeStat.propTypes = { value: PropTypes.instanceOf(BigNumber) };
 
 function TopPairsWidget({
     topPairs,
+    mode,
 }: {
     topPairs: MarketStats[];
+    mode: 'daily' | 'weekly';
 }): JSX.Element {
+    const multiplier = mode === 'daily' ? 365 : 52;
+
     return (
         <div className='pool-stats-container'>
             <CardDeck>
@@ -58,14 +62,14 @@ function TopPairsWidget({
                         <Card.Text className='annualized-apy-card-text'>
                             <strong>
                                 <PercentChangeStat
-                                    value={pairStats.pctReturn * 365}
+                                    value={pairStats.pctReturn * multiplier}
                                 />{' '}
                                 Annualized APY
                             </strong>
                         </Card.Text>
                         <Card.Text>
                             <PercentChangeStat value={pairStats.pctReturn} />{' '}
-                            24h return
+                            {mode === 'daily' ? '24h' : '7d'} return
                         </Card.Text>
                     </Card>
                 ))}

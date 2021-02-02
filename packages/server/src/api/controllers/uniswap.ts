@@ -110,7 +110,6 @@ class UniswapController {
         );
 
         // Fetch first hour and last hour
-
         const historicalFetches = topPairs.map(
             async (pair: UniswapPair): Promise<UniswapHourlyData[]> => {
                 // One hour gap between first start and end date
@@ -157,7 +156,8 @@ class UniswapController {
             (a, b) => b.pctReturn - a.pctReturn
         );
 
-        return { statsByReturn, historicalData };
+        return statsByReturn;
+        // return { statsByReturn, historicalData };
     }
 
     static async getPairOverview(req: Request) {
