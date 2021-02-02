@@ -32,12 +32,7 @@ function App(): ReactElement {
     });
     const [currentError, setError] = useState<IError | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
-    const {
-        wallet,
-        connectMetaMask,
-        disconnectWallet,
-        availableProviders,
-    } = useWallet();
+    const useWalletProps = useWallet();
 
     useEffect(() => {
         const fetchAllPairs = async () => {
@@ -89,28 +84,17 @@ function App(): ReactElement {
     return (
         <Router>
             <div className='app' id='app-wrap'>
-                {/* {isBigScreen &&
-                    <div className='side-menu-wrapper'>
-                        <SideMenu
-                            setShowConnectWallet={setShowConnectWallet}
-                            wallet={wallet}
-                        />
-                    </div>
-                } */}
                 <div className='side-menu-wrapper'>
                     <SideMenu
                         setShowConnectWallet={setShowConnectWallet}
-                        wallet={wallet}
+                        wallet={useWalletProps.wallet}
                     />
                 </div>
                 <div className='app-body' id='app-body'>
                     <ConnectWalletModal
                         show={showConnectWallet}
                         setShow={setShowConnectWallet}
-                        wallet={wallet}
-                        connectMetaMask={connectMetaMask}
-                        disconnectWallet={disconnectWallet}
-                        availableProviders={availableProviders}
+                        {...useWalletProps}
                     />
                     <Switch>
                         {/* <Route path='/positions'>

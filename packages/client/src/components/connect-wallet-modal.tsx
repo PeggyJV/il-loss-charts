@@ -4,17 +4,19 @@ import { Button, Modal } from 'react-bootstrap';
 import useWallet from 'hooks/use-wallet';
 
 import { ReactComponent as MetamaskLogo } from 'styles/metamask-logo.svg';
+import { ReactComponent as WalletConnectLogo } from 'styles/walletconnect-logo.svg';
 
 function ConnectWalletModal({
     show,
     setShow,
     wallet,
     connectMetaMask,
+    connectWalletConnect,
     disconnectWallet,
-    availableProviders
+    availableProviders,
 }: ReturnType<typeof useWallet> & {
-    show: boolean,
-    setShow: (show: boolean) => void
+    show: boolean;
+    setShow: (show: boolean) => void;
 }): JSX.Element {
     const handleClose = () => setShow(false);
 
@@ -25,10 +27,14 @@ function ConnectWalletModal({
     return (
         <Modal show={show} onHide={handleClose}>
             <Modal.Header className='connect-wallet-modal-header' closeButton>
-                <Modal.Title className='connect-wallet-modal-title'>{titleText}</Modal.Title>
+                <Modal.Title className='connect-wallet-modal-title'>
+                    {titleText}
+                </Modal.Title>
             </Modal.Header>
             <Modal.Body className='connect-wallet-modal'>
-                <p className='centered'>Choose a wallet provider to connect with.</p>
+                <p className='centered'>
+                    Choose a wallet provider to connect with.
+                </p>
                 <Button
                     className='connect-wallet-modal-option'
                     variant='outline-secondary'
@@ -36,6 +42,14 @@ function ConnectWalletModal({
                     onClick={connectMetaMask}
                 >
                     <MetamaskLogo />
+                </Button>
+                <Button
+                    className='connect-wallet-modal-option'
+                    variant='outline-secondary'
+                    disabled={!availableProviders.walletConnect}
+                    onClick={connectWalletConnect}
+                >
+                    <WalletConnectLogo />
                 </Button>
             </Modal.Body>
             {wallet && (
@@ -61,8 +75,9 @@ ConnectWalletModal.propTypes = {
         provider: PropTypes.string,
     }).isRequired,
     connectMetaMask: PropTypes.func,
+    connectWalletConnect: PropTypes.func,
     disconnectWallet: PropTypes.func,
-    availableProviders: PropTypes.objectOf(PropTypes.bool)
+    availableProviders: PropTypes.objectOf(PropTypes.bool),
 };
 
 export default ConnectWalletModal;

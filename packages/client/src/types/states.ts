@@ -16,7 +16,7 @@ export interface AllPairsState {
     byLiquidity: UniswapPair[] | null;
 }
 
-export type Provider = 'metamask';
+export type Provider = 'metamask' | 'walletConnect';
 
 export interface Wallet {
     account: string;

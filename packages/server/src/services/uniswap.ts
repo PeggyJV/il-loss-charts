@@ -150,12 +150,12 @@ export default class UniswapFetcher {
             pairs: UniswapPair[];
         }> = await UniswapFetcher.client.query({
             query: gql`
-                    {
-                        pairs(
-                            first: ${count}, 
-                            orderDirection: desc, 
-                            orderBy: volumeUSD,
-                            where: {
+            {
+                pairs(
+                    first: ${count}, 
+                    orderDirection: desc, 
+                    orderBy: volumeUSD,
+                    where: {
                                 volumeUSD_lt: 100000000,
                                 reserveUSD_gt: 500000
                             }
