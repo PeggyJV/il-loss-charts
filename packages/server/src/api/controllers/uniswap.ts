@@ -38,7 +38,7 @@ class UniswapController {
         return topPairs;
     }
 
-    static async getTopPerformingPairs(req: Request) {
+    static async getDailyTopPerformingPairs(req: Request) {
         // Like topPairs, but sorted by returns and with
         // stats included
         let count: number | undefined;
@@ -58,7 +58,7 @@ class UniswapController {
 
         // Get 25 top pairs
         // TODO: make this changeable by query
-        const topPairs = await UniswapFetcher.getTopPerformingPairs(count);
+        const topPairs = await UniswapFetcher.getDailyTopPerformingPairs(count);
 
         // TODO: Save requests by only fetching first and last day
         const historicalFetches = topPairs.map(
@@ -309,9 +309,9 @@ export default express
         wrapRequest(UniswapController.getTopPairs)
     )
     .get(
-        '/pairs/performance',
+        '/pairs/performance/daily',
         cacheMiddleware(300),
-        wrapRequest(UniswapController.getTopPerformingPairs)
+        wrapRequest(UniswapController.getDailyTopPerformingPairs)
     )
     .get(
         '/pairs/:id',
