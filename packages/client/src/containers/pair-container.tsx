@@ -26,7 +26,8 @@ import mixpanel from 'util/mixpanel';
 import PairSelector from 'components/pair-selector';
 import LPInput from 'components/lp-input';
 import LPStatsWidget from 'components/lp-stats-widget';
-import LPStatsChart from 'components/lp-stats-chart';
+// import LPStatsChart from 'components/lp-stats-chart';
+import LPStatsChart from 'components/lp-stats-highchart';
 import LatestTradesSidebar from 'components/latest-trades-sidebar';
 import TotalPoolStats from 'components/total-pool-stats';
 import TelegramCTA from 'components/telegram-cta';
@@ -305,75 +306,76 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
 
     // ------------------ Websocket State - handles subscriptions ------------------
 
+    // TODO: Re-enable websockets
     const [latestBlock, setLatestBlock] = useState<number | null>(null);
-    const { sendJsonMessage, lastJsonMessage } = useWebSocket(config.wsApi);
+    // const { sendJsonMessage, lastJsonMessage } = useWebSocket(config.wsApi);
 
     // Handle websocket message
-    // Ignore if we have an error
-    useEffect(() => {
-        if (!lastJsonMessage || currentError) return;
+    // // Ignore if we have an error
+    // useEffect(() => {
+    //     if (!lastJsonMessage || currentError) return;
 
-        const { topic } = lastJsonMessage;
+    //     const { topic } = lastJsonMessage;
 
-        let blockNumber;
-        if (topic.startsWith('uniswap:getPairOverview') && !isLoading) {
-            const { data: pairMsg }: { data: UniswapPair } = lastJsonMessage;
+    //     let blockNumber;
+    //     if (topic.startsWith('uniswap:getPairOverview') && !isLoading) {
+    //         const { data: pairMsg }: { data: UniswapPair } = lastJsonMessage;
 
-            if (pairMsg.id === pairId) {
-                setLPInfo({ ...lpInfo, pairData: pairMsg } as LPInfoState);
-            } else {
-                console.warn(
-                    `Received pair update over websocket for non-active pair: ${
-                        pairMsg.token0.symbol || ''
-                    }/${pairMsg.token1.symbol || ''}`
-                );
-            }
-        } else if (topic === 'infura:newHeads') {
-            const {
-                data: { number: blockNumberHex },
-            }: { data: { number: string } } = lastJsonMessage;
-            blockNumber = parseInt(blockNumberHex.slice(2), 16);
-            setLatestBlock(blockNumber);
-        } else if (topic === 'infura:newBlockHeaders') {
-            const {
-                data: { number: blockNumberStr },
-            } = lastJsonMessage;
-            blockNumber = parseInt(blockNumberStr, 10);
-            setLatestBlock(blockNumber);
-        }
+    //         if (pairMsg.id === pairId) {
+    //             setLPInfo({ ...lpInfo, pairData: pairMsg } as LPInfoState);
+    //         } else {
+    //             console.warn(
+    //                 `Received pair update over websocket for non-active pair: ${
+    //                     pairMsg.token0.symbol || ''
+    //                 }/${pairMsg.token1.symbol || ''}`
+    //             );
+    //         }
+    //     } else if (topic === 'infura:newHeads') {
+    //         const {
+    //             data: { number: blockNumberHex },
+    //         }: { data: { number: string } } = lastJsonMessage;
+    //         blockNumber = parseInt(blockNumberHex.slice(2), 16);
+    //         setLatestBlock(blockNumber);
+    //     } else if (topic === 'infura:newBlockHeaders') {
+    //         const {
+    //             data: { number: blockNumberStr },
+    //         } = lastJsonMessage;
+    //         blockNumber = parseInt(blockNumberStr, 10);
+    //         setLatestBlock(blockNumber);
+    //     }
 
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [lastJsonMessage]);
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [lastJsonMessage]);
 
     // Subscribe to new blocks on first render
     // Using both b/c infura API is inconsistent
-    useEffect(() => {
-        sendJsonMessage({ op: 'subscribe', topics: ['infura:newHeads'] });
-        sendJsonMessage({
-            op: 'subscribe',
-            topics: ['infura:newBlockHeaders'],
-        });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    // useEffect(() => {
+    //     sendJsonMessage({ op: 'subscribe', topics: ['infura:newHeads'] });
+    //     sendJsonMessage({
+    //         op: 'subscribe',
+    //         topics: ['infura:newBlockHeaders'],
+    //     });
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, []);
 
     // Subscribe to updates on pair overview when pair changes
-    useEffect(() => {
-        if (currentError || !pairId) return;
+    // useEffect(() => {
+    //     if (currentError || !pairId) return;
 
-        if (prevPairId) {
-            sendJsonMessage({
-                op: 'unsubscribe',
-                topics: [`uniswap:getPairOverview:${prevPairId}`],
-            });
-        }
+    //     if (prevPairId) {
+    //         sendJsonMessage({
+    //             op: 'unsubscribe',
+    //             topics: [`uniswap:getPairOverview:${prevPairId}`],
+    //         });
+    //     }
 
-        sendJsonMessage({
-            op: 'subscribe',
-            topics: [`uniswap:getPairOverview:${pairId}`],
-            interval: 'newBlocks',
-        });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pairId]);
+    //     sendJsonMessage({
+    //         op: 'subscribe',
+    //         topics: [`uniswap:getPairOverview:${pairId}`],
+    //         interval: 'newBlocks',
+    //     });
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [pairId]);
 
     // ------------------ Market Data State - fetches non-LP specific market data ------------------
 
