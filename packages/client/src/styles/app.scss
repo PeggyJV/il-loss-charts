@@ -276,6 +276,11 @@ body {
     font-size: 1.2rem;
 }
 
+.connect-wallet-modal-options-container {
+    display: flex;
+    justify-content: space-evenly;
+}
+
 .connect-wallet-modal-option {
     margin: 0.5em;
     height: 4em;

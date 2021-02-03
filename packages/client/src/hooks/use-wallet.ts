@@ -28,6 +28,8 @@ export default function useWallet(): {
         qrcodeModal: QRCodeModal,
     });
 
+    (window as any).wcConnector = wcConnector;
+
     // Try to read wallet from cookies
     const walletFromCookie = cookies.get('current_wallet');
 
@@ -38,6 +40,14 @@ export default function useWallet(): {
         walletFromCookie.provider
     ) {
         initialWalletState = walletFromCookie;
+
+        // Create walletconnect session if wallet connect
+        if (
+            initialWalletState.provider === 'walletconnect' &&
+            !wcConnector.connected
+        ) {
+            void wcConnector.createSession();
+        }
     } else {
         if (walletFromCookie) {
             console.warn(
@@ -122,6 +132,16 @@ export default function useWallet(): {
     const connectWalletConnect = async () => {
         if (!wcConnector.connected) {
             await wcConnector.createSession();
+        } else {
+            console.warn('Already connected');
+        }
+
+        // If provider is different, set to the WC wallet
+        if (wallet.provider !== 'walletconnect') {
+            setWallet({
+                account: wcConnector.accounts[0],
+                provider: 'walletconnect',
+            });
         }
     };
 
