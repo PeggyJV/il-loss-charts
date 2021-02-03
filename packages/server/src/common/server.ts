@@ -69,7 +69,7 @@ export default class ExpressServer {
         app.use(function (req, res, next) {
             if (req.url.includes('api')) return next();
 
-            mixpanel.track('server:page_load', { ip: req.ip });
+            mixpanel?.track('server:page_load', { ip: req.ip });
 
             res.sendFile(path.join(clientRoot, 'build', 'index.html'));
         });

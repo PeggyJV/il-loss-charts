@@ -108,7 +108,6 @@ function LPStatsChart({
             split: false,
             shared: true,
             formatter: function () {
-                console.log('HELLO', this);
                 const impermanentLoss =
                     (this?.points?.[0].y || 0) - (this?.points?.[1].y || 0);
                 const date = format(new Date(this.x), 'MMMM d, yyyy HH:mm:ss');
