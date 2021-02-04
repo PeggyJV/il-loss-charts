@@ -41,6 +41,7 @@ export function calculateLPStats({
     }
 
     const dailyLiquidity: BigNumber[] = [];
+    const dailyVolume: BigNumber[] = [];
     const runningVolume: BigNumber[] = [];
     const runningPoolFees: BigNumber[] = [];
     const runningFees: BigNumber[] = [];
@@ -113,6 +114,7 @@ export function calculateLPStats({
         const dailyReturn = newRunningFees.plus(dailyImpermanentLoss);
 
         dailyLiquidity.push(liquidity);
+        dailyVolume.push(vol);
         runningVolume.push(getPrevRunningValue(runningVolume).plus(vol));
         runningPoolFees.push(
             getPrevRunningValue(runningPoolFees).plus(dailyPoolFees)
@@ -154,6 +156,7 @@ export function calculateLPStats({
         // If no pair data, just return LP stats
         return {
             dailyLiquidity,
+            dailyVolume,
             totalFees,
             runningVolume,
             runningFees,
@@ -259,6 +262,7 @@ export function calculateLPStats({
         lastWeekStats,
         prevWeekStats,
         dailyLiquidity,
+        dailyVolume,
         totalFees,
         runningVolume,
         runningFees,

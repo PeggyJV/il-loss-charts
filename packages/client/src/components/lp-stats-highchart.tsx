@@ -13,7 +13,7 @@ import LPStatsWidget from 'components/lp-stats-widget';
 import { LPStats } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 
-// interface LPStatsDataPoint {
+// interface AreaChartDataPoint {
 //     fullDate?: Date;
 //     dateStr?: string;
 //     tick: string;
@@ -23,14 +23,19 @@ import { formatUSD } from 'util/formats';
 //     returns: [number, number];
 // }
 
-type LPStatsDataPoint = [number, number, number];
+type AreaChartDataPoint = [number, number, number];
+type BarChartDataPoint = [number, number];
 
 function LPStatsChart({
     lpStats,
 }: {
     lpStats: ILPStats<BigNumber | string>;
 }): JSX.Element {
-    const chartData: LPStatsDataPoint[] = [];
+    const chartData: AreaChartDataPoint[] = [];
+    const volChartData: BarChartDataPoint[] = [];
+    const liqChartData: BarChartDataPoint[] = [];
+
+    (window as any).lpStats = lpStats;
 
     lpStats.ticks.forEach((stats, i) => {
         const runningFee = new BigNumber(lpStats.runningFees[i]).toNumber();
@@ -38,23 +43,18 @@ function LPStatsChart({
             lpStats.runningReturn[i]
         ).toNumber();
 
-        chartData.push([
-            lpStats.fullDates?.[i].getTime() as number,
-            runningFee,
-            runningReturn,
-        ]);
+        const date = lpStats.fullDates?.[i].getTime() as number;
 
-        // chartData.push({
-        //     fullDate: lpStats.fullDates?.[i],
-        //     dateStr: lpStats.fullDates?.[i]?.toISOString(),
-        //     tick: lpStats.ticks[i],
-        //     runningFee,
-        //     runningReturn,
-        //     runningImpermanentLoss: new BigNumber(
-        //         lpStats.runningImpermanentLoss[i]
-        //     ).toNumber(),
-        //     returns: [runningFee, runningReturn],
-        // });
+        chartData.push([date, runningFee, runningReturn]);
+
+        volChartData.push([
+            date,
+            new BigNumber(lpStats.dailyVolume[i]).toNumber(),
+        ]);
+        liqChartData.push([
+            date,
+            new BigNumber(lpStats.dailyLiquidity[i]).toNumber(),
+        ]);
     });
 
     (window as any).chartData = chartData;
@@ -77,50 +77,141 @@ function LPStatsChart({
         rangeSelector: {
             selected: 5,
         },
-        yAxis: {
-            title: {
-                text: null,
-            },
-            labels: {
-                formatter: function () {
-                    return formatUSD(this.value);
+        yAxis: [
+            {
+                title: {
+                    text: null,
                 },
+                height: '80%',
+                labels: {
+                    formatter: function () {
+                        return formatUSD(this.value);
+                    },
+                },
+                tickPosition: 'outside',
             },
-            tickPosition: 'outside',
-        },
+            {
+                title: {
+                    text: null,
+                },
+                top: '80%',
+                height: '20%',
+                offset: 0,
+                labels: {
+                    formatter: function () {
+                        return this.value.toFixed(3);
+                    },
+                },
+                tickPosition: 'outside',
+            },
+        ],
         series: [
             {
+                name: 'Fees Collected',
                 type: 'areasplinerange',
                 data: chartData,
                 marker: { enabled: false },
+                yAxis: 0,
             },
             {
+                name: 'Total Return',
                 type: 'line',
                 data: chartData.map((c) => [c[0], c[2]]),
                 color: '#0089ff',
                 marker: { enabled: false },
+                yAxis: 0,
+            },
+            {
+                color: '#71BA63',
+                name: 'USD Volume',
+                type: 'column',
+                data: volChartData,
+                yAxis: 1,
+            },
+            {
+                color: '#90ED7D',
+                name: 'Total Pool Liquidity',
+                type: 'column',
+                data: liqChartData,
+                yAxis: 1,
             },
         ],
         legend: {
-            enabled: false,
+            enabled: true,
         },
         tooltip: {
             split: false,
             shared: true,
-            formatter: function () {
-                const impermanentLoss =
-                    (this?.points?.[0].y || 0) - (this?.points?.[1].y || 0);
+            formatter: function (tooltip) {
+                if (!this.points) {
+                    return tooltip.defaultFormatter.call(this, tooltip);
+                }
+
+                const feesPoint = this.points.find(
+                    (p) => p.series.name === 'Fees Collected'
+                );
+                const returnPoint = this.points.find(
+                    (p) => p.series.name === 'Total Return'
+                );
+                const calculatedIl =
+                    feesPoint && returnPoint && feesPoint.y - returnPoint.y;
+                const volPoint = this.points.find(
+                    (p) => p.series.name === 'USD Volume'
+                );
+                const liqPoint = this.points.find(
+                    (p) => p.series.name === 'Total Pool Liquidity'
+                );
+
+                // Format data and call default formatter
                 const date = format(new Date(this.x), 'MMMM d, yyyy HH:mm:ss');
 
                 return `
                     <em>${date}</em><br><br>
-                    <b>Fees Collected:</b> ${formatUSD(
-                        this?.points?.[0].y || 0
-                    )}<br>
-                    <b>Impermanent Loss:</b> ${formatUSD(impermanentLoss)}<br>
-                    <b>Total Return:</b> ${formatUSD(
-                        this?.points?.[1].y || 0
-                    )}<br>
+                    ${
+                        feesPoint
+                            ? `<span style="color:${
+                                  feesPoint.color as string
+                              };">\u25CF</span><b> Fees Collected:</b> ${formatUSD(
+                                  feesPoint.y
+                              )}<br>`
+                            : ''
+                    }
+                    ${
+                        calculatedIl
+                            ? `<span style="color:${
+                                  feesPoint?.color as string
+                              };">\u25CF</span><b> Impermanent Loss:</b> ${formatUSD(
+                                  calculatedIl
+                              )}<br>`
+                            : ''
+                    }
+                    ${
+                        returnPoint
+                            ? `<span style="color:${
+                                  returnPoint.color as string
+                              };">\u25CF</span><b> Total Return:</b> ${formatUSD(
+                                  returnPoint.y
+                              )}<br><br>`
+                            : ''
+                    }
+                    ${
+                        volPoint
+                            ? `<span style="color:${
+                                  volPoint.color as string
+                              };">\u25CF</span><b> Pool Volume:</b> ${formatUSD(
+                                  volPoint.y
+                              )}<br>`
+                            : ''
+                    }
+                    ${
+                        liqPoint
+                            ? `<span style="color:${
+                                  liqPoint.color as string
+                              };">\u25CF</span><b> Pool Liquidity:</b> ${formatUSD(
+                                  liqPoint.y
+                              )}<br>`
+                            : ''
+                    }
                 `;
             },
         },

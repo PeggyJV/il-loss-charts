@@ -81,6 +81,7 @@ export interface StatsOverTime<T = BigNumber> {
 export interface LPStats<T = BigNumber> {
     totalFees: T;
     runningVolume: T[];
+    dailyVolume: T[];
     runningFees: T[];
     runningImpermanentLoss: T[];
     runningReturn: T[];
