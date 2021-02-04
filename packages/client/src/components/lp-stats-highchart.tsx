@@ -8,24 +8,11 @@ import HCMore from 'highcharts/highcharts-more';
 HCMore(Highcharts);
 
 import { LPStats as ILPStats } from '@sommelier/shared-types';
-
-import LPStatsWidget from 'components/lp-stats-widget';
 import { LPStats } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 
-// interface AreaChartDataPoint {
-//     fullDate?: Date;
-//     dateStr?: string;
-//     tick: string;
-//     runningFee: number;
-//     runningReturn: number;
-//     runningImpermanentLoss: number;
-//     returns: [number, number];
-// }
-
 type AreaChartDataPoint = [number, number, number];
 type BarChartDataPoint = [number, number];
-
 function LPStatsChart({
     lpStats,
 }: {
@@ -77,6 +64,29 @@ function LPStatsChart({
         rangeSelector: {
             selected: 5,
         },
+        plotOptions: {
+            areasplinerange: {
+                fillColor: {
+                    linearGradient: {
+                        x1: 0,
+                        y1: 0,
+                        x2: 0,
+                        y2: 1,
+                    },
+                    stops: [
+                        [0, Highcharts.getOptions().colors?.[0] as string],
+                        [
+                            1,
+                            Highcharts.color(
+                                Highcharts.getOptions().colors?.[0] as string
+                            )
+                                .setOpacity(0)
+                                .get('rgba') as string,
+                        ],
+                    ],
+                },
+            },
+        },
         yAxis: [
             {
                 title: {
@@ -115,7 +125,7 @@ function LPStatsChart({
             },
             {
                 name: 'Total Return',
-                type: 'line',
+                type: 'spline',
                 data: chartData.map((c) => [c[0], c[2]]),
                 color: '#0089ff',
                 marker: { enabled: false },

@@ -68,6 +68,21 @@ export interface UniswapMintOrBurn {
     pair: Partial<UniswapPair>;
     timestamp: string;
 }
+export interface LPStats<T = BigNumber> {
+    timeWindow: 'daily' | 'hourly';
+    totalFees: T;
+    runningVolume: T[];
+    dailyVolume: T[];
+    runningFees: T[];
+    runningPoolFees: T[];
+    runningImpermanentLoss: T[];
+    runningReturn: T[];
+    dailyLiquidity: T[];
+    impermanentLoss: T;
+    totalReturn: T;
+    ticks: string[];
+    fullDates?: Date[];
+}
 
 export interface StatsOverTime<T = BigNumber> {
     volumeUSD: T;
@@ -77,24 +92,10 @@ export interface StatsOverTime<T = BigNumber> {
     liquidityUSDChange?: T;
     feesUSDChange?: T;
 }
-
-export interface LPStats<T = BigNumber> {
-    totalFees: T;
-    runningVolume: T[];
-    dailyVolume: T[];
-    runningFees: T[];
-    runningImpermanentLoss: T[];
-    runningReturn: T[];
-    dailyLiquidity: T[];
-    impermanentLoss: T;
-    totalReturn: T;
-    ticks: string[];
+export interface TimeWindowStats<T = BigNumber> {
     totalStats?: StatsOverTime<T>;
-    lastDayStats?: StatsOverTime<T>;
-    prevDayStats?: StatsOverTime<T>;
-    lastWeekStats?: StatsOverTime<T>;
-    prevWeekStats?: StatsOverTime<T>;
-    fullDates?: Date[];
+    lastPeriodStats?: StatsOverTime<T>;
+    prevPeriodStats?: StatsOverTime<T>;
 }
 
 export interface MarketStats extends UniswapPair {

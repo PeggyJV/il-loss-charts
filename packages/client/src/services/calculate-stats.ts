@@ -8,7 +8,10 @@ import {
     LiquidityData,
     LPStats,
     StatsOverTime,
+    TimeWindowStats,
 } from '@sommelier/shared-types';
+
+import { StatsWindow, LPInfoState } from 'types/states';
 
 const FEE_RATIO = 0.003;
 
@@ -17,17 +20,15 @@ const isDailyData = (data: HistoricalData): data is UniswapDailyData =>
     Object.prototype.hasOwnProperty.call(data, 'dailyVolumeUSD');
 
 export function calculateLPStats({
-    pairData,
     dailyData,
     hourlyData,
     lpShare: lpLiquidityUSD,
-    lpDate,
+    startDate,
 }: {
-    pairData?: UniswapPair;
     dailyData?: UniswapDailyData[];
     hourlyData?: UniswapHourlyData[];
     lpShare: number;
-    lpDate: Date;
+    startDate: Date;
 }): LPStats {
     if (dailyData && hourlyData) {
         throw new Error('Should only receive one of daily or hourly data');
@@ -87,7 +88,7 @@ export function calculateLPStats({
         }
 
         // Ignore if below lp date
-        if (currentDate.getTime() < lpDate.getTime()) return;
+        if (currentDate.getTime() < startDate.getTime()) return;
         if (!firstDaily) firstDaily = dataPoint;
 
         const poolShare = new BigNumber(lpLiquidityUSD).div(
@@ -152,120 +153,14 @@ export function calculateLPStats({
     );
     const totalReturn = totalFees.plus(impermanentLoss);
 
-    if (!pairData) {
-        // If no pair data, just return LP stats
-        return {
-            dailyLiquidity,
-            dailyVolume,
-            totalFees,
-            runningVolume,
-            runningFees,
-            runningImpermanentLoss,
-            runningReturn,
-            impermanentLoss,
-            totalReturn,
-            ticks,
-            fullDates,
-        };
-    }
-
-    // Calculate 24h and 7d stats for the pair itself
-    const lastDailyIndex = runningVolume.length - 1;
-    const dailyStartIndex = runningVolume.length - 2;
-    const prevDayStartIndex = runningVolume.length - 3;
-    const weeklyStartIndex = runningVolume.length - 8;
-    const prevWeekStartIndex = runningVolume.length - 15;
-
-    const totalStats: StatsOverTime = {
-        volumeUSD: new BigNumber(pairData.volumeUSD),
-        liquidityUSD: new BigNumber(pairData.reserveUSD),
-        feesUSD: new BigNumber(pairData.feesUSD as string),
-    };
-
-    let lastDayStats: StatsOverTime | undefined = undefined;
-    let prevDayStats: StatsOverTime | undefined = undefined;
-    let lastWeekStats: StatsOverTime | undefined = undefined;
-    let prevWeekStats: StatsOverTime | undefined = undefined;
-
-    if (runningVolume.length > 1) {
-        lastDayStats = {
-            volumeUSD: runningVolume[lastDailyIndex].minus(
-                runningVolume[dailyStartIndex]
-            ),
-            liquidityUSD: dailyLiquidity[lastDailyIndex],
-            feesUSD: runningPoolFees[lastDailyIndex].minus(
-                runningPoolFees[dailyStartIndex]
-            ),
-        };
-
-        if (runningVolume.length > 2) {
-            prevDayStats = {
-                volumeUSD: runningVolume[dailyStartIndex].minus(
-                    runningVolume[prevDayStartIndex]
-                ),
-                liquidityUSD: dailyLiquidity[dailyStartIndex],
-                feesUSD: runningPoolFees[dailyStartIndex].minus(
-                    runningPoolFees[prevDayStartIndex]
-                ),
-            };
-
-            lastDayStats.volumeUSDChange = lastDayStats.volumeUSD
-                .minus(prevDayStats.volumeUSD)
-                .div(prevDayStats.volumeUSD);
-            lastDayStats.liquidityUSDChange = lastDayStats.liquidityUSD
-                .minus(prevDayStats.liquidityUSD)
-                .div(prevDayStats.liquidityUSD);
-            lastDayStats.feesUSDChange = lastDayStats.feesUSD
-                .minus(prevDayStats.feesUSD)
-                .div(prevDayStats.feesUSD);
-
-            if (runningVolume.length > 7) {
-                lastWeekStats = {
-                    volumeUSD: runningVolume[lastDailyIndex].minus(
-                        runningVolume[weeklyStartIndex]
-                    ),
-                    liquidityUSD: dailyLiquidity[lastDailyIndex],
-                    feesUSD: runningPoolFees[lastDailyIndex].minus(
-                        runningPoolFees[weeklyStartIndex]
-                    ),
-                };
-
-                if (runningVolume.length > 14) {
-                    prevWeekStats = {
-                        volumeUSD: runningVolume[weeklyStartIndex].minus(
-                            runningVolume[prevWeekStartIndex]
-                        ),
-                        liquidityUSD: dailyLiquidity[weeklyStartIndex],
-                        feesUSD: runningPoolFees[weeklyStartIndex].minus(
-                            runningPoolFees[prevWeekStartIndex]
-                        ),
-                    };
-
-                    lastWeekStats.volumeUSDChange = lastWeekStats.volumeUSD
-                        .minus(prevWeekStats.volumeUSD)
-                        .div(prevWeekStats.volumeUSD);
-                    lastWeekStats.liquidityUSDChange = lastWeekStats.liquidityUSD
-                        .minus(prevWeekStats.liquidityUSD)
-                        .div(prevWeekStats.liquidityUSD);
-                    lastWeekStats.feesUSDChange = lastWeekStats.feesUSD
-                        .minus(prevWeekStats.feesUSD)
-                        .div(prevWeekStats.feesUSD);
-                }
-            }
-        }
-    }
-
     return {
-        totalStats,
-        lastDayStats,
-        prevDayStats,
-        lastWeekStats,
-        prevWeekStats,
+        timeWindow: isDailyData(historicalData[0]) ? 'daily' : 'hourly',
         dailyLiquidity,
         dailyVolume,
         totalFees,
         runningVolume,
         runningFees,
+        runningPoolFees,
         runningImpermanentLoss,
         runningReturn,
         impermanentLoss,
@@ -273,6 +168,102 @@ export function calculateLPStats({
         ticks,
         fullDates,
     };
+}
+
+export function calculateTimeWindowStats(
+    lpInfo: LPInfoState,
+    dataPeriod: 'hourly' | 'daily',
+    period: StatsWindow = 'total'
+): TimeWindowStats {
+    let runningVolume: BigNumber[];
+    let runningPoolFees: BigNumber[];
+    let dailyLiquidity: BigNumber[];
+
+    if (period === 'day') {
+        const lpStats = calculateLPStats({
+            hourlyData: lpInfo?.historicalHourlyData,
+            startDate: new Date(
+                lpInfo?.historicalHourlyData[0].hourStartUnix * 1000
+            ),
+            lpShare: new BigNumber(lpInfo.pairData.reserveUSD).toNumber(),
+        });
+
+        runningVolume = lpStats.runningVolume;
+        runningPoolFees = lpStats.runningPoolFees;
+        dailyLiquidity = lpStats.dailyLiquidity;
+    } else {
+        const lpStats = calculateLPStats({
+            dailyData: lpInfo?.historicalDailyData,
+            startDate: new Date(lpInfo?.historicalDailyData[0].date * 1000),
+            lpShare: new BigNumber(lpInfo.pairData.reserveUSD).toNumber(),
+        });
+
+        runningVolume = lpStats.runningVolume;
+        runningPoolFees = lpStats.runningPoolFees;
+        dailyLiquidity = lpStats.dailyLiquidity;
+    }
+
+    // Calculate 24h and 7d stats for the pair itself
+    const dailyInterval = dataPeriod === 'daily' ? 1 : 24;
+    const windowMultiplier = period === 'day' ? 1 : 7;
+    const numPoints = runningVolume.length;
+
+    const lastIndex = numPoints - 1;
+    const periodStartIndex = numPoints - (dailyInterval * windowMultiplier + 1);
+    const prevPeriodStartIndex =
+        numPoints - (dailyInterval * windowMultiplier * 2 + 1);
+
+    if (periodStartIndex < 0 || prevPeriodStartIndex < 0) {
+        throw new Error(
+            `Stats data of length ${numPoints} not long enough to calculate ${period} data`
+        );
+    }
+
+    const totalStats: StatsOverTime = {
+        volumeUSD: new BigNumber(lpInfo.pairData.volumeUSD),
+        liquidityUSD: new BigNumber(lpInfo.pairData.reserveUSD),
+        feesUSD: new BigNumber(lpInfo.pairData.feesUSD as string),
+    };
+
+    if (period === 'total') {
+        return { totalStats };
+    } else {
+        const lastPeriodStats: StatsOverTime = {
+            volumeUSD: runningVolume[lastIndex].minus(
+                runningVolume[periodStartIndex]
+            ),
+            liquidityUSD: dailyLiquidity[lastIndex],
+            feesUSD: runningPoolFees[lastIndex].minus(
+                runningPoolFees[periodStartIndex]
+            ),
+        };
+
+        const prevPeriodStats: StatsOverTime = {
+            volumeUSD: runningVolume[periodStartIndex].minus(
+                runningVolume[prevPeriodStartIndex]
+            ),
+            liquidityUSD: dailyLiquidity[periodStartIndex],
+            feesUSD: runningPoolFees[periodStartIndex].minus(
+                runningPoolFees[prevPeriodStartIndex]
+            ),
+        };
+
+        lastPeriodStats.volumeUSDChange = lastPeriodStats.volumeUSD
+            .minus(prevPeriodStats.volumeUSD)
+            .div(prevPeriodStats.volumeUSD);
+        lastPeriodStats.liquidityUSDChange = lastPeriodStats.liquidityUSD
+            .minus(prevPeriodStats.liquidityUSD)
+            .div(prevPeriodStats.liquidityUSD);
+        lastPeriodStats.feesUSDChange = lastPeriodStats.feesUSD
+            .minus(prevPeriodStats.feesUSD)
+            .div(prevPeriodStats.feesUSD);
+
+        return {
+            totalStats,
+            lastPeriodStats,
+            prevPeriodStats,
+        };
+    }
 }
 
 export function calculatePairRankings(

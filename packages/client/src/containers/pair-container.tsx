@@ -122,35 +122,27 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                     lpInfo.historicalDailyData.length > 7
                 ) {
                     lpStats = calculateLPStats({
-                        pairData: lpInfo?.pairData,
                         dailyData: lpInfo?.historicalDailyData,
-                        lpDate,
+                        startDate: lpDate,
                         lpShare,
                     });
                 } else {
                     lpStats = calculateLPStats({
-                        pairData: lpInfo?.pairData,
                         hourlyData: lpInfo?.historicalHourlyData,
-                        lpDate,
+                        startDate: lpDate,
                         lpShare,
                     });
                 }
             } else if (timeWindow === 'week') {
                 lpStats = calculateLPStats({
-                    pairData: lpInfo?.pairData,
-                    hourlyData: lpInfo?.historicalHourlyData,
-                    lpDate,
+                    dailyData: lpInfo?.historicalDailyData,
+                    startDate: lpDate,
                     lpShare,
                 });
             } else if (timeWindow === 'day') {
-                const lastDayHourlyData = lpInfo?.historicalHourlyData?.slice(
-                    -24
-                );
-
                 lpStats = calculateLPStats({
-                    pairData: lpInfo?.pairData,
-                    hourlyData: lastDayHourlyData,
-                    lpDate,
+                    hourlyData: lpInfo?.historicalHourlyData,
+                    startDate: lpDate,
                     lpShare,
                 });
             }
@@ -198,6 +190,8 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                     Uniswap.getHistoricalDailyData(pairId, pairCreatedAt),
                     Uniswap.getHistoricalHourlyData(pairId, oneWeekAgo),
                 ]);
+
+                (window as any).hourlyData = historicalHourlyData;
 
                 const historicalErrors = dailyDataError ?? hourlyDataError;
                 if (historicalErrors) {
@@ -490,7 +484,6 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                             <TotalPoolStats
                                 allPairs={allPairs}
                                 lpInfo={lpInfo}
-                                lpStats={lpStats}
                                 defaultWindow={timeWindow}
                                 setWindow={setWindow}
                             />

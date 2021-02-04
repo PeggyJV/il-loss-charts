@@ -8,6 +8,8 @@ import { AllPairsState, LPInfoState, StatsWindow } from 'types/states';
 import { Pair, DailyData, LPStats } from 'constants/prop-types';
 import USDValueWidget from 'components/usd-value-widget';
 
+import { calculateTimeWindowStats } from 'services/calculate-stats';
+
 function PercentChangeStat({ value }: { value?: BigNumber }) {
     if (!value) throw new Error('Passed falsy value to PercentChangeStat');
 
@@ -26,28 +28,24 @@ PercentChangeStat.propTypes = { value: PropTypes.instanceOf(BigNumber) };
 function TotalPoolStats({
     allPairs,
     lpInfo,
-    lpStats,
     defaultWindow = 'total',
     setWindow,
 }: {
     allPairs: AllPairsState;
     lpInfo: LPInfoState;
-    lpStats: ILPStats;
     defaultWindow?: StatsWindow;
     setWindow: (window: StatsWindow) => void;
 }): JSX.Element {
-    const { totalStats, lastDayStats, lastWeekStats } = lpStats;
-
-    let stats;
-    if (defaultWindow === 'total') {
-        stats = totalStats;
-    } else if (defaultWindow === 'day') {
-        stats = lastDayStats;
-    } else if (defaultWindow === 'week') {
-        stats = lastWeekStats;
-    } else {
-        throw new Error('Unknown stats window');
-    }
+    const dataPeriod = defaultWindow === 'day' ? 'hourly' : 'daily';
+    const trailingStats = calculateTimeWindowStats(
+        lpInfo,
+        dataPeriod,
+        defaultWindow
+    );
+    const stats =
+        defaultWindow === 'total'
+            ? trailingStats.totalStats
+            : trailingStats.lastPeriodStats;
 
     const handleSetWindow = (selectedWindow: StatsWindow) => {
         // Reset to total if already clicked

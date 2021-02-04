@@ -247,120 +247,15 @@ export function calculateLPStats({
     );
     const totalReturn = totalFees.plus(impermanentLoss);
 
-    if (!pairData) {
-        // If no pair data, just return LP stats
-        return {
-            dailyLiquidity,
-            dailyVolume,
-            totalFees,
-            runningVolume,
-            runningFees,
-            runningImpermanentLoss,
-            runningReturn,
-            impermanentLoss,
-            totalReturn,
-            ticks,
-            fullDates,
-        };
-    }
-
-    // Calculate 24h and 7d stats for the pair itself
-    const lastDailyIndex = runningVolume.length - 1;
-    const dailyStartIndex = runningVolume.length - 2;
-    const prevDayStartIndex = runningVolume.length - 3;
-    const weeklyStartIndex = runningVolume.length - 8;
-    const prevWeekStartIndex = runningVolume.length - 15;
-
-    const totalStats: StatsOverTime = {
-        volumeUSD: new BigNumber(pairData.volumeUSD),
-        liquidityUSD: new BigNumber(pairData.reserveUSD),
-        feesUSD: new BigNumber(pairData.feesUSD as string),
-    };
-
-    let lastDayStats: StatsOverTime | undefined = undefined;
-    let prevDayStats: StatsOverTime | undefined = undefined;
-    let lastWeekStats: StatsOverTime | undefined = undefined;
-    let prevWeekStats: StatsOverTime | undefined = undefined;
-
-    if (runningVolume.length > 1) {
-        lastDayStats = {
-            volumeUSD: runningVolume[lastDailyIndex].minus(
-                runningVolume[dailyStartIndex]
-            ),
-            liquidityUSD: dailyLiquidity[lastDailyIndex],
-            feesUSD: runningPoolFees[lastDailyIndex].minus(
-                runningPoolFees[dailyStartIndex]
-            ),
-        };
-
-        if (runningVolume.length > 2) {
-            prevDayStats = {
-                volumeUSD: runningVolume[dailyStartIndex].minus(
-                    runningVolume[prevDayStartIndex]
-                ),
-                liquidityUSD: dailyLiquidity[dailyStartIndex],
-                feesUSD: runningPoolFees[dailyStartIndex].minus(
-                    runningPoolFees[prevDayStartIndex]
-                ),
-            };
-
-            lastDayStats.volumeUSDChange = lastDayStats.volumeUSD
-                .minus(prevDayStats.volumeUSD)
-                .div(prevDayStats.volumeUSD);
-            lastDayStats.liquidityUSDChange = lastDayStats.liquidityUSD
-                .minus(prevDayStats.liquidityUSD)
-                .div(prevDayStats.liquidityUSD);
-            lastDayStats.feesUSDChange = lastDayStats.feesUSD
-                .minus(prevDayStats.feesUSD)
-                .div(prevDayStats.feesUSD);
-
-            if (runningVolume.length > 7) {
-                lastWeekStats = {
-                    volumeUSD: runningVolume[lastDailyIndex].minus(
-                        runningVolume[weeklyStartIndex]
-                    ),
-                    liquidityUSD: dailyLiquidity[lastDailyIndex],
-                    feesUSD: runningPoolFees[lastDailyIndex].minus(
-                        runningPoolFees[weeklyStartIndex]
-                    ),
-                };
-
-                if (runningVolume.length > 14) {
-                    prevWeekStats = {
-                        volumeUSD: runningVolume[weeklyStartIndex].minus(
-                            runningVolume[prevWeekStartIndex]
-                        ),
-                        liquidityUSD: dailyLiquidity[weeklyStartIndex],
-                        feesUSD: runningPoolFees[weeklyStartIndex].minus(
-                            runningPoolFees[prevWeekStartIndex]
-                        ),
-                    };
-
-                    lastWeekStats.volumeUSDChange = lastWeekStats.volumeUSD
-                        .minus(prevWeekStats.volumeUSD)
-                        .div(prevWeekStats.volumeUSD);
-                    lastWeekStats.liquidityUSDChange = lastWeekStats.liquidityUSD
-                        .minus(prevWeekStats.liquidityUSD)
-                        .div(prevWeekStats.liquidityUSD);
-                    lastWeekStats.feesUSDChange = lastWeekStats.feesUSD
-                        .minus(prevWeekStats.feesUSD)
-                        .div(prevWeekStats.feesUSD);
-                }
-            }
-        }
-    }
-
+    // If no pair data, just return LP stats
     return {
-        totalStats,
-        lastDayStats,
-        prevDayStats,
-        lastWeekStats,
-        prevWeekStats,
+        timeWindow: isDailyData(historicalData[0]) ? 'daily' : 'hourly',
         dailyLiquidity,
         dailyVolume,
         totalFees,
         runningVolume,
         runningFees,
+        runningPoolFees,
         runningImpermanentLoss,
         runningReturn,
         impermanentLoss,
@@ -561,6 +456,7 @@ export async function calculateStatsForPositions(
             // combine all lp stats for each window into one
             aggregatedStats = statsArr.reduce((acc: LPStats, currentStats) => {
                 const stats: LPStats = {
+                    timeWindow: acc.timeWindow,
                     totalFees: acc.totalFees.plus(currentStats.totalFees),
                     dailyVolume: acc.dailyVolume.concat(
                         ...currentStats.dailyVolume
@@ -570,6 +466,9 @@ export async function calculateStatsForPositions(
                     ),
                     runningFees: acc.runningFees.concat(
                         ...currentStats.runningFees
+                    ),
+                    runningPoolFees: acc.runningPoolFees.concat(
+                        ...currentStats.runningPoolFees
                     ),
                     runningImpermanentLoss: acc.runningImpermanentLoss.concat(
                         ...currentStats.runningImpermanentLoss
