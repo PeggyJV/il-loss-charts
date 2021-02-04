@@ -63,7 +63,7 @@ export const LPStats = PropTypes.shape({
         .isRequired,
     impermanentLoss: PropTypes.instanceOf(BigNumber).isRequired,
     totalReturn: PropTypes.instanceOf(BigNumber).isRequired,
-    days: PropTypes.arrayOf(PropTypes.string).isRequired,
+    ticks: PropTypes.arrayOf(PropTypes.string).isRequired,
     fullDates: PropTypes.arrayOf(PropTypes.instanceOf(Date)).isRequired,
 });
 
@@ -81,10 +81,10 @@ export const MarketData = PropTypes.shape({
 export const PositionData = PropTypes.shape({
     liquidityPosition: PropTypes.shape({
         id: PropTypes.string,
-        liquidityTokenBalance: PropTypes.string
+        liquidityTokenBalance: PropTypes.string,
     }),
     liquidityTokenBalance: PropTypes.string,
     liquidityTokenTotalSupply: PropTypes.string,
     pair: Pair,
-    timestamp: PropTypes.number
+    timestamp: PropTypes.number,
 });

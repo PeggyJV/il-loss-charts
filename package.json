@@ -10,6 +10,7 @@
     ],
     "scripts": {
         "dev": "lerna run dev --parallel",
+        "dev:offline": "REACT_APP_OFFLINE_MODE=true lerna run dev --parallel",
         "clean": "lerna run clean",
         "build": "lerna run clean && lerna run build",
         "lint": "lerna run lint --stream --concurrency 1",

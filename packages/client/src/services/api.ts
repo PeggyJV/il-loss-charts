@@ -10,12 +10,21 @@ import {
 
 import { IError } from 'types/states';
 
+import { UniswapApiFetcher as OfflineFetcher } from 'services/offline-api';
+
 type ApiResponse<T> = { data?: T; error?: IError };
 
-export class UniswapApiFetcher {
+const useOffline = process.env.REACT_APP_OFFLINE_MODE;
+if (useOffline) {
+    console.log('Using offline mode');
+}
+
+export class UniswapApiFetcher extends OfflineFetcher {
     static async getPairOverview(
         pairId: string
     ): Promise<ApiResponse<UniswapPair>> {
+        if (useOffline) return OfflineFetcher.getPairOverview(pairId);
+
         const response = await fetch(`/api/v1/uniswap/pairs/${pairId}`);
         const { data, error } = await (response.json() as Promise<
             ApiResponse<UniswapPair>
@@ -26,6 +35,8 @@ export class UniswapApiFetcher {
     static async getLatestSwaps(
         pairId: string
     ): Promise<ApiResponse<UniswapSwap[]>> {
+        if (useOffline) return OfflineFetcher.getLatestSwaps(pairId);
+
         const response = await fetch(`/api/v1/uniswap/pairs/${pairId}/swaps`);
         const { data, error } = await (response.json() as Promise<
             ApiResponse<UniswapSwap[]>
@@ -42,6 +53,8 @@ export class UniswapApiFetcher {
             combined: UniswapMintOrBurn[];
         }>
     > {
+        if (useOffline) return OfflineFetcher.getMintsAndBurns(pairId);
+
         const response = await fetch(
             `/api/v1/uniswap/pairs/${pairId}/addremove`
         );
@@ -52,6 +65,8 @@ export class UniswapApiFetcher {
     static async getTopPairs(
         count = 1000
     ): Promise<ApiResponse<UniswapPair[]>> {
+        if (useOffline) return OfflineFetcher.getTopPairs(count);
+
         const response = await fetch(`/api/v1/uniswap/pairs?count=${count}`);
         const { data, error } = await (response.json() as Promise<
             ApiResponse<UniswapPair[]>
@@ -62,6 +77,8 @@ export class UniswapApiFetcher {
     static async getMarketData(
         startDate = '2020-12-01'
     ): Promise<ApiResponse<MarketStats[]>> {
+        if (useOffline) return OfflineFetcher.getMarketData(startDate);
+
         const response = await fetch(
             `/api/v1/uniswap/market?startDate=${startDate}`
         );
@@ -74,6 +91,8 @@ export class UniswapApiFetcher {
     static async getDailyTopPerformingPairs(): Promise<
         ApiResponse<MarketStats[]>
     > {
+        if (useOffline) return OfflineFetcher.getDailyTopPerformingPairs();
+
         const response = await fetch(`/api/v1/uniswap/pairs/performance/daily`);
         const { data, error } = await (response.json() as Promise<
             ApiResponse<MarketStats[]>
@@ -84,6 +103,8 @@ export class UniswapApiFetcher {
     static async getWeeklyTopPerformingPairs(): Promise<
         ApiResponse<MarketStats[]>
     > {
+        if (useOffline) return OfflineFetcher.getWeeklyTopPerformingPairs();
+
         const response = await fetch(
             `/api/v1/uniswap/pairs/performance/weekly`
         );
@@ -98,6 +119,13 @@ export class UniswapApiFetcher {
         startDate: Date,
         endDate = new Date()
     ): Promise<ApiResponse<UniswapDailyData[]>> {
+        if (useOffline)
+            return OfflineFetcher.getHistoricalDailyData(
+                pairId,
+                startDate,
+                endDate
+            );
+
         const response = await fetch(
             `/api/v1/uniswap/pairs/${pairId}/historical/daily?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
         );
@@ -112,6 +140,13 @@ export class UniswapApiFetcher {
         startDate: Date,
         endDate = new Date()
     ): Promise<ApiResponse<UniswapHourlyData[]>> {
+        if (useOffline)
+            return OfflineFetcher.getHistoricalHourlyData(
+                pairId,
+                startDate,
+                endDate
+            );
+
         const response = await fetch(
             `/api/v1/uniswap/pairs/${pairId}/historical/hourly?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
         );
