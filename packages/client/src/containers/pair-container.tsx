@@ -96,7 +96,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
         }
 
         // There is no pair in the query, so set to default
-        if (!pairId) return setPairId(initialData.pairId);
+        if (!pairId) return setPairId(initialData.defaultPairId);
     }, [location]);
 
     useEffect(() => {

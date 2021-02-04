@@ -18001,6 +18001,7 @@
             "volumeUSD": "384469.7859438824563958357636751302"
         }
     ],
+    "defaultPairId": "0xa478c2975ab1ea89e8196811f51a7b7ade33eb11",
     "pairId": "0xebfb684dd2b01e698ca6c14f10e4f289934a54d6",
     "pairData": {
         "__typename": "Pair",
