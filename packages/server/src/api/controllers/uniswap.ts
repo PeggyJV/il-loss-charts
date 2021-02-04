@@ -54,7 +54,8 @@ class UniswapController {
 
         const oneDayMs = 24 * 60 * 60 * 1000;
         const startDate = new Date(Date.now() - oneDayMs);
-        const endDate = new Date();
+        // Moving endDate back by 1m to make sure we've indexed
+        const endDate = new Date(Date.now() - 1000 * 60);
 
         // Get 25 top pairs
         // TODO: make this changeable by query
@@ -63,11 +64,27 @@ class UniswapController {
         );
 
         // TODO: Save requests by only fetching first and last day
+        // const historicalFetches = topPairs.map(
+        //     (pair: UniswapPair): Promise<UniswapHourlyData[]> =>
+        //         UniswapFetcher.getHourlyData(pair.id, startDate, endDate)
+        // );
         const historicalFetches = topPairs.map(
-            (pair: UniswapPair): Promise<UniswapHourlyData[]> =>
-                UniswapFetcher.getHourlyData(pair.id, startDate, endDate)
+            (pair: UniswapPair): Promise<UniswapPair[]> =>
+                UniswapFetcher.getPairDeltasByTime(
+                    pair.id,
+                    startDate,
+                    endDate
+                ).catch((err) => {
+                    // If we have no week-old data, just skip it
+                    if (err.status === 404) {
+                        return [];
+                    }
+
+                    throw err;
+                })
         );
-        const historicalData: UniswapHourlyData[][] = await Promise.all(
+
+        const historicalData: UniswapPair[][] = await Promise.all(
             historicalFetches
         );
 
@@ -75,7 +92,7 @@ class UniswapController {
         const marketStats = await calculateMarketStats(
             topPairs,
             historicalData,
-            'hourly'
+            'delta'
         );
 
         const statsByReturn = [...marketStats].sort(
@@ -101,7 +118,9 @@ class UniswapController {
 
         const oneWeekMs = 24 * 60 * 60 * 1000 * 7;
         const startDate = new Date(Date.now() - oneWeekMs);
-        const endDate = new Date();
+
+        // Moving endDate back by 1m to make sure we've indexed
+        const endDate = new Date(Date.now() - 1000 * 60);
 
         // Get 25 top pairs
         // TODO: make this changeable by query
@@ -146,10 +165,21 @@ class UniswapController {
         // );
 
         const historicalFetches = topPairs.map(
-            (pair: UniswapPair): Promise<UniswapHourlyData[]> =>
-                UniswapFetcher.getHourlyData(pair.id, startDate, endDate)
+            (pair: UniswapPair): Promise<UniswapPair[]> =>
+                UniswapFetcher.getPairDeltasByTime(
+                    pair.id,
+                    startDate,
+                    endDate
+                ).catch((err) => {
+                    // If we have no week-old data, just skip it
+                    if (err.status === 404) {
+                        return [];
+                    }
+
+                    throw err;
+                })
         );
-        const historicalData: UniswapHourlyData[][] = await Promise.all(
+        const historicalData: UniswapPair[][] = await Promise.all(
             historicalFetches
         );
 
@@ -157,7 +187,7 @@ class UniswapController {
         const marketStats = await calculateMarketStats(
             topPairs,
             historicalData,
-            'hourly'
+            'delta'
         );
 
         const statsByReturn = [...marketStats].sort(
@@ -165,7 +195,6 @@ class UniswapController {
         );
 
         return statsByReturn;
-        // return { statsByReturn, historicalData };
     }
 
     static async getPairOverview(req: Request) {

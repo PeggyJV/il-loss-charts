@@ -18,6 +18,8 @@ import {
 } from '@sommelier/shared-types';
 import { HTTPError } from 'api/util/errors';
 
+import EthBlockFetcher from 'services/eth-blocks';
+
 interface ApolloResponse<T> {
     data: T;
     error?: ApolloError;
@@ -42,13 +44,22 @@ export default class UniswapFetcher {
         },
     });
 
-    static async getPairOverview(pairId: string): Promise<UniswapPair> {
+    static async getPairOverview(
+        pairId: string,
+        blockNumber?: number
+    ): Promise<UniswapPair> {
+        let filterStr = `id: "${pairId}"`;
+
+        if (blockNumber) {
+            filterStr = filterStr.concat(`, block: {number: ${blockNumber}}`);
+        }
+
         const response: ApolloResponse<{
             pair: UniswapPair;
         }> = await UniswapFetcher.client.query({
             query: gql`
                     {
-                        pair(id: "${pairId}"){
+                        pair(${filterStr}){
                             id
                             token0 {
                                 id
@@ -190,6 +201,24 @@ export default class UniswapFetcher {
         }
 
         return pairs;
+    }
+
+    static async getPairDeltasByTime(
+        pairId: string,
+        startDate: Date,
+        endDate: Date
+    ): Promise<UniswapPair[]> {
+        const blockDatas = await Promise.all([
+            EthBlockFetcher.getFirstBlockAfter(startDate),
+            EthBlockFetcher.getLastBlockBefore(endDate),
+        ]);
+
+        const pairDataP = blockDatas.map((block) =>
+            UniswapFetcher.getPairOverview(pairId, block.number)
+        );
+        const pairDatas = await Promise.all(pairDataP);
+
+        return pairDatas;
     }
 
     static async _get100DaysHistoricalDailyData(

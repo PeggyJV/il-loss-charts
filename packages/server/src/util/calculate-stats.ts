@@ -16,7 +16,9 @@ import {
 const FEE_RATIO = 0.003;
 
 type HistoricalData = UniswapDailyData | UniswapHourlyData;
-type HistoricalDataList = Array<UniswapDailyData[] | UniswapHourlyData[]>;
+type HistoricalDataList = Array<
+    UniswapDailyData[] | UniswapHourlyData[] | UniswapPair[]
+>;
 type PositionMapping = { [pairId: string]: UniswapLiquidityPositionAtTime[] };
 type StatsMapping = { [pairId: string]: StatsMappingValue };
 
@@ -39,7 +41,7 @@ interface StatsMappingValue {
 export async function calculateMarketStats(
     pairs: UniswapPair[],
     historicalData: HistoricalDataList,
-    period = 'daily'
+    period: 'daily' | 'hourly' | 'delta' = 'daily'
 ): Promise<MarketStats[]> {
     // Historical data fetches
     const { ethPrice } = await UniswapFetcher.getEthPrice();
@@ -66,6 +68,7 @@ export async function calculateMarketStats(
     const marketStats = pairs.reduce(
         (acc: MarketStats[], pair: UniswapPair, index: number) => {
             const historical = historicalData[index];
+
             const firstDaily = historical[0];
             const lastDaily = historical[historical.length - 1];
 
@@ -82,6 +85,13 @@ export async function calculateMarketStats(
                 return acc;
             }
 
+            if (period === 'delta' && historical.length > 2) {
+                console.warn(
+                    `Received more than two historical data points for a delta calculation on ${pairReadable}`
+                );
+                return acc;
+            }
+
             const impermanentLoss = calculateImpermanentLoss(
                 firstDaily,
                 lastDaily
@@ -93,12 +103,16 @@ export async function calculateMarketStats(
                         acc.plus(h.hourlyVolumeUSD),
                     new BigNumber(0)
                 );
-            } else {
+            } else if (period === 'daily') {
                 volume = (historical as UniswapDailyData[]).reduce(
                     (acc: BigNumber, h: UniswapDailyData) =>
                         acc.plus(h.dailyVolumeUSD),
                     new BigNumber(0)
                 );
+            } else {
+                volume = new BigNumber(
+                    (lastDaily as UniswapPair).volumeUSD
+                ).minus((firstDaily as UniswapPair).volumeUSD);
             }
             const fees = volume.times(FEE_RATIO);
             const returns = fees.plus(impermanentLoss);
