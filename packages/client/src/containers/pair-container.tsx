@@ -115,42 +115,49 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
             if (isInitialLoad || currentError) return null;
 
             let lpStats: LPStats | null = null;
-            if (timeWindow === 'total') {
-                // If less than 7 data points, default to hourly anyway
-                if (
-                    lpInfo?.historicalDailyData?.length &&
-                    lpInfo.historicalDailyData.length > 7
-                ) {
-                    lpStats = calculateLPStats({
-                        dailyData: lpInfo?.historicalDailyData,
-                        startDate: lpDate,
-                        lpShare,
-                    });
-                } else {
-                    lpStats = calculateLPStats({
-                        hourlyData: lpInfo?.historicalHourlyData,
-                        startDate: lpDate,
-                        lpShare,
-                    });
-                }
-            } else if (timeWindow === 'week') {
-                lpStats = calculateLPStats({
-                    dailyData: lpInfo?.historicalDailyData,
-                    startDate: lpDate,
-                    lpShare,
-                });
-            } else if (timeWindow === 'day') {
-                lpStats = calculateLPStats({
-                    hourlyData: lpInfo?.historicalHourlyData,
-                    startDate: lpDate,
-                    lpShare,
-                });
-            }
+            lpStats = calculateLPStats({
+                dailyData: lpInfo?.historicalDailyData,
+                startDate: lpDate,
+                lpShare,
+            });
+
+            // TODO: Figure out if we should re-enable this
+            // if (timeWindow === 'total') {
+            //     // If less than 7 data points, default to hourly anyway
+            //     if (
+            //         lpInfo?.historicalDailyData?.length &&
+            //         lpInfo.historicalDailyData.length > 7
+            //     ) {
+            //         lpStats = calculateLPStats({
+            //             dailyData: lpInfo?.historicalDailyData,
+            //             startDate: lpDate,
+            //             lpShare,
+            //         });
+            //     } else {
+            //         lpStats = calculateLPStats({
+            //             hourlyData: lpInfo?.historicalHourlyData,
+            //             startDate: lpDate,
+            //             lpShare,
+            //         });
+            //     }
+            // } else if (timeWindow === 'week') {
+            //     lpStats = calculateLPStats({
+            //         dailyData: lpInfo?.historicalDailyData,
+            //         startDate: lpDate,
+            //         lpShare,
+            //     });
+            // } else if (timeWindow === 'day') {
+            //     lpStats = calculateLPStats({
+            //         hourlyData: lpInfo?.historicalHourlyData,
+            //         startDate: lpDate,
+            //         lpShare,
+            //     });
+            // }
 
             return lpStats;
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [lpInfo, lpDate, lpShare, isInitialLoad, timeWindow]
+        [lpInfo, lpDate, lpShare, isInitialLoad]
     );
 
     useEffect(() => {
@@ -242,7 +249,10 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
         )
             return null;
 
-        if (timeWindow === 'total') {
+        // if (timeWindow === 'total') {
+        // TODO: figure out if we should re - enable this
+        // eslint-disable-next-line
+        if (true) {
             // Find daily data that matches LP date
             for (const dailyData of lpInfo.historicalDailyData) {
                 const currentDate = new Date(dailyData.date * 1000);
@@ -260,43 +270,44 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
             );
             setLPDate(firstDay);
             return lpInfo.historicalDailyData[0];
-        } else if (timeWindow === 'week') {
-            for (const hourlyData of lpInfo.historicalHourlyData) {
-                const currentDate = new Date(hourlyData.hourStartUnix * 1000);
-                if (currentDate.getTime() === lpDate.getTime()) {
-                    return hourlyData;
-                }
-            }
-            if (lpInfo.historicalHourlyData.length === 0) return null;
-            const firstHour = new Date(
-                lpInfo.historicalHourlyData[0].hourStartUnix * 1000
-            );
-            console.warn(
-                `Could not find LP date in historical data: ${lpDate.toISOString()}. Setting to first day, which is ${firstHour.toISOString()}.`
-            );
-            setLPDate(firstHour);
-            return lpInfo.historicalHourlyData[0];
-        } else {
-            // If LP Date before one day ago, then set LPDate to one day ago
-            const historicalDataOneDay = lpInfo.historicalHourlyData.slice(-24);
-            for (const hourlyData of historicalDataOneDay) {
-                const currentDate = new Date(hourlyData.hourStartUnix * 1000);
-                if (currentDate.getTime() === lpDate.getTime()) {
-                    return hourlyData;
-                }
-            }
-            if (historicalDataOneDay.length === 0) return null;
-            const firstHour = new Date(
-                historicalDataOneDay[0].hourStartUnix * 1000
-            );
-            console.warn(
-                `Could not find LP date in historical data: ${lpDate.toISOString()}. Setting to first day, which is ${firstHour.toISOString()}.`
-            );
-            setLPDate(firstHour);
-            return historicalDataOneDay[0];
         }
+        // } else if (timeWindow === 'week') {
+        //     for (const hourlyData of lpInfo.historicalHourlyData) {
+        //         const currentDate = new Date(hourlyData.hourStartUnix * 1000);
+        //         if (currentDate.getTime() === lpDate.getTime()) {
+        //             return hourlyData;
+        //         }
+        //     }
+        //     if (lpInfo.historicalHourlyData.length === 0) return null;
+        //     const firstHour = new Date(
+        //         lpInfo.historicalHourlyData[0].hourStartUnix * 1000
+        //     );
+        //     console.warn(
+        //         `Could not find LP date in historical data: ${lpDate.toISOString()}. Setting to first day, which is ${firstHour.toISOString()}.`
+        //     );
+        //     setLPDate(firstHour);
+        //     return lpInfo.historicalHourlyData[0];
+        // } else {
+        //     // If LP Date before one day ago, then set LPDate to one day ago
+        //     const historicalDataOneDay = lpInfo.historicalHourlyData.slice(-24);
+        //     for (const hourlyData of historicalDataOneDay) {
+        //         const currentDate = new Date(hourlyData.hourStartUnix * 1000);
+        //         if (currentDate.getTime() === lpDate.getTime()) {
+        //             return hourlyData;
+        //         }
+        //     }
+        //     if (historicalDataOneDay.length === 0) return null;
+        //     const firstHour = new Date(
+        //         historicalDataOneDay[0].hourStartUnix * 1000
+        //     );
+        //     console.warn(
+        //         `Could not find LP date in historical data: ${lpDate.toISOString()}. Setting to first day, which is ${firstHour.toISOString()}.`
+        //     );
+        //     setLPDate(firstHour);
+        //     return historicalDataOneDay[0];
+        // }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [lpInfo, lpDate, timeWindow]);
+    }, [lpInfo, lpDate]);
 
     // ------------------ Websocket State - handles subscriptions ------------------
 
@@ -387,6 +398,13 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
 
     useEffect(() => {
         if (!pairId || currentError) return;
+
+        // add new pair id to the URL
+        window.history.replaceState(
+            null,
+            'Sommelier.finance',
+            `/pair?id=${pairId}`
+        );
 
         const getLatestSwaps = async () => {
             // Fetch latest block when pair ID changes

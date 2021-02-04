@@ -15,10 +15,13 @@ function PercentChangeStat({ value }: { value?: BigNumber }) {
 
     const sign = value.isPositive() ? '↗' : '↘';
     const className = value.isPositive() ? 'pct-change-up' : 'pct-change-down';
+    const valStr = value.isNaN()
+        ? new BigNumber(100).toFixed(2)
+        : value.toFixed(2);
 
     return (
         <span className={className}>
-            {value.toFixed(2)}% {sign}
+            {valStr}% {sign}
         </span>
     );
 }
@@ -46,6 +49,8 @@ function TotalPoolStats({
         defaultWindow === 'total'
             ? trailingStats.totalStats
             : trailingStats.lastPeriodStats;
+
+    (window as any).poolStats = stats;
 
     const handleSetWindow = (selectedWindow: StatsWindow) => {
         // Reset to total if already clicked

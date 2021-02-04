@@ -101,6 +101,7 @@ function LPStatsChart({
                 tickPosition: 'outside',
             },
             {
+                visible: false,
                 title: {
                     text: null,
                 },
