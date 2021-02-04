@@ -98,6 +98,7 @@ function LPInput({
                                     <DateTimePicker
                                         // @ts-expect-error: className is not on the props definition but does propagate to component
                                         className='lp-date-picker form-control'
+                                        dropUp
                                         min={new Date('2020-05-18')}
                                         max={new Date()}
                                         format='yyyy-MM-dd'

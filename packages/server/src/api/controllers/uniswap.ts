@@ -109,38 +109,46 @@ class UniswapController {
             count
         );
 
-        // Fetch first hour and last hour
+        // // Fetch first hour and last hour
+        // const historicalFetches = topPairs.map(
+        //     async (pair: UniswapPair): Promise<UniswapHourlyData[]> => {
+        //         // One hour gap between first start and end date
+        //         const firstStartDate = startDate;
+        //         const firstEndDate = new Date(
+        //             startDate.getTime() + 1000 * 60 * 60
+        //         );
+        //         const firstHour = UniswapFetcher.getHourlyData(
+        //             pair.id,
+        //             firstStartDate,
+        //             firstEndDate
+        //         );
+
+        //         const secondStartDate = new Date(
+        //             endDate.getTime() - 1000 * 60 * 60
+        //         );
+        //         const secondEndDate = endDate;
+        //         const lastHour = UniswapFetcher.getHourlyData(
+        //             pair.id,
+        //             secondStartDate,
+        //             secondEndDate
+        //         );
+
+        //         const [firstFetch, lastFetch] = await Promise.all([
+        //             firstHour,
+        //             lastHour,
+        //         ]);
+        //         return [...firstFetch, ...lastFetch];
+        //     }
+        // );
+
+        // const historicalData: UniswapHourlyData[][] = await Promise.all(
+        //     historicalFetches
+        // );
+
         const historicalFetches = topPairs.map(
-            async (pair: UniswapPair): Promise<UniswapHourlyData[]> => {
-                // One hour gap between first start and end date
-                const firstStartDate = startDate;
-                const firstEndDate = new Date(
-                    startDate.getTime() + 1000 * 60 * 60
-                );
-                const firstHour = UniswapFetcher.getHourlyData(
-                    pair.id,
-                    firstStartDate,
-                    firstEndDate
-                );
-
-                const secondStartDate = new Date(
-                    endDate.getTime() - 1000 * 60 * 60
-                );
-                const secondEndDate = endDate;
-                const lastHour = UniswapFetcher.getHourlyData(
-                    pair.id,
-                    secondStartDate,
-                    secondEndDate
-                );
-
-                const [firstFetch, lastFetch] = await Promise.all([
-                    firstHour,
-                    lastHour,
-                ]);
-                return [...firstFetch, ...lastFetch];
-            }
+            (pair: UniswapPair): Promise<UniswapHourlyData[]> =>
+                UniswapFetcher.getHourlyData(pair.id, startDate, endDate)
         );
-
         const historicalData: UniswapHourlyData[][] = await Promise.all(
             historicalFetches
         );

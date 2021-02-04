@@ -70,7 +70,7 @@ export async function calculateMarketStats(
             const lastDaily = historical[historical.length - 1];
 
             const pairReadable = `${pair.token0?.symbol || ''}/${
-                pair.token1?.symbol || 's'
+                pair.token1?.symbol || ''
             }`;
 
             // Skip pair if no data
