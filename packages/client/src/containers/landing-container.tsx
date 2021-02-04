@@ -78,11 +78,13 @@ function LandingContainer(): JSX.Element {
                 Not financial advice. This is an alpha project. Trade at your
                 own risk.
             </p>
+            <p>All calculated returns include Impermanent Loss.</p>
             {topPairs?.daily && (
                 <TopPairsWidget topPairs={topPairs.daily} mode='daily' />
             )}
             <hr />
             <h3>Top LP Opportunities in the Past 7 Days</h3>
+            <p>All calculated returns include Impermanent Loss.</p>
             {topPairs?.weekly && (
                 <TopPairsWidget topPairs={topPairs.weekly} mode='weekly' />
             )}
