@@ -48,6 +48,8 @@ function LPInput({
     };
 
     const updateShare = (denom: 'USD' | 'token0' | 'token1', value: number) => {
+        if (Number.isNaN(value)) value = 0;
+
         if (denom === 'USD') {
             const poolShare = new BigNumber(value).div(dataAtLPDate.reserveUSD);
             setUsdAmt(value);

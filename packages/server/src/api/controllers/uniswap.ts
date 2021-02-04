@@ -449,12 +449,12 @@ export default express
     )
     .get(
         '/pairs/:id/historical/daily',
-        cacheMiddleware(300),
+        cacheMiddleware(3600),
         wrapRequest(UniswapController.getHistoricalDailyData)
     )
     .get(
         '/pairs/:id/historical/hourly',
-        cacheMiddleware(300),
+        cacheMiddleware(1800),
         wrapRequest(UniswapController.getHistoricalHourlyData)
     )
     .get('/pairs/:id/stats', wrapRequest(UniswapController.getPairStats))
