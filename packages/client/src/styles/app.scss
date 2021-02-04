@@ -322,6 +322,10 @@ body {
     margin-bottom: 0.3rem;
 }
 
+.rw-popup-container.rw-calendar-popup {
+    left: initial;
+}
+
 th .order-4:before {
     margin-left: 3.5px;
     content: '\2191';

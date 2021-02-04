@@ -54,8 +54,8 @@ class UniswapController {
 
         const oneDayMs = 24 * 60 * 60 * 1000;
         const startDate = new Date(Date.now() - oneDayMs);
-        // Moving endDate back by 1m to make sure we've indexed
-        const endDate = new Date(Date.now() - 1000 * 60);
+        // Moving endDate back by 2m to make sure we've indexed
+        const endDate = new Date(Date.now() - 1000 * 60 * 2);
 
         // Get 25 top pairs
         // TODO: make this changeable by query
@@ -119,8 +119,8 @@ class UniswapController {
         const oneWeekMs = 24 * 60 * 60 * 1000 * 7;
         const startDate = new Date(Date.now() - oneWeekMs);
 
-        // Moving endDate back by 1m to make sure we've indexed
-        const endDate = new Date(Date.now() - 1000 * 60);
+        // Moving endDate back by 2m to make sure we've indexed
+        const endDate = new Date(Date.now() - 1000 * 60 * 2);
 
         // Get 25 top pairs
         // TODO: make this changeable by query
