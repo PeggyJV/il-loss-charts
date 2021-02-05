@@ -206,7 +206,8 @@ export default class UniswapFetcher {
     static async getPairDeltasByTime(
         pairId: string,
         startDate: Date,
-        endDate: Date
+        endDate: Date,
+        fetchPartial = true
     ): Promise<UniswapPair[]> {
         const blockDatas = await Promise.all([
             EthBlockFetcher.getFirstBlockAfter(startDate),
@@ -214,11 +215,36 @@ export default class UniswapFetcher {
         ]);
 
         const pairDataP = blockDatas.map((block) =>
-            UniswapFetcher.getPairOverview(pairId, block.number)
+            UniswapFetcher.getPairOverview(pairId, block.number).catch(
+                (err) => {
+                    if (err.status === 404) return null;
+                    else throw err;
+                }
+            )
         );
+
         const pairDatas = await Promise.all(pairDataP);
 
-        return pairDatas;
+        if (
+            fetchPartial &&
+            pairDatas[0] == null &&
+            pairDatas[1]?.createdAtTimestamp
+        ) {
+            // We didn't get any data at the startDate,
+            // but we can get the first block the pair existed
+            const pairStartDate = new Date(
+                parseInt(pairDatas[1].createdAtTimestamp, 10) * 1000
+            );
+            const pairStartBlock = await EthBlockFetcher.getFirstBlockAfter(
+                pairStartDate
+            );
+            pairDatas[0] = await UniswapFetcher.getPairOverview(
+                pairId,
+                pairStartBlock.number
+            );
+        }
+
+        return pairDatas as UniswapPair[];
     }
 
     static async _get100DaysHistoricalDailyData(

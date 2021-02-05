@@ -303,20 +303,38 @@ class UniswapController {
 
         const endDate: Date = req.query.endDate
             ? new Date(req.query.endDate.toString())
-            : new Date();
+            : // Move endDate back 2m to make sure the subgraph has indexed
+              new Date(Date.now() - 1000 * 60 * 2);
         if (endDate.getTime() !== endDate.getTime())
             throw new HTTPError(400, `Received invalid date for 'endDate'.`);
 
         // Get 25 top pairs
         // TODO: make this changeable by query
         const topPairs = await UniswapFetcher.getTopPairs(100, 'volumeUSD');
-        const pairsByVol = topPairs.slice(0, 25);
+        const pairsByVol = topPairs.slice(0, 40);
 
         // TODO: Save requests by only fetching first and last day
-        const historicalFetches = pairsByVol.map((pair) =>
-            UniswapFetcher.getHistoricalDailyData(pair.id, startDate, endDate)
+        // const historicalFetches = pairsByVol.map((pair) =>
+        //     UniswapFetcher.getHistoricalDailyData(pair.id, startDate, endDate)
+        // );
+        const historicalFetches = topPairs.map(
+            (pair: UniswapPair): Promise<UniswapPair[]> =>
+                UniswapFetcher.getPairDeltasByTime(
+                    pair.id,
+                    startDate,
+                    endDate,
+                    false
+                ).catch((err) => {
+                    // If we have no week-old data, just skip it
+                    if (err.status === 404) {
+                        return [];
+                    }
+
+                    throw err;
+                })
         );
-        const historicalData: UniswapDailyData[][] = await Promise.all(
+
+        const historicalData: UniswapPair[][] = await Promise.all(
             historicalFetches
         );
 
@@ -324,10 +342,10 @@ class UniswapController {
         const marketStats = await calculateMarketStats(
             pairsByVol,
             historicalData,
-            'daily'
+            'delta'
         );
 
-        return marketStats;
+        return marketStats.slice(0, 25);
     }
 
     static async getPairStats(req: Request) {
