@@ -23,7 +23,8 @@ export type Provider = 'metamask' | 'walletConnect';
 
 export interface Wallet {
     account: string;
-    provider: Provider;
+    providerName: Provider;
+    provider: any;
 }
 
 export interface PairPricesState {
