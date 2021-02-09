@@ -256,7 +256,12 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
             // Find daily data that matches LP date
             for (const dailyData of lpInfo.historicalDailyData) {
                 const currentDate = new Date(dailyData.date * 1000);
-                if (currentDate.getTime() === lpDate.getTime()) {
+                const oneDayMs = 24 * 60 * 60 * 1000;
+                // If we are within a day, this is good data
+                if (
+                    Math.abs(currentDate.getTime() - lpDate.getTime()) <=
+                    oneDayMs
+                ) {
                     return dailyData;
                 }
             }

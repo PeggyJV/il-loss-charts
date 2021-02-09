@@ -80,6 +80,10 @@ function LPInput({
         }
     };
 
+    const handleNewDate = (newDate?: Date) => {
+        newDate && setLPDate(newDate);
+    };
+
     const [usdAmt, setUsdAmt] = useState(lpShare);
     const [token0Amt, setToken0Amt] = useState(0);
     const [token1Amt, setToken1Amt] = useState(0);
@@ -105,9 +109,7 @@ function LPInput({
                                         max={new Date()}
                                         format='yyyy-MM-dd'
                                         value={lpDate}
-                                        onChange={(newDate?: Date) =>
-                                            newDate && setLPDate(newDate)
-                                        }
+                                        onChange={handleNewDate}
                                         time={false}
                                     />
                                 </div>
@@ -183,9 +185,7 @@ function LPInput({
                             max={new Date()}
                             format='yyyy-MM-dd'
                             value={lpDate}
-                            onChange={(newDate?: Date) =>
-                                newDate && setLPDate(newDate)
-                            }
+                            onChange={handleNewDate}
                             time={false}
                         />
                     </div>
