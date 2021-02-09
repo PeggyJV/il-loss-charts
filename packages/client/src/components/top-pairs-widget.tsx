@@ -47,7 +47,7 @@ function TopPairsWidget({
     return (
         <div className='pool-stats-container'>
             <CardDeck>
-                {topPairs.slice(0, 5).map((pairStats, index) => (
+                {topPairs.slice(0, 10).map((pairStats, index) => (
                     <Card
                         key={index}
                         style={{
