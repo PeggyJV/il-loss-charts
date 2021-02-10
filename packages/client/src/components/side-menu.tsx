@@ -93,7 +93,8 @@ SideMenu.propTypes = {
     setShowConnectWallet: PropTypes.func,
     wallet: PropTypes.shape({
         account: PropTypes.string,
-        provider: PropTypes.string,
+        providerName: PropTypes.string,
+        provider: PropTypes.object,
     }).isRequired,
 };
 

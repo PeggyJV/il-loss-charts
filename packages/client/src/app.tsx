@@ -193,7 +193,7 @@ function App(): ReactElement {
                                     <SearchContainer allPairs={allPairs} />
                                 </Route>
                                 <Route path='/'>
-                                    <LandingContainer topPairs={topPairs} />
+                                    <LandingContainer topPairs={topPairs} wallet={useWalletProps.wallet} />
                                 </Route>
                             </Switch>
                         </>

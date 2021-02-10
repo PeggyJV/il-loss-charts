@@ -64,7 +64,7 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
     useEffect(() => {
         const fetchPositionsForWallet = async () => {
             if (!isLoading) setIsLoading(true);
-            if (currentError) return;
+            if (currentError || !wallet.account) return;
 
             const {
                 data: positionData,

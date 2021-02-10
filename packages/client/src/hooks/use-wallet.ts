@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';
 
-import WalletConnect from '@walletconnect/client';
-import QRCodeModal from '@walletconnect/qrcode-modal';
+import WalletConnectProvider from '@walletconnect/web3-provider';
+import { providers } from 'ethers';
 
 import { Provider, Wallet } from 'types/states';
 import mixpanel from 'util/mixpanel';
@@ -20,34 +20,40 @@ export default function useWallet(): {
     const ethereum = (window as any).ethereum;
     const availableProviders = {
         metamask: ethereum?.isMetaMask,
-        walletConnect: true,
+        walletconnect: true,
     };
 
-    const wcConnector = new WalletConnect({
-        bridge: 'https://bridge.walletconnect.org', // Required
-        qrcodeModal: QRCodeModal,
+    const wcProvider = new WalletConnectProvider({
+        infuraId: process.env.REACT_APP_INFURA_PROJECT_ID,
     });
 
-    (window as any).wcConnector = wcConnector;
+    (window as any).wcProvider = wcProvider;
 
     // Try to read wallet from cookies
-    const walletFromCookie = cookies.get('current_wallet');
+    const walletFromCookie: Partial<Wallet> = cookies.get('current_wallet');
 
-    let initialWalletState;
+    let initialWalletState: Wallet = {
+        account: null,
+        provider: null,
+        providerName: null,
+    };
     if (
         walletFromCookie &&
         walletFromCookie.account &&
-        walletFromCookie.provider
+        walletFromCookie.providerName
     ) {
-        initialWalletState = walletFromCookie;
-
-        // Create walletconnect session if wallet connect
-        if (
-            initialWalletState.provider === 'walletconnect' &&
-            !wcConnector.connected
-        ) {
-            void wcConnector.createSession();
+        if (walletFromCookie.providerName === 'metamask') {
+            initialWalletState.providerName = walletFromCookie.providerName;
+            initialWalletState.provider = (window as any).ethereum;
         }
+        // } else if (
+        //     // Create walletconnect session if wallet connect
+        //     walletFromCookie.providerName === 'walletconnect' &&
+        //     !wcConnector.connected
+        // ) {
+        //     // TODO inject provider
+        //     void wcConnector.createSession();
+        // }
     } else {
         if (walletFromCookie) {
             console.warn(
@@ -55,20 +61,28 @@ export default function useWallet(): {
             );
         }
 
-        initialWalletState = { account: null, provider: null };
+        initialWalletState = {
+            account: null,
+            providerName: null,
+            provider: null,
+        };
     }
 
-    const [wallet, setWallet] = useState(initialWalletState);
+    const [wallet, setWallet] = useState<Wallet>(initialWalletState);
 
     // Subscribe to updates (do this before calling connection in case we load from cookies)
     if (ethereum) {
         ethereum.on('accountsChanged', (accounts: string[]) => {
             // If we are not currently connected with metamask, then no-op
-            if (wallet.provider !== 'metamask') return;
+            if (wallet.providerName !== 'metamask') return;
 
             const [account] = accounts;
             if (account) {
-                const walletObj = { account, provider: 'metamask' };
+                const walletObj: Wallet = {
+                    account,
+                    providerName: 'metamask',
+                    provider: (window as any).ethereum,
+                };
                 mixpanel.track('wallet', walletObj);
                 setWallet(walletObj);
             } else {
@@ -77,44 +91,22 @@ export default function useWallet(): {
         });
     }
 
-    wcConnector.on('session_update', (error, payload) => {
-        if (error) {
-            throw error;
-        }
-
-        // Get updated accounts and chainId
-        const { accounts } = payload.params[0];
+    wcProvider.on('accountsChanged', (accounts: string[]) => {
         const [account] = accounts;
         if (account) {
-            const walletObj = { account, provider: 'walletconnect' };
+            const walletObj: Wallet = {
+                account,
+                providerName: 'walletconnect',
+                provider: wcProvider,
+            };
             mixpanel.track('wallet', walletObj);
             setWallet(walletObj);
         }
     });
 
-    wcConnector.on('disconnect', (error, payload) => {
-        if (error) {
-            throw error;
-        }
-
-        setWallet({ account: null, provider: null });
+    wcProvider.on('disconnect', () => {
+        setWallet({ account: null, provider: null, providerName: null });
         cookies.remove('current_wallet');
-    });
-
-    // Subscribe to connection events
-    wcConnector.on('connect', (error, payload) => {
-        if (error) {
-            throw error;
-        }
-
-        // Get provided accounts and chainId
-        const { accounts } = payload.params[0];
-        const [account] = accounts;
-        if (account) {
-            const walletObj = { account, provider: 'walletconnect' };
-            mixpanel.track('wallet', walletObj);
-            setWallet(walletObj);
-        }
     });
 
     const connectMetaMask = async () => {
@@ -124,38 +116,43 @@ export default function useWallet(): {
             method: 'eth_requestAccounts',
         });
         const [account] = accounts;
-        const walletObj = { account, provider: 'metamask' };
+        const walletObj: Wallet = {
+            account,
+            providerName: 'metamask',
+            provider: (window as any).ethereum,
+        };
         mixpanel.track('wallet', walletObj);
         setWallet(walletObj);
     };
 
     const connectWalletConnect = async () => {
-        if (!wcConnector.connected) {
-            await wcConnector.createSession();
-        } else {
-            console.warn('Already connected');
-        }
+        await wcProvider.enable();
 
-        // If provider is different, set to the WC wallet
+        // If provider is different, sest to the WC wallet
         if (wallet.provider !== 'walletconnect') {
             setWallet({
-                account: wcConnector.accounts[0],
-                provider: 'walletconnect',
+                account: wcProvider.accounts[0],
+                providerName: 'walletconnect',
+                provider: wcProvider,
             });
         }
     };
 
     const disconnectWallet = () => {
-        setWallet({ account: null, provider: null });
+        setWallet({ account: null, providerName: null, provider: null });
         cookies.remove('current_wallet');
     };
 
     // re-set cookie when wallet state changes
     useEffect(() => {
         if (wallet && wallet.account) {
-            cookies.set('current_wallet', wallet, {
-                expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
-            });
+            cookies.set(
+                'current_wallet',
+                { account: wallet.account, providerName: wallet.providerName },
+                {
+                    expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+                }
+            );
         } else {
             // wallet was un-set, remove cookie
             cookies.remove('current_wallet');

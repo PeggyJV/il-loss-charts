@@ -19,12 +19,12 @@ export interface AllPairsState {
     byLiquidity: UniswapPair[] | null;
 }
 
-export type Provider = 'metamask' | 'walletConnect';
+export type Provider = 'metamask' | 'walletconnect';
 
 export interface Wallet {
-    account: string;
-    providerName: Provider;
-    provider: any;
+    account: string | null;
+    providerName: Provider | null;
+    provider: any | null;
 }
 
 export interface PairPricesState {

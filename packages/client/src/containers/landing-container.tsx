@@ -1,24 +1,35 @@
 import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 
 import { MarketStats } from '@sommelier/shared-types';
-import { TopPairsState } from 'types/states';
+import { TopPairsState, Wallet } from 'types/states';
 import mixpanel from 'util/mixpanel';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
+
+import AddLiquidityModal from 'components/add-liquidity-modal';
 import TopPairsWidget from 'components/top-pairs-widget';
 import TelegramCTA from 'components/telegram-cta';
-
 function LandingContainer({
     topPairs,
+    wallet
 }: {
     topPairs: TopPairsState | null;
+    wallet: Wallet;
 }): JSX.Element {
-    // const [marketData, setMarketData] = useState<MarketStats[] | null>(null);
+    const [showAddLiquidity, setShowAddLiquidity] = useState(false);
+    const [currentError, setError] = useState<string | null>(null);
+    const [currentPair, setCurrentPair] = useState<MarketStats | null>(null);
 
     useEffect(() => {
         mixpanel.track('pageview:landing', {});
     }, []);
+
+    const handleAddLiquidity = (pair: MarketStats) => {
+        setShowAddLiquidity(true);
+        setCurrentPair(pair);
+    };
 
     // (window as any).marketData = marketData;
     (window as any).topPairs = topPairs;
@@ -33,6 +44,12 @@ function LandingContainer({
 
     return (
         <div>
+            <AddLiquidityModal
+                show={showAddLiquidity}
+                setShow={setShowAddLiquidity}
+                wallet={wallet}
+                pair={currentPair}
+            />
             <h3>Top LP Opportunities in the Past 24 Hours</h3>
             {/* <p>
                 <em>
@@ -45,13 +62,21 @@ function LandingContainer({
             </p>
             <p>All calculated returns include Impermanent Loss.</p>
             {topPairs?.daily && (
-                <TopPairsWidget topPairs={topPairs.daily} mode='daily' />
+                <TopPairsWidget
+                    topPairs={topPairs.daily}
+                    mode='daily'
+                    handleAddLiquidity={handleAddLiquidity}
+                />
             )}
             <hr />
             <h3>Top LP Opportunities in the Past 7 Days</h3>
             <p>All calculated returns include Impermanent Loss.</p>
             {topPairs?.weekly && (
-                <TopPairsWidget topPairs={topPairs.weekly} mode='weekly' />
+                <TopPairsWidget
+                    topPairs={topPairs.weekly}
+                    mode='weekly'
+                    handleAddLiquidity={handleAddLiquidity}
+                />
             )}
             <TelegramCTA mode='plural' />
 
@@ -67,5 +92,13 @@ function LandingContainer({
         </div>
     );
 }
+
+LandingContainer.propTypes = {
+    wallet: PropTypes.shape({
+        account: PropTypes.string,
+        providerName: PropTypes.string,
+        provider: PropTypes.object,
+    }).isRequired,
+};
 
 export default LandingContainer;

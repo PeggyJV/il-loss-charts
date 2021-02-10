@@ -47,7 +47,7 @@ function ConnectWalletModal({
                     <Button
                         className='connect-wallet-modal-option'
                         variant='outline-secondary'
-                        disabled={!availableProviders.walletConnect}
+                        disabled={!availableProviders.walletconnect}
                         onClick={connectWalletConnect}
                     >
                         <WalletConnectLogo />
@@ -74,7 +74,8 @@ ConnectWalletModal.propTypes = {
     setShow: PropTypes.func.isRequired,
     wallet: PropTypes.shape({
         account: PropTypes.string,
-        provider: PropTypes.string,
+        providerName: PropTypes.string,
+        provider: PropTypes.object,
     }).isRequired,
     connectMetaMask: PropTypes.func,
     connectWalletConnect: PropTypes.func,
