@@ -153,11 +153,13 @@ export default class UniswapFetcher {
                                 id
                                 name
                                 symbol
+                                decimals
                             }
                             token1 {
                                 id
                                 name
                                 symbol
+                                decimals
                             }
 
                         }
@@ -223,11 +225,13 @@ export default class UniswapFetcher {
                                 id
                                 name
                                 symbol
+                                decimals
                             }
                             token1 {
                                 id
                                 name
                                 symbol
+                                decimals
                             }
 
                         }
@@ -795,10 +799,12 @@ export default class UniswapFetcher {
                                 token0 {
                                     id
                                     symbol
+                                    decimals
                                 }
                                 token1 {
                                     id
                                     symbol
+                                    decimals
                                 }
                             }
                         }

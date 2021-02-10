@@ -154,6 +154,7 @@ export default function useWallet(): {
                 }
             );
         } else {
+            console.log('UNSETTING', wallet);
             // wallet was un-set, remove cookie
             cookies.remove('current_wallet');
         }
