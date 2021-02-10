@@ -2,8 +2,6 @@ import { Button, Card } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
 
-import { LPStats as ILPStats } from '@sommelier/shared-types';
-
 import { AllPairsState, LPInfoState, StatsWindow } from 'types/states';
 import { Pair, DailyData, LPStats } from 'constants/prop-types';
 import USDValueWidget from 'components/usd-value-widget';
@@ -39,7 +37,7 @@ function TotalPoolStats({
     defaultWindow?: StatsWindow;
     setWindow: (window: StatsWindow) => void;
 }): JSX.Element {
-    const dataPeriod = defaultWindow === 'day' ? 'hourly' : 'daily';
+    const dataPeriod = defaultWindow === 'total' ? 'daily' : 'hourly';
     const trailingStats = calculateTimeWindowStats(
         lpInfo,
         dataPeriod,
@@ -71,7 +69,7 @@ function TotalPoolStats({
                 }`}
                 value={stats?.volumeUSD?.toFixed(4)}
                 footnote={
-                    defaultWindow !== 'total' && (
+                    stats?.volumeUSDChange && (
                         <PercentChangeStat
                             value={stats?.volumeUSDChange?.times(100)}
                         />
@@ -86,7 +84,7 @@ function TotalPoolStats({
                 }`}
                 value={stats?.liquidityUSD?.toFixed(4)}
                 footnote={
-                    defaultWindow !== 'total' && (
+                    stats?.liquidityUSDChange && (
                         <PercentChangeStat
                             value={stats?.liquidityUSDChange?.times(100)}
                         />
@@ -100,7 +98,7 @@ function TotalPoolStats({
                 }`}
                 value={stats?.feesUSD?.toFixed(4)}
                 footnote={
-                    defaultWindow !== 'total' && (
+                    stats?.feesUSDChange && (
                         <PercentChangeStat
                             value={stats?.feesUSDChange?.times(100)}
                         />

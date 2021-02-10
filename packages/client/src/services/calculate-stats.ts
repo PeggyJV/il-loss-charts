@@ -179,7 +179,7 @@ export function calculateTimeWindowStats(
     let runningPoolFees: BigNumber[];
     let dailyLiquidity: BigNumber[];
 
-    if (period === 'day') {
+    if (period === 'day' || period === 'week') {
         const lpStats = calculateLPStats({
             hourlyData: lpInfo?.historicalHourlyData,
             startDate: new Date(
@@ -209,15 +209,9 @@ export function calculateTimeWindowStats(
     const numPoints = runningVolume.length;
 
     const lastIndex = numPoints - 1;
-    const periodStartIndex = numPoints - (dailyInterval * windowMultiplier + 1);
+    let periodStartIndex = numPoints - (dailyInterval * windowMultiplier + 1);
     const prevPeriodStartIndex =
         numPoints - (dailyInterval * windowMultiplier * 2 + 1);
-
-    if (periodStartIndex < 0 || prevPeriodStartIndex < 0) {
-        throw new Error(
-            `Stats data of length ${numPoints} not long enough to calculate ${period} data`
-        );
-    }
 
     const totalStats: StatsOverTime = {
         volumeUSD: new BigNumber(lpInfo.pairData.volumeUSD),
@@ -228,6 +222,16 @@ export function calculateTimeWindowStats(
     if (period === 'total') {
         return { totalStats };
     } else {
+        if (periodStartIndex < 0 || prevPeriodStartIndex < 0) {
+            console.warn(
+                `Stats data of length ${numPoints} not long enough to calculate ${period} data`
+            );
+
+            if (periodStartIndex < 0) {
+                periodStartIndex = 0;
+            }
+        }
+
         const lastPeriodStats: StatsOverTime = {
             volumeUSD: runningVolume[lastIndex].minus(
                 runningVolume[periodStartIndex]
@@ -237,6 +241,13 @@ export function calculateTimeWindowStats(
                 runningPoolFees[periodStartIndex]
             ),
         };
+
+        if (prevPeriodStartIndex < 0) {
+            return {
+                totalStats,
+                lastPeriodStats,
+            };
+        }
 
         const prevPeriodStats: StatsOverTime = {
             volumeUSD: runningVolume[periodStartIndex].minus(

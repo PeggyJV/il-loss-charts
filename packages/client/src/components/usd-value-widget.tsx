@@ -4,13 +4,19 @@ import PropTypes from 'prop-types';
 import { formatUSD } from 'util/formats';
 import FadeOnChange from 'components/fade-on-change';
 
-function USDValueWidget({ title, value, footnote, badge }: {
-    title: string,
-    value?: string,
-    footnote?: JSX.Element | false,
-    badge?: string
+function USDValueWidget({
+    title,
+    value,
+    footnote,
+    badge,
+}: {
+    title: string;
+    value?: string;
+    footnote?: JSX.Element | false;
+    badge?: string;
 }): JSX.Element {
-    if (!value) throw new Error('Passed falsy value to USDValueWidget');
+    if (!value)
+        throw new Error(`Passed falsy value to ${title} USDValueWidget`);
 
     const displayValue = formatUSD(value);
 
@@ -24,11 +30,11 @@ function USDValueWidget({ title, value, footnote, badge }: {
                 <Card.Text className='stats-card-body'>
                     <FadeOnChange>{displayValue}</FadeOnChange>
                 </Card.Text>
-                {footnote &&
+                {footnote && (
                     <p className='card-footnote'>
                         <FadeOnChange>{footnote}</FadeOnChange>
                     </p>
-                }
+                )}
             </Card.Body>
         </Card>
     );
@@ -38,7 +44,7 @@ USDValueWidget.propTypes = {
     title: PropTypes.string,
     value: PropTypes.node.isRequired,
     footnote: PropTypes.node,
-    badge: PropTypes.node
+    badge: PropTypes.node,
 };
 
 export default USDValueWidget;
