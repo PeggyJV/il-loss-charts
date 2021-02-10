@@ -34,7 +34,11 @@ class UniswapController {
                 );
         }
 
-        const topPairs = await UniswapFetcher.getTopPairs(count);
+        const topPairs = await UniswapFetcher.getTopPairs(
+            count,
+            'volumeUSD',
+            true
+        );
         return topPairs;
     }
 

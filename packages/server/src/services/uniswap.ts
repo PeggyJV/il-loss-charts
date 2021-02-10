@@ -28,6 +28,10 @@ interface ApolloResponse<T> {
 interface LiquidityPositionPairMapping {
     [pairId: string]: UniswapLiquidityPositionAtTime[];
 }
+
+const UNTRACKED_PAIRS = [
+    '0xe1573b9d29e2183b1af0e743dc2754979a40d237', // FXS/FRAX
+];
 export default class UniswapFetcher {
     static FEE_RATIO = 0.003;
 
@@ -86,6 +90,7 @@ export default class UniswapFetcher {
                             token0Price
                             token1Price
                             volumeUSD
+                            untrackedVolumeUSD
                             txCount
                             createdAtTimestamp
                         }
@@ -114,7 +119,8 @@ export default class UniswapFetcher {
 
     static async getTopPairs(
         count = 1000,
-        orderBy = 'volumeUSD'
+        orderBy = 'volumeUSD',
+        includeUntracked = false
     ): Promise<UniswapPair[]> {
         const response: ApolloResponse<{
             pairs: UniswapPair[];
@@ -151,7 +157,28 @@ export default class UniswapFetcher {
             );
         }
 
-        return pairs;
+        if (!includeUntracked) {
+            return pairs;
+        }
+
+        // fetch overview for each tracked pair
+        // move untrackedVolumeUSD to volumeUSD field
+        // add to end of list and re-sort
+        const untrackedPairRequests = UNTRACKED_PAIRS.map(async (pairId) => {
+            const pairData = await UniswapFetcher.getPairOverview(pairId);
+
+            if (pairData.untrackedVolumeUSD) {
+                pairData.volumeUSD = pairData.untrackedVolumeUSD;
+            }
+            return pairData;
+        });
+
+        const untrackedPairs = await Promise.all(untrackedPairRequests);
+        const pairsWithUntracked = pairs.concat(...untrackedPairs);
+
+        return pairsWithUntracked.sort(
+            (a, b) => parseFloat(b.volumeUSD) - parseFloat(a.volumeUSD)
+        );
     }
 
     static async getCurrentTopPerformingPairs(

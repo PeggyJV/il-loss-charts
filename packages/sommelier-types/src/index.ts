@@ -26,6 +26,7 @@ export interface UniswapPair extends LiquidityData {
     trackedReserveETH: string;
     txCount: string;
     volumeUSD: string;
+    untrackedVolumeUSD?: string;
     feesUSD?: string;
 }
 
