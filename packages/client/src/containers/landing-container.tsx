@@ -27,8 +27,8 @@ function LandingContainer({
     }, []);
 
     const handleAddLiquidity = (pair: MarketStats) => {
-        setShowAddLiquidity(true);
         setCurrentPair(pair);
+        setShowAddLiquidity(true);
     };
 
     // (window as any).marketData = marketData;

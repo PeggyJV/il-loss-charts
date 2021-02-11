@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
+    Row,
+    Col,
+    Card,
     Button,
     DropdownButton,
     Dropdown,
@@ -11,6 +14,7 @@ import {
 } from 'react-bootstrap';
 
 import { ethers } from 'ethers';
+import BigNumber from 'bignumber.js';
 
 import erc20Abi from 'constants/abis/erc20.json';
 
@@ -18,6 +22,8 @@ import { Token, MarketStats, UniswapPair } from '@sommelier/shared-types';
 import { Wallet } from 'types/states';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
+
+import { resolveLogo } from 'components/token-with-logo';
 
 function AddLiquidityModal({
     show,
@@ -40,6 +46,7 @@ function AddLiquidityModal({
     }>({});
     const [entryToken, setEntryToken] = useState<string>('ETH');
     const [entryAmount, setEntryAmount] = useState<number>(0);
+    const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
     const [pairData, setPairData] = useState<UniswapPair | null>(null);
 
     let provider: ethers.providers.Web3Provider | null = null;
@@ -95,8 +102,9 @@ function AddLiquidityModal({
             }));
         };
 
+        console.log('GETTING BALANCES', wallet.account);
         void getBalances();
-    }, [wallet]);
+    }, [wallet, show]);
 
     useEffect(() => {
         const fetchPairData = async () => {
@@ -139,38 +147,46 @@ function AddLiquidityModal({
     }
 
     const maxBalance = balances[entryToken]?.balance;
+    const maxBalanceStr = ethers.utils.formatUnits(
+        maxBalance || 0,
+        parseInt(balances[entryToken]?.decimals || '0', 10)
+    );
+
     let expectedToken0: string;
     let expectedToken1: string;
 
     // Calculate expected LP shares
+    (window as any).balances = balances;
     (window as any).pairData = pairData;
-    s;
-    if (!maxBalance || !pairData) return null;
+    (window as any).ethers = ethers;
 
-    if (entryToken === 'ETH') {
-        const amt = ethers.BigNumber.from(entryAmount);
-        const pctShare = amt.div(pairData.trackedReserveETH);
-
-        const token0Amt = pctShare.mul(pairData.reserve0);
-        const token0Symbol = pairData.token0.symbol as string;
-        expectedToken0 = ethers.utils.formatUnits(
-            token0Amt,
-            parseInt(balances[token0Symbol].decimals as string, 10)
-        );
-
-        const token1Amt = pctShare.mul(pairData.reserve1);
-        const token1Symbol = pairData.token1.symbol as string;
-        expectedToken1 = ethers.utils.formatUnits(
-            token1Amt,
-            parseInt(balances[token1Symbol].decimals as string, 10)
-        );
+    if (!maxBalance || !pairData) {
+        return null;
     }
 
-    // } else if (entryToken === pairData.token0.symbol) {
+    if (entryToken === 'ETH') {
+        const amt = new BigNumber(entryAmount);
+        const pctShare = amt.div(pairData.trackedReserveETH);
 
-    // } else if (entryToken === pairData.token1.symbol) {
+        expectedToken0 = pctShare.times(pairData.reserve0).toFixed(4);
+        expectedToken1 = pctShare.times(pairData.reserve1).toFixed(4);
+    } else if (entryToken === pairData.token0.symbol) {
+        const amt = new BigNumber(entryAmount);
+        // Half of the value will go to the other token
+        const pctShare = amt.div(2).div(pairData.reserve0);
 
-    // }
+        expectedToken0 = pctShare.times(pairData.reserve0).toFixed(4);
+        expectedToken1 = pctShare.times(pairData.reserve1).toFixed(4);
+    } else if (entryToken === pairData.token1.symbol) {
+        const amt = new BigNumber(entryAmount);
+        // Half of the value will go to the other token
+        const pctShare = amt.div(2).div(pairData.reserve1);
+
+        expectedToken0 = pctShare.times(pairData.reserve0).toFixed(4);
+        expectedToken1 = pctShare.times(pairData.reserve1).toFixed(4);
+    } else {
+        throw new Error('Entry token does not belong to pair');
+    }
 
     return (
         <Modal show={show} onHide={handleClose}>
@@ -180,14 +196,7 @@ function AddLiquidityModal({
             <Modal.Body className='connect-wallet-modal'>
                 <Form.Group>
                     <Form.Label>
-                        <strong>Available {entryToken}:</strong>{' '}
-                        {ethers.utils.formatUnits(
-                            maxBalance || 0,
-                            parseInt(
-                                balances[entryToken].decimals as string,
-                                10
-                            )
-                        )}
+                        <strong>Available {entryToken}:</strong> {maxBalanceStr}
                     </Form.Label>
                     <InputGroup>
                         <FormControl
@@ -216,12 +225,62 @@ function AddLiquidityModal({
                         </DropdownButton>
                     </InputGroup>
                 </Form.Group>
-                {/* 
-                    // show insufficient funds
-                 */}
+                <Card body>
+                    <p>
+                        <strong>Expected Pool Shares</strong>
+                    </p>
+                    <p>
+                        {resolveLogo(pair.token0.id)}{' '}
+                        {expectedToken0 !== 'NaN' ? expectedToken0 : 0}{' '}
+                        {pair.token0.symbol}
+                    </p>
+                    <p>
+                        {resolveLogo(pair.token1.id)}{' '}
+                        {expectedToken1 !== 'NaN' ? expectedToken1 : 0}{' '}
+                        {pair.token1.symbol}
+                    </p>
+                </Card>
+                <br />
+                <Card body>
+                    <p>
+                        <strong>Transaction Settings</strong>
+                    </p>
+                    <Form.Group as={Row}>
+                        <Form.Label column sm={6}>
+                            Slippage Tolerance:
+                        </Form.Label>
+                        <Col sm={2}></Col>
+                        <Col sm={4}>
+                            <InputGroup>
+                                <FormControl
+                                    className='slippage-tolerance-input'
+                                    value={slippageTolerance}
+                                    type='number'
+                                    onChange={(e) => {
+                                        setSlippageTolerance(
+                                            parseFloat(e.target.value)
+                                        );
+                                    }}
+                                />
+                                <InputGroup.Append>
+                                    <InputGroup.Text>%</InputGroup.Text>
+                                </InputGroup.Append>
+                            </InputGroup>
+                        </Col>
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Label>Transaction Speed:</Form.Label>
+                    </Form.Group>
+                </Card>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant='success'>Confirm</Button>
+                {new BigNumber(entryAmount).lte(maxBalanceStr) ? (
+                    <Button variant='success'>Confirm</Button>
+                ) : (
+                    <Button variant='secondary' disabled>
+                        Insufficient Funds
+                    </Button>
+                )}
             </Modal.Footer>
         </Modal>
     );

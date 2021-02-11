@@ -43,6 +43,7 @@ export default function useWallet(): {
         walletFromCookie.providerName
     ) {
         if (walletFromCookie.providerName === 'metamask') {
+            initialWalletState.account = walletFromCookie.account;
             initialWalletState.providerName = walletFromCookie.providerName;
             initialWalletState.provider = (window as any).ethereum;
         }
@@ -154,7 +155,6 @@ export default function useWallet(): {
                 }
             );
         } else {
-            console.log('UNSETTING', wallet);
             // wallet was un-set, remove cookie
             cookies.remove('current_wallet');
         }
