@@ -110,6 +110,9 @@ export default class UniswapFetcher {
             throw new HTTPError(404);
         }
 
+        pair.volumeUSD = new BigNumber(pair.volumeUSD)
+            .plus(pair.untrackedVolumeUSD || 0)
+            .toString();
         const feesUSD = new BigNumber(pair.volumeUSD, 10)
             .times(UniswapFetcher.FEE_RATIO)
             .toString();
