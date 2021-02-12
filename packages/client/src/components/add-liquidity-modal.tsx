@@ -28,6 +28,7 @@ import {
 import { Wallet } from 'types/states';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
+import { get0xSwapQuote } from 'services/api-0x';
 
 import { resolveLogo } from 'components/token-with-logo';
 
@@ -190,6 +191,36 @@ function AddLiquidityModal({
             </Modal>
         );
     }
+
+    const doAddLiquidity = async () => {
+        const expectedLpTokensNum = new BigNumber(expectedLpTokens);
+        const slippageRatio = new BigNumber(slippageTolerance).div(100);
+        const minPoolTokens = expectedLpTokensNum.minus(
+            expectedLpTokensNum.times(slippageRatio)
+        );
+
+        let sellToken = entryToken;
+        let buyToken: string;
+        const symbol0 = pairData.token0.symbol;
+        const symbol1 = pairData.token1.symbol;
+
+        if (entryToken === symbol0 && symbol0 !== 'WETH') {
+            sellToken = pairData.token0.id;
+            buyToken = 'ETH';
+        } else if (entryToken === symbol1 && symbol1 !== 'WETH') {
+            sellToken = pairData.token1.id;
+            buyToken = 'ETH';
+        } else {
+            // we are selling ETH or WETH
+            if (symbol0 === 'WETH') {
+                buyToken = symbol1;
+            } else if (symbol) {
+                buyToken = symbol1;
+            }
+        }
+
+        const quote = await get0xSwapQuote();
+    };
 
     const maxBalance = balances[entryToken]?.balance;
     const maxBalanceStr = ethers.utils.formatUnits(
@@ -399,7 +430,9 @@ function AddLiquidityModal({
                 )}
                 {new BigNumber(entryAmount).lte(maxBalanceStr) &&
                     new BigNumber(entryAmount).gt(0) && (
-                        <Button variant='success'>Confirm</Button>
+                        <Button variant='success' onClick={doAddLiquidity}>
+                            Confirm
+                        </Button>
                     )}
             </Modal.Footer>
         </Modal>
