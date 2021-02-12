@@ -63,13 +63,14 @@ export default class WsMessageHandler {
             );
         }
 
-        if (interval && typeof interval === 'string') {
+        if (interval && interval === 'blocks') {
             // Interval is a number
             topics.forEach((topic) => {
                 const isValid = this.validateTopic(topic);
                 if (isValid) this.subscribeOnNewBlocks(topic);
             });
         } else {
+            // TODO: get interval to work
             // Interval is a number
             topics.forEach((topic) => {
                 const isValid = this.validateTopic(topic);
@@ -172,7 +173,7 @@ export default class WsMessageHandler {
         const [source, query, args] = tokenizeTopic(topic);
 
         // We assume token is valid
-        if (source === 'uniswap') {
+        if (source === 'uniswap' || source === 'ethGas') {
             pollingUtil.subscribe(topic, interval).on('data', (data: unknown) =>
                 this.sendJSON({
                     topic,

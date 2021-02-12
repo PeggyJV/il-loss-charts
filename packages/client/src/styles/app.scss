@@ -414,6 +414,17 @@ body {
     margin-bottom: 0.3rem;
 }
 
+.current-lp-tokens {
+    opacity: 0.7;
+    font-size: 0.75em;
+}
+
+.transaction-speed-input {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .rw-popup-container.rw-calendar-popup {
     left: initial;
 }

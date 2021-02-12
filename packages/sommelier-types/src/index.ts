@@ -26,7 +26,8 @@ export interface UniswapPair extends LiquidityData {
     trackedReserveETH: string;
     txCount: string;
     volumeUSD: string;
-    untrackedVolumeUSD?: string;
+    untrackedVolumeUSD: string;
+    totalSupply: string;
     feesUSD?: string;
 }
 
@@ -134,4 +135,11 @@ export interface LPPositionData<T = BigNumber> {
             statsWindows: LPStats<T>[];
         };
     };
+}
+
+export interface EthGasPrices {
+    safeLow: number;
+    standard: number;
+    fast: number;
+    fastest: number;
 }

@@ -63,3 +63,8 @@ export interface TopPairsState {
 export interface PrefetchedPairState {
     [pairId: string]: PairDataState;
 }
+export interface GasPrices {
+    standard: number;
+    fast: number;
+    faster: number;
+}

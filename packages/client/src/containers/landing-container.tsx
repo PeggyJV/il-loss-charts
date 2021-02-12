@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
-import { MarketStats } from '@sommelier/shared-types';
+import { MarketStats, EthGasPrices } from '@sommelier/shared-types';
 import { TopPairsState, Wallet } from 'types/states';
+
 import mixpanel from 'util/mixpanel';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
@@ -13,13 +14,14 @@ import TopPairsWidget from 'components/top-pairs-widget';
 import TelegramCTA from 'components/telegram-cta';
 function LandingContainer({
     topPairs,
-    wallet
+    wallet,
+    gasPrices
 }: {
     topPairs: TopPairsState | null;
     wallet: Wallet;
+    gasPrices: EthGasPrices | null;
 }): JSX.Element {
     const [showAddLiquidity, setShowAddLiquidity] = useState(false);
-    const [currentError, setError] = useState<string | null>(null);
     const [currentPair, setCurrentPair] = useState<MarketStats | null>(null);
 
     useEffect(() => {
@@ -49,6 +51,7 @@ function LandingContainer({
                 setShow={setShowAddLiquidity}
                 wallet={wallet}
                 pair={currentPair}
+                gasPrices={gasPrices}
             />
             <h3>Top LP Opportunities in the Past 24 Hours</h3>
             {/* <p>

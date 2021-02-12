@@ -4,6 +4,7 @@ import {
     Row,
     Col,
     Card,
+    ButtonGroup,
     Button,
     DropdownButton,
     Dropdown,
@@ -18,7 +19,12 @@ import BigNumber from 'bignumber.js';
 
 import erc20Abi from 'constants/abis/erc20.json';
 
-import { Token, MarketStats, UniswapPair } from '@sommelier/shared-types';
+import {
+    EthGasPrices,
+    LPPositionData,
+    MarketStats,
+    UniswapPair,
+} from '@sommelier/shared-types';
 import { Wallet } from 'types/states';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
@@ -30,11 +36,13 @@ function AddLiquidityModal({
     setShow,
     wallet,
     pair,
+    gasPrices,
 }: {
     wallet: Wallet;
     show: boolean;
     setShow: (show: boolean) => void;
     pair: MarketStats | null;
+    gasPrices: EthGasPrices | null;
 }): JSX.Element | null {
     const handleClose = () => setShow(false);
     const [balances, setBalances] = useState<{
@@ -48,6 +56,13 @@ function AddLiquidityModal({
     const [entryAmount, setEntryAmount] = useState<number>(0);
     const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
     const [pairData, setPairData] = useState<UniswapPair | null>(null);
+    const [
+        positionData,
+        setPositionData,
+    ] = useState<LPPositionData<string> | null>(null);
+    const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
+        gasPrices?.standard
+    );
 
     let provider: ethers.providers.Web3Provider | null = null;
 
@@ -102,7 +117,6 @@ function AddLiquidityModal({
             }));
         };
 
-        console.log('GETTING BALANCES', wallet.account);
         void getBalances();
     }, [wallet, show]);
 
@@ -133,6 +147,37 @@ function AddLiquidityModal({
     }, [pair]);
 
     useEffect(() => {
+        const fetchPositionsForWallet = async () => {
+            if (!wallet.account) return;
+
+            const {
+                data: positionData,
+                error,
+            } = await Uniswap.getPositionStats(wallet.account);
+
+            if (error) {
+                // we could not list pairs
+                console.warn(`Could not get position stats: ${error.message}`);
+                return;
+            }
+
+            if (positionData) {
+                setPositionData(positionData);
+            }
+
+            // mixpanel.track('positions:query', {
+            //     address: wallet.account,
+            // });
+        };
+
+        if (wallet.account) {
+            void fetchPositionsForWallet();
+        }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [wallet.account]);
+
+    useEffect(() => {
         setEntryAmount(0);
     }, [entryToken]);
 
@@ -154,14 +199,31 @@ function AddLiquidityModal({
 
     let expectedToken0: string;
     let expectedToken1: string;
+    let currentLpTokens: string | null = null;
+    let expectedLpTokens: string;
 
     // Calculate expected LP shares
     (window as any).balances = balances;
     (window as any).pairData = pairData;
+    (window as any).positionData = positionData;
     (window as any).ethers = ethers;
+    (window as any).gasPrices = gasPrices;
 
     if (!maxBalance || !pairData) {
         return null;
+    }
+
+    if (positionData) {
+        const pairPosition = positionData.positions[pairData.id];
+
+        if (!pairPosition) {
+            currentLpTokens = new BigNumber(0).toFixed(4);
+        } else {
+            const lastPosition = pairPosition[pairPosition.length - 1];
+            currentLpTokens = new BigNumber(
+                lastPosition.liquidityTokenBalance
+            ).toFixed(4);
+        }
     }
 
     if (entryToken === 'ETH') {
@@ -170,6 +232,7 @@ function AddLiquidityModal({
 
         expectedToken0 = pctShare.times(pairData.reserve0).toFixed(4);
         expectedToken1 = pctShare.times(pairData.reserve1).toFixed(4);
+        expectedLpTokens = pctShare.times(pairData.totalSupply).toFixed(4);
     } else if (entryToken === pairData.token0.symbol) {
         const amt = new BigNumber(entryAmount);
         // Half of the value will go to the other token
@@ -177,6 +240,7 @@ function AddLiquidityModal({
 
         expectedToken0 = pctShare.times(pairData.reserve0).toFixed(4);
         expectedToken1 = pctShare.times(pairData.reserve1).toFixed(4);
+        expectedLpTokens = pctShare.times(pairData.totalSupply).toFixed(4);
     } else if (entryToken === pairData.token1.symbol) {
         const amt = new BigNumber(entryAmount);
         // Half of the value will go to the other token
@@ -184,6 +248,7 @@ function AddLiquidityModal({
 
         expectedToken0 = pctShare.times(pairData.reserve0).toFixed(4);
         expectedToken1 = pctShare.times(pairData.reserve1).toFixed(4);
+        expectedLpTokens = pctShare.times(pairData.totalSupply).toFixed(4);
     } else {
         throw new Error('Entry token does not belong to pair');
     }
@@ -239,6 +304,16 @@ function AddLiquidityModal({
                         {expectedToken1 !== 'NaN' ? expectedToken1 : 0}{' '}
                         {pair.token1.symbol}
                     </p>
+                    <p>
+                        {expectedLpTokens !== 'NaN' ? expectedLpTokens : 0} LP
+                        Tokens
+                        {currentLpTokens && (
+                            <span className='current-lp-tokens'>
+                                {' '}
+                                ({currentLpTokens} Current)
+                            </span>
+                        )}
+                    </p>
                 </Card>
                 <br />
                 <Card body>
@@ -268,19 +343,64 @@ function AddLiquidityModal({
                             </InputGroup>
                         </Col>
                     </Form.Group>
-                    <Form.Group>
-                        <Form.Label>Transaction Speed:</Form.Label>
-                    </Form.Group>
+                    {gasPrices && (
+                        <Form.Group className='transaction-speed-input'>
+                            <Form.Label>Transaction Speed:</Form.Label>
+                            <ButtonGroup>
+                                <Button
+                                    variant='outline-dark'
+                                    size='sm'
+                                    active={
+                                        currentGasPrice === gasPrices.standard
+                                    }
+                                    onClick={() =>
+                                        setCurrentGasPrice(gasPrices.standard)
+                                    }
+                                >
+                                    Standard <br />({gasPrices.standard} Gwei)
+                                </Button>
+                                <Button
+                                    variant='outline-dark'
+                                    size='sm'
+                                    active={currentGasPrice === gasPrices.fast}
+                                    onClick={() =>
+                                        setCurrentGasPrice(gasPrices.fast)
+                                    }
+                                >
+                                    Fast <br />({gasPrices.fast} Gwei)
+                                </Button>
+                                <Button
+                                    variant='outline-dark'
+                                    size='sm'
+                                    active={
+                                        currentGasPrice === gasPrices.fastest
+                                    }
+                                    onClick={() =>
+                                        setCurrentGasPrice(gasPrices.fastest)
+                                    }
+                                >
+                                    Fastest <br />({gasPrices.fastest} Gwei)
+                                </Button>
+                            </ButtonGroup>
+                        </Form.Group>
+                    )}
                 </Card>
             </Modal.Body>
             <Modal.Footer>
-                {new BigNumber(entryAmount).lte(maxBalanceStr) ? (
-                    <Button variant='success'>Confirm</Button>
-                ) : (
+                {new BigNumber(entryAmount).lte(0) && (
+                    <Button variant='secondary' disabled>
+                        Enter Amount
+                    </Button>
+                )}
+                {new BigNumber(entryAmount).gte(maxBalanceStr) && (
                     <Button variant='secondary' disabled>
                         Insufficient Funds
                     </Button>
                 )}
+                {new BigNumber(entryAmount).lte(maxBalanceStr) &&
+                    new BigNumber(entryAmount).gt(0) && (
+                        <Button variant='success'>Confirm</Button>
+                    )}
             </Modal.Footer>
         </Modal>
     );

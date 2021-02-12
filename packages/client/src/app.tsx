@@ -3,9 +3,12 @@ import 'react-widgets/dist/css/react-widgets.css';
 import 'styles/app.scss';
 
 import { useState, useEffect, ReactElement } from 'react';
-
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
+import useWebSocket from 'react-use-websocket';
+
+import config from 'config';
+import { EthGasPrices } from '@sommelier/shared-types';
 
 import LandingContainer from 'containers/landing-container';
 import MarketContainer from 'containers/market-container';
@@ -38,6 +41,7 @@ function App(): ReactElement {
     const [marketData, setMarketData] = useState<MarketStats[] | null>(null);
     const [topPairs, setTopPairs] = useState<TopPairsState | null>(null);
     const [currentError, setError] = useState<string | null>(null);
+    const [gasPrices, setGasPrices] = useState<EthGasPrices | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
     const useWalletProps = useWallet();
     const [prefetchedPairs, setPairsToFetch] = usePrefetch(null);
@@ -157,6 +161,29 @@ function App(): ReactElement {
         void fetchMarketData();
     }, []);
 
+    const { sendJsonMessage, lastJsonMessage } = useWebSocket(config.wsApi);
+
+    // Handle websocket message
+    // Ignore if we have an error
+    useEffect(() => {
+        if (!lastJsonMessage) return;
+
+        const { topic } = lastJsonMessage;
+
+        if (topic.startsWith('ethGas:getGasPrices')) {
+            const { data: gasPrices }: { data: EthGasPrices } = lastJsonMessage;
+            setGasPrices(gasPrices);
+        }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [lastJsonMessage]);
+
+    //    Subscribe to gas prices on first render
+    useEffect(() => {
+        sendJsonMessage({ op: 'subscribe', topics: ['ethGas:getGasPrices'] });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     return (
         <Router>
             <div className='app' id='app-wrap'>
@@ -193,7 +220,11 @@ function App(): ReactElement {
                                     <SearchContainer allPairs={allPairs} />
                                 </Route>
                                 <Route path='/'>
-                                    <LandingContainer topPairs={topPairs} wallet={useWalletProps.wallet} />
+                                    <LandingContainer 
+                                        topPairs={topPairs} 
+                                        wallet={useWalletProps.wallet} 
+                                        gasPrices={gasPrices}
+                                    />
                                 </Route>
                             </Switch>
                         </>

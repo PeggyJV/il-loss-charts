@@ -64,7 +64,7 @@ class PollingUtil extends EventEmitter {
         const topicEmitter = new EventEmitter();
 
         // Assume args are comma-delimited
-        const argsArr = args.split(',');
+        const argsArr = (args || '').split(',');
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const interval: NodeJS.Timeout = <any>setInterval(() => {
