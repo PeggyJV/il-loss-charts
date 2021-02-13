@@ -17,6 +17,7 @@ COPY . /app/
 
 ENV GENERATE_SOURCEMAP=false
 
+# Run separately to take advantage of caching when only one package is changed
 WORKDIR /app/packages/sommelier-types
 RUN yarn build
 WORKDIR /app/packages/server

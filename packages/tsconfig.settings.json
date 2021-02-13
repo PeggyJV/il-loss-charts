@@ -2,6 +2,9 @@
     "compileOnSave": false,
     "compilerOptions": {
         "target": "ESNext",
+        "lib": [
+            "esnext"
+        ],
         "module": "commonjs",
         "strict": true,
         "skipLibCheck": true,

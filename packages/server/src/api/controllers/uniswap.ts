@@ -4,11 +4,7 @@ import { Request } from 'express';
 import cacheMiddleware from 'api/middlewares/cache';
 
 import UniswapFetcher from 'services/uniswap';
-import {
-    UniswapDailyData,
-    UniswapHourlyData,
-    UniswapPair,
-} from '@sommelier/shared-types';
+import { UniswapPair } from '@sommelier/shared-types';
 import { HTTPError } from 'api/util/errors';
 import wrapRequest from 'api/util/wrap-request';
 import { isValidEthAddress } from 'util/eth';
@@ -18,9 +14,22 @@ import {
     calculateStatsForPositions,
 } from 'util/calculate-stats';
 
+import redis from 'util/redis';
+import { wrapWithCache } from 'util/redis-data-cache';
+
 // TODO - error handling for e.g. eth address that does not match a pair
 
 // Controllers should parse query/body, validate params, and pass to service to do the work.
+
+const getTopPairs = wrapWithCache(redis, UniswapFetcher.getTopPairs, 300, true);
+const getCurrentTopPerformingPairs = wrapWithCache(
+    redis,
+    UniswapFetcher.getCurrentTopPerformingPairs,
+    300,
+    true
+);
+const getEthPrice = wrapWithCache(redis, UniswapFetcher.getEthPrice, 30, true);
+
 class UniswapController {
     static async getTopPairs(req: Request) {
         let count: number | undefined;
@@ -34,7 +43,7 @@ class UniswapController {
                 );
         }
 
-        const topPairs = await UniswapFetcher.getTopPairs(
+        const topPairs: UniswapPair[] = await getTopPairs(
             count,
             'volumeUSD',
             true
@@ -63,7 +72,7 @@ class UniswapController {
 
         // Get 25 top pairs
         // TODO: make this changeable by query
-        const topPairs = await UniswapFetcher.getCurrentTopPerformingPairs(
+        const topPairs: UniswapPair[] = await getCurrentTopPerformingPairs(
             count
         );
 
@@ -128,7 +137,7 @@ class UniswapController {
 
         // Get 25 top pairs
         // TODO: make this changeable by query
-        const topPairs = await UniswapFetcher.getCurrentTopPerformingPairs(
+        const topPairs: UniswapPair[] = await getCurrentTopPerformingPairs(
             count
         );
 
@@ -315,7 +324,7 @@ class UniswapController {
 
         // Get 25 top pairs
         // TODO: make this changeable by query
-        const topPairs = await UniswapFetcher.getTopPairs(100, 'volumeUSD');
+        const topPairs = await getTopPairs(100, 'volumeUSD');
         const pairsByVol = topPairs.slice(0, 40);
 
         // TODO: Save requests by only fetching first and last day
@@ -399,7 +408,7 @@ class UniswapController {
     }
 
     static async getEthPrice() {
-        const ethPrice = await UniswapFetcher.getEthPrice();
+        const ethPrice: { ethPrice: number } = await getEthPrice();
         return ethPrice;
     }
 
@@ -432,52 +441,89 @@ class UniswapController {
     }
 }
 
+// export default express
+//     .Router()
+//     .get('/ethPrice', wrapRequest(UniswapController.getEthPrice))
+//     .get(
+//         '/market',
+//         cacheMiddleware(3600),
+//         wrapRequest(UniswapController.getMarketStats)
+//     )
+//     .get(
+//         '/pairs',
+//         cacheMiddleware(300),
+//         wrapRequest(UniswapController.getTopPairs)
+//     )
+//     .get(
+//         '/pairs/performance/daily',
+//         cacheMiddleware(300),
+//         wrapRequest(UniswapController.getDailyTopPerformingPairs)
+//     )
+//     .get(
+//         '/pairs/performance/weekly',
+//         cacheMiddleware(300),
+//         wrapRequest(UniswapController.getWeeklyTopPerformingPairs)
+//     )
+//     .get(
+//         '/pairs/:id',
+//         cacheMiddleware(15),
+//         wrapRequest(UniswapController.getPairOverview)
+//     )
+//     .get(
+//         '/pairs/:id/swaps',
+//         cacheMiddleware(15),
+//         wrapRequest(UniswapController.getSwapsForPair)
+//     )
+//     .get(
+//         '/pairs/:id/addremove',
+//         cacheMiddleware(15),
+//         wrapRequest(UniswapController.getMintsAndBurnsForPair)
+//     )
+//     .get(
+//         '/pairs/:id/historical/daily',
+//         cacheMiddleware(3600),
+//         wrapRequest(UniswapController.getHistoricalDailyData)
+//     )
+//     .get(
+//         '/pairs/:id/historical/hourly',
+//         cacheMiddleware(1800),
+//         wrapRequest(UniswapController.getHistoricalHourlyData)
+//     )
+//     .get('/pairs/:id/stats', wrapRequest(UniswapController.getPairStats))
+//     .get(
+//         '/positions/:address',
+//         wrapRequest(UniswapController.getLiquidityPositions)
+//     )
+//     .get(
+//         '/positions/:address/stats',
+//         wrapRequest(UniswapController.getLiquidityPositionStats)
+//     );
+
 export default express
     .Router()
     .get('/ethPrice', wrapRequest(UniswapController.getEthPrice))
-    .get(
-        '/market',
-        cacheMiddleware(3600),
-        wrapRequest(UniswapController.getMarketStats)
-    )
-    .get(
-        '/pairs',
-        cacheMiddleware(300),
-        wrapRequest(UniswapController.getTopPairs)
-    )
+    .get('/market', wrapRequest(UniswapController.getMarketStats))
+    .get('/pairs', wrapRequest(UniswapController.getTopPairs))
     .get(
         '/pairs/performance/daily',
-        cacheMiddleware(300),
         wrapRequest(UniswapController.getDailyTopPerformingPairs)
     )
     .get(
         '/pairs/performance/weekly',
-        cacheMiddleware(300),
         wrapRequest(UniswapController.getWeeklyTopPerformingPairs)
     )
-    .get(
-        '/pairs/:id',
-        cacheMiddleware(15),
-        wrapRequest(UniswapController.getPairOverview)
-    )
-    .get(
-        '/pairs/:id/swaps',
-        cacheMiddleware(15),
-        wrapRequest(UniswapController.getSwapsForPair)
-    )
+    .get('/pairs/:id', wrapRequest(UniswapController.getPairOverview))
+    .get('/pairs/:id/swaps', wrapRequest(UniswapController.getSwapsForPair))
     .get(
         '/pairs/:id/addremove',
-        cacheMiddleware(15),
         wrapRequest(UniswapController.getMintsAndBurnsForPair)
     )
     .get(
         '/pairs/:id/historical/daily',
-        cacheMiddleware(3600),
         wrapRequest(UniswapController.getHistoricalDailyData)
     )
     .get(
         '/pairs/:id/historical/hourly',
-        cacheMiddleware(1800),
         wrapRequest(UniswapController.getHistoricalHourlyData)
     )
     .get('/pairs/:id/stats', wrapRequest(UniswapController.getPairStats))

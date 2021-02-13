@@ -19,6 +19,8 @@ import {
 import { HTTPError } from 'api/util/errors';
 
 import EthBlockFetcher from 'services/eth-blocks';
+import redis from 'util/redis';
+import { wrapWithCache } from 'util/redis-data-cache';
 
 interface ApolloResponse<T> {
     data: T;
@@ -32,6 +34,14 @@ interface LiquidityPositionPairMapping {
 const UNTRACKED_PAIRS = [
     '0xe1573b9d29e2183b1af0e743dc2754979a40d237', // FXS/FRAX
 ];
+
+const getFirstBlockAfter = wrapWithCache(
+    redis,
+    EthBlockFetcher.getFirstBlockAfter,
+    10000,
+    false
+);
+
 export default class UniswapFetcher {
     static FEE_RATIO = 0.003;
 
@@ -119,6 +129,13 @@ export default class UniswapFetcher {
 
         return { ...pair, feesUSD };
     }
+
+    static cachedGetPairOverview = wrapWithCache(
+        redis,
+        UniswapFetcher.getPairOverview,
+        10000,
+        false
+    );
 
     static async getTopPairs(
         count = 1000,
@@ -240,17 +257,19 @@ export default class UniswapFetcher {
         fetchPartial = true
     ): Promise<UniswapPair[]> {
         const blockDatas = await Promise.all([
-            EthBlockFetcher.getFirstBlockAfter(startDate),
+            getFirstBlockAfter(startDate),
             EthBlockFetcher.getLastBlockBefore(endDate),
         ]);
 
-        const pairDataP = blockDatas.map((block) =>
-            UniswapFetcher.getPairOverview(pairId, block.number).catch(
-                (err) => {
+        const pairDataP = blockDatas.map(
+            (block) =>
+                <Promise<UniswapPair>>UniswapFetcher.cachedGetPairOverview(
+                    pairId,
+                    block.number
+                ).catch((err: HTTPError) => {
                     if (err.status === 404) return null;
                     else throw err;
-                }
-            )
+                })
         );
 
         const pairDatas = await Promise.all(pairDataP);
@@ -268,13 +287,13 @@ export default class UniswapFetcher {
             const pairStartBlock = await EthBlockFetcher.getFirstBlockAfter(
                 pairStartDate
             );
-            pairDatas[0] = await UniswapFetcher.getPairOverview(
+            pairDatas[0] = await UniswapFetcher.cachedGetPairOverview(
                 pairId,
                 pairStartBlock.number
             );
         }
 
-        return pairDatas as UniswapPair[];
+        return pairDatas;
     }
 
     static async _get100DaysHistoricalDailyData(

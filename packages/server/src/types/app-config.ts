@@ -1,5 +1,7 @@
 export type Environments = 'production' | 'development' | 'test' | 'staging';
 
 export default interface AppConfig {
-    wsApi: string;
+    redisHost: string;
+    redisPort: number;
+    redisUser: string;
 }
