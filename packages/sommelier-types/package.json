@@ -14,7 +14,7 @@
     "scripts": {
         "lint": "eslint src --ext js,ts",
         "clean": "rimraf dist *.tsbuildinfo",
-        "build": "ttsc"
+        "build": "tsc"
     },
     "keywords": [],
     "author": "",

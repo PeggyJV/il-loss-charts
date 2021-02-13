@@ -2,13 +2,16 @@
     "files": [],
     "references": [
         {
-            "path": "server"
+            "path": "@sommelier/app"
         },
         {
-            "path": "workers"
+            "path": "@sommelier/data-service"
         },
         {
-            "path": "sommelier-types"
+            "path": "@sommelier/workers"
+        },
+        {
+            "path": "@sommelier/shared-types"
         }
     ]
 }

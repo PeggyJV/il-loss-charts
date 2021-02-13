@@ -13,7 +13,7 @@
     "scripts": {
         "lint": "eslint src --ext js,ts",
         "clean": "rimraf dist *.tsbuildinfo",
-        "build": "ttsc",
+        "build": "tsc",
         "worker:alerts": "node dist/scripts/il-alerts.js"
     },
     "keywords": [],

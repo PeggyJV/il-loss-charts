@@ -4,18 +4,7 @@
         "composite": true,
         "outDir": "dist",
         "rootDir": "src",
-        "baseUrl": "./src",
-        "plugins": [
-            {
-                "transform": "typescript-transform-paths",
-                "useRootDir": true
-            },
-            {
-                "transform": "typescript-transform-paths",
-                "useRootDir": true,
-                "afterDeclarations": true
-            }
-        ]
+        "baseUrl": "./src"
     },
     "include": [
         "src"
