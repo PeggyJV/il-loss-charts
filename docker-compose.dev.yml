@@ -23,10 +23,11 @@ services:
     env_file: ./.env
     environment:
       - PORT=4000
-      - REDIS_URL=redis://cache
+      - REDIS_URL=cache
 
   redis:
     image: redis:alpine
     container_name: cache
+    command: ["redis-server", "--bind", "redis", "--port", "6379"]
     ports:
       - "6379:6379"
