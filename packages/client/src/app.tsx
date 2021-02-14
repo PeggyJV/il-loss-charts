@@ -30,7 +30,7 @@ function App(): ReactElement {
         lookups: null,
         byLiquidity: null,
     });
-    const [currentError, setError] = useState<IError | null>(null);
+    const [currentError, setError] = useState<string | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
     const useWalletProps = useWallet();
 
@@ -41,7 +41,7 @@ function App(): ReactElement {
 
             if (error) {
                 // we could not list pairs
-                console.warn(`Could not fetch top pairs: ${error.message}`);
+                console.warn(`Could not fetch top pairs: ${error}`);
                 (window as any).error = error;
                 setError(error);
                 return;
@@ -66,7 +66,7 @@ function App(): ReactElement {
         return (
             <Container>
                 <h2>Oops, the grapes went bad.</h2>
-                <p>Error: {currentError.message}</p>
+                <p>Error: {currentError}</p>
 
                 <h6>Refresh the page to try again.</h6>
             </Container>

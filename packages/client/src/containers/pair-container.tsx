@@ -40,7 +40,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
 
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
-    const [currentError, setError] = useState<IError | null>(null);
+    const [currentError, setError] = useState<string | null>(null);
 
     // ------------------ Shared State ------------------
 
@@ -174,7 +174,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
             if (error) {
                 // we could not get data for this new pair
                 console.warn(
-                    `Could not fetch pair data for ${pairId}: ${error.message}`
+                    `Could not fetch pair data for ${pairId}: ${error}`
                 );
                 setError(error);
                 return;
@@ -204,7 +204,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                 if (historicalErrors) {
                     // we could not get data for this new pair
                     console.warn(
-                        `Could not fetch historical data for ${pairId}: ${historicalErrors.message}`
+                        `Could not fetch historical data for ${pairId}: ${historicalErrors}`
                     );
                     setError(historicalErrors);
                     return;
@@ -427,7 +427,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
             if (error) {
                 // we could not get data for this new pair
                 console.warn(
-                    `Could not fetch trades data for ${pairId}: ${error.message}`
+                    `Could not fetch trades data for ${pairId}: ${error}`
                 );
                 setError(error);
                 return;
@@ -465,7 +465,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
         return (
             <Container>
                 <h2>Oops, the grapes went bad.</h2>
-                <p>Error: {currentError.message}</p>
+                <p>Error: {currentError}</p>
 
                 <h6>Refresh the page to try again.</h6>
             </Container>

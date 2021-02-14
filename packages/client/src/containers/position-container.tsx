@@ -19,20 +19,30 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
 
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
-    const [currentError, setError] = useState<IError | null>(null);
-    const [positionData, setPositionData] = useState<LPPositionData<string> | null>(null);
+    const [currentError, setError] = useState<string | null>(null);
+    const [
+        positionData,
+        setPositionData,
+    ] = useState<LPPositionData<string> | null>(null);
 
     // ------------------ Shared State ------------------
 
     // Initialize pair to be first position in wallet
-    const [pairId, setPairId] = useState(positionData?.positions ? Object.keys(positionData.positions)[0] : null);
+    const [pairId, setPairId] = useState(
+        positionData?.positions ? Object.keys(positionData.positions)[0] : null
+    );
 
     // const currentPosition = positions[pairId];
     (window as any).positionData = positionData;
     (window as any).pairId = pairId;
-    const currentStats = pairId ? positionData?.stats?.[pairId]?.aggregatedStats : null;
+    const currentStats = pairId
+        ? positionData?.stats?.[pairId]?.aggregatedStats
+        : null;
     // const fullPairs = positionData.positions ? Object.values(positionData.positions).map((positionSnapshots) => positionSnapshots[0].pair) : [];
-    const pair = positionData?.positions && pairId ? positionData?.positions[pairId]?.[0].pair : null;
+    const pair =
+        positionData?.positions && pairId
+            ? positionData?.positions[pairId]?.[0].pair
+            : null;
 
     // ------------------ Position State - fetches LP-specific position data ------------------
 
@@ -41,23 +51,28 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
     }, []);
 
     useEffect(() => {
-        if (positionData?.positions && (!pairId || !positionData.positions[pairId])) {
+        if (
+            positionData?.positions &&
+            (!pairId || !positionData.positions[pairId])
+        ) {
             // get from position
             setPairId(Object.keys(positionData.positions)[0]);
         }
-
-    }, [positionData, pairId])
+    }, [positionData, pairId]);
 
     useEffect(() => {
         const fetchPositionsForWallet = async () => {
             if (!isLoading) setIsLoading(true);
             if (currentError) return;
 
-            const { data: positionData, error } = await Uniswap.getPositionStats(wallet.account);
+            const {
+                data: positionData,
+                error,
+            } = await Uniswap.getPositionStats(wallet.account);
 
             if (error) {
                 // we could not list pairs
-                console.warn(`Could not get position stats: ${error.message}`);
+                console.warn(`Could not get position stats: ${error}`);
                 setError(error);
                 return;
             }
@@ -70,9 +85,9 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
             if (isInitialLoad) setIsInitialLoad(false);
 
             mixpanel.track('positions:query', {
-                address: wallet.account
+                address: wallet.account,
             });
-        }
+        };
 
         if (wallet.account) {
             void fetchPositionsForWallet();
@@ -88,7 +103,7 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
         return (
             <Container>
                 <h2>Oops, the grapes went bad.</h2>
-                <p>Error: {currentError.message}</p>
+                <p>Error: {currentError}</p>
 
                 <h6>Refresh the page to try again.</h6>
             </Container>
@@ -115,29 +130,43 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
         <Container fluid>
             <h4>Your LP Positions on Uniswap</h4>
             <hr />
-            <PositionsTable positionData={positionData} pairId={pairId} setPairId={setPairId} />
+            <PositionsTable
+                positionData={positionData}
+                pairId={pairId}
+                setPairId={setPairId}
+            />
             <hr />
             <Row className='top-stats-row'>
                 <Col lg={4} className='pair-text-large'>
                     <span>
                         {resolveLogo((pair.token0 as Token).id)}{' '}
-                        {(pair.token0 as Token).symbol}/{(pair.token1 as Token).symbol}
-                        {' '}{resolveLogo((pair.token1 as Token).id)}
+                        {(pair.token0 as Token).symbol}/
+                        {(pair.token1 as Token).symbol}{' '}
+                        {resolveLogo((pair.token1 as Token).id)}
                     </span>
                 </Col>
                 <Col lg={8}>
                     <div className='pool-stats-container'>
                         <USDValueWidget
                             title={'Fees Earned'}
-                            value={positionData?.stats[pairId]?.aggregatedStats.totalFees}
+                            value={
+                                positionData?.stats[pairId]?.aggregatedStats
+                                    .totalFees
+                            }
                         />
                         <USDValueWidget
                             title={'Impermanent Loss'}
-                            value={positionData?.stats[pairId]?.aggregatedStats.impermanentLoss}
+                            value={
+                                positionData?.stats[pairId]?.aggregatedStats
+                                    .impermanentLoss
+                            }
                         />
                         <USDValueWidget
                             title={'Total Return'}
-                            value={positionData?.stats[pairId]?.aggregatedStats.totalReturn}
+                            value={
+                                positionData?.stats[pairId]?.aggregatedStats
+                                    .totalReturn
+                            }
                         />
                     </div>
                 </Col>
@@ -156,7 +185,7 @@ PositionContainer.propTypes = {
     wallet: PropTypes.shape({
         account: PropTypes.string,
         provider: PropTypes.string,
-    }).isRequired
+    }).isRequired,
 };
 
 export default PositionContainer;

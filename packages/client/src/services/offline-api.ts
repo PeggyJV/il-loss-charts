@@ -12,7 +12,7 @@ import { IError } from 'types/states';
 
 import initalData from 'constants/initialData.json';
 
-type ApiResponse<T> = { data?: T; error?: IError };
+type ApiResponse<T> = { data?: T; error?: string };
 
 export class UniswapApiFetcher {
     static async getPairOverview(

@@ -18,7 +18,7 @@ import { resolveLogo } from 'components/token-with-logo';
 function OverviewContainer(): JSX.Element {
     const [marketData, setMarketData] = useState<MarketStats[] | null>(null);
     const [topPairs, setTopPairs] = useState<MarketStats[] | null>(null);
-    const [currentError, setError] = useState<IError | null>(null);
+    const [currentError, setError] = useState<string | null>(null);
 
     useEffect(() => {
         mixpanel.track('pageview:market', {});
@@ -40,7 +40,7 @@ function OverviewContainer(): JSX.Element {
 
             if (error) {
                 // we could not get our market data
-                console.warn(`Could not fetch market data: ${error.message}`);
+                console.warn(`Could not fetch market data: ${error}`);
                 setError(error);
                 return;
             }
@@ -63,7 +63,7 @@ function OverviewContainer(): JSX.Element {
         return (
             <Container>
                 <h2>Oops, the grapes went bad.</h2>
-                <p>Error: {currentError.message}</p>
+                <p>Error: {currentError}</p>
 
                 <h6>Refresh the page to try again.</h6>
             </Container>

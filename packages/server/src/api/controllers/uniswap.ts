@@ -507,64 +507,6 @@ class UniswapController {
     }
 }
 
-// export default express
-//     .Router()
-//     .get('/ethPrice', wrapRequest(UniswapController.getEthPrice))
-//     .get(
-//         '/market',
-//         cacheMiddleware(3600),
-//         wrapRequest(UniswapController.getMarketStats)
-//     )
-//     .get(
-//         '/pairs',
-//         cacheMiddleware(300),
-//         wrapRequest(UniswapController.getTopPairs)
-//     )
-//     .get(
-//         '/pairs/performance/daily',
-//         cacheMiddleware(300),
-//         wrapRequest(UniswapController.getDailyTopPerformingPairs)
-//     )
-//     .get(
-//         '/pairs/performance/weekly',
-//         cacheMiddleware(300),
-//         wrapRequest(UniswapController.getWeeklyTopPerformingPairs)
-//     )
-//     .get(
-//         '/pairs/:id',
-//         cacheMiddleware(15),
-//         wrapRequest(UniswapController.getPairOverview)
-//     )
-//     .get(
-//         '/pairs/:id/swaps',
-//         cacheMiddleware(15),
-//         wrapRequest(UniswapController.getSwapsForPair)
-//     )
-//     .get(
-//         '/pairs/:id/addremove',
-//         cacheMiddleware(15),
-//         wrapRequest(UniswapController.getMintsAndBurnsForPair)
-//     )
-//     .get(
-//         '/pairs/:id/historical/daily',
-//         cacheMiddleware(3600),
-//         wrapRequest(UniswapController.getHistoricalDailyData)
-//     )
-//     .get(
-//         '/pairs/:id/historical/hourly',
-//         cacheMiddleware(1800),
-//         wrapRequest(UniswapController.getHistoricalHourlyData)
-//     )
-//     .get('/pairs/:id/stats', wrapRequest(UniswapController.getPairStats))
-//     .get(
-//         '/positions/:address',
-//         wrapRequest(UniswapController.getLiquidityPositions)
-//     )
-//     .get(
-//         '/positions/:address/stats',
-//         wrapRequest(UniswapController.getLiquidityPositionStats)
-//     );
-
 export default express
     .Router()
     .get('/ethPrice', wrapRequest(UniswapController.getEthPrice))

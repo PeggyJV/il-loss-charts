@@ -12,7 +12,7 @@ import { IError } from 'types/states';
 
 import { UniswapApiFetcher as OfflineFetcher } from 'services/offline-api';
 
-type ApiResponse<T> = { data?: T; error?: IError };
+type ApiResponse<T> = { data?: T; error?: string };
 
 const useOffline = process.env.REACT_APP_OFFLINE_MODE;
 if (useOffline) {
@@ -97,6 +97,14 @@ export class UniswapApiFetcher extends OfflineFetcher {
         const { data, error } = await (response.json() as Promise<
             ApiResponse<MarketStats[]>
         >);
+
+        // Retry because the graph sometimes fails
+        // TODO: Implement better retry mechanism and/or remove once we have local graph
+        if (error && error.match(/ENOTFOUND/)) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return UniswapApiFetcher.getDailyTopPerformingPairs();
+        }
+
         return { data, error };
     }
 
@@ -111,6 +119,14 @@ export class UniswapApiFetcher extends OfflineFetcher {
         const { data, error } = await (response.json() as Promise<
             ApiResponse<MarketStats[]>
         >);
+
+        // Retry because the graph sometimes fails
+        // TODO: Implement better retry mechanism and/or remove once we have local graph
+        if (error && error.match(/ENOTFOUND/)) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return UniswapApiFetcher.getWeeklyTopPerformingPairs();
+        }
+
         return { data, error };
     }
 
