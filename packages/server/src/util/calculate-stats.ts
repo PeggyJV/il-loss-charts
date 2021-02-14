@@ -50,12 +50,27 @@ export async function calculateMarketStats(
         startDailyData: LiquidityData,
         endDailyData: LiquidityData
     ) => {
-        const initialExchangeRate = new BigNumber(startDailyData.reserve0).div(
-            new BigNumber(startDailyData.reserve1)
-        );
-        const currentExchangeRate = new BigNumber(endDailyData.reserve0).div(
-            new BigNumber(endDailyData.reserve1)
-        );
+        const startReserve0 = new BigNumber(startDailyData.reserve0);
+        const startReserve1 = new BigNumber(startDailyData.reserve1);
+        const endReserve0 = new BigNumber(endDailyData.reserve0);
+        const endReserve1 = new BigNumber(endDailyData.reserve1);
+
+        let initialExchangeRate: BigNumber;
+        let currentExchangeRate: BigNumber;
+
+        // Only need to check one reserve, since if one is funded the other must be
+        if (startReserve0.eq(0)) {
+            initialExchangeRate = new BigNumber(1);
+        } else {
+            initialExchangeRate = startReserve0.div(startReserve1);
+        }
+
+        if (endReserve0.eq(0)) {
+            currentExchangeRate = new BigNumber(1);
+        } else {
+            currentExchangeRate = endReserve0.div(endReserve1);
+        }
+
         const priceRatio = currentExchangeRate.div(initialExchangeRate);
         const impermanentLossPct = new BigNumber(2)
             .times(priceRatio.sqrt())

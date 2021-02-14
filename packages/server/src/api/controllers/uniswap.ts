@@ -190,6 +190,7 @@ class UniswapController {
             'delta'
         );
 
+        // TODO: Determine cause of nulls and fix
         const statsByReturn = [...marketStats].sort(
             (a, b) => b.pctReturn - a.pctReturn
         );

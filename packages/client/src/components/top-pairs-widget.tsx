@@ -9,7 +9,9 @@ import { Pair, DailyData, LPStats } from 'constants/prop-types';
 import { resolveLogo } from 'components/token-with-logo';
 
 function PercentChangeStat({ value }: { value?: number }): JSX.Element {
-    if (!value) throw new Error('Passed falsy value to PercentChangeStat');
+    if (value == null) {
+        throw new Error('Passed falsy value to PercentChangeStat');
+    }
 
     const valueBn = new BigNumber(value);
     const className = valueBn.isPositive()
