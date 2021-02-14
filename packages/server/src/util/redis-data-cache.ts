@@ -1,17 +1,19 @@
 import Redis from 'ioredis';
 
-export function keepCachePopulated(
+type FnCache = { [keyedFn: string]: boolean };
+
+export async function keepCachePopulated(
     redis: Redis.Redis,
     fn: (...args: any[]) => any,
     args: any[],
-    interval = 60
-): void {
-    const callFn = async (attempt = 0) => {
-        const redisKey = [
-            fn.name,
-            ...args.map((arg) => JSON.stringify(arg)),
-        ].join(':');
+    interval = 60,
+    expires?: number
+): Promise<void> {
+    const redisKey = [fn.name, ...args.map((arg) => JSON.stringify(arg))].join(
+        ':'
+    );
 
+    const callFn = async (attempt = 0) => {
         try {
             const result = await fn(...args);
 
@@ -38,13 +40,65 @@ export function keepCachePopulated(
         }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const callInterval: NodeJS.Timeout = <any>setInterval(() => {
-        void callFn();
-    }, interval);
+    // Make sure cache isn't already being tracked
+    const currentlyCached = await redis.get('cached_fns');
 
-    // Unref prevents the interval from blocking app shutdown
-    callInterval.unref();
+    if (currentlyCached) {
+        try {
+            const cachedFns: FnCache = JSON.parse(currentlyCached);
+
+            if (cachedFns[redisKey]) {
+                // we can no-op, since an interval already exists
+                console.warn(
+                    `Attempting to double-cache ${redisKey} - ignoring`
+                );
+                return;
+            } else {
+                // Start the interval and tell redis we're already caching it
+
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const callInterval: NodeJS.Timeout = <any>setInterval(() => {
+                    void callFn();
+                }, interval);
+
+                // Unref prevents the interval from blocking app shutdown
+                callInterval.unref();
+
+                cachedFns[redisKey] = true;
+                await redis.set('cached_fns', JSON.stringify(cachedFns));
+
+                if (expires) {
+                    setTimeout(() => {
+                        clearInterval(callInterval);
+
+                        // Remove function from cache
+                        void redis.get('cached_fns').then((currentlyCached) => {
+                            if (currentlyCached) {
+                                try {
+                                    const cachedFns: FnCache = JSON.parse(
+                                        currentlyCached
+                                    );
+                                    delete cachedFns[redisKey];
+                                    return redis.set(
+                                        'cached_fns',
+                                        JSON.stringify(cachedFns)
+                                    );
+                                } catch (e) {
+                                    console.error(
+                                        'Could not delete cached function at end of interval'
+                                    );
+                                }
+                            }
+                        });
+                    }, expires * 1000);
+                }
+            }
+        } catch (err) {
+            throw new Error(
+                `Could not parse cachedFns in redis: ${err.message as string}`
+            );
+        }
+    }
 }
 
 export function wrapWithCache(
@@ -78,7 +132,7 @@ export function wrapWithCache(
             // Since cache not populated, keep it populated if arg is set
             if (populate) {
                 console.log(`Auto-populating cache for ${redisKey}`);
-                keepCachePopulated(redis, fn, args, expiry);
+                void keepCachePopulated(redis, fn, args, expiry);
             }
         }
 

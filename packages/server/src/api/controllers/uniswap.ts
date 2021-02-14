@@ -4,7 +4,11 @@ import { Request } from 'express';
 import cacheMiddleware from 'api/middlewares/cache';
 
 import UniswapFetcher from 'services/uniswap';
-import { UniswapPair } from '@sommelier/shared-types';
+import {
+    UniswapDailyData,
+    UniswapHourlyData,
+    UniswapPair,
+} from '@sommelier/shared-types';
 import { HTTPError } from 'api/util/errors';
 import wrapRequest from 'api/util/wrap-request';
 import { isValidEthAddress } from 'util/eth';
@@ -15,7 +19,7 @@ import {
 } from 'util/calculate-stats';
 
 import redis from 'util/redis';
-import { wrapWithCache } from 'util/redis-data-cache';
+import { wrapWithCache, keepCachePopulated } from 'util/redis-data-cache';
 
 // TODO - error handling for e.g. eth address that does not match a pair
 
@@ -29,6 +33,25 @@ const getCurrentTopPerformingPairs = wrapWithCache(
     true
 );
 const getEthPrice = wrapWithCache(redis, UniswapFetcher.getEthPrice, 30, true);
+const getHistoricalDailyData = wrapWithCache(
+    redis,
+    UniswapFetcher.getHistoricalDailyData,
+    3600,
+    true
+);
+const getHistoricalHourlyData = wrapWithCache(
+    redis,
+    UniswapFetcher.getHistoricalHourlyData,
+    300,
+    true
+);
+
+// Start off keeping cache populated
+void keepCachePopulated(redis, UniswapFetcher.getTopPairs, [
+    undefined,
+    'volumeUSD',
+    true,
+]);
 
 class UniswapController {
     static async getTopPairs(req: Request) {
@@ -111,6 +134,19 @@ class UniswapController {
         const statsByReturn = [...marketStats].sort(
             (a, b) => b.pctReturn - a.pctReturn
         );
+
+        // Pre-cache stats for the daily top 10
+        statsByReturn.slice(0, 10).forEach((pair) => {
+            // Things to populate:
+            // - overview
+            // - daily data (up to current day)
+            // - hourly data (up to current hour)
+
+            void keepCachePopulated(redis, UniswapFetcher.getPairOverview, [
+                pair.id,
+            ]);
+            // void keepCachePopulated(redis, UniswapFetcher.getHistoricalDailyData, [pair.id]);
+        });
 
         return statsByReturn;
     }
@@ -208,6 +244,13 @@ class UniswapController {
             (a, b) => b.pctReturn - a.pctReturn
         );
 
+        // Pre-cache stats for the daily top 10
+        statsByReturn.slice(0, 10).forEach((pair) => {
+            void keepCachePopulated(redis, UniswapFetcher.getPairOverview, [
+                pair.id,
+            ]);
+        });
+
         return statsByReturn;
     }
 
@@ -262,20 +305,32 @@ class UniswapController {
         const start: string | undefined = req.query.startDate?.toString();
         if (!start) throw new HTTPError(400, `'startDate' is required.`);
 
+        const oneDayMs = 24 * 60 * 60 * 1000;
+
         const startDate = new Date(start);
         if (startDate.getTime() !== startDate.getTime())
             throw new HTTPError(400, `Received invalid date for 'startDate'.`);
+
+        const startDateDayStart = new Date(
+            Math.floor(startDate.getTime() / oneDayMs) * oneDayMs
+        );
 
         const endDate: Date = req.query.endDate
             ? new Date(req.query.endDate.toString())
             : new Date();
         if (endDate.getTime() !== endDate.getTime())
             throw new HTTPError(400, `Received invalid date for 'endDate'.`);
-        const historicalDailyData = await UniswapFetcher.getHistoricalDailyData(
-            pairId,
-            startDate,
-            endDate
+
+        const endDateDayEnd = new Date(
+            Math.ceil(endDate.getTime() / oneDayMs) * oneDayMs
         );
+
+        const historicalDailyData: UniswapDailyData[] = await getHistoricalDailyData(
+            pairId,
+            startDateDayStart,
+            endDateDayEnd
+        );
+
         return historicalDailyData;
     }
 
@@ -290,19 +345,30 @@ class UniswapController {
         const start: string | undefined = req.query.startDate?.toString();
         if (!start) throw new HTTPError(400, `'startDate' is required.`);
 
+        const oneHourMs = 60 * 60 * 1000;
+
         const startDate = new Date(start);
         if (startDate.getTime() !== startDate.getTime())
             throw new HTTPError(400, `Received invalid date for 'startDate'.`);
+
+        const startDateHourStart = new Date(
+            Math.floor(startDate.getTime() / oneHourMs) * oneHourMs
+        );
 
         const endDate: Date = req.query.endDate
             ? new Date(req.query.endDate.toString())
             : new Date();
         if (endDate.getTime() !== endDate.getTime())
             throw new HTTPError(400, `Received invalid date for 'endDate'.`);
-        const historicalHourlyData = await UniswapFetcher.getHistoricalHourlyData(
+
+        const endDateHourEnd = new Date(
+            Math.ceil(endDate.getTime() / oneHourMs) * oneHourMs
+        );
+
+        const historicalHourlyData: UniswapHourlyData[] = await getHistoricalHourlyData(
             pairId,
-            startDate,
-            endDate
+            startDateHourStart,
+            endDateHourEnd
         );
         return historicalHourlyData;
     }
@@ -506,16 +572,23 @@ export default express
     .get('/pairs', wrapRequest(UniswapController.getTopPairs))
     .get(
         '/pairs/performance/daily',
+        cacheMiddleware(300),
         wrapRequest(UniswapController.getDailyTopPerformingPairs)
     )
     .get(
         '/pairs/performance/weekly',
+        cacheMiddleware(300),
         wrapRequest(UniswapController.getWeeklyTopPerformingPairs)
     )
     .get('/pairs/:id', wrapRequest(UniswapController.getPairOverview))
-    .get('/pairs/:id/swaps', wrapRequest(UniswapController.getSwapsForPair))
+    .get(
+        '/pairs/:id/swaps',
+        cacheMiddleware(15),
+        wrapRequest(UniswapController.getSwapsForPair)
+    )
     .get(
         '/pairs/:id/addremove',
+        cacheMiddleware(15),
         wrapRequest(UniswapController.getMintsAndBurnsForPair)
     )
     .get(
