@@ -16,7 +16,7 @@ services:
     image: node:14
     build: .
     container_name: sommelier-app
-    depends_on:
+    links:
       - redis
     ports:
       - "4000:4000"
