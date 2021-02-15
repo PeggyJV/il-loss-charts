@@ -29,6 +29,12 @@ export class UniswapApiFetcher extends OfflineFetcher {
         const { data, error } = await (response.json() as Promise<
             ApiResponse<UniswapPair>
         >);
+
+        if (error && error.match(/ENOTFOUND/)) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return UniswapApiFetcher.getPairOverview(pairId);
+        }
+
         return { data, error };
     }
 
@@ -41,6 +47,12 @@ export class UniswapApiFetcher extends OfflineFetcher {
         const { data, error } = await (response.json() as Promise<
             ApiResponse<UniswapSwap[]>
         >);
+
+        if (error && error.match(/ENOTFOUND/)) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return UniswapApiFetcher.getLatestSwaps(pairId);
+        }
+
         return { data, error };
     }
 
@@ -59,6 +71,12 @@ export class UniswapApiFetcher extends OfflineFetcher {
             `/api/v1/uniswap/pairs/${pairId}/addremove`
         );
         const { data, error } = await response.json();
+
+        if (error && error.match(/ENOTFOUND/)) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return UniswapApiFetcher.getMintsAndBurns(pairId);
+        }
+
         return { data, error };
     }
 
@@ -71,6 +89,12 @@ export class UniswapApiFetcher extends OfflineFetcher {
         const { data, error } = await (response.json() as Promise<
             ApiResponse<UniswapPair[]>
         >);
+
+        if (error && error.match(/ENOTFOUND/)) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return UniswapApiFetcher.getTopPairs(count);
+        }
+
         return { data, error };
     }
 
@@ -85,6 +109,12 @@ export class UniswapApiFetcher extends OfflineFetcher {
         const { data, error } = await (response.json() as Promise<
             ApiResponse<MarketStats[]>
         >);
+
+        if (error && error.match(/ENOTFOUND/)) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return UniswapApiFetcher.getMarketData(startDate);
+        }
+
         return { data, error };
     }
 
@@ -148,6 +178,16 @@ export class UniswapApiFetcher extends OfflineFetcher {
         const { data, error } = await (response.json() as Promise<
             ApiResponse<UniswapDailyData[]>
         >);
+
+        if (error && error.match(/ENOTFOUND/)) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return UniswapApiFetcher.getHistoricalDailyData(
+                pairId,
+                startDate,
+                endDate
+            );
+        }
+
         return { data, error };
     }
 
@@ -169,6 +209,16 @@ export class UniswapApiFetcher extends OfflineFetcher {
         const { data, error } = await (response.json() as Promise<
             ApiResponse<UniswapHourlyData[]>
         >);
+
+        if (error && error.match(/ENOTFOUND/)) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return UniswapApiFetcher.getHistoricalHourlyData(
+                pairId,
+                startDate,
+                endDate
+            );
+        }
+
         return { data, error };
     }
 
@@ -181,6 +231,12 @@ export class UniswapApiFetcher extends OfflineFetcher {
         const { data, error } = await (response.json() as Promise<
             ApiResponse<LPPositionData<string>>
         >);
+
+        if (error && error.match(/ENOTFOUND/)) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return UniswapApiFetcher.getPositionStats(address);
+        }
+
         return { data, error };
     }
 }
