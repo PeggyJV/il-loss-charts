@@ -15,6 +15,15 @@ body {
     animation-timing-function: ease;
 }
 
+.wine-pulse {
+    font-size: 5rem;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    transform-origin: bottom;
+    animation-name: pulse_animation;
+    animation-timing-function: ease;
+}
+
 @keyframes bounce-rotate {
     0% {
         transform: translateY(0) rotate(0);
@@ -25,6 +34,12 @@ body {
     100% {
         transform: translateY(0);
     }
+}
+
+@keyframes pulse_animation {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.10); }
+    100% { transform: scale(1); }
 }
 
 .wine-spin {

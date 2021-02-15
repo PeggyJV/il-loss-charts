@@ -525,12 +525,12 @@ export default express
     .get('/pairs/:id', wrapRequest(UniswapController.getPairOverview))
     .get(
         '/pairs/:id/swaps',
-        cacheMiddleware(15),
+        cacheMiddleware(60),
         wrapRequest(UniswapController.getSwapsForPair)
     )
     .get(
         '/pairs/:id/addremove',
-        cacheMiddleware(15),
+        cacheMiddleware(60),
         wrapRequest(UniswapController.getMintsAndBurnsForPair)
     )
     .get(

@@ -483,7 +483,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
     ) {
         return (
             <Container className='loading-container'>
-                <div className='wine-bounce'>🍷</div>
+                <div className='wine-pulse'>🍷</div>
             </Container>
         );
     }

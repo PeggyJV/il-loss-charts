@@ -121,7 +121,7 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
     if (!currentStats || !pairId || !pair || !positionData) {
         return (
             <Container className='loading-container'>
-                <div className='wine-bounce'>🍷</div>
+                <div className='wine-pulse'>🍷</div>
             </Container>
         );
     }
