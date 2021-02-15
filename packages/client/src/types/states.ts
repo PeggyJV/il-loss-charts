@@ -2,6 +2,8 @@ import {
     UniswapPair,
     UniswapDailyData,
     UniswapHourlyData,
+    UniswapSwap,
+    UniswapMintOrBurn,
 } from '@sommelier/shared-types';
 
 export interface AllPairsState {
@@ -23,7 +25,7 @@ export interface Wallet {
     provider: Provider;
 }
 
-export interface LPInfoState {
+export interface PairPricesState {
     pairData: UniswapPair;
     historicalDailyData: UniswapDailyData[];
     historicalHourlyData: UniswapHourlyData[];
@@ -34,3 +36,19 @@ export interface IError {
 }
 
 export type StatsWindow = 'total' | 'day' | 'week';
+
+export interface SwapsState {
+    swaps: UniswapSwap[] | null;
+    mintsAndBurns: {
+        mints: UniswapMintOrBurn[];
+        burns: UniswapMintOrBurn[];
+        combined: UniswapMintOrBurn[];
+    } | null;
+}
+
+export interface PairDataState {
+    isLoading: boolean;
+    currentError?: string;
+    lpInfo?: PairPricesState;
+    latestSwaps?: SwapsState;
+}

@@ -73,14 +73,6 @@ function App(): ReactElement {
         );
     }
 
-    if (allPairs.isLoading) {
-        return (
-            <Container className='loading-container'>
-                <div className='wine-pulse'>🍷</div>
-            </Container>
-        );
-    }
-
     return (
         <Router>
             <div className='app' id='app-wrap'>

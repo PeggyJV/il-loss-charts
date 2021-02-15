@@ -2,7 +2,7 @@ import { Button, Card } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
 
-import { AllPairsState, LPInfoState, StatsWindow } from 'types/states';
+import { AllPairsState, PairPricesState, StatsWindow } from 'types/states';
 import { Pair, DailyData, LPStats } from 'constants/prop-types';
 import USDValueWidget from 'components/usd-value-widget';
 
@@ -33,7 +33,7 @@ function TotalPoolStats({
     setWindow,
 }: {
     allPairs: AllPairsState;
-    lpInfo: LPInfoState;
+    lpInfo: PairPricesState;
     defaultWindow?: StatsWindow;
     setWindow: (window: StatsWindow) => void;
 }): JSX.Element {

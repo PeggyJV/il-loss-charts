@@ -11,7 +11,7 @@ import {
     TimeWindowStats,
 } from '@sommelier/shared-types';
 
-import { StatsWindow, LPInfoState } from 'types/states';
+import { StatsWindow, PairPricesState } from 'types/states';
 
 const FEE_RATIO = 0.003;
 
@@ -171,7 +171,7 @@ export function calculateLPStats({
 }
 
 export function calculateTimeWindowStats(
-    lpInfo: LPInfoState,
+    lpInfo: PairPricesState,
     dataPeriod: 'hourly' | 'daily',
     period: StatsWindow = 'total'
 ): TimeWindowStats {

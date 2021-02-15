@@ -16,10 +16,17 @@ import {
     LPStats,
 } from '@sommelier/shared-types';
 
-import { AllPairsState, LPInfoState, IError, StatsWindow } from 'types/states';
+import {
+    AllPairsState,
+    PairPricesState,
+    IError,
+    StatsWindow,
+} from 'types/states';
 import { Pair } from 'constants/prop-types';
 import initialData from 'constants/initialData.json';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
+
+import usePairData from 'hooks/use-pair-data';
 import { calculateLPStats } from 'services/calculate-stats';
 import mixpanel from 'util/mixpanel';
 
@@ -38,21 +45,33 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
 
     // ------------------ Loading State - handles interstitial UI ------------------
 
-    const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
-    const [currentError, setError] = useState<string | null>(null);
 
     // ------------------ Shared State ------------------
 
     const [pairId, setPairId] = useState<string | null>(null);
     const [timeWindow, setWindow] = useState<StatsWindow>('total');
 
+    const { isLoading, currentError, lpInfo, latestSwaps } = usePairData(
+        pairId
+    );
+
+    // TODO: Re-enable when we have a better websocket
     // Keep track of previous pair ID so we can unsubscribe
-    const prevPairIdRef = useRef<string | null>();
-    useEffect(() => {
-        prevPairIdRef.current = pairId;
-    });
-    const prevPairId = prevPairIdRef.current;
+    // const prevPairIdRef = useRef<string | null>();
+    // useEffect(() => {
+    //     prevPairIdRef.current = pairId;
+    // });
+    // const prevPairId = prevPairIdRef.current;
+
+    if (pairId) {
+        // add new pair id to the URL
+        window.history.replaceState(
+            null,
+            'Sommelier.finance',
+            `/pair?id=${pairId}`
+        );
+    }
 
     const location = useLocation();
     useEffect(() => {
@@ -105,14 +124,13 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
 
     // ------------------ LP State - handles lp-specific info ------------------
 
-    const [lpInfo, setLPInfo] = useState<LPInfoState | null>(null);
     const [lpDate, setLPDate] = useState(new Date(initialData.lpDate));
     const [lpShare, setLPShare] = useState(initialData.lpShare);
 
     // Keep track of previous lp stats to prevent entire loading UI from coming up on change
     const lpStats: LPStats | null = useMemo(
         () => {
-            if (isInitialLoad || currentError) return null;
+            if (!lpInfo || currentError) return null;
 
             let lpStats: LPStats | null = null;
             lpStats = calculateLPStats({
@@ -157,84 +175,8 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
             return lpStats;
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [lpInfo, lpDate, lpShare, isInitialLoad]
+        [lpInfo, lpDate, lpShare]
     );
-
-    useEffect(() => {
-        const fetchPairData = async () => {
-            if (!isLoading) setIsLoading(true);
-            if (currentError || !pairId) return;
-
-            // Fetch pair overview when pair ID changes
-            // Default to createdAt date if LP date not set
-            const { data: newPair, error } = await Uniswap.getPairOverview(
-                pairId
-            );
-
-            if (error) {
-                // we could not get data for this new pair
-                console.warn(
-                    `Could not fetch pair data for ${pairId}: ${error}`
-                );
-                setError(error);
-                return;
-            }
-
-            if (newPair) {
-                const createdAt = parseInt(newPair.createdAtTimestamp, 10);
-                const pairCreatedAt = new Date(createdAt * 1000);
-                const oneWeekAgo = new Date(
-                    Date.now() - 60 * 60 * 24 * 7 * 1000
-                );
-
-                // Get historical data for pair from start date until now
-                // Also fetch last 7 days hourly
-                // and get last 24h from last 7 days
-                const [
-                    { data: historicalDailyData, error: dailyDataError },
-                    { data: historicalHourlyData, error: hourlyDataError },
-                ] = await Promise.all([
-                    Uniswap.getHistoricalDailyData(pairId, pairCreatedAt),
-                    Uniswap.getHistoricalHourlyData(pairId, oneWeekAgo),
-                ]);
-
-                (window as any).hourlyData = historicalHourlyData;
-
-                const historicalErrors = dailyDataError ?? hourlyDataError;
-                if (historicalErrors) {
-                    // we could not get data for this new pair
-                    console.warn(
-                        `Could not fetch historical data for ${pairId}: ${historicalErrors}`
-                    );
-                    setError(historicalErrors);
-                    return;
-                }
-
-                setLPInfo(
-                    (prevLpInfo) =>
-                        ({
-                            ...prevLpInfo,
-                            pairData: newPair,
-                            historicalDailyData,
-                            historicalHourlyData,
-                        } as LPInfoState)
-                );
-
-                mixpanel.track('pair:query', {
-                    pairId,
-                    token0: newPair.token0.symbol,
-                    token1: newPair.token1.symbol,
-                });
-
-                setIsLoading(false);
-                if (isInitialLoad) setIsInitialLoad(false);
-            }
-        };
-
-        void fetchPairData();
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pairId]);
 
     const dataAtLPDate = useMemo(():
         | UniswapDailyData
@@ -332,7 +274,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
     //         const { data: pairMsg }: { data: UniswapPair } = lastJsonMessage;
 
     //         if (pairMsg.id === pairId) {
-    //             setLPInfo({ ...lpInfo, pairData: pairMsg } as LPInfoState);
+    //             setLPInfo({ ...lpInfo, pairData: pairMsg } as PairPricesState);
     //         } else {
     //             console.warn(
     //                 `Received pair update over websocket for non-active pair: ${
@@ -387,77 +329,6 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
     //     // eslint-disable-next-line react-hooks/exhaustive-deps
     // }, [pairId]);
 
-    // ------------------ Market Data State - fetches non-LP specific market data ------------------
-
-    const [latestSwaps, setLatestSwaps] = useState<{
-        swaps: UniswapSwap[] | null;
-        mintsAndBurns: {
-            mints: UniswapMintOrBurn[];
-            burns: UniswapMintOrBurn[];
-            combined: UniswapMintOrBurn[];
-        } | null;
-    }>({
-        swaps: null,
-        mintsAndBurns: null,
-    });
-
-    useEffect(() => {
-        if (!pairId || currentError) return;
-
-        // add new pair id to the URL
-        window.history.replaceState(
-            null,
-            'Sommelier.finance',
-            `/pair?id=${pairId}`
-        );
-
-        const getLatestSwaps = async () => {
-            // Fetch latest block when pair ID changes
-            // Default to createdAt date if LP date not set
-            const [
-                { data: latestSwaps, error: swapsErrors },
-                { data: mintsAndBurns, error: mintBurnErrors },
-            ] = await Promise.all([
-                Uniswap.getLatestSwaps(pairId),
-                Uniswap.getMintsAndBurns(pairId),
-            ]);
-
-            const error = swapsErrors ?? mintBurnErrors;
-
-            if (error) {
-                // we could not get data for this new pair
-                console.warn(
-                    `Could not fetch trades data for ${pairId}: ${error}`
-                );
-                setError(error);
-                return;
-            }
-
-            if (latestSwaps && mintsAndBurns) {
-                setLatestSwaps({ swaps: latestSwaps, mintsAndBurns });
-            }
-        };
-
-        const refreshPairData = async () => {
-            if (!pairId) return;
-
-            const { data: newPairData } = await Uniswap.getPairOverview(pairId);
-
-            setLPInfo(
-                (prevLpInfo) =>
-                    ({
-                        ...prevLpInfo,
-                        pairData: newPairData,
-                    } as LPInfoState)
-            );
-        };
-
-        void getLatestSwaps();
-        void refreshPairData();
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pairId, latestBlock]);
-
     // ------------------ Render code ------------------
 
     // If error, display an error page
@@ -473,14 +344,8 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
     }
 
     // If no lp stats, we haven't completed our first data fetch yet
-    if (
-        !allPairs.pairs ||
-        !pairId ||
-        !lpInfo ||
-        !lpStats ||
-        !dataAtLPDate ||
-        Object.keys(lpStats).length === 0
-    ) {
+    // TODO: lots of nulls here are for typescript, have a better loading scheme
+    if (!allPairs.pairs || !pairId || !dataAtLPDate || !lpInfo || !lpStats) {
         return (
             <Container className='loading-container'>
                 <div className='wine-pulse'>🍷</div>
@@ -516,10 +381,12 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                         {isDesktop ? (
                             <>
                                 <Col lg={3} className='trades-sidebar'>
-                                    <LatestTradesSidebar
-                                        latestBlock={latestBlock}
-                                        latestSwaps={latestSwaps}
-                                    />
+                                    {latestSwaps && (
+                                        <LatestTradesSidebar
+                                            latestBlock={latestBlock}
+                                            latestSwaps={latestSwaps}
+                                        />
+                                    )}
                                 </Col>
                                 <Col lg={9}>
                                     {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
@@ -533,10 +400,12 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                                     <LPStatsChart lpStats={lpStats} />
                                 </Col>
                                 <Col lg={3} className='trades-sidebar'>
-                                    <LatestTradesSidebar
-                                        latestBlock={latestBlock}
-                                        latestSwaps={latestSwaps}
-                                    />
+                                    {latestSwaps && (
+                                        <LatestTradesSidebar
+                                            latestBlock={latestBlock}
+                                            latestSwaps={latestSwaps}
+                                        />
+                                    )}
                                 </Col>
                             </>
                         )}
