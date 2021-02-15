@@ -71,7 +71,8 @@
         "dev": "react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",
-        "eject": "react-scripts eject"
+        "eject": "react-scripts eject",
+        "analyze": "source-map-explorer 'build/static/js/*.js'"
     },
     "proxy": "http://localhost:3001",
     "eslintConfig": {
@@ -103,6 +104,7 @@
         "@types/react-widgets": "^4.4.3",
         "@types/recharts": "^1.8.19",
         "eslint-plugin-react": "^7.22.0",
-        "eslint-plugin-react-hooks": "^4.2.0"
+        "eslint-plugin-react-hooks": "^4.2.0",
+        "source-map-explorer": "^2.5.2"
     }
 }
