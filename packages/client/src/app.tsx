@@ -32,6 +32,7 @@ function App(): ReactElement {
         lookups: null,
         byLiquidity: null,
     });
+    const [marketData, setMarketData] = useState<MarketStats[] | null>(null);
     const [topPairs, setTopPairs] = useState<TopPairsState | null>(null);
     const [currentError, setError] = useState<string | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
@@ -113,8 +114,38 @@ function App(): ReactElement {
             }
         };
 
+        const fetchMarketData = async () => {
+            // Fetch all pairs
+            const [
+                { data: marketData, error: marketDataError },
+                // { data: topPairs, error: topPairsError }
+            ] = await Promise.all([
+                Uniswap.getMarketData(),
+                // Uniswap.getDailyTopPerformingPairs()
+            ]);
+
+            const error = marketDataError;
+            // const error = marketDataError ?? topPairsError;
+
+            if (error) {
+                // we could not get our market data
+                console.warn(`Could not fetch market data: ${error}`);
+                setError(error);
+                return;
+            }
+
+            if (marketData) {
+                setMarketData(marketData);
+            }
+
+            if (topPairs) {
+                setTopPairs(topPairs);
+            }
+        };
+
         void fetchAllPairs();
         void fetchTopPairs();
+        void fetchMarketData();
     }, []);
 
     return (
@@ -145,7 +176,7 @@ function App(): ReactElement {
                                 <PositionContainer wallet={wallet} />
                             </Route> */}
                             <Route path='/market'>
-                                <MarketContainer />
+                                <MarketContainer marketData={marketData} />
                             </Route>
                             <Route path='/pair'>
                                 <PairContainer

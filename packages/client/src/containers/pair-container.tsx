@@ -49,10 +49,6 @@ function PairContainer({
     const isDesktop = useMediaQuery({ query: '(min-width: 1200px)' });
     const isLargestBreakpoint = useMediaQuery({ query: '(min-width: 1500px)' });
 
-    // ------------------ Loading State - handles interstitial UI ------------------
-
-    const [isInitialLoad, setIsInitialLoad] = useState(true);
-
     // ------------------ Shared State ------------------
 
     const [pairId, setPairId] = useState<string | null>(null);

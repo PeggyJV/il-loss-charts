@@ -15,45 +15,16 @@ import mixpanel from 'util/mixpanel';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { resolveLogo } from 'components/token-with-logo';
 
-function OverviewContainer(): JSX.Element {
-    const [marketData, setMarketData] = useState<MarketStats[] | null>(null);
+function OverviewContainer({
+    marketData,
+}: {
+    marketData: MarketStats[] | null;
+}): JSX.Element {
     const [topPairs, setTopPairs] = useState<MarketStats[] | null>(null);
     const [currentError, setError] = useState<string | null>(null);
 
     useEffect(() => {
         mixpanel.track('pageview:market', {});
-    }, []);
-
-    useEffect(() => {
-        const fetchMarketData = async () => {
-            // Fetch all pairs
-            const [
-                { data: marketData, error: marketDataError },
-                // { data: topPairs, error: topPairsError }
-            ] = await Promise.all([
-                Uniswap.getMarketData(),
-                // Uniswap.getDailyTopPerformingPairs()
-            ]);
-
-            const error = marketDataError;
-            // const error = marketDataError ?? topPairsError;
-
-            if (error) {
-                // we could not get our market data
-                console.warn(`Could not fetch market data: ${error}`);
-                setError(error);
-                return;
-            }
-
-            if (marketData) {
-                setMarketData(marketData);
-            }
-
-            if (topPairs) {
-                setTopPairs(topPairs);
-            }
-        };
-        void fetchMarketData();
     }, []);
 
     (window as any).marketData = marketData;
