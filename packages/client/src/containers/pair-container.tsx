@@ -18,8 +18,8 @@ import {
 
 import {
     AllPairsState,
-    PairPricesState,
-    IError,
+    PrefetchedPairState,
+    PairDataState,
     StatsWindow,
 } from 'types/states';
 import { Pair } from 'constants/prop-types';
@@ -39,7 +39,13 @@ import LatestTradesSidebar from 'components/latest-trades-sidebar';
 import TotalPoolStats from 'components/total-pool-stats';
 import TelegramCTA from 'components/telegram-cta';
 
-function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
+function PairContainer({
+    allPairs,
+    prefetchedPairs,
+}: {
+    allPairs: AllPairsState;
+    prefetchedPairs: PrefetchedPairState | null;
+}): JSX.Element {
     const isDesktop = useMediaQuery({ query: '(min-width: 1200px)' });
     const isLargestBreakpoint = useMediaQuery({ query: '(min-width: 1500px)' });
 
@@ -52,8 +58,15 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
     const [pairId, setPairId] = useState<string | null>(null);
     const [timeWindow, setWindow] = useState<StatsWindow>('total');
 
+    let prefetchedPair: PairDataState | null = null;
+    if (pairId && prefetchedPairs) {
+        prefetchedPair = prefetchedPairs[pairId];
+        console.log('PREFETCHED', prefetchedPair);
+    }
+
     const { isLoading, currentError, lpInfo, latestSwaps } = usePairData(
-        pairId
+        pairId,
+        prefetchedPair
     );
 
     // TODO: Re-enable when we have a better websocket
@@ -178,10 +191,7 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
         [lpInfo, lpDate, lpShare]
     );
 
-    const dataAtLPDate = useMemo(():
-        | UniswapDailyData
-        | UniswapHourlyData
-        | null => {
+    const dataAtLPDate = useMemo((): UniswapDailyData | null => {
         if (currentError) return null;
         if (!lpInfo) return null;
 
@@ -204,7 +214,8 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                     Math.abs(currentDate.getTime() - lpDate.getTime()) <=
                     oneDayMs
                 ) {
-                    return dailyData;
+                    // eslint-disable-next-line
+                    return dailyData as UniswapDailyData;
                 }
             }
 
@@ -216,7 +227,8 @@ function PairContainer({ allPairs }: { allPairs: AllPairsState }): JSX.Element {
                 `Could not find LP date in historical data: ${lpDate.toISOString()}. Setting to first day, which is ${firstDay.toISOString()}.`
             );
             setLPDate(firstDay);
-            return lpInfo.historicalDailyData[0];
+            // eslint-disable-next-line
+            return lpInfo.historicalDailyData[0] as UniswapDailyData;
         }
         // } else if (timeWindow === 'week') {
         //     for (const hourlyData of lpInfo.historicalHourlyData) {

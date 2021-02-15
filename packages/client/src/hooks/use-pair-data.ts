@@ -5,7 +5,10 @@ import { PairPricesState, SwapsState, PairDataState } from 'types/states';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import mixpanel from 'util/mixpanel';
 
-export default function usePairData(pairId: string | null): PairDataState {
+export default function usePairData(
+    pairId: string | null,
+    prefetchedData: PairDataState | null
+): PairDataState {
     // For all coins, fetch the following:
     // - Pair overview
     // - Historical daily data
@@ -96,7 +99,12 @@ export default function usePairData(pairId: string | null): PairDataState {
             }
         };
 
-        void fetchPairData();
+        if (prefetchedData && prefetchedData.lpInfo) {
+            setIsLoading(false);
+            setLPInfo(prefetchedData.lpInfo);
+        } else {
+            void fetchPairData();
+        }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pairId]);
@@ -131,27 +139,17 @@ export default function usePairData(pairId: string | null): PairDataState {
             }
         };
 
-        const refreshPairData = async () => {
-            if (!pairId) return;
-
-            const { data: newPairData } = await Uniswap.getPairOverview(pairId);
-
-            setLPInfo(
-                (prevLpInfo) =>
-                    ({
-                        ...prevLpInfo,
-                        pairData: newPairData,
-                    } as PairPricesState)
-            );
-        };
-
-        void getLatestSwaps();
-        void refreshPairData();
+        if (prefetchedData && prefetchedData.latestSwaps) {
+            setLatestSwaps(prefetchedData.latestSwaps);
+        } else {
+            void getLatestSwaps();
+        }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pairId]);
 
     if (!pairId || isLoading) {
+        console.log('RETURNING IS LOADING TRUE', pairId, isLoading);
         return { isLoading: true };
     } else if (!isLoading && currentError) {
         return { isLoading, currentError };

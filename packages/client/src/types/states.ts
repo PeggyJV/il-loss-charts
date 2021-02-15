@@ -1,4 +1,5 @@
 import {
+    MarketStats,
     UniswapPair,
     UniswapDailyData,
     UniswapHourlyData,
@@ -51,4 +52,13 @@ export interface PairDataState {
     currentError?: string;
     lpInfo?: PairPricesState;
     latestSwaps?: SwapsState;
+}
+
+export interface TopPairsState {
+    daily: MarketStats[];
+    weekly: MarketStats[];
+}
+
+export interface PrefetchedPairState {
+    [pairId: string]: PairDataState;
 }

@@ -15,11 +15,13 @@ import SideMenu from 'components/side-menu';
 import ConnectWalletModal from 'components/connect-wallet-modal';
 
 import useWallet from 'hooks/use-wallet';
+import usePrefetch from 'hooks/use-prefetch';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { calculatePairRankings } from 'services/calculate-stats';
 
-import { AllPairsState, IError } from 'types/states';
+import { MarketStats } from '@sommelier/shared-types';
+import { AllPairsState, TopPairsState } from 'types/states';
 
 function App(): ReactElement {
     // ------------------ Initial Mount - API calls for first render ------------------
@@ -30,9 +32,11 @@ function App(): ReactElement {
         lookups: null,
         byLiquidity: null,
     });
+    const [topPairs, setTopPairs] = useState<TopPairsState | null>(null);
     const [currentError, setError] = useState<string | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
     const useWalletProps = useWallet();
+    const [prefetchedPairs, setPairsToFetch] = usePrefetch(null);
 
     useEffect(() => {
         const fetchAllPairs = async () => {
@@ -59,19 +63,59 @@ function App(): ReactElement {
             }
         };
 
+        const fetchTopPairs = async () => {
+            // Fetch all pairs
+            const [
+                { data: topWeeklyPairs, error: topWeeklyPairsError },
+                { data: topDailyPairs, error: topDailyPairsError },
+            ] = await Promise.all([
+                Uniswap.getWeeklyTopPerformingPairs(),
+                Uniswap.getDailyTopPerformingPairs(),
+            ]);
+
+            const error = topWeeklyPairsError ?? topDailyPairsError;
+
+            if (error) {
+                // we could not get our market data
+                console.warn(`Could not fetch market data: ${error}`);
+                setError(error);
+                return;
+            }
+
+            // if (marketData) {
+            //     setMarketData(marketData);
+            // }
+
+            if (topWeeklyPairs && topDailyPairs) {
+                setTopPairs({ daily: topDailyPairs, weekly: topWeeklyPairs });
+
+                // Prefetch first ten daily and weekly pairs
+                const { list: pairsToFetch } = [
+                    ...topDailyPairs.slice(0, 10),
+                    ...topWeeklyPairs.slice(0, 10),
+                ].reduce(
+                    (
+                        acc: {
+                            list: MarketStats[];
+                            lookup: { [pairId: string]: boolean };
+                        },
+                        pair
+                    ) => {
+                        if (!acc.lookup[pair.id]) {
+                            acc.list.push(pair);
+                        }
+                        return acc;
+                    },
+                    { list: [], lookup: {} }
+                );
+
+                setPairsToFetch(pairsToFetch);
+            }
+        };
+
         void fetchAllPairs();
+        void fetchTopPairs();
     }, []);
-
-    if (currentError) {
-        return (
-            <Container>
-                <h2>Oops, the grapes went bad.</h2>
-                <p>Error: {currentError}</p>
-
-                <h6>Refresh the page to try again.</h6>
-            </Container>
-        );
-    }
 
     return (
         <Router>
@@ -82,27 +126,39 @@ function App(): ReactElement {
                         wallet={useWalletProps.wallet}
                     />
                 </div>
-                <div className='app-body' id='app-body'>
-                    <ConnectWalletModal
-                        show={showConnectWallet}
-                        setShow={setShowConnectWallet}
-                        {...useWalletProps}
-                    />
-                    <Switch>
-                        {/* <Route path='/positions'>
-                            <PositionContainer wallet={wallet} />
-                        </Route> */}
-                        <Route path='/market'>
-                            <MarketContainer />
-                        </Route>
-                        <Route path='/pair'>
-                            <PairContainer allPairs={allPairs} />
-                        </Route>
-                        <Route path='/'>
-                            <LandingContainer />
-                        </Route>
-                    </Switch>
-                </div>
+                {currentError ? (
+                    <Container>
+                        <h2>Oops, the grapes went bad.</h2>
+                        <p>Error: {currentError}</p>
+
+                        <h6>Refresh the page to try again.</h6>
+                    </Container>
+                ) : (
+                    <div className='app-body' id='app-body'>
+                        <ConnectWalletModal
+                            show={showConnectWallet}
+                            setShow={setShowConnectWallet}
+                            {...useWalletProps}
+                        />
+                        <Switch>
+                            {/* <Route path='/positions'>
+                                <PositionContainer wallet={wallet} />
+                            </Route> */}
+                            <Route path='/market'>
+                                <MarketContainer />
+                            </Route>
+                            <Route path='/pair'>
+                                <PairContainer
+                                    allPairs={allPairs}
+                                    prefetchedPairs={prefetchedPairs}
+                                />
+                            </Route>
+                            <Route path='/'>
+                                <LandingContainer topPairs={topPairs} />
+                            </Route>
+                        </Switch>
+                    </div>
+                )}
             </div>
         </Router>
     );

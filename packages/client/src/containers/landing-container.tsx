@@ -2,66 +2,31 @@ import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 
 import { MarketStats } from '@sommelier/shared-types';
-import { IError } from 'types/states';
+import { TopPairsState } from 'types/states';
 import mixpanel from 'util/mixpanel';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import TopPairsWidget from 'components/top-pairs-widget';
 import TelegramCTA from 'components/telegram-cta';
 
-function LandingContainer(): JSX.Element {
+function LandingContainer({
+    topPairs,
+}: {
+    topPairs: TopPairsState | null;
+}): JSX.Element {
     // const [marketData, setMarketData] = useState<MarketStats[] | null>(null);
-    const [topPairs, setTopPairs] = useState<{
-        daily: MarketStats[];
-        weekly: MarketStats[];
-    } | null>(null);
-    const [currentError, setError] = useState<string | null>(null);
 
     useEffect(() => {
         mixpanel.track('pageview:landing', {});
     }, []);
 
-    useEffect(() => {
-        const fetchMarketData = async () => {
-            // Fetch all pairs
-            const [
-                { data: topWeeklyPairs, error: topWeeklyPairsError },
-                { data: topDailyPairs, error: topDailyPairsError },
-            ] = await Promise.all([
-                Uniswap.getWeeklyTopPerformingPairs(),
-                Uniswap.getDailyTopPerformingPairs(),
-            ]);
-
-            const error = topWeeklyPairsError ?? topDailyPairsError;
-
-            if (error) {
-                // we could not get our market data
-                console.warn(`Could not fetch market data: ${error}`);
-                setError(error);
-                return;
-            }
-
-            // if (marketData) {
-            //     setMarketData(marketData);
-            // }
-
-            if (topWeeklyPairs && topDailyPairs) {
-                setTopPairs({ daily: topDailyPairs, weekly: topWeeklyPairs });
-            }
-        };
-        void fetchMarketData();
-    }, []);
-
     // (window as any).marketData = marketData;
     (window as any).topPairs = topPairs;
 
-    if (currentError) {
+    if (!topPairs) {
         return (
-            <Container>
-                <h2>Oops, the grapes went bad.</h2>
-                <p>Error: {currentError}</p>
-
-                <h6>Refresh the page to try again.</h6>
+            <Container className='loading-container'>
+                <div className='wine-pulse'>🍷</div>
             </Container>
         );
     }
