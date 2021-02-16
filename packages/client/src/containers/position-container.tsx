@@ -4,13 +4,14 @@ import PropTypes from 'prop-types';
 import mixpanel from 'util/mixpanel';
 
 import { LPPositionData, Token } from '@sommelier/shared-types';
-import { Wallet, IError } from 'types/states';
+import { Wallet } from 'types/states';
 
 // import PositionSelector from 'components/position-selector';
 import LPStatsChart from 'components/lp-stats-chart';
 import USDValueWidget from 'components/usd-value-widget';
 import PositionsTable from 'components/positions-table';
 import { resolveLogo } from 'components/token-with-logo';
+import PageError from 'components/page-error';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 
@@ -100,14 +101,7 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
 
     // If error, display an error page
     if (currentError) {
-        return (
-            <Container>
-                <h2>Oops, the grapes went bad.</h2>
-                <p>Error: {currentError}</p>
-
-                <h6>Refresh the page to try again.</h6>
-            </Container>
-        );
+        return <PageError errorMsg={currentError} />;
     }
 
     if (!wallet?.account) {

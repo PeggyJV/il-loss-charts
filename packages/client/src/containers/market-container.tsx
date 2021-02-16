@@ -6,7 +6,6 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import BigNumber from 'bignumber.js';
 
 import { UniswapPair, MarketStats } from '@sommelier/shared-types';
-import { IError } from 'types/states';
 
 import { MarketData } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
@@ -14,6 +13,7 @@ import mixpanel from 'util/mixpanel';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { resolveLogo } from 'components/token-with-logo';
+import PageError from 'components/page-error';
 
 function OverviewContainer({
     marketData,
@@ -31,14 +31,7 @@ function OverviewContainer({
     (window as any).topPairs = topPairs;
 
     if (currentError) {
-        return (
-            <Container>
-                <h2>Oops, the grapes went bad.</h2>
-                <p>Error: {currentError}</p>
-
-                <h6>Refresh the page to try again.</h6>
-            </Container>
-        );
+        return <PageError errorMsg={currentError} />;
     }
 
     return (

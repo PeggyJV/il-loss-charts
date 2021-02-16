@@ -38,6 +38,7 @@ import LPStatsChart from 'components/lp-stats-highchart';
 import LatestTradesSidebar from 'components/latest-trades-sidebar';
 import TotalPoolStats from 'components/total-pool-stats';
 import TelegramCTA from 'components/telegram-cta';
+import PageError from 'components/page-error';
 
 function PairContainer({
     allPairs,
@@ -57,7 +58,6 @@ function PairContainer({
     let prefetchedPair: PairDataState | null = null;
     if (pairId && prefetchedPairs) {
         prefetchedPair = prefetchedPairs[pairId];
-        console.log('PREFETCHED', prefetchedPair);
     }
 
     const { isLoading, currentError, lpInfo, latestSwaps } = usePairData(
@@ -341,14 +341,7 @@ function PairContainer({
 
     // If error, display an error page
     if (currentError) {
-        return (
-            <Container>
-                <h2>Oops, the grapes went bad.</h2>
-                <p>Error: {currentError}</p>
-
-                <h6>Refresh the page to try again.</h6>
-            </Container>
-        );
+        return <PageError errorMsg={currentError} />;
     }
 
     // If no lp stats, we haven't completed our first data fetch yet

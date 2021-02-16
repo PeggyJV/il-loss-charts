@@ -24,6 +24,15 @@ body {
     animation-timing-function: ease;
 }
 
+.wine-spill {
+    animation-duration: 1s;
+    transform-origin: bottom;
+    animation-name: rotate-spill;
+    animation-fill-mode: forwards;
+    animation-timing-function: linear;
+    margin-bottom: 1em;
+}
+
 @keyframes bounce-rotate {
     0% {
         transform: translateY(0) rotate(0);
@@ -35,6 +44,22 @@ body {
         transform: translateY(0);
     }
 }
+
+@keyframes rotate-spill {
+    0% {
+        transform: rotate(0);
+    }
+    75% {
+        transform: rotate(90deg);
+    }
+    90% {
+        transform: rotate(88deg);
+    }
+    100% {
+        transform: rotate(90deg);
+    }
+}
+
 
 @keyframes pulse_animation {
     0% { transform: scale(1); }
@@ -197,6 +222,20 @@ body {
     align-self: center;
     // opacity: 0.7;
     // background-color: #ffffff;
+}
+
+.error-container {
+    height: 40em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.8;
+}
+
+.error-container .error-message {
+    font-size: 0.8em;
+    font-weight: 700;
 }
 
 .stats-card-title {

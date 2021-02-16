@@ -13,6 +13,7 @@ import PairContainer from 'containers/pair-container';
 // import PositionContainer from 'containers/position-container';
 import SideMenu from 'components/side-menu';
 import ConnectWalletModal from 'components/connect-wallet-modal';
+import PageError from 'components/page-error';
 
 import useWallet from 'hooks/use-wallet';
 import usePrefetch from 'hooks/use-prefetch';
@@ -164,39 +165,36 @@ function App(): ReactElement {
                         wallet={useWalletProps.wallet}
                     />
                 </div>
-                {currentError ? (
-                    <Container>
-                        <h2>Oops, the grapes went bad.</h2>
-                        <p>Error: {currentError}</p>
-
-                        <h6>Refresh the page to try again.</h6>
-                    </Container>
-                ) : (
-                    <div className='app-body' id='app-body'>
-                        <ConnectWalletModal
-                            show={showConnectWallet}
-                            setShow={setShowConnectWallet}
-                            {...useWalletProps}
-                        />
-                        <Switch>
-                            {/* <Route path='/positions'>
-                                <PositionContainer wallet={wallet} />
-                            </Route> */}
-                            <Route path='/market'>
-                                <MarketContainer marketData={marketData} />
-                            </Route>
-                            <Route path='/pair'>
-                                <PairContainer
-                                    allPairs={allPairs}
-                                    prefetchedPairs={prefetchedPairs}
-                                />
-                            </Route>
-                            <Route path='/'>
-                                <LandingContainer topPairs={topPairs} />
-                            </Route>
-                        </Switch>
-                    </div>
-                )}
+                <div className='app-body' id='app-body'>
+                    {currentError ? (
+                        <PageError errorMsg={currentError} />
+                    ) : (
+                        <>
+                            <ConnectWalletModal
+                                show={showConnectWallet}
+                                setShow={setShowConnectWallet}
+                                {...useWalletProps}
+                            />
+                            <Switch>
+                                {/* <Route path='/positions'>
+                                    <PositionContainer wallet={wallet} />
+                                </Route> */}
+                                <Route path='/market'>
+                                    <MarketContainer marketData={marketData} />
+                                </Route>
+                                <Route path='/pair'>
+                                    <PairContainer
+                                        allPairs={allPairs}
+                                        prefetchedPairs={prefetchedPairs}
+                                    />
+                                </Route>
+                                <Route path='/'>
+                                    <LandingContainer topPairs={topPairs} />
+                                </Route>
+                            </Switch>
+                        </>
+                    )}
+                </div>
             </div>
         </Router>
     );
