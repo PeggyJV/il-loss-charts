@@ -17,6 +17,7 @@ import ConnectWalletModal from 'components/connect-wallet-modal';
 import useWallet from 'hooks/use-wallet';
 import usePrefetch from 'hooks/use-prefetch';
 
+import initialData from 'constants/initialData.json';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { calculatePairRankings } from 'services/calculate-stats';
 
@@ -69,12 +70,15 @@ function App(): ReactElement {
             const [
                 { data: topWeeklyPairs, error: topWeeklyPairsError },
                 { data: topDailyPairs, error: topDailyPairsError },
+                { data: wethDaiPair, error: wethDaiPairError },
             ] = await Promise.all([
                 Uniswap.getWeeklyTopPerformingPairs(),
                 Uniswap.getDailyTopPerformingPairs(),
+                Uniswap.getPairOverview(initialData.pairId),
             ]);
 
-            const error = topWeeklyPairsError ?? topDailyPairsError;
+            const error =
+                topWeeklyPairsError ?? topDailyPairsError ?? wethDaiPairError;
 
             if (error) {
                 // we could not get our market data
@@ -87,13 +91,14 @@ function App(): ReactElement {
             //     setMarketData(marketData);
             // }
 
-            if (topWeeklyPairs && topDailyPairs) {
+            if (topWeeklyPairs && topDailyPairs && wethDaiPair) {
                 setTopPairs({ daily: topDailyPairs, weekly: topWeeklyPairs });
 
                 // Prefetch first ten daily and weekly pairs
                 const { list: pairsToFetch } = [
                     ...topDailyPairs.slice(0, 10),
                     ...topWeeklyPairs.slice(0, 10),
+                    wethDaiPair,
                 ].reduce(
                     (
                         acc: {
@@ -103,7 +108,9 @@ function App(): ReactElement {
                         pair
                     ) => {
                         if (!acc.lookup[pair.id]) {
-                            acc.list.push(pair);
+                            // TODO: Fix this typing. We don't need a UniswapPair, or MarketStats
+                            // All we need is an objefct with an ID
+                            acc.list.push((pair as any) as MarketStats);
                         }
                         return acc;
                     },
