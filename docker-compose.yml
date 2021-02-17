@@ -13,7 +13,7 @@ services:
   #     - app
 
   app:
-    image: node:14
+    image: sommelier_prod
     build: .
     container_name: sommelier_app
     links:
