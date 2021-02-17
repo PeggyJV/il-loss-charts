@@ -289,34 +289,37 @@ body {
 }
 
 .stats-card {
-    height: 8em;
-    // min-width: 10.5em;
     flex-grow: 1;
-    // flex-basis: 30%;
+    height: 8em;
+    min-width: 122px;
 }
 
 .stats-card.gray {
     background: rgb(247,247,251);    
 }
 
-.stats-card.window-button-card {
-    flex-basis: auto;
-    flex-grow: 0.3;
-}
-
 .stats-card-title .badge {
     height: 17px;
+}
+
+.stats-card.window-button-card {
+    min-width: initial;
 }
 
 .window-button-card {
     width: 6em;
 }
 
+.card-footnote {
+    position: relative;
+    top: 1.3em;
+    font-size: 0.9rem;
+}
+
 .window-button {
-    flex: 1;
-    width: 4em;
+    width: 5em;
     margin-bottom: 0.5em;
-    font-size: 0.8em;
+    font-size: 0.6em;
     text-align: center;
 }
 

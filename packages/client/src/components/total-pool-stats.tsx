@@ -1,4 +1,4 @@
-import { Button, Card } from 'react-bootstrap';
+import { Button, Card, CardGroup, CardDeck } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
 
@@ -61,73 +61,79 @@ function TotalPoolStats({
 
     return (
         <div className='pool-stats-container'>
-            {/* <CardDeck> */}
-            <USDValueWidget
-                title={`${prefix} USD Volume`}
-                badge={`#${
-                    allPairs?.lookups?.[lpInfo.pairData.id]?.volumeRanking || ''
-                }`}
-                value={stats?.volumeUSD?.toFixed(4)}
-                footnote={
-                    stats?.volumeUSDChange && (
-                        <PercentChangeStat
-                            value={stats?.volumeUSDChange?.times(100)}
-                        />
-                    )
-                }
-            />
-            <USDValueWidget
-                title={'Total Liquidity'}
-                badge={`#${
-                    allPairs?.lookups?.[lpInfo.pairData.id]?.liquidityRanking ||
-                    ''
-                }`}
-                value={stats?.liquidityUSD?.toFixed(4)}
-                footnote={
-                    stats?.liquidityUSDChange && (
-                        <PercentChangeStat
-                            value={stats?.liquidityUSDChange?.times(100)}
-                        />
-                    )
-                }
-            />
-            <USDValueWidget
-                title={`${prefix} Fees Collected`}
-                badge={`#${
-                    allPairs?.lookups?.[lpInfo.pairData.id]?.volumeRanking || ''
-                }`}
-                value={stats?.feesUSD?.toFixed(4)}
-                footnote={
-                    stats?.feesUSDChange && (
-                        <PercentChangeStat
-                            value={stats?.feesUSDChange?.times(100)}
-                        />
-                    )
-                }
-            />
-            <Card className='stats-card window-button-card no-border' body>
-                <Button
-                    variant={
-                        defaultWindow === 'day' ? 'primary' : 'outline-primary'
+            <CardGroup>
+                <USDValueWidget
+                    title={`${prefix} USD Volume`}
+                    badge={`#${
+                        allPairs?.lookups?.[lpInfo.pairData.id]
+                            ?.volumeRanking || ''
+                    }`}
+                    value={stats?.volumeUSD?.toFixed(4)}
+                    footnote={
+                        stats?.volumeUSDChange && (
+                            <PercentChangeStat
+                                value={stats?.volumeUSDChange?.times(100)}
+                            />
+                        )
                     }
-                    size='sm'
-                    className='window-button'
-                    onClick={() => handleSetWindow('day')}
-                >
-                    24H
-                </Button>
-                <Button
-                    variant={
-                        defaultWindow === 'week' ? 'primary' : 'outline-primary'
+                />
+                <USDValueWidget
+                    title={'Total Liquidity'}
+                    badge={`#${
+                        allPairs?.lookups?.[lpInfo.pairData.id]
+                            ?.liquidityRanking || ''
+                    }`}
+                    value={stats?.liquidityUSD?.toFixed(4)}
+                    footnote={
+                        stats?.liquidityUSDChange && (
+                            <PercentChangeStat
+                                value={stats?.liquidityUSDChange?.times(100)}
+                            />
+                        )
                     }
-                    size='sm'
-                    className='window-button'
-                    onClick={() => handleSetWindow('week')}
-                >
-                    7D
-                </Button>
-            </Card>
-            {/* </CardDeck> */}
+                />
+                <USDValueWidget
+                    title={`${prefix} Fees Collected`}
+                    badge={`#${
+                        allPairs?.lookups?.[lpInfo.pairData.id]
+                            ?.volumeRanking || ''
+                    }`}
+                    value={stats?.feesUSD?.toFixed(4)}
+                    footnote={
+                        stats?.feesUSDChange && (
+                            <PercentChangeStat
+                                value={stats?.feesUSDChange?.times(100)}
+                            />
+                        )
+                    }
+                />
+                <Card className='stats-card window-button-card no-border' body>
+                    <Button
+                        variant={
+                            defaultWindow === 'day'
+                                ? 'primary'
+                                : 'outline-primary'
+                        }
+                        size='sm'
+                        className='window-button'
+                        onClick={() => handleSetWindow('day')}
+                    >
+                        24H
+                    </Button>
+                    <Button
+                        variant={
+                            defaultWindow === 'week'
+                                ? 'primary'
+                                : 'outline-primary'
+                        }
+                        size='sm'
+                        className='window-button'
+                        onClick={() => handleSetWindow('week')}
+                    >
+                        7D
+                    </Button>
+                </Card>
+            </CardGroup>
         </div>
     );
 }
