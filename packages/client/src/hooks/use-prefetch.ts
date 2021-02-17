@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import pLimit from 'p-limit';
+import BigNumber from 'bignumber.js';
 
 import { UniswapPair } from '@sommelier/shared-types';
 import { PrefetchedPairState } from 'types/states';
@@ -95,12 +96,37 @@ export default function usePrefetch(
                             latestSwaps &&
                             mintsAndBurns
                         ) {
+                            // Find first data points with non-zero volume and liquidity
+                            const firstActiveDaily = historicalDailyData.findIndex(
+                                (dailyData) =>
+                                    new BigNumber(dailyData.reserveUSD).gt(0) &&
+                                    new BigNumber(dailyData.dailyVolumeUSD).gt(
+                                        0
+                                    )
+                            );
+
+                            const activeDaily = historicalDailyData.slice(
+                                firstActiveDaily
+                            );
+
+                            const firstActiveHourly = historicalHourlyData.findIndex(
+                                (dailyData) =>
+                                    new BigNumber(dailyData.reserveUSD).gt(0) &&
+                                    new BigNumber(dailyData.hourlyVolumeUSD).gt(
+                                        0
+                                    )
+                            );
+
+                            const activeHourly = historicalHourlyData.slice(
+                                firstActiveHourly
+                            );
+
                             return {
                                 isLoading: false,
                                 lpInfo: {
                                     pairData: newPair,
-                                    historicalDailyData,
-                                    historicalHourlyData,
+                                    historicalDailyData: activeDaily,
+                                    historicalHourlyData: activeHourly,
                                 },
                                 latestSwaps: {
                                     swaps: latestSwaps,

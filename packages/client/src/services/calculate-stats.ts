@@ -90,7 +90,6 @@ export function calculateLPStats({
         // Ignore if below lp date
         if (currentDate.getTime() < startDate.getTime()) return;
 
-        // Ignore if zero volume or liquidity
         if (!firstDaily) firstDaily = dataPoint;
 
         const poolShare = new BigNumber(lpLiquidityUSD).div(

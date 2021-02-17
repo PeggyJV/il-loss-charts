@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import BigNumber from 'bignumber.js';
 
 import { PairPricesState, SwapsState, PairDataState } from 'types/states';
 
@@ -75,12 +76,33 @@ export default function usePairData(
                 }
 
                 if (historicalDailyData && historicalHourlyData) {
+                    // Find first data points with non-zero volume and liquidity
+                    const firstActiveDaily = historicalDailyData.findIndex(
+                        (dailyData) =>
+                            new BigNumber(dailyData.reserveUSD).gt(0) &&
+                            new BigNumber(dailyData.dailyVolumeUSD).gt(0)
+                    );
+
+                    const activeDaily = historicalDailyData.slice(
+                        firstActiveDaily
+                    );
+
+                    const firstActiveHourly = historicalHourlyData.findIndex(
+                        (dailyData) =>
+                            new BigNumber(dailyData.reserveUSD).gt(0) &&
+                            new BigNumber(dailyData.hourlyVolumeUSD).gt(0)
+                    );
+
+                    const activeHourly = historicalHourlyData.slice(
+                        firstActiveHourly
+                    );
+
                     setLPInfo(
                         (prevLpInfo): PairPricesState => ({
                             ...prevLpInfo,
                             pairData: newPair,
-                            historicalDailyData,
-                            historicalHourlyData,
+                            historicalDailyData: activeDaily,
+                            historicalHourlyData: activeHourly,
                         })
                     );
                 } else {
@@ -149,7 +171,6 @@ export default function usePairData(
     }, [pairId]);
 
     if (!pairId || isLoading) {
-        console.log('RETURNING IS LOADING TRUE', pairId, isLoading);
         return { isLoading: true };
     } else if (!isLoading && currentError) {
         return { isLoading, currentError };
