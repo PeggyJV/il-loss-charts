@@ -88,9 +88,9 @@ export default function usePairData(
                     );
 
                     const firstActiveHourly = historicalHourlyData.findIndex(
-                        (dailyData) =>
-                            new BigNumber(dailyData.reserveUSD).gt(0) &&
-                            new BigNumber(dailyData.hourlyVolumeUSD).gt(0)
+                        (hourlyDatas) =>
+                            new BigNumber(hourlyDatas.reserveUSD).gt(0) &&
+                            new BigNumber(hourlyDatas.hourlyVolumeUSD).gt(0)
                     );
 
                     const activeHourly = historicalHourlyData.slice(

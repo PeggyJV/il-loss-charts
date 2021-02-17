@@ -6,7 +6,11 @@ import { DateTimePicker } from 'react-widgets';
 import { useMediaQuery } from 'react-responsive';
 import dateFnsLocalizer, { defaultFormats } from 'react-widgets-date-fns';
 
-import { UniswapPair, LiquidityData } from '@sommelier/shared-types';
+import {
+    UniswapPair,
+    UniswapDailyData,
+    LiquidityData,
+} from '@sommelier/shared-types';
 import { Pair, DailyData, HourlyData } from 'constants/prop-types';
 
 import 'styles/lp-input.scss';
@@ -18,6 +22,7 @@ function LPInput({
     lpDate,
     setLPDate,
     pairData,
+    historicalDailyData,
     lpShare,
     setLPShare,
     dataAtLPDate,
@@ -25,6 +30,7 @@ function LPInput({
     lpDate: Date;
     setLPDate: (newLPDate: Date) => void;
     pairData: UniswapPair;
+    historicalDailyData: UniswapDailyData[];
     lpShare: number;
     setLPShare: (newLPShare: number) => void;
     dataAtLPDate: LiquidityData;
@@ -88,6 +94,9 @@ function LPInput({
     const [token0Amt, setToken0Amt] = useState(0);
     const [token1Amt, setToken1Amt] = useState(0);
 
+    const minDate = new Date(historicalDailyData[0].date * 1000);
+    const oneDayMs = 24 * 60 * 60 * 1000;
+
     useEffect(() => {
         calcAmounts(lpShare, dataAtLPDate);
     }, [lpShare, dataAtLPDate]);
@@ -105,8 +114,8 @@ function LPInput({
                                         // @ts-expect-error: className is not on the props definition but does propagate to component
                                         className='lp-date-picker form-control'
                                         dropUp
-                                        min={new Date('2020-05-18')}
-                                        max={new Date()}
+                                        min={minDate}
+                                        max={new Date(Date.now() - oneDayMs)}
                                         format='yyyy-MM-dd'
                                         value={lpDate}
                                         onChange={handleNewDate}
