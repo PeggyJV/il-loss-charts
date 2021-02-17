@@ -3,9 +3,9 @@ import { useTransition, animated } from 'react-spring';
 
 function FadeOnChange({ children }: { children: ReactChild }): JSX.Element {
     const transitions = useTransition(children, null, {
-        from: { position: 'absolute', opacity: 0 },
+        from: { opacity: 0 },
         enter: { opacity: 1 },
-        update: { position: 'absolute', opacity: 1 },
+        update: { opacity: 1 },
         leave: { opacity: 0 },
         duration: 500,
     } as any); // 'duration' is allowed but not in typedef
