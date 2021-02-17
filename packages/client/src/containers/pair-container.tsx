@@ -78,7 +78,7 @@ function PairContainer({
         window.history.replaceState(
             null,
             'Sommelier.finance',
-            `/pair?id=${pairId}`
+            `/pair?id=${pairId}&timeWindow=${timeWindow}`
         );
     }
 
@@ -381,33 +381,33 @@ function PairContainer({
                     <Row noGutters>
                         {isDesktop ? (
                             <>
-                                <Col lg={3} className='trades-sidebar'>
+                                {/* <Col lg={3} className='trades-sidebar'>
                                     {latestSwaps && (
                                         <LatestTradesSidebar
                                             latestBlock={latestBlock}
                                             latestSwaps={latestSwaps}
                                         />
                                     )}
-                                </Col>
-                                <Col lg={9}>
+                                </Col> */}
+                                <Col>
                                     {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
                                     <LPStatsChart lpStats={lpStats} />
                                 </Col>
                             </>
                         ) : (
                             <>
-                                <Col lg={9}>
+                                <Col>
                                     {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
                                     <LPStatsChart lpStats={lpStats} />
                                 </Col>
-                                <Col lg={3} className='trades-sidebar'>
+                                {/* <Col lg={3} className='trades-sidebar'>
                                     {latestSwaps && (
                                         <LatestTradesSidebar
                                             latestBlock={latestBlock}
                                             latestSwaps={latestSwaps}
                                         />
                                     )}
-                                </Col>
+                                </Col> */}
                             </>
                         )}
                     </Row>

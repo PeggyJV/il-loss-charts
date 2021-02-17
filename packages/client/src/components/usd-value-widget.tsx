@@ -28,12 +28,14 @@ function USDValueWidget({
                     {badge && <Badge variant='secondary'>{badge}</Badge>}
                 </Card.Title>
                 <Card.Text className='stats-card-body'>
-                    <FadeOnChange>{displayValue}</FadeOnChange>
+                    {/* <FadeOnChange>{displayValue}</FadeOnChange> */}
+                    {displayValue}
                 </Card.Text>
                 {footnote && (
-                    <p className='card-footnote'>
-                        <FadeOnChange>{footnote}</FadeOnChange>
-                    </p>
+                    <Card.Text className='card-footnote'>
+                        {/* <FadeOnChange>{footnote}</FadeOnChange> */}
+                        {footnote}
+                    </Card.Text>
                 )}
             </Card.Body>
         </Card>
