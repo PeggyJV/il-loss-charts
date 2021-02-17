@@ -14,6 +14,11 @@ interface ApolloResponse<T> {
     error?: ApolloError;
 }
 
+export interface EthBlock {
+    id: string;
+    number: number;
+    timestamp: Date;
+}
 export default class EthBlockFetcher {
     static FEE_RATIO = 0.003;
 
@@ -31,9 +36,7 @@ export default class EthBlockFetcher {
         },
     });
 
-    static async getFirstBlockAfter(
-        date: Date
-    ): Promise<{ id: string; number: number; timestamp: Date }> {
+    static async getFirstBlockAfter(date: Date): Promise<EthBlock> {
         const response: ApolloResponse<{
             blocks: Array<{ id: string; number: string; timestamp: string }>;
         }> = await EthBlockFetcher.client.query({

@@ -18,7 +18,7 @@ import {
 } from '@sommelier/shared-types';
 import { HTTPError } from 'api/util/errors';
 
-import EthBlockFetcher from 'services/eth-blocks';
+import EthBlockFetcher, { EthBlock } from 'services/eth-blocks';
 import redis from 'util/redis';
 import { wrapWithCache } from 'util/redis-data-cache';
 
@@ -120,9 +120,7 @@ export default class UniswapFetcher {
             throw new HTTPError(404);
         }
 
-        pair.volumeUSD = new BigNumber(pair.volumeUSD)
-            .plus(pair.untrackedVolumeUSD || 0)
-            .toString();
+        pair.volumeUSD = new BigNumber(pair.volumeUSD).toString();
         const feesUSD = new BigNumber(pair.volumeUSD, 10)
             .times(UniswapFetcher.FEE_RATIO)
             .toString();
@@ -250,16 +248,42 @@ export default class UniswapFetcher {
         return pairs;
     }
 
-    static async getPairDeltasByTime(
-        pairId: string,
-        startDate: Date,
-        endDate: Date,
-        fetchPartial = true
-    ): Promise<UniswapPair[]> {
-        const blockDatas = await Promise.all([
-            getFirstBlockAfter(startDate),
-            EthBlockFetcher.getLastBlockBefore(endDate),
-        ]);
+    static async getPairDeltasByTime({
+        pairId,
+        startDate,
+        endDate,
+        startBlock,
+        endBlock,
+        fetchPartial = true,
+    }: {
+        pairId: string;
+        startDate?: Date;
+        endDate?: Date;
+        startBlock?: EthBlock;
+        endBlock?: EthBlock;
+        fetchPartial?: boolean;
+    }): Promise<UniswapPair[]> {
+        let blockDatas: EthBlock[];
+        if (startBlock) {
+            if (!endBlock) {
+                throw new Error(
+                    'If providing start block must also provide end block'
+                );
+            }
+
+            blockDatas = [startBlock, endBlock];
+        } else {
+            if (!startDate || !endDate) {
+                throw new Error(
+                    'Must provide both start and end date if not providing block numbers'
+                );
+            }
+
+            blockDatas = await Promise.all([
+                getFirstBlockAfter(startDate),
+                EthBlockFetcher.getLastBlockBefore(endDate),
+            ]);
+        }
 
         const pairDataP = blockDatas.map(
             (block) =>
@@ -284,13 +308,29 @@ export default class UniswapFetcher {
             const pairStartDate = new Date(
                 parseInt(pairDatas[1].createdAtTimestamp, 10) * 1000
             );
+
             const pairStartBlock = await EthBlockFetcher.getFirstBlockAfter(
                 pairStartDate
             );
-            pairDatas[0] = await UniswapFetcher.cachedGetPairOverview(
-                pairId,
-                pairStartBlock.number
-            );
+
+            // Make sure pairStartBlock is actually after our first block
+            if (pairStartBlock.number > blockDatas[0].number) {
+                pairDatas[0] = await UniswapFetcher.cachedGetPairOverview(
+                    pairId,
+                    pairStartBlock.number
+                );
+            } else {
+                // Something is wrong, since the pair is old enough to have data at the starting block
+                console.error(
+                    `Could not get start block data for older pair - ${pairDatas[1].id}`
+                );
+
+                // Try to re-fetch
+                pairDatas[0] = await UniswapFetcher.cachedGetPairOverview(
+                    pairId,
+                    blockDatas[0].number
+                );
+            }
         }
 
         return pairDatas;

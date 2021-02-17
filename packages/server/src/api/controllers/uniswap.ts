@@ -4,6 +4,7 @@ import { Request } from 'express';
 import cacheMiddleware from 'api/middlewares/cache';
 
 import UniswapFetcher from 'services/uniswap';
+import EthBlockFetcher from 'services/eth-blocks';
 import {
     UniswapDailyData,
     UniswapHourlyData,
@@ -44,6 +45,12 @@ const getHistoricalHourlyData = wrapWithCache(
     UniswapFetcher.getHistoricalHourlyData,
     300,
     true
+);
+const getFirstBlockAfter = wrapWithCache(
+    redis,
+    EthBlockFetcher.getFirstBlockAfter,
+    10000,
+    false
 );
 
 // Start off keeping cache populated
@@ -99,18 +106,18 @@ class UniswapController {
             count
         );
 
-        // TODO: Save requests by only fetching first and last day
-        // const historicalFetches = topPairs.map(
-        //     (pair: UniswapPair): Promise<UniswapHourlyData[]> =>
-        //         UniswapFetcher.getHourlyData(pair.id, startDate, endDate)
-        // );
+        const [startBlock, endBlock] = await Promise.all([
+            getFirstBlockAfter(startDate),
+            EthBlockFetcher.getLastBlockBefore(endDate),
+        ]);
+
         const historicalFetches = topPairs.map(
             (pair: UniswapPair): Promise<UniswapPair[]> =>
-                UniswapFetcher.getPairDeltasByTime(
-                    pair.id,
-                    startDate,
-                    endDate
-                ).catch((err) => {
+                UniswapFetcher.getPairDeltasByTime({
+                    pairId: pair.id,
+                    startBlock,
+                    endBlock,
+                }).catch((err) => {
                     // If we have no week-old data, just skip it
                     if (err.status === 404) {
                         return [];
@@ -213,13 +220,18 @@ class UniswapController {
         //     historicalFetches
         // );
 
+        const [startBlock, endBlock] = await Promise.all([
+            getFirstBlockAfter(startDate),
+            EthBlockFetcher.getLastBlockBefore(endDate),
+        ]);
+
         const historicalFetches = topPairs.map(
             (pair: UniswapPair): Promise<UniswapPair[]> =>
-                UniswapFetcher.getPairDeltasByTime(
-                    pair.id,
-                    startDate,
-                    endDate
-                ).catch((err) => {
+                UniswapFetcher.getPairDeltasByTime({
+                    pairId: pair.id,
+                    startBlock,
+                    endBlock,
+                }).catch((err) => {
                     // If we have no week-old data, just skip it
                     if (err.status === 404) {
                         return [];
@@ -393,18 +405,19 @@ class UniswapController {
         const topPairs = await getTopPairs(100, 'volumeUSD');
         const pairsByVol = topPairs.slice(0, 40);
 
-        // TODO: Save requests by only fetching first and last day
-        // const historicalFetches = pairsByVol.map((pair) =>
-        //     UniswapFetcher.getHistoricalDailyData(pair.id, startDate, endDate)
-        // );
+        const [startBlock, endBlock] = await Promise.all([
+            getFirstBlockAfter(startDate),
+            EthBlockFetcher.getLastBlockBefore(endDate),
+        ]);
+
         const historicalFetches = topPairs.map(
             (pair: UniswapPair): Promise<UniswapPair[]> =>
-                UniswapFetcher.getPairDeltasByTime(
-                    pair.id,
-                    startDate,
-                    endDate,
-                    false
-                ).catch((err) => {
+                UniswapFetcher.getPairDeltasByTime({
+                    pairId: pair.id,
+                    startBlock,
+                    endBlock,
+                    fetchPartial: false,
+                }).catch((err) => {
                     // If we have no week-old data, just skip it
                     if (err.status === 404) {
                         return [];
