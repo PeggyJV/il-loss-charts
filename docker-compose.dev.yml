@@ -15,7 +15,7 @@ services:
   app:
     image: node:14
     build: .
-    container_name: sommelier-app
+    container_name: sommelier-app-dev
     links:
       - redis
     ports:
