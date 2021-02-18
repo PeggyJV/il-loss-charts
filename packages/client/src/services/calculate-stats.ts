@@ -173,12 +173,12 @@ export function calculateLPStats({
 
 export function calculateTimeWindowStats(
     lpInfo: PairPricesState,
-    dataPeriod: 'hourly' | 'daily',
     period: StatsWindow = 'total'
 ): TimeWindowStats {
     let runningVolume: BigNumber[];
     let runningPoolFees: BigNumber[];
     let dailyLiquidity: BigNumber[];
+    let fullDates: Date[];
 
     if (period === 'day' || period === 'week') {
         const lpStats = calculateLPStats({
@@ -192,6 +192,7 @@ export function calculateTimeWindowStats(
         runningVolume = lpStats.runningVolume;
         runningPoolFees = lpStats.runningPoolFees;
         dailyLiquidity = lpStats.dailyLiquidity;
+        fullDates = lpStats.fullDates as Date[];
     } else {
         const lpStats = calculateLPStats({
             dailyData: lpInfo?.historicalDailyData,
@@ -202,17 +203,8 @@ export function calculateTimeWindowStats(
         runningVolume = lpStats.runningVolume;
         runningPoolFees = lpStats.runningPoolFees;
         dailyLiquidity = lpStats.dailyLiquidity;
+        fullDates = lpStats.fullDates as Date[];
     }
-
-    // Calculate 24h and 7d stats for the pair itself
-    const dailyInterval = dataPeriod === 'daily' ? 1 : 24;
-    const windowMultiplier = period === 'day' ? 1 : 7;
-    const numPoints = runningVolume.length;
-
-    const lastIndex = numPoints - 1;
-    let periodStartIndex = numPoints - (dailyInterval * windowMultiplier + 1);
-    const prevPeriodStartIndex =
-        numPoints - (dailyInterval * windowMultiplier * 2 + 1);
 
     const totalStats: StatsOverTime = {
         volumeUSD: new BigNumber(lpInfo.pairData.volumeUSD),
@@ -223,6 +215,36 @@ export function calculateTimeWindowStats(
     if (period === 'total') {
         return { totalStats };
     } else {
+        const numPoints = runningVolume.length;
+        const lastIndex = numPoints - 1;
+
+        let periodStartIndex: number;
+        let prevPeriodStartIndex: number;
+
+        if (period === 'day') {
+            const oneDayMs = 60 * 60 * 24 * 1000;
+            const oneDayAgo = Date.now() - oneDayMs;
+            const twoDaysAgo = Date.now() - oneDayMs * 2;
+
+            periodStartIndex = fullDates.findIndex(
+                (d) => Math.abs(d.getTime() - oneDayAgo) <= 1000 * 60 * 60
+            );
+            prevPeriodStartIndex = fullDates.findIndex(
+                (d) => Math.abs(d.getTime() - twoDaysAgo) <= 1000 * 60 * 60
+            );
+        } else {
+            const oneWeekMs = 60 * 60 * 24 * 1000 * 7;
+            const oneWeekAgo = Date.now() - oneWeekMs;
+            const twoWeeksAgo = Date.now() - oneWeekMs * 2;
+
+            periodStartIndex = fullDates.findIndex(
+                (d) => Math.abs(d.getTime() - oneWeekAgo) <= 1000 * 60 * 60
+            );
+            prevPeriodStartIndex = fullDates.findIndex(
+                (d) => Math.abs(d.getTime() - twoWeeksAgo) <= 1000 * 60 * 60
+            );
+        }
+
         if (periodStartIndex < 0 || prevPeriodStartIndex < 0) {
             console.warn(
                 `Stats data of length ${numPoints} not long enough to calculate ${period} data`

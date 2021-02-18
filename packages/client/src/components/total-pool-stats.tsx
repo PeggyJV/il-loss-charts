@@ -37,12 +37,7 @@ function TotalPoolStats({
     defaultWindow?: StatsWindow;
     setWindow: (window: StatsWindow) => void;
 }): JSX.Element {
-    const dataPeriod = defaultWindow === 'day' ? 'hourly' : 'daily';
-    const trailingStats = calculateTimeWindowStats(
-        lpInfo,
-        dataPeriod,
-        defaultWindow
-    );
+    const trailingStats = calculateTimeWindowStats(lpInfo, defaultWindow);
     const stats =
         defaultWindow === 'total'
             ? trailingStats.totalStats

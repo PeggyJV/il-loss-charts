@@ -48,9 +48,8 @@ export default function usePairData(
             if (newPair) {
                 const createdAt = parseInt(newPair.createdAtTimestamp, 10);
                 const pairCreatedAt = new Date(createdAt * 1000);
-                const oneWeekAgo = new Date(
-                    Date.now() - 60 * 60 * 24 * 7 * 1000
-                );
+                const oneDayMs = 60 * 60 * 24 * 1000;
+                const twoWeeksAgo = new Date(Date.now() - oneDayMs * 15);
 
                 // Get historical data for pair from start date until now
                 // Also fetch last 7 days hourly
@@ -60,7 +59,7 @@ export default function usePairData(
                     { data: historicalHourlyData, error: hourlyDataError },
                 ] = await Promise.all([
                     Uniswap.getHistoricalDailyData(pairId, pairCreatedAt),
-                    Uniswap.getHistoricalHourlyData(pairId, oneWeekAgo),
+                    Uniswap.getHistoricalHourlyData(pairId, twoWeeksAgo),
                 ]);
 
                 (window as any).hourlyData = historicalHourlyData;
