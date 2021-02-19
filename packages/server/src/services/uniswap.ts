@@ -296,7 +296,34 @@ export default class UniswapFetcher {
                 })
         );
 
-        const pairDatas = await Promise.all(pairDataP);
+        let pairDatas: UniswapPair[];
+
+        try {
+            pairDatas = await Promise.all(pairDataP);
+        } catch (e) {
+            // If error message tells us we're behind, try again with no block
+            const blockBehindMsg = `Failed to decode`;
+
+            if (e.message.match(blockBehindMsg)) {
+                pairDatas = await Promise.all([
+                    <Promise<UniswapPair>>UniswapFetcher.cachedGetPairOverview(
+                        pairId,
+                        blockDatas[0].number
+                    ).catch((err: HTTPError) => {
+                        if (err.status === 404) return null;
+                        else throw err;
+                    }),
+                    <Promise<UniswapPair>>UniswapFetcher.cachedGetPairOverview(
+                        pairId
+                    ).catch((err: HTTPError) => {
+                        if (err.status === 404) return null;
+                        else throw err;
+                    }),
+                ]);
+            } else {
+                throw e;
+            }
+        }
 
         if (
             fetchPartial &&
