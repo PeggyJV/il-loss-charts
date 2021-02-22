@@ -6,6 +6,9 @@ import { AllPairsState } from 'types/states';
 
 import { PairWithLogo } from 'components/token-with-logo';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
+
 type SearchKeys = { [searchKey: string]: UniswapPair };
 
 function PairSearch({
@@ -74,6 +77,8 @@ function PairSearch({
             // @ts-expect-error: className is not on the props definition but does propagate to component
             className='pair-search'
             placeholder='Search for pairs and tokens by symbol or address...'
+            busy
+            busySpinner={<FontAwesomeIcon icon={faSearch} />}
             data={pairs}
             textField={renderTextField}
             value={currentValue}
