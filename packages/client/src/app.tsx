@@ -10,6 +10,7 @@ import { Container } from 'react-bootstrap';
 import LandingContainer from 'containers/landing-container';
 import MarketContainer from 'containers/market-container';
 import PairContainer from 'containers/pair-container';
+import SearchContainer from 'containers/search-container';
 // import PositionContainer from 'containers/position-container';
 import SideMenu from 'components/side-menu';
 import ConnectWalletModal from 'components/connect-wallet-modal';
@@ -187,6 +188,9 @@ function App(): ReactElement {
                                         allPairs={allPairs}
                                         prefetchedPairs={prefetchedPairs}
                                     />
+                                </Route>
+                                <Route path='/search'>
+                                    <SearchContainer allPairs={allPairs} />
                                 </Route>
                                 <Route path='/'>
                                     <LandingContainer topPairs={topPairs} />
