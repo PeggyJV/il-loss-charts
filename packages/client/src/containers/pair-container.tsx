@@ -30,6 +30,7 @@ import usePairData from 'hooks/use-pair-data';
 import { calculateLPStats } from 'services/calculate-stats';
 import mixpanel from 'util/mixpanel';
 
+import PairSearch from 'components/pair-search';
 import PairSelector from 'components/pair-selector';
 import LPInput from 'components/lp-input';
 import LPStatsWidget from 'components/lp-stats-widget';
@@ -358,6 +359,7 @@ function PairContainer({
         <Container fluid>
             <h4>Impermanent Loss Calculator</h4>
             <TelegramCTA />
+            <PairSearch pairs={allPairs.pairs} setPair={setPairId} />
             <Row>
                 <Col lg={isLargestBreakpoint ? 10 : 12}>
                     <Row className='top-stats-row'>

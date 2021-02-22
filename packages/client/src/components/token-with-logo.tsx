@@ -53,4 +53,20 @@ export function resolveLogo(addressLower?: string): JSX.Element {
     );
 }
 
+export function PairWithLogo({
+    pair: { id, token0, token1 },
+}: {
+    pair: UniswapPair;
+}): JSX.Element {
+    return (
+        <span>
+            {resolveLogo(token0.id)}{' '}
+            <span className='market-data-pair-span'>
+                {token0.symbol}/{token1.symbol}
+            </span>{' '}
+            {resolveLogo(token1.id)}
+        </span>
+    );
+}
+
 export default TokenWithLogo;

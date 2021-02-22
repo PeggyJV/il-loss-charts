@@ -145,6 +145,11 @@ body {
     font-weight: 500;
 }
 
+.pair-search {
+    margin-bottom: 1em;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
 .pair-selector {
     width: calc(100% - 42px);
     font-size: 0.8em;
