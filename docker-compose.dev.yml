@@ -28,6 +28,6 @@ services:
   redis_dev:
     image: redis:alpine
     container_name: cache_dev
-    command: ["redis-server", "--bind", "redis", "--port", "6380"]
+    command: ["redis-server", "--bind", "redis_dev", "--port", "6380"]
     ports:
       - "6380:6380"
