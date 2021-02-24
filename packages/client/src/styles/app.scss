@@ -1,11 +1,61 @@
 // Import Bootstrap and its default variables
 @import '~bootstrap/scss/bootstrap.scss';
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;400;500;700&display=swap');
+@import './colors.scss';
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@100;400;600&family=Source+Sans+Pro&display=swap');
 
-body {
-    font-family: 'Noto Sans JP', sans-serif;
+.dark {
+    --bgMain: var(--blue100);
+    --bgSecondary: var(--blue80);
+    --bgOffset: var(--blue60);
+    --borderMain: var(--blue60);
+    --borderAccent: var(--magenta60);
+    --primary: var(--white40);
+    --primarySecondary: var(--white60);
+}
+html {
+    font-size: 16px;
 }
 
+body {
+    font-family: 'Source Sans Pro', sans-serif;
+    background: var(--bgMain);
+    color: var(--primary);
+    overflow: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    padding: 0;
+}
+
+.app-header {
+    font-weight: bold;
+    position: fixed;
+    margin: 0 auto;
+    top: 1.6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Barlow Condensed';
+
+}
+.top-lp-filter {
+    margin-top: 50px;
+
+    height: 100px;
+    overflow: none;
+}
+.top-pairs {
+    border: 1px solid blue;
+    height: 1000px;
+    overflow-y: auto;
+}
+.wrapper {
+    border: 1px solid green;
+    display: flex;
+    flex-direction: column;
+    height: 1000px;
+}
 .wine-bounce {
     font-size: 5rem;
     animation-duration: 2s;
@@ -113,6 +163,7 @@ body {
 .app-body {
     width: calc(100% - 250px);
     padding: 2em;
+    background: var(--bgMain);
 }
 
 .page-title {
@@ -398,6 +449,8 @@ body {
 
 .app {
     display: flex;
+    color: var(--primary);
+    background: var(--bgMain);
 }
 
 .il-market-container {
@@ -460,6 +513,6 @@ th .caret-4-desc:after {
 @media (max-width: 500px) {
   .app-body {
     width: 100%;
-    margin-top: 3em;
+    margin-top: 8rem;
   }
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
+import './../styles/app.scss';
 
 import { MarketStats } from '@sommelier/shared-types';
 import { TopPairsState } from 'types/states';
@@ -32,28 +33,45 @@ function LandingContainer({
     }
 
     return (
-        <div>
-            <h3>Top LP Opportunities in the Past 24 Hours</h3>
-            {/* <p>
+        <div className='wrapper'>
+            <div className='top-lp-filter'>
+                <h2>TOP LIQUIDITY PAIRS</h2>
+                {/* <p>
                 <em>
                     * These are the highest return pairs on Uniswap over the past 24 hours.
                 </em>
             </p> */}
-            <p>
-                Not financial advice. This is an alpha project. Trade at your
-                own risk.
-            </p>
-            <p>All calculated returns include Impermanent Loss.</p>
-            {topPairs?.daily && (
-                <TopPairsWidget topPairs={topPairs.daily} mode='daily' />
-            )}
-            <hr />
+                <p>
+                    Not financial advice. This is an alpha project. Trade at
+                    your own risk.
+                </p>
+                <p>All calculated returns include Impermanent Loss.</p>
+            </div>
+            <div className='top-pairs'>
+                {topPairs?.daily && (
+                    <>
+                        <TopPairsWidget
+                            topPairs={topPairs.daily}
+                            mode='daily'
+                        />
+                        <TopPairsWidget
+                            topPairs={topPairs.daily}
+                            mode='daily'
+                        />
+                        <TopPairsWidget
+                            topPairs={topPairs.daily}
+                            mode='daily'
+                        />
+                    </>
+                )}
+            </div>
+            {/* <hr />
             <h3>Top LP Opportunities in the Past 7 Days</h3>
             <p>All calculated returns include Impermanent Loss.</p>
             {topPairs?.weekly && (
                 <TopPairsWidget topPairs={topPairs.weekly} mode='weekly' />
             )}
-            <TelegramCTA mode='plural' />
+            <TelegramCTA mode='plural' /> */}
 
             {/* <h5>Highest Impermanent Loss Pairs on Uniswap since December 1</h5>
             <p>

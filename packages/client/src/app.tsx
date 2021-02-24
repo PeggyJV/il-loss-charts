@@ -1,6 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-widgets/dist/css/react-widgets.css';
 import 'styles/app.scss';
+import classNames from 'classnames';
 
 import { useState, useEffect, ReactElement } from 'react';
 
@@ -159,7 +160,7 @@ function App(): ReactElement {
 
     return (
         <Router>
-            <div className='app' id='app-wrap'>
+            <div className={classNames('app', 'dark')} id='app-wrap'>
                 <div className='side-menu-wrapper'>
                     <SideMenu
                         setShowConnectWallet={setShowConnectWallet}
@@ -167,6 +168,9 @@ function App(): ReactElement {
                     />
                 </div>
                 <div className='app-body' id='app-body'>
+                    <div className='app-header'>
+                        <h1>SOMMELIER</h1>
+                    </div>
                     {currentError ? (
                         <PageError errorMsg={currentError} />
                     ) : (
