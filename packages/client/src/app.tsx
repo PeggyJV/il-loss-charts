@@ -170,6 +170,8 @@ function App(): ReactElement {
 
         const { topic } = lastJsonMessage;
 
+        if (!topic) return;
+
         if (topic.startsWith('ethGas:getGasPrices')) {
             const { data: gasPrices }: { data: EthGasPrices } = lastJsonMessage;
             setGasPrices(gasPrices);
