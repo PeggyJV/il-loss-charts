@@ -18,17 +18,20 @@ import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
 
 import erc20Abi from 'constants/abis/erc20.json';
+import exchangeAddAbi from 'constants/abis/volumefi_add_liquidity_uniswap.json';
+
+const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
 
 import {
     EthGasPrices,
     LPPositionData,
     MarketStats,
     UniswapPair,
+    Token,
 } from '@sommelier/shared-types';
 import { Wallet } from 'types/states';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
-import { get0xSwapQuote } from 'services/api-0x';
 
 import { resolveLogo } from 'components/token-with-logo';
 
@@ -134,7 +137,7 @@ function AddLiquidityModal({
             if (error) {
                 // we could not get data for this new pair
                 console.warn(
-                    `Could not fetch pair data for ${pair.id}: ${error.message}`
+                    `Could not fetch pair data for ${pair.id}: ${error}`
                 );
                 return;
             }
@@ -158,7 +161,7 @@ function AddLiquidityModal({
 
             if (error) {
                 // we could not list pairs
-                console.warn(`Could not get position stats: ${error.message}`);
+                console.warn(`Could not get position stats: ${error}`);
                 return;
             }
 
@@ -192,7 +195,9 @@ function AddLiquidityModal({
         );
     }
 
-    const doAddLiquidity = async () => {
+    const doAddLiquidity = () => {
+        if (!pairData || !provider) return;
+
         const expectedLpTokensNum = new BigNumber(expectedLpTokens);
         const slippageRatio = new BigNumber(slippageTolerance).div(100);
         const minPoolTokens = expectedLpTokensNum.minus(
@@ -200,26 +205,26 @@ function AddLiquidityModal({
         );
 
         let sellToken = entryToken;
-        let buyToken: string;
         const symbol0 = pairData.token0.symbol;
         const symbol1 = pairData.token1.symbol;
+        const pairAddress = pairData.id;
 
         if (entryToken === symbol0 && symbol0 !== 'WETH') {
-            sellToken = pairData.token0.id;
-            buyToken = 'ETH';
+            sellToken = (pairData.token0 as Token).id;
         } else if (entryToken === symbol1 && symbol1 !== 'WETH') {
-            sellToken = pairData.token1.id;
-            buyToken = 'ETH';
-        } else {
-            // we are selling ETH or WETH
-            if (symbol0 === 'WETH') {
-                buyToken = symbol1;
-            } else if (symbol) {
-                buyToken = symbol1;
-            }
+            sellToken = (pairData.token1 as Token).id;
         }
 
-        const quote = await get0xSwapQuote();
+        // const quote = await get0xSwapQuote();
+
+        // Create signer
+        const signer = provider.getSigner();
+        // Create read-write contract instance
+        const addLiquidity = new ethers.Contract(
+            EXCHANGE_ADD_ABI_ADDRESS,
+            exchangeAddAbi,
+            signer
+        );
     };
 
     const maxBalance = balances[entryToken]?.balance;

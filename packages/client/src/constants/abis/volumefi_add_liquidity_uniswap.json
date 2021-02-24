@@ -1,0 +1,271 @@
+[
+    {
+        "name": "TestValue",
+        "inputs": [
+            {
+                "type": "uint256",
+                "name": "value",
+                "indexed": false
+            },
+            {
+                "type": "string",
+                "name": "text",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "TestAddress",
+        "inputs": [
+            {
+                "type": "address",
+                "name": "addr",
+                "indexed": false
+            },
+            {
+                "type": "string",
+                "name": "text",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "name": "TestData",
+        "inputs": [
+            {
+                "type": "bytes32",
+                "name": "data",
+                "indexed": false
+            },
+            {
+                "type": "string",
+                "name": "text",
+                "indexed": false
+            }
+        ],
+        "anonymous": false,
+        "type": "event"
+    },
+    {
+        "outputs": [],
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "name": "investTokenForEthPair",
+        "outputs": [
+            {
+                "type": "uint256",
+                "name": ""
+            }
+        ],
+        "inputs": [
+            {
+                "type": "address",
+                "name": "token"
+            },
+            {
+                "type": "address",
+                "name": "pair"
+            },
+            {
+                "type": "uint256",
+                "name": "amount"
+            },
+            {
+                "type": "uint256",
+                "name": "minPoolTokens"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "name": "investTokenForEthPair",
+        "outputs": [
+            {
+                "type": "uint256",
+                "name": ""
+            }
+        ],
+        "inputs": [
+            {
+                "type": "address",
+                "name": "token"
+            },
+            {
+                "type": "address",
+                "name": "pair"
+            },
+            {
+                "type": "uint256",
+                "name": "amount"
+            },
+            {
+                "type": "uint256",
+                "name": "minPoolTokens"
+            },
+            {
+                "type": "uint256",
+                "name": "deadline"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "name": "pause",
+        "outputs": [],
+        "inputs": [
+            {
+                "type": "bool",
+                "name": "_paused"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "gas": 36577
+    },
+    {
+        "name": "newAdmin",
+        "outputs": [],
+        "inputs": [
+            {
+                "type": "address",
+                "name": "_admin"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "gas": 36607
+    },
+    {
+        "name": "newFeeAmount",
+        "outputs": [],
+        "inputs": [
+            {
+                "type": "uint256",
+                "name": "_feeAmount"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "gas": 36537
+    },
+    {
+        "name": "newFeeAddress",
+        "outputs": [],
+        "inputs": [
+            {
+                "type": "address",
+                "name": "_feeAddress"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "gas": 36667
+    },
+    {
+        "name": "seizeMany",
+        "outputs": [],
+        "inputs": [
+            {
+                "type": "address[8]",
+                "name": "token"
+            },
+            {
+                "type": "uint256[8]",
+                "name": "amount"
+            },
+            {
+                "type": "address[8]",
+                "name": "to"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "gas": 282577
+    },
+    {
+        "name": "seize",
+        "outputs": [],
+        "inputs": [
+            {
+                "type": "address",
+                "name": "token"
+            },
+            {
+                "type": "uint256",
+                "name": "amount"
+            },
+            {
+                "type": "address",
+                "name": "to"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "gas": 36677
+    },
+    {
+        "stateMutability": "payable",
+        "type": "fallback"
+    },
+    {
+        "name": "paused",
+        "outputs": [
+            {
+                "type": "bool",
+                "name": ""
+            }
+        ],
+        "inputs": [],
+        "stateMutability": "view",
+        "type": "function",
+        "gas": 1571
+    },
+    {
+        "name": "admin",
+        "outputs": [
+            {
+                "type": "address",
+                "name": ""
+            }
+        ],
+        "inputs": [],
+        "stateMutability": "view",
+        "type": "function",
+        "gas": 1601
+    },
+    {
+        "name": "feeAmount",
+        "outputs": [
+            {
+                "type": "uint256",
+                "name": ""
+            }
+        ],
+        "inputs": [],
+        "stateMutability": "view",
+        "type": "function",
+        "gas": 1631
+    },
+    {
+        "name": "feeAddress",
+        "outputs": [
+            {
+                "type": "address",
+                "name": ""
+            }
+        ],
+        "inputs": [],
+        "stateMutability": "view",
+        "type": "function",
+        "gas": 1661
+    }
+]
