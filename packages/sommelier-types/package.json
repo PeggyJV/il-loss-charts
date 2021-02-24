@@ -14,7 +14,8 @@
     "scripts": {
         "lint": "eslint src --ext js,ts",
         "clean": "rimraf dist *.tsbuildinfo",
-        "build": "tsc"
+        "build": "tsc",
+        "dev": "tsc -w --preserveWatchOutput"
     },
     "keywords": [],
     "author": "",

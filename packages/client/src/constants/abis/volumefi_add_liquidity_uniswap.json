@@ -129,7 +129,7 @@
         ],
         "stateMutability": "nonpayable",
         "type": "function",
-        "gas": 36577
+        "gas": "36577"
     },
     {
         "name": "newAdmin",
@@ -142,7 +142,7 @@
         ],
         "stateMutability": "nonpayable",
         "type": "function",
-        "gas": 36607
+        "gas": "36607"
     },
     {
         "name": "newFeeAmount",
@@ -155,7 +155,7 @@
         ],
         "stateMutability": "nonpayable",
         "type": "function",
-        "gas": 36537
+        "gas": "36537"
     },
     {
         "name": "newFeeAddress",
@@ -168,7 +168,7 @@
         ],
         "stateMutability": "nonpayable",
         "type": "function",
-        "gas": 36667
+        "gas": "36667"
     },
     {
         "name": "seizeMany",
@@ -189,7 +189,7 @@
         ],
         "stateMutability": "nonpayable",
         "type": "function",
-        "gas": 282577
+        "gas": "282577"
     },
     {
         "name": "seize",
@@ -210,7 +210,7 @@
         ],
         "stateMutability": "nonpayable",
         "type": "function",
-        "gas": 36677
+        "gas": "36677"
     },
     {
         "stateMutability": "payable",
@@ -227,7 +227,7 @@
         "inputs": [],
         "stateMutability": "view",
         "type": "function",
-        "gas": 1571
+        "gas": "1571"
     },
     {
         "name": "admin",
@@ -240,7 +240,7 @@
         "inputs": [],
         "stateMutability": "view",
         "type": "function",
-        "gas": 1601
+        "gas": "1601"
     },
     {
         "name": "feeAmount",
@@ -253,7 +253,7 @@
         "inputs": [],
         "stateMutability": "view",
         "type": "function",
-        "gas": 1631
+        "gas": "1631"
     },
     {
         "name": "feeAddress",
@@ -266,6 +266,6 @@
         "inputs": [],
         "stateMutability": "view",
         "type": "function",
-        "gas": 1661
+        "gas": "1661"
     }
 ]

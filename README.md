@@ -37,6 +37,7 @@ yarn # Running 'yarn' once at workspace roots installs all dependencies for each
 
 ### Local Development
 
+# Requires a local redis server at port 6379
 yarn dev # starts both express server and CRA webpack server in same shell, with re-compile on save for both server and client
 
 ### Building and Running

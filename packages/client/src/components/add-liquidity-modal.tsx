@@ -195,13 +195,17 @@ function AddLiquidityModal({
         );
     }
 
-    const doAddLiquidity = () => {
+    const doAddLiquidity = async () => {
         if (!pairData || !provider) return;
+
+        if (!currentGasPrice) {
+            throw new Error('Gas price not selected.');
+        }
 
         const expectedLpTokensNum = new BigNumber(expectedLpTokens);
         const slippageRatio = new BigNumber(slippageTolerance).div(100);
-        const minPoolTokens = expectedLpTokensNum.minus(
-            expectedLpTokensNum.times(slippageRatio)
+        const minPoolTokens = expectedLpTokensNum.times(
+            new BigNumber(1).minus(slippageRatio)
         );
 
         let sellToken = entryToken;
@@ -213,18 +217,56 @@ function AddLiquidityModal({
             sellToken = (pairData.token0 as Token).id;
         } else if (entryToken === symbol1 && symbol1 !== 'WETH') {
             sellToken = (pairData.token1 as Token).id;
+        } else if (entryToken === 'WETH') {
+            // We have ETH
+            sellToken = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
+        } else if (entryToken === 'ETH') {
+            sellToken = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+        } else {
+            throw new Error(`Could not sell from this token: ${sellToken}`);
         }
-
-        // const quote = await get0xSwapQuote();
 
         // Create signer
         const signer = provider.getSigner();
         // Create read-write contract instance
-        const addLiquidity = new ethers.Contract(
+        const addLiquidityContract = new ethers.Contract(
             EXCHANGE_ADD_ABI_ADDRESS,
             exchangeAddAbi,
             signer
         );
+
+        const decimals = parseInt(balances[entryToken]?.decimals || '0', 10);
+        if (decimals === 0) {
+            throw new Error(
+                `Do not have decimal units for ${decimals} - unsafe, cannot proceed`
+            );
+        }
+
+        const baseAmount = ethers.utils
+            .parseUnits(entryAmount.toString(), decimals)
+            .toString();
+        const baseMinPoolTokens = ethers.utils
+            .parseUnits(minPoolTokens.toString(), 18)
+            .toString();
+        let baseMsgValue = ethers.utils.parseUnits('0.005', 18);
+        if (entryToken === 'ETH') {
+            baseMsgValue = baseMsgValue.add(
+                ethers.utils.parseUnits(entryAmount.toString(), decimals)
+            );
+        }
+        const value = baseMsgValue.toString();
+        const baseGasPrice = ethers.utils
+            .parseUnits(currentGasPrice.toString(), 9)
+            .toString();
+
+        // Call the contract and sign
+        await addLiquidityContract[
+            'investTokenForEthPair(address,address,uint256,uint256)'
+        ](sellToken, pairAddress, baseAmount, baseMinPoolTokens, {
+            gasPrice: baseGasPrice,
+            gasLimit: '1000000', // setting a high gas limit because it is hard to predict gas we will use
+            value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
+        });
     };
 
     const maxBalance = balances[entryToken]?.balance;
