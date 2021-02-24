@@ -742,7 +742,7 @@ components:
                     description: The total return of the LP position over the specified window, equal to fees minus impermanent loss.
                 days:
                     type: array
-                    description: Array of days that for which stats were calculated.
+                    description: Array of days for which stats were calculated.
                     items:
                         type: string
                         example: Jan 1
@@ -770,12 +770,6 @@ components:
                     items:
                         type: string
                         example: "-47.1156006653401989302559372122479957920324566559"
-                days:
-                    type: array
-                    description: Array of days that for which stats were calculated.
-                    items:
-                        type: string
-                        example: Jan 1
         LiquidityPositions:
             title: Uniswap Liquidity Positions
             type: object
