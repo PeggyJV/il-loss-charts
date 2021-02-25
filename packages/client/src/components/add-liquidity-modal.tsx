@@ -200,51 +200,6 @@ function AddLiquidityModal({
         setEntryAmount(0);
     }, [entryToken]);
 
-    const modalFooter = useMemo(() => {
-        if (gasPrices == null) {
-            return (
-                <Button variant='secondary' disabled>
-                    <FontAwesomeIcon icon={faCircleNotch} className='fa-spin' />{' '}
-                    Awaiting gas prices...
-                </Button>
-            )
-        } else if (txSubmitted) {
-            <Button variant='secondary' disabled>
-                <FontAwesomeIcon icon={faCheck} />{' '}
-                Submitted
-            </Button>
-        } else if (new BigNumber(entryAmount).lte(0)) {
-            return (
-                <Button variant='secondary' disabled>
-                    Enter Amount
-                </Button>
-            );
-        } else if (new BigNumber(entryAmount).gte(maxBalanceStr)) {
-            return (
-                <Button variant='secondary' disabled>
-                    Insufficient Funds
-                </Button>
-            );
-        } else if (new BigNumber(entryAmount).lte(maxBalanceStr) &&
-            new BigNumber(entryAmount).gt(0)) {
-            return (
-                <Button variant='success' onClick={doAddLiquidity}>
-                    Confirm
-                </Button>
-            );
-        }
-    }, [gasPrices, entryAmount, maxBalanceStr]);
-
-    if (!wallet || !provider || !pair) {
-        return (
-            <Modal show={show} onHide={handleClose}>
-                <Modal.Body className='connect-wallet-modal'>
-                    <p className='centered'>Connect your wallet to continue.</p>
-                </Modal.Body>
-            </Modal>
-        );
-    }
-
     const doAddLiquidity = async () => {
         if (!pairData || !provider) return;
 
@@ -324,6 +279,59 @@ function AddLiquidityModal({
         resetForm();
         setTimeout(handleClose, 1000);
     };
+
+    const modalFooter = useMemo(() => {
+        if (gasPrices == null) {
+            return (
+                <Button variant='secondary' disabled>
+                    <FontAwesomeIcon icon={faCircleNotch} className='fa-spin' />{' '}
+                    Awaiting gas prices...
+                </Button>
+            )
+        } else if (txSubmitted) {
+            return (
+                <Button variant='success' disabled>
+                    <FontAwesomeIcon icon={faCheck} />{' '}
+                    Submitted
+                </Button>
+            );
+        } else if (new BigNumber(entryAmount).lte(0)) {
+            return (
+                <Button variant='secondary' disabled>
+                    Enter Amount
+                </Button>
+            );
+        } else if (new BigNumber(entryAmount).gte(maxBalanceStr)) {
+            return (
+                <Button variant='secondary' disabled>
+                    Insufficient Funds
+                </Button>
+            );
+        } else if (currentGasPrice == null) {
+            return (
+                <Button variant='secondary' disabled>
+                    Select Gas Price
+                </Button>
+            );
+        } else if (new BigNumber(entryAmount).lte(maxBalanceStr) &&
+            new BigNumber(entryAmount).gt(0)) {
+            return (
+                <Button variant='success' onClick={doAddLiquidity}>
+                    Confirm
+                </Button>
+            );
+        }
+    }, [gasPrices, entryAmount, maxBalanceStr]);
+
+    if (!wallet || !provider || !pair) {
+        return (
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Body className='connect-wallet-modal'>
+                    <p className='centered'>Connect your wallet to continue.</p>
+                </Modal.Body>
+            </Modal>
+        );
+    }
 
     let expectedToken0: string;
     let expectedToken1: string;
