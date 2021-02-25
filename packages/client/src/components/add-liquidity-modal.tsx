@@ -321,7 +321,7 @@ function AddLiquidityModal({
                 </Button>
             );
         }
-    }, [gasPrices, entryAmount, maxBalanceStr]);
+    }, [gasPrices, currentGasPrice, entryAmount, maxBalanceStr]);
 
     if (!wallet || !provider || !pair) {
         return (
