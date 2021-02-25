@@ -24,6 +24,20 @@ function ConnectWalletModal({
         ? `Connected: ${wallet.account}`
         : 'Connect Wallet';
 
+    const handleConnectMetaMask = async () => {
+        await connectMetaMask();
+
+        // Close modlal after half-second
+        setTimeout(handleClose, 500);
+    };
+
+    const handleConnectWalletConnect = async () => {
+        await connectWalletConnect();
+
+        // Close modlal after half-second
+        setTimeout(handleClose, 500);
+    };
+
     return (
         <Modal show={show} onHide={handleClose}>
             <Modal.Header className='connect-wallet-modal-header' closeButton>
@@ -40,7 +54,7 @@ function ConnectWalletModal({
                         className='connect-wallet-modal-option'
                         variant='outline-secondary'
                         disabled={!availableProviders.metamask}
-                        onClick={connectMetaMask}
+                        onClick={handleConnectMetaMask}
                     >
                         <MetamaskLogo />
                     </Button>
@@ -48,7 +62,7 @@ function ConnectWalletModal({
                         className='connect-wallet-modal-option'
                         variant='outline-secondary'
                         disabled={!availableProviders.walletconnect}
-                        onClick={connectWalletConnect}
+                        onClick={handleConnectWalletConnect}
                     >
                         <WalletConnectLogo />
                     </Button>

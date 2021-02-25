@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
     Row,
@@ -16,6 +16,9 @@ import {
 
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 
 import erc20Abi from 'constants/abis/erc20.json';
 import exchangeAddAbi from 'constants/abis/volumefi_add_liquidity_uniswap.json';
@@ -66,6 +69,11 @@ function AddLiquidityModal({
     ] = useState<LPPositionData<string> | null>(null);
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
+    );
+    const maxBalance = balances[entryToken]?.balance;
+    const maxBalanceStr = ethers.utils.formatUnits(
+        maxBalance || 0,
+        parseInt(balances[entryToken]?.decimals || '0', 10)
     );
 
     let provider: ethers.providers.Web3Provider | null = null;
@@ -185,6 +193,36 @@ function AddLiquidityModal({
         setEntryAmount(0);
     }, [entryToken]);
 
+    const modalFooter = useMemo(() => {
+        if (gasPrices == null) {
+            return (
+                <Button variant='secondary' disabled>
+                    <FontAwesomeIcon icon={faCircleNotch} className='fa-spin' />{' '}
+                    Awaiting gas prices...
+                </Button>
+            )
+        } else if (new BigNumber(entryAmount).lte(0)) {
+            return (
+                <Button variant='secondary' disabled>
+                    Enter Amount
+                </Button>
+            );
+        } else if (new BigNumber(entryAmount).gte(maxBalanceStr)) {
+            return (
+                <Button variant='secondary' disabled>
+                    Insufficient Funds
+                </Button>
+            );
+        } else if (new BigNumber(entryAmount).lte(maxBalanceStr) &&
+            new BigNumber(entryAmount).gt(0)) {
+            return (
+                <Button variant='success' onClick={doAddLiquidity}>
+                    Confirm
+                </Button>
+            );
+        }
+    }, [gasPrices, entryAmount, maxBalanceStr]);
+
     if (!wallet || !provider || !pair) {
         return (
             <Modal show={show} onHide={handleClose}>
@@ -268,12 +306,6 @@ function AddLiquidityModal({
             value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
         });
     };
-
-    const maxBalance = balances[entryToken]?.balance;
-    const maxBalanceStr = ethers.utils.formatUnits(
-        maxBalance || 0,
-        parseInt(balances[entryToken]?.decimals || '0', 10)
-    );
 
     let expectedToken0: string;
     let expectedToken1: string;
@@ -465,22 +497,7 @@ function AddLiquidityModal({
                 </Card>
             </Modal.Body>
             <Modal.Footer>
-                {new BigNumber(entryAmount).lte(0) && (
-                    <Button variant='secondary' disabled>
-                        Enter Amount
-                    </Button>
-                )}
-                {new BigNumber(entryAmount).gte(maxBalanceStr) && (
-                    <Button variant='secondary' disabled>
-                        Insufficient Funds
-                    </Button>
-                )}
-                {new BigNumber(entryAmount).lte(maxBalanceStr) &&
-                    new BigNumber(entryAmount).gt(0) && (
-                        <Button variant='success' onClick={doAddLiquidity}>
-                            Confirm
-                        </Button>
-                    )}
+                {modalFooter}
             </Modal.Footer>
         </Modal>
     );

@@ -226,6 +226,7 @@ function App(): ReactElement {
                                         topPairs={topPairs} 
                                         wallet={useWalletProps.wallet} 
                                         gasPrices={gasPrices}
+                                        setShowConnectWallet={setShowConnectWallet}
                                     />
                                 </Route>
                             </Switch>

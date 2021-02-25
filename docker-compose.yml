@@ -23,6 +23,7 @@ services:
     env_file: ./.env
     environment:
       - REDIS_URL=cache
+      - REACT_APP_ENV=production
 
   redis:
     image: redis:alpine

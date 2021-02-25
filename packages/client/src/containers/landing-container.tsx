@@ -7,19 +7,19 @@ import { TopPairsState, Wallet } from 'types/states';
 
 import mixpanel from 'util/mixpanel';
 
-import { UniswapApiFetcher as Uniswap } from 'services/api';
-
 import AddLiquidityModal from 'components/add-liquidity-modal';
 import TopPairsWidget from 'components/top-pairs-widget';
 import TelegramCTA from 'components/telegram-cta';
 function LandingContainer({
     topPairs,
     wallet,
-    gasPrices
+    gasPrices,
+    setShowConnectWallet,
 }: {
     topPairs: TopPairsState | null;
     wallet: Wallet;
     gasPrices: EthGasPrices | null;
+    setShowConnectWallet: (wallet: boolean) => void;
 }): JSX.Element {
     const [showAddLiquidity, setShowAddLiquidity] = useState(false);
     const [currentPair, setCurrentPair] = useState<MarketStats | null>(null);
@@ -30,7 +30,13 @@ function LandingContainer({
 
     const handleAddLiquidity = (pair: MarketStats) => {
         setCurrentPair(pair);
-        setShowAddLiquidity(true);
+
+        // Check if wallet exists, if not show wallet modal
+        if (wallet && wallet.account) {
+            setShowAddLiquidity(true);
+        } else {
+            setShowConnectWallet(true);
+        }
     };
 
     // (window as any).marketData = marketData;
