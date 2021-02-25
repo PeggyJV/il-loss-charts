@@ -9,6 +9,8 @@ import mixpanel from 'util/mixpanel';
 import ManageLiquidityModal from 'components/manage-liquidity-modal';
 import TopPairsWidget from 'components/top-pairs-widget';
 import TelegramCTA from 'components/telegram-cta';
+import ConnectWalletButton from 'components/connect-wallet-button';
+
 function LandingContainer({
     topPairs,
     wallet,
@@ -23,6 +25,7 @@ function LandingContainer({
     const [showAddLiquidity, setShowAddLiquidity] = useState(false);
     const [currentPair, setCurrentPair] = useState<MarketStats | null>(null);
 
+    const showModal = () => setShowConnectWallet(true);
     useEffect(() => {
         mixpanel.track('pageview:landing', {});
     }, []);
@@ -66,7 +69,12 @@ function LandingContainer({
                     All calculated returns include Impermanent Loss.
                 </p>
             </div>
-            <h4 className='heading-main'>TOP LIQUIDITY POOLS</h4>
+            <div className='header-with-filter'>
+                <h4 className='heading-main'>TOP LIQUIDITY POOLS</h4>
+                <div>
+                    <ConnectWalletButton onClick={showModal} wallet={wallet} />
+                </div>
+            </div>
             {/* <p>
                 <em>
                     * These are the highest return pairs on Uniswap over the past 24 hours.

@@ -27,7 +27,13 @@ p {
 
 .heading-main {
     font-family: 'Barlow Condensed';
-    margin: 2rem 0;
+}
+
+.header-with-filter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 0;
 }
 
 .warning-well {
@@ -118,7 +124,7 @@ p {
 
 .app {
     display: flex;
-    background: var(--bgMain);
+    background: var(--bgDeep);
     color: var(--facePrimary);
 }
 
@@ -510,5 +516,8 @@ th .caret-4-desc:after {
   .app-body {
     width: 100%;
     margin-top: 3em;
+  }
+  .pool-stats-container {
+      align-items: center;
   }
 }

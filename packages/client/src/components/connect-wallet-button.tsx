@@ -17,7 +17,8 @@ function ConnectWalletButton({
         fontWeight: 800,
         border: 'none',
         borderRadius: 0,
-        padding: '0.5rem 1rem',
+        padding: '0.5rem 2rem',
+        width: 'fit-content',
     };
     const walletStyle = {
         ...buttonStyle,

@@ -1,9 +1,7 @@
 import { push as Menu } from 'react-burger-menu';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import ConnectWalletButton from 'components/connect-wallet-button';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -16,17 +14,9 @@ import {
 import { faTelegram } from '@fortawesome/free-brands-svg-icons';
 
 import 'styles/burger-menu.scss';
-import { Wallet } from 'types/states';
 
-function SideMenu({
-    setShowConnectWallet,
-    wallet,
-}: {
-    setShowConnectWallet: (wallet: boolean) => void;
-    wallet: Wallet;
-}): JSX.Element {
+function SideMenu(): JSX.Element {
     const location = useLocation();
-    const showModal = () => setShowConnectWallet(true);
     const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
 
     const getSideLinkClass = (path: string) =>
@@ -89,14 +79,5 @@ function SideMenu({
         </Menu>
     );
 }
-
-SideMenu.propTypes = {
-    setShowConnectWallet: PropTypes.func,
-    wallet: PropTypes.shape({
-        account: PropTypes.string,
-        providerName: PropTypes.string,
-        provider: PropTypes.object,
-    }).isRequired,
-};
 
 export default SideMenu;

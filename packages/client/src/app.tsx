@@ -191,10 +191,7 @@ function App(): ReactElement {
         <Router>
             <div className={classNames('app', 'dark')} id='app-wrap'>
                 <div className='side-menu-wrapper'>
-                    <SideMenu
-                        setShowConnectWallet={setShowConnectWallet}
-                        wallet={useWalletProps.wallet}
-                    />
+                    <SideMenu />
                 </div>
                 <div className='app-body' id='app-body'>
                     {currentError ? (
