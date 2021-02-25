@@ -18,7 +18,7 @@ import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
+import { faCircleNotch, faCheck } from '@fortawesome/free-solid-svg-icons';
 
 import erc20Abi from 'constants/abis/erc20.json';
 import exchangeAddAbi from 'constants/abis/volumefi_add_liquidity_uniswap.json';
@@ -70,6 +70,7 @@ function AddLiquidityModal({
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
     );
+    const [txSubmitted, setTxSubmitted] = useState(false);
     const maxBalance = balances[entryToken]?.balance;
     const maxBalanceStr = ethers.utils.formatUnits(
         maxBalance || 0,
@@ -81,6 +82,12 @@ function AddLiquidityModal({
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
+
+    const resetForm = () => {
+        setEntryToken('ETH');
+        setEntryAmount(0);
+        setSlippageTolerance(3.0);
+    };
 
     useEffect(() => {
         // get balances of both tokens
@@ -201,6 +208,11 @@ function AddLiquidityModal({
                     Awaiting gas prices...
                 </Button>
             )
+        } else if (txSubmitted) {
+            <Button variant='secondary' disabled>
+                <FontAwesomeIcon icon={faCheck} />{' '}
+                Submitted
+            </Button>
         } else if (new BigNumber(entryAmount).lte(0)) {
             return (
                 <Button variant='secondary' disabled>
@@ -305,6 +317,12 @@ function AddLiquidityModal({
             gasLimit: '1000000', // setting a high gas limit because it is hard to predict gas we will use
             value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
         });
+
+        setTxSubmitted(true);
+
+        // Close the modal after one second
+        resetForm();
+        setTimeout(handleClose, 1000);
     };
 
     let expectedToken0: string;
