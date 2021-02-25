@@ -58,17 +58,21 @@ function LandingContainer({
                 pair={currentPair}
                 gasPrices={gasPrices}
             />
-            <h3>Top LP Opportunities in the Past 24 Hours</h3>
+            <div className='warning-well'>
+                <p>
+                    Not financial advice. This is an alpha project. Trade at
+                    your own risk.
+                    <br />
+                    All calculated returns include Impermanent Loss.
+                </p>
+            </div>
+            <h4 className='heading-main'>TOP LIQUIDITY POOLS</h4>
             {/* <p>
                 <em>
                     * These are the highest return pairs on Uniswap over the past 24 hours.
                 </em>
             </p> */}
-            <p>
-                Not financial advice. This is an alpha project. Trade at your
-                own risk.
-            </p>
-            <p>All calculated returns include Impermanent Loss.</p>
+
             {topPairs?.daily && (
                 <TopPairsWidget
                     topPairs={topPairs.daily}

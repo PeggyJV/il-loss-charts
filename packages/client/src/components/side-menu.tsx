@@ -43,11 +43,12 @@ function SideMenu({
             width={250}
             pageWrapId='app-body'
             outerContainerId='app-wrap'
+            customBurgerIcon={isMobile ? undefined : false}
         >
-            <h5 className='side-menu-title'>sommelier.finance</h5>
             <div>
-                <ConnectWalletButton onClick={showModal} wallet={wallet} />
+                <h5 className='side-menu-title'>SOMMELIER FINANCE</h5>
             </div>
+            <div>
             <p className={getSideLinkClass('/search')}>
                 <NavLink to='/search'>
                     <FontAwesomeIcon icon={faSearch} /> Search Pairs
@@ -79,7 +80,7 @@ function SideMenu({
                     <FontAwesomeIcon icon={faCalculator} /> IL Calculator
                 </NavLink>
             </p>
-            <hr />
+            </div>
             <h6>
                 <a href='https://t.me/getsomm'>
                     <FontAwesomeIcon icon={faTelegram} /> Join the Community
