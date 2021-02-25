@@ -1,0 +1,34 @@
+@import './colors.scss';
+
+.dark {
+  //backgrounds
+    --bgDeep: var(--purple100);
+    --bgMain: var(--purple90);
+    --bgSecondary: var(--purple80);
+    --bgOffset: var(--blue20);
+    --bgMoon: var(--green60);
+    --bgDump: var(--red70);
+    --bgAccent: var(--jam70);
+
+
+    --borderMain: var(--purple60);
+    --borderSecondary: var(--purple80);
+    --borderOffset: var(--blue10);
+    --borderAccent: var(--jam50);
+    --borderAccentAlt: var(--bubble50);
+  
+    //fonts
+    --facePrimary: var(--mono20);
+    --faceSecondary: var(--mono40);
+    --faceOffset: var(--purple30);
+    --faceDisabled: var(--mono60);
+    --faceAccent: var(--jam50);
+    --faceAccentAlt: var(--bubble50);
+    --faceMoon: var(--green50);
+    --faceDump: var(--red50)
+
+
+
+}
+
+
