@@ -9,6 +9,13 @@ import mixpanel from 'util/mixpanel';
 
 const cookies = new Cookies();
 
+const wcProvider = new WalletConnectProvider({
+    infuraId: process.env.REACT_APP_INFURA_PROJECT_ID,
+});
+
+(window as any).wcProvider = wcProvider;
+
+
 export default function useWallet(): {
     ethereum?: any;
     wallet: Wallet;
@@ -22,13 +29,6 @@ export default function useWallet(): {
         metamask: ethereum?.isMetaMask,
         walletconnect: true,
     };
-
-    const wcProvider = new WalletConnectProvider({
-        infuraId: process.env.REACT_APP_INFURA_PROJECT_ID,
-    });
-
-    (window as any).wcProvider = wcProvider;
-
     // Try to read wallet from cookies
     const walletFromCookie: Partial<Wallet> = cookies.get('current_wallet');
 
