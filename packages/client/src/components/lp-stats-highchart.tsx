@@ -30,7 +30,7 @@ function LPStatsChart({
             lpStats.runningReturn[i]
         ).toNumber();
 
-        const date = lpStats.fullDates?.[i].getTime() as number;
+        const date = new Date(lpStats.fullDates?.[i] as Date | number).getTime();
 
         chartData.push([date, runningFee, runningReturn]);
 

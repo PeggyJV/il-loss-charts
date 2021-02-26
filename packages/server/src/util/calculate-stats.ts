@@ -315,6 +315,7 @@ export async function calculateStatsForPositions(
     };
 
     const statsPromises = entries.map(async ([pairId, positionSnapshots]) => {
+        console.log('PROCESSING', pairId);
         // Get historical daily data across the length of the position
         const startDate = new Date(positionSnapshots[0].timestamp * 1000);
         const lastSnapshot = positionSnapshots[positionSnapshots.length - 1];
@@ -380,8 +381,8 @@ export async function calculateStatsForPositions(
                 snapshot.timestamp
             );
 
-            if (historicalDataBetween.length < 2) {
-                // If within the same day, we can't do anything with graph data
+            if (historicalDataBetween.length < 7) {
+                // If within the same week, it makes more sense to get higher resolution
                 // So try to get hourlies - if within the same hour, we can't get data
                 const hourlyStartDate = new Date(prevSnapshot.timestamp * 1000);
                 const hourlyEndDate = new Date(snapshot.timestamp * 1000);
@@ -433,8 +434,8 @@ export async function calculateStatsForPositions(
                 Math.floor(endDate.getTime() / 1000)
             );
 
-            if (historicalDataBetween.length < 2) {
-                // If within the same day, we can't do anything with graph data
+            if (historicalDataBetween.length < 7) {
+                // If within the same week, we should try to get hourlies
                 // So try to get hourlies - if within the same hour, we can't get data
                 const hourlyStartDate = new Date(prevSnapshot.timestamp * 1000);
                 const hourlyEndDate = endDate;
@@ -478,6 +479,8 @@ export async function calculateStatsForPositions(
         }
 
         let aggregatedStats: LPStats;
+
+        console.log('COMPUTING AGGREGATED FOR', pairId);
 
         if (statsArr.length < 2) {
             aggregatedStats = statsArr[0];

@@ -63,7 +63,7 @@ function SideMenu({
                     <FontAwesomeIcon icon={faChartArea} /> Market Overview
                 </NavLink>
             </p>
-            {/* <p className={getSideLinkClass('/positions')}>{wallet?.account ?
+            <p className={getSideLinkClass('/positions')}>{wallet?.account ?
                 <NavLink to={`/positions`}>
                     <FontAwesomeIcon icon={faHandHoldingUsd} />
                     {' '}LP Positions
@@ -73,7 +73,7 @@ function SideMenu({
                     {' '}LP Positions
                 </NavLink>
             }
-            </p> */}
+            </p>
             <p className={getSideLinkClass('/pair')}>
                 <NavLink to='/pair'>
                     <FontAwesomeIcon icon={faCalculator} /> IL Calculator

@@ -14,7 +14,7 @@ import LandingContainer from 'containers/landing-container';
 import MarketContainer from 'containers/market-container';
 import PairContainer from 'containers/pair-container';
 import SearchContainer from 'containers/search-container';
-// import PositionContainer from 'containers/position-container';
+import PositionContainer from 'containers/position-container';
 import SideMenu from 'components/side-menu';
 import ConnectWalletModal from 'components/connect-wallet-modal';
 import PageError from 'components/page-error';
@@ -206,9 +206,9 @@ function App(): ReactElement {
                                 {...useWalletProps}
                             />
                             <Switch>
-                                {/* <Route path='/positions'>
-                                    <PositionContainer wallet={wallet} />
-                                </Route> */}
+                                <Route path='/positions'>
+                                    <PositionContainer wallet={useWalletProps.wallet} />
+                                </Route>
                                 <Route path='/market'>
                                     <MarketContainer marketData={marketData} />
                                 </Route>

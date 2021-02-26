@@ -7,7 +7,7 @@ import { LPPositionData, Token } from '@sommelier/shared-types';
 import { Wallet } from 'types/states';
 
 // import PositionSelector from 'components/position-selector';
-import LPStatsChart from 'components/lp-stats-chart';
+import LPStatsChart from 'components/lp-stats-highchart';
 import USDValueWidget from 'components/usd-value-widget';
 import PositionsTable from 'components/positions-table';
 import { resolveLogo } from 'components/token-with-logo';
@@ -106,8 +106,8 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
 
     if (!wallet?.account) {
         return (
-            <Container>
-                <h2>Connect your wallet to continue.</h2>
+            <Container className='error-container'>
+                <h3>Connect your wallet to continue.</h3>
             </Container>
         );
     }
