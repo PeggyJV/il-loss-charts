@@ -557,9 +557,11 @@ export default express
     .get('/pairs/:id/stats', wrapRequest(UniswapController.getPairStats))
     .get(
         '/positions/:address',
+        cacheMiddleware(60),
         wrapRequest(UniswapController.getLiquidityPositions)
     )
     .get(
         '/positions/:address/stats',
+        cacheMiddleware(300),
         wrapRequest(UniswapController.getLiquidityPositionStats)
     );
