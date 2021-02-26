@@ -11,6 +11,7 @@
     --bgAccent: var(--jam70);
 
 
+    --borderDeep: var(--purple100);
     --borderMain: var(--purple60);
     --borderSecondary: var(--purple80);
     --borderOffset: var(--blue10);
@@ -27,8 +28,34 @@
     --faceMoon: var(--green50);
     --faceDump: var(--red50)
 
+}
+
+.light {
+   //backgrounds
+    --bgDeep: var(--purple20);
+    --bgMain: var(--purple10);
+    --bgSecondary: var(--purple10);
+    --bgOffset: var(--blue80);
+    --bgMoon: var(--green60);
+    --bgDump: var(--red70);
+    --bgAccent: var(--jam60);
 
 
+    --borderMain: var(--purple30);
+    --borderSecondary: var(--purple20);
+    --borderOffset: var(--blue10);
+    --borderAccent: var(--jam50);
+    --borderAccentAlt: var(--bubble50);
+  
+    //fonts
+    --facePrimary: var(--mono100);
+    --faceSecondary: var(--mono90);
+    --faceOffset: var(--purple70);
+    --faceDisabled: var(--mono60);
+    --faceAccent: var(--jam50);
+    --faceAccentAlt: var(--bubble50);
+    --faceMoon: var(--green50);
+    --faceDump: var(--red50)
 }
 
 

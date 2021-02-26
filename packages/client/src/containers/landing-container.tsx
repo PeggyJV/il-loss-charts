@@ -64,9 +64,7 @@ function LandingContainer({
             <div className='warning-well'>
                 <p>
                     Not financial advice. This is an alpha project. Trade at
-                    your own risk.
-                    <br />
-                    All calculated returns include Impermanent Loss.
+                    your own risk. All calculated returns include Impermanent Loss.
                 </p>
             </div>
             <div className='header-with-filter'>

@@ -36,6 +36,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
     position: fixed;
     height: 100%;
     background: var(--bgMain);
+    border-right: 1px solid var(--borderDeep);
 }
 
 /* General sidebar styles */
@@ -66,9 +67,6 @@ Note: Beware of modifying this element as it can break the animations - you shou
 
 
 /* Individual item */
-.bm-menu-wrap {
-    border-right: 1px solid rgba(0, 0, 0, 0.125);
-}
 
 .bm-item {
     display: flex;

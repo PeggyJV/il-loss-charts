@@ -41,7 +41,7 @@ p {
     background: var(--bgDeep);
     padding: 10px;
     font-size: 0.8rem;
-    color: var(--faceOffset);
+    color: var(--faceDisabled);
 }
 
 .wine-bounce {
@@ -124,7 +124,7 @@ p {
 
 .app {
     display: flex;
-    background: var(--bgDeep);
+    background: var(--bgMain);
     color: var(--facePrimary);
 }
 
@@ -317,6 +317,7 @@ p {
 
 .pool-stats-container {
     display: flex;
+    justify-content: flex-start;
     flex-wrap: wrap;
 }
 
