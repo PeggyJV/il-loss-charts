@@ -191,7 +191,7 @@ function App(): ReactElement {
         <Router>
             <div className={classNames('app', 'dark')} id='app-wrap'>
                 <div className='side-menu-wrapper'>
-                    <SideMenu />
+                    <SideMenu wallet={useWalletProps.wallet} />
                 </div>
                 <div className='app-body' id='app-body'>
                     {currentError ? (
@@ -220,9 +220,9 @@ function App(): ReactElement {
                                     <SearchContainer allPairs={allPairs} />
                                 </Route>
                                 <Route path='/'>
-                                    <LandingContainer 
-                                        topPairs={topPairs} 
-                                        wallet={useWalletProps.wallet} 
+                                    <LandingContainer
+                                        topPairs={topPairs}
+                                        wallet={useWalletProps.wallet}
                                         gasPrices={gasPrices}
                                         setShowConnectWallet={setShowConnectWallet}
                                     />
