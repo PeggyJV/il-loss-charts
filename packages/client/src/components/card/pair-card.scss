@@ -1,10 +1,75 @@
-
 .pair-card {
-        margin-right: 1rem;
-        margin-top: 1rem;
-        padding: 1rem 1.4rem;
-        width: 15rem;
-        border: 1px solid var(--borderMain);
-        box-shadow: 0 0 5px 1px var(--bgDeep);
-        background: var(--bgDeep);
+    margin-right: 1rem;
+    margin-top: 1rem;
+    padding: 1rem 1.4rem;
+    width: 15rem;
+    border: 1px solid var(--borderMain);
+    box-shadow: 0 0 5px 1px var(--bgDeep);
+    background: var(--bgContainer);
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Barlow Condensed';
+}
+
+.pair-returns {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.2rem;
+}
+.pair-combo {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.4rem;
+    color: var(--faceSecondary);
+    svg {
+      font-size: 0.8rem;
+      color: var(--faceOffset);  
     }
+}
+.apy {
+    font-size: 1.4rem;
+    color: var(--faceSecondary);
+}
+.return-duration {
+  color: var(--faceSecondary);
+}
+.pct-change-up {
+    color: var(--faceMoon);
+}
+.pct-change-down {
+    color: var(--faceDump);
+}
+.pct-return {
+    font-size: 0.6rem;
+    color: var(--faceMoonSubtle);
+    font-family: 'Source Sans Pro';
+}
+.stats-and-ape {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.btn-ape {
+    padding: 0.4rem 0.6rem;
+    font-family: 'Source Sans Pro';
+    color: var(--faceDeep);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid var(--btnMoonBorder);
+    border-radius: 2px;
+    background: var(--btnMoon);
+    &:hover {
+      background: var(--btnMoonHover);
+    }
+    background: rgb(3,88,27);
+    // background: linear-gradient(
+    //     0deg,
+    //     rgba(92, 3, 136, 1) 0%,
+    //     rgba(65, 3, 95, 1) 56%,
+    //     rgba(88, 2, 129, 1) 100%
+    // );
+}

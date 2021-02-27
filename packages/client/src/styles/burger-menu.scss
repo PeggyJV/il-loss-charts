@@ -42,13 +42,14 @@ Note: Beware of modifying this element as it can break the animations - you shou
 /* General sidebar styles */
 .bm-menu {
     padding: 2.5em 0;
-    font-size: 1.15em;
+    // font-size: 1.15em;
     display: flex;
 }
 .bm-item-list {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    width: 100%;
 }
 
 /* Morph shape necessary with bubble or elastic */
@@ -61,8 +62,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
 }
 
 .bm-item .side-menu-link.side-menu-active a {
-        color: var(--faceAccent);
-        font-weight: 800;
+        color: var(--faceAccentAlt);
 }
 
 
@@ -70,32 +70,36 @@ Note: Beware of modifying this element as it can break the animations - you shou
 
 .bm-item {
     display: flex;
-    padding: 0.5em 1.5em;
+    padding: 0.4rem 1.4rem;
     margin: 0;
     outline: none;
+    > p {
+      border-bottom: 1px solid var(--bgDeep);
+    }
+    > p:last-child{
+      border-bottom: none;
+    }
 }
 
 .bm-item svg {
     margin-right: 1rem;
 }
 .bm-item .side-menu-link {
-  padding: 1rem 0;
+  padding: 0.8rem 1rem;
 }
 .bm-item .side-menu-link a {
-    font-weight: 500;
-    font-size: 1.2rem;
+    font-size: 1rem;
     color: var(--faceSecondary);
-    margin-top: 20px;
+    text-transform: uppercase;
     & svg{
       font-size: 1rem;
-      color: var(--faceAccentAlt);
+      color: var(--faceSecondary);
     } 
 }
 
 .bm-item .side-menu-link a:hover {
     text-decoration: none;
-    color: var(--faceAccent);
-    font-weight: 600;
+    color: var(--faceAccentAlt);
 }
 
 /* Styling of overlay */
@@ -118,4 +122,5 @@ Note: Beware of modifying this element as it can break the animations - you shou
     font-weight: 700;
     font-family: 'Barlow Condensed';
     text-align: center;
+    text-transform: uppercase;
 }

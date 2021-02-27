@@ -5,7 +5,8 @@ import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
 import { resolveLogo } from 'components/token-with-logo';
 import { UniswapPair, MarketStats } from '@sommelier/shared-types';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRetweet, faExchangeAlt } from '@fortawesome/free-solid-svg-icons';
 
 PercentChangeStat.propTypes = { value: PropTypes.instanceOf(BigNumber) };
 
@@ -24,15 +25,19 @@ function PercentChangeStat({ value }: { value?: number }): JSX.Element {
 
 const formatPair = ({ id, token0, token1 }: UniswapPair) => {
     return (
-        <span>
-            {resolveLogo(token0.id)}{' '}
-            <span className='market-data-pair-span'>
-                <Link to={`/pair?id=${id}&timeWindow=day`}>
-                    {token0.symbol}/{token1.symbol}
-                </Link>
-            </span>{' '}
-            {resolveLogo(token1.id)}
-        </span>
+        <>
+            <div>
+                {resolveLogo(token0.id)} {token0.symbol}
+            </div>
+            <div>
+                <FontAwesomeIcon icon={faExchangeAlt} />
+            </div>
+            {/* <Link to={`/pair?id=${id}&timeWindow=day`}> */}
+            {/* </Link> */}
+            <div>
+                {resolveLogo(token1.id)} {token1.symbol}
+            </div>
+        </>
     );
 };
 
@@ -49,28 +54,31 @@ export const PairCard = ({
 
     return (
         <div className='pair-card'>
-            <div>{formatPair(pairStats)}</div>
-            <div>
-                <strong>
-                    <PercentChangeStat
-                        value={pairStats.pctReturn * multiplier}
-                    />{' '}
-                    APY
-                </strong>
+            <div className='pair-combo'>{formatPair(pairStats)}</div>
+            <div className='stats-and-ape'>
+                <div className='pair-returns'>
+                    <div className='apy'>
+                            <PercentChangeStat
+                                value={pairStats.pctReturn * multiplier}
+                            />{' '}
+                            APY
+                    </div>
+                    <div className='pct-return'>
+                        <PercentChangeStat value={pairStats.pctReturn} />{' '}
+                        <span className='return-duration'>
+                            {mode === 'daily' ? '24h' : '7d'} return
+                        </span>
+                    </div>
+                </div>
+                <button
+                    className='btn-ape'
+                    onClick={() => {
+                        handleAddLiquidity(pairStats);
+                    }}
+                >
+                    Add Liquidity
+                </button>
             </div>
-            <div>
-                <PercentChangeStat value={pairStats.pctReturn} />{' '}
-                {mode === 'daily' ? '24h' : '7d'} return
-            </div>
-            <Button
-                variant='success'
-                size='sm'
-                onClick={() => {
-                    handleAddLiquidity(pairStats);
-                }}
-            >
-                Add Liquidity
-            </Button>
         </div>
     );
 };

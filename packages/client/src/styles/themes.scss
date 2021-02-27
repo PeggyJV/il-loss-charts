@@ -3,9 +3,10 @@
 .dark {
   //backgrounds
     --bgDeep: var(--purple100);
-    --bgMain: var(--purple90);
-    --bgSecondary: var(--purple80);
-    --bgOffset: var(--blue20);
+    --bgMain: var(--purple80);
+    --bgSecondary: var(--purple70);
+    --bgContainer: var(--purple90);
+    --bgOffset: var(--bubble50);
     --bgMoon: var(--green60);
     --bgDump: var(--red70);
     --bgAccent: var(--jam70);
@@ -14,19 +15,50 @@
     --borderDeep: var(--purple100);
     --borderMain: var(--purple60);
     --borderSecondary: var(--purple80);
-    --borderOffset: var(--blue10);
+    --borderOffset: var(--bubble10);
     --borderAccent: var(--jam50);
-    --borderAccentAlt: var(--bubble50);
+    --borderAccentAlt: var(--bubble40);
   
-    //fonts
+    //fonts & svgs
+    --faceDeep: var(--mono10);
     --facePrimary: var(--mono20);
     --faceSecondary: var(--mono40);
-    --faceOffset: var(--purple30);
+    --faceOffset: var(--mono80);
     --faceDisabled: var(--mono60);
     --faceAccent: var(--jam50);
     --faceAccentAlt: var(--bubble50);
-    --faceMoon: var(--green50);
-    --faceDump: var(--red50)
+    --faceMoon: var(--green30);
+    --faceMoonSubtle: var(--green40);
+    --faceDump: var(--red50);
+
+    // semantic colors / UI objects
+    // info
+    // --bgInfo: var();
+    // --bgInfoDeep: var();
+    // --bgInfoOffset: var();
+    // --borderInfo: var();
+    // --borderInfoDeep: var();
+    // --borderInfoOffset: var();
+    // --btnInfo: var();
+    // --btnInfoBorder: var();
+    // --btnInfoActive: var();
+    // --btnInfoHover: var();
+
+    // neutral
+
+    // warn
+
+    // alert
+
+    // moon
+    --btnMoon: var(--green80);
+    --btnMoonHover: var(--green100);
+    --btnMoonBorder: var(--green70);
+
+    // dump
+
+    // fixeMe
+    background: black;
 
 }
 
