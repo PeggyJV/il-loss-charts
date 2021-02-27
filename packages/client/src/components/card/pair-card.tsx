@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { resolveLogo } from 'components/token-with-logo';
 import { UniswapPair, MarketStats } from '@sommelier/shared-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRetweet, faExchangeAlt } from '@fortawesome/free-solid-svg-icons';
+import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 
 PercentChangeStat.propTypes = { value: PropTypes.instanceOf(BigNumber) };
 
@@ -30,7 +30,7 @@ const formatPair = ({ id, token0, token1 }: UniswapPair) => {
                 {resolveLogo(token0.id)} {token0.symbol}
             </div>
             <div>
-                <FontAwesomeIcon icon={faExchangeAlt} />
+                <FontAwesomeIcon icon={faRetweet} />
             </div>
             {/* <Link to={`/pair?id=${id}&timeWindow=day`}> */}
             {/* </Link> */}
