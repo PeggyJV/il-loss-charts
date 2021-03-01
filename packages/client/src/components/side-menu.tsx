@@ -72,8 +72,8 @@ function SideMenu({
                     <FontAwesomeIcon icon={faHandHoldingUsd} />
                     {' '}LP Positions
                 </NavLink>
-            } */}
-            </p>
+            }
+            </p> */}
             <p className={getSideLinkClass('/pair')}>
                 <NavLink to='/pair'>
                     <FontAwesomeIcon icon={faCalculator} /> IL Calculator
