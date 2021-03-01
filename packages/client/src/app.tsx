@@ -206,9 +206,9 @@ function App(): ReactElement {
                                 {...useWalletProps}
                             />
                             <Switch>
-                                <Route path='/positions'>
+                                {/* <Route path='/positions'>
                                     <PositionContainer wallet={useWalletProps.wallet} />
-                                </Route>
+                                </Route> */}
                                 <Route path='/market'>
                                     <MarketContainer marketData={marketData} />
                                 </Route>

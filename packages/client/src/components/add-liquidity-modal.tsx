@@ -20,6 +20,8 @@ import BigNumber from 'bignumber.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleNotch, faCheck } from '@fortawesome/free-solid-svg-icons';
 
+import mixpanel from 'util/mixpanel';
+
 import erc20Abi from 'constants/abis/erc20.json';
 import exchangeAddAbi from 'constants/abis/volumefi_add_liquidity_uniswap.json';
 
@@ -263,6 +265,18 @@ function AddLiquidityModal({
         const baseGasPrice = ethers.utils
             .parseUnits(currentGasPrice.toString(), 9)
             .toString();
+
+        try {
+            mixpanel.track('transaction:addLiquidity', {
+                amount: entryAmount.toString(),
+                entryToken,
+                pair: pairAddress,
+                slippageTolerance,
+                wallet: wallet.account
+            });
+        } catch (e) {
+            console.error(`Metrics error on add liquidity.`);
+        }
 
         // Call the contract and sign
         await addLiquidityContract[
