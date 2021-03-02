@@ -165,6 +165,7 @@ p {
 .il-market-container table thead th {
     border-bottom: 1px solid var(--borderDeep);
     background: var(--bgDeep);
+    font-weight: normal;
 }
 .market-data-table-header th {
     border-top: 0;
@@ -172,7 +173,7 @@ p {
     color: var(--facePrimary);
 }
 .market-data-table-row {
-    color: var(--facePrimary);
+    color: var(--faceSecondary);
 }
 .market-data-table-row td {
     border: none;

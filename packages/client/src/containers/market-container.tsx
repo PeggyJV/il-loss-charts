@@ -36,13 +36,11 @@ function OverviewContainer({
 
     return (
         <div>
-            <h3>Highest Impermanent Loss Pairs on Uniswap since December 1</h3>
-            <p>
-                <em>
-                    * The impermanent loss percentage is a reflection of the
-                    amount of IL due to price fluctation relative to the total
-                    return of the pool.
-                </em>
+            <h3>Highest Impermanent Loss Pairs on Uniswap*</h3>
+            <p className='warning-well'>
+                * The impermanent loss percentage is a reflection of the amount
+                of IL due to price fluctation relative to the total return of
+                the pool. Data since December 1.
             </p>
             {marketData && <MarketDataTable data={marketData} />}
         </div>
