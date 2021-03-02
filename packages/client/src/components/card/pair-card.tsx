@@ -25,19 +25,21 @@ function PercentChangeStat({ value }: { value?: number }): JSX.Element {
 
 const formatPair = ({ id, token0, token1 }: UniswapPair) => {
     return (
-        <>
-            <div>
-                {resolveLogo(token0.id)} {token0.symbol}
-            </div>
-            <div>
-                <FontAwesomeIcon icon={faRetweet} />
-            </div>
-            {/* <Link to={`/pair?id=${id}&timeWindow=day`}> */}
-            {/* </Link> */}
-            <div>
-                {resolveLogo(token1.id)} {token1.symbol}
-            </div>
-        </>
+            <Link to={`/pair?id=${id}&timeWindow=day`}>
+                <div className='pair-combo'>
+                <div>
+                    {resolveLogo(token0.id)} {token0.symbol}
+                </div>
+                <div>
+                    <FontAwesomeIcon icon={faRetweet} />
+                </div>
+
+                {/* </Link> */}
+                <div>
+                    {resolveLogo(token1.id)} {token1.symbol}
+                </div>
+                </div>
+            </Link>
     );
 };
 
@@ -54,14 +56,14 @@ export const PairCard = ({
 
     return (
         <div className='pair-card'>
-            <div className='pair-combo'>{formatPair(pairStats)}</div>
+            <div>{formatPair(pairStats)}</div>
             <div className='stats-and-ape'>
                 <div className='pair-returns'>
                     <div className='apy'>
-                            <PercentChangeStat
-                                value={pairStats.pctReturn * multiplier}
-                            />{' '}
-                            APY
+                        <PercentChangeStat
+                            value={pairStats.pctReturn * multiplier}
+                        />{' '}
+                        APY
                     </div>
                     <div className='pct-return'>
                         <PercentChangeStat value={pairStats.pctReturn} />{' '}
@@ -71,12 +73,12 @@ export const PairCard = ({
                     </div>
                 </div>
                 <button
-                    className='btn-ape'
+                    className='btn-addl'
                     onClick={() => {
                         handleAddLiquidity(pairStats);
                     }}
                 >
-                    Add Liquidity
+                    ADDL
                 </button>
             </div>
         </div>

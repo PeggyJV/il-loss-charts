@@ -146,7 +146,6 @@ function MarketDataTable({ data }: { data: MarketStats[] }) {
                     bordered={false}
                     condensed={true}
                     rowEvents={{ onClick: onRowClick }}
-                    hover
                 />
             </div>
         </>

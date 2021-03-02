@@ -12,6 +12,9 @@ body {
     font-family: 'Source Sans Pro', sans-serif;
     background: #141229;
 }
+a, a:hover {
+    text-decoration: none;
+}
 
 p {
     margin: 0;
@@ -159,13 +162,26 @@ p {
     // height: 120px;
     border: 0;
 }
-
+.il-market-container table thead th {
+    border-bottom: 1px solid var(--borderDeep);
+    background: var(--bgDeep);
+}
 .market-data-table-header th {
     border-top: 0;
+    border-bottom: 1px solid var(--borderSecondary);
+    color: var(--facePrimary);
 }
-
+.market-data-table-row {
+    color: var(--facePrimary);
+}
+.market-data-table-row td {
+    border: none;
+    border-bottom: 1px solid var(--borderDeep);
+}
 .market-data-table-row:hover {
     cursor: pointer;
+    background: var(--bgDeep);
+    color: var(--faceAccentAlt);
 }
 
 .market-data-pair-span {
@@ -317,9 +333,9 @@ p {
 }
 
 .pool-stats-container {
-    display: flex;
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 250px);
+    grid-gap: 2rem;
 }
 
 .stats-card {
@@ -444,7 +460,9 @@ p {
 
 .il-market-container {
     height: 45em;
+    background: var(--bgContainer);
     overflow: scroll;
+    border: 1px solid var(--borderDeep);
 }
 
 .slippage-tolerance-input {
@@ -520,6 +538,6 @@ th .caret-4-desc:after {
     margin-top: 3em;
   }
   .pool-stats-container {
-      align-items: center;
+      grid-template-columns: 1fr;
   }
 }
