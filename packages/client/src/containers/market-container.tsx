@@ -36,7 +36,9 @@ function OverviewContainer({
 
     return (
         <div>
-            <h3>Highest Impermanent Loss Pairs on Uniswap*</h3>
+            <h3 className='heading-main'>
+                Highest Impermanent Loss Pairs on Uniswap*
+            </h3>
             <p className='warning-well'>
                 * The impermanent loss percentage is a reflection of the amount
                 of IL due to price fluctation relative to the total return of
