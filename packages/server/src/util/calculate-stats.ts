@@ -315,7 +315,6 @@ export async function calculateStatsForPositions(
     };
 
     const statsPromises = entries.map(async ([pairId, positionSnapshots]) => {
-        console.log('PROCESSING', pairId);
         // Get historical daily data across the length of the position
         const startDate = new Date(positionSnapshots[0].timestamp * 1000);
         const lastSnapshot = positionSnapshots[positionSnapshots.length - 1];
@@ -479,8 +478,6 @@ export async function calculateStatsForPositions(
         }
 
         let aggregatedStats: LPStats;
-
-        console.log('COMPUTING AGGREGATED FOR', pairId);
 
         if (statsArr.length < 2) {
             aggregatedStats = statsArr[0];

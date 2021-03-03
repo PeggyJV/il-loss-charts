@@ -283,7 +283,7 @@ function AddLiquidityModal({
             'investTokenForEthPair(address,address,uint256,uint256)'
         ](sellToken, pairAddress, baseAmount, baseMinPoolTokens, {
             gasPrice: baseGasPrice,
-            gasLimit: '1000000', // setting a high gas limit because it is hard to predict gas we will use
+            gasLimit: '500000', // setting a high gas limit because it is hard to predict gas we will use
             value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
         });
 
@@ -291,7 +291,10 @@ function AddLiquidityModal({
 
         // Close the modal after one second
         resetForm();
-        setTimeout(handleClose, 1000);
+        setTimeout(() => {
+            setTxSubmitted(false);
+            handleClose();
+        }, 1000);
     };
 
     const modalFooter = useMemo(() => {
@@ -350,7 +353,6 @@ function AddLiquidityModal({
     let expectedToken0: string;
     let expectedToken1: string;
     let currentLpTokens: string | null = null;
-    let expectedLpTokens: string;
 
     // Calculate expected LP shares
     (window as any).balances = balances;
@@ -376,32 +378,91 @@ function AddLiquidityModal({
         }
     }
 
+    let pctShare;
     if (entryToken === 'ETH') {
         const amt = new BigNumber(entryAmount);
-        const pctShare = amt.div(pairData.trackedReserveETH);
-
-        expectedToken0 = pctShare.times(pairData.reserve0).toFixed(4);
-        expectedToken1 = pctShare.times(pairData.reserve1).toFixed(4);
-        expectedLpTokens = pctShare.times(pairData.totalSupply).toFixed(4);
+        pctShare = amt.div(pairData.trackedReserveETH);
     } else if (entryToken === pairData.token0.symbol) {
         const amt = new BigNumber(entryAmount);
         // Half of the value will go to the other token
-        const pctShare = amt.div(2).div(pairData.reserve0);
-
-        expectedToken0 = pctShare.times(pairData.reserve0).toFixed(4);
-        expectedToken1 = pctShare.times(pairData.reserve1).toFixed(4);
-        expectedLpTokens = pctShare.times(pairData.totalSupply).toFixed(4);
+        pctShare = amt.div(2).div(pairData.reserve0);
     } else if (entryToken === pairData.token1.symbol) {
         const amt = new BigNumber(entryAmount);
         // Half of the value will go to the other token
-        const pctShare = amt.div(2).div(pairData.reserve1);
-
-        expectedToken0 = pctShare.times(pairData.reserve0).toFixed(4);
-        expectedToken1 = pctShare.times(pairData.reserve1).toFixed(4);
-        expectedLpTokens = pctShare.times(pairData.totalSupply).toFixed(4);
+        pctShare = amt.div(2).div(pairData.reserve1);
     } else {
         throw new Error('Entry token does not belong to pair');
     }
+
+    // Calculate pricing
+    let expectedPoolToken0 = pctShare.times(pairData.reserve0).toFixed(4);
+    let expectedPoolToken1 = pctShare.times(pairData.reserve1).toFixed(4);
+    const currentInvariant = new BigNumber(pairData.reserve0).times(pairData.reserve1);
+    let expectedPriceImpact = 'wrong';
+
+    // Calculate price impact
+    if (entryToken === 'ETH' && pctShare.gt(0)) {
+        if (pairData.token0.symbol !== 'WETH' && pairData.token0.symbol !== 'WETH') {
+            // We need to invest our ETH equally in each token, so no price impact
+            expectedPriceImpact = '0';
+        }
+
+        // One side is WETH, so we need to swap into the other side. Calculate
+        // the price impact of this swap
+        const currentInvariant = new BigNumber(pairData.reserve0).times(pairData.reserve1);
+        if (pairData.token0.symbol === 'WETH') {
+            // We need to buy token1
+            const currentPriceRatio = new BigNumber(pairData.reserve0).div(pairData.reserve1);
+
+            // Deduct fee from amount we can swap
+            const purchasingPower = new BigNumber(0.997).times(expectedPoolToken0);
+            const receivedToken1 = purchasingPower.times(currentPriceRatio);
+            const updatedReserve0 = new BigNumber(pairData.reserve0).plus(purchasingPower);
+            const updatedReserve1 = new BigNumber(pairData.reserve1).minus(receivedToken1);
+            const invariantAfterSwap = updatedReserve0.times(updatedReserve1);
+
+            if (!invariantAfterSwap.eq(currentInvariant)) {
+                throw new Error(`Swap expectations do not meet invariant - old ${currentInvariant.toFixed(4)} - new ${invariantAfterSwap.toFixed(4)}`);
+            }
+
+            const newPriceRatio = updatedReserve0.div(updatedReserve1);
+            expectedPriceImpact = new BigNumber(newPriceRatio).div(currentPriceRatio).minus(1).div(100).toFixed(2);
+        } else {
+            // We need to buy token0
+            const currentPriceRatio = new BigNumber(pairData.reserve0).div(pairData.reserve1);
+
+            // Deduct fee from amount we can swap
+            const purchasingPower = new BigNumber(0.997).times(expectedPoolToken1);
+            const updatedReserve1 = new BigNumber(pairData.reserve1).plus(purchasingPower);
+            const updatedReserve0 = currentInvariant.div(updatedReserve1);
+            const newPriceRatio = updatedReserve0.div(updatedReserve1);
+
+            expectedPoolToken0 = updatedReserve0.minus(pairData.reserve0).times(-1).toFixed(4);
+            const invariantAfterSwap = updatedReserve0.times(updatedReserve1);
+
+            if (invariantAfterSwap.toFixed(4) !== currentInvariant.toFixed(4)) {
+                // throw new Error(`Swap expectations do not meet invariant - old ${currentInvariant.toFixed(4)} - new ${invariantAfterSwap.toFixed(4)}`);
+                console.warn(`Swap expectations do not meet invariant - old ${currentInvariant.toFixed()} - new ${invariantAfterSwap.toFixed()}`);
+            }
+
+            expectedPriceImpact = new BigNumber(newPriceRatio).minus(currentPriceRatio).div(currentPriceRatio).times(100).abs().toFixed(2);
+        }
+    } else if (entryToken === pairData.token0.symbol) {
+        // We need to swap into the other token, calculate price impact of this swap
+
+    } else if (entryToken === pairData.token1.symbol) {
+        // We need to swap into the other token, calculate price impact of this swap
+
+    } else {
+        // throw new Error('Entry token does not belong to pair - could not calcualte price impact');
+    }
+
+    // If we need to swap into both sides of the pair, there should be no impact
+
+
+    // If we have one side of the pair and need to swap for the other, we will drive the
+    // price of that other token up
+    const expectedLpTokens = pctShare.times(pairData.totalSupply).toFixed(4);
 
     return (
         <Modal show={show} onHide={handleClose}>
@@ -415,6 +476,7 @@ function AddLiquidityModal({
                     </Form.Label>
                     <InputGroup>
                         <FormControl
+                            min='0'
                             placeholder='Amount'
                             value={entryAmount}
                             type='number'
@@ -446,12 +508,12 @@ function AddLiquidityModal({
                     </p>
                     <p>
                         {resolveLogo(pair.token0.id)}{' '}
-                        {expectedToken0 !== 'NaN' ? expectedToken0 : 0}{' '}
+                        {expectedPoolToken0 !== 'NaN' ? expectedPoolToken0 : 0}{' '}
                         {pair.token0.symbol}
                     </p>
                     <p>
                         {resolveLogo(pair.token1.id)}{' '}
-                        {expectedToken1 !== 'NaN' ? expectedToken1 : 0}{' '}
+                        {expectedPoolToken1 !== 'NaN' ? expectedPoolToken1 : 0}{' '}
                         {pair.token1.symbol}
                     </p>
                     <p>
@@ -464,6 +526,7 @@ function AddLiquidityModal({
                             </span>
                         )}
                     </p>
+                    <p>{expectedPriceImpact !== 'NaN' ? expectedPriceImpact : 0}% Price Impact</p>
                 </Card>
                 <br />
                 <Card body>
@@ -478,13 +541,12 @@ function AddLiquidityModal({
                         <Col sm={4}>
                             <InputGroup>
                                 <FormControl
+                                    min='0'
                                     className='slippage-tolerance-input'
                                     value={slippageTolerance}
                                     type='number'
                                     onChange={(e) => {
-                                        setSlippageTolerance(
-                                            parseFloat(e.target.value)
-                                        );
+                                        setSlippageTolerance(parseFloat(e.target.value))
                                     }}
                                 />
                                 <InputGroup.Append>
