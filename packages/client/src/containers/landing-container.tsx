@@ -64,11 +64,18 @@ function LandingContainer({
             <div className='warning-well'>
                 <p>
                     Not financial advice. This is an alpha project. Trade at
-                    your own risk. All calculated returns include Impermanent Loss.
+                    your own risk. All calculated returns include Impermanent
+                    Loss.
+                </p>
+                <p>
+                    *All calculated returns include Impermanent Loss.
                 </p>
             </div>
             <div className='header-with-filter'>
-                <h4 className='heading-main'>TOP LIQUIDITY POOLS</h4>
+                <h4 className='heading-main'>
+                    TOP LIQUIDITY POOLS :: 24 Hours
+                </h4>
+
                 <div>
                     <ConnectWalletButton onClick={showModal} wallet={wallet} />
                 </div>
@@ -87,8 +94,8 @@ function LandingContainer({
                 />
             )}
             <hr />
-            <h3>Top LP Opportunities in the Past 7 Days</h3>
-            <p>All calculated returns include Impermanent Loss.</p>
+            <h4 className='heading-main'>TOP LIQUIDITY POOLS :: 7 Days</h4>
+
             {topPairs?.weekly && (
                 <TopPairsWidget
                     topPairs={topPairs.weekly}
@@ -96,7 +103,6 @@ function LandingContainer({
                     handleAddLiquidity={handleAddLiquidity}
                 />
             )}
-            <TelegramCTA mode='plural' />
 
             {/* <h5>Highest Impermanent Loss Pairs on Uniswap since December 1</h5>
             <p>

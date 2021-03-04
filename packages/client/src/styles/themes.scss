@@ -16,7 +16,7 @@
     --borderMain: var(--purple60);
     --borderSecondary: var(--purple80);
     --borderOffset: var(--bubble10);
-    --borderAccent: var(--jam50);
+    --borderAccent: var(--jam40);
     --borderAccentAlt: var(--bubble40);
   
     //fonts & svgs
@@ -43,6 +43,12 @@
     // --btnInfoBorder: var();
     // --btnInfoActive: var();
     // --btnInfoHover: var();
+
+    // action
+    --bgAction: var(--jam50);
+    --btnAction: var(--faceDeep);
+    --btnActionHover: var(--jam50);
+
 
     // neutral
 

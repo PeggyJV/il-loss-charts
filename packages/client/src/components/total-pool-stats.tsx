@@ -1,6 +1,7 @@
-import { Button, Card, CardGroup, CardDeck } from 'react-bootstrap';
+import { Button, Card, CardGroup, Badge } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
+import { formatUSD } from 'util/formats';
 
 import { AllPairsState, PairPricesState, StatsWindow } from 'types/states';
 import { Pair, DailyData, LPStats } from 'constants/prop-types';
@@ -53,27 +54,81 @@ function TotalPoolStats({
 
     const prefix =
         defaultWindow === 'day' ? '24h' : defaultWindow === 'week' ? '7d' : '';
+    const volume = stats?.volumeUSD?.toFixed(4);
+    const liquidity = stats?.liquidityUSD?.toFixed(4);
+    const fees = stats?.feesUSD?.toFixed(4);
+
+    if (!volume || !liquidity || !fees) throw new Error(`Passed value`);
+    const volumeValue = formatUSD(volume);
+    const liquidityValue = formatUSD(liquidity);
+    const feesValue = formatUSD(fees);
 
     return (
-        <div className='pool-stats-container'>
-            <CardGroup>
-                <USDValueWidget
-                    title={`${prefix} USD Volume`}
-                    badge={`#${
-                        allPairs?.lookups?.[lpInfo.pairData.id]
-                            ?.volumeRanking || ''
-                    }`}
-                    value={stats?.volumeUSD?.toFixed(4)}
-                    footnote={
-                        stats?.volumeUSDChange && (
+        <div className='pair-volume-liquidity-stats'>
+            <div>
+                <button
+                    className='window-button'
+                    onClick={() => handleSetWindow('day')}
+                >
+                    24H
+                </button>
+
+                <button
+                    className='window-button'
+                    onClick={() => handleSetWindow('week')}
+                >
+                    7D
+                </button>
+                <button
+                    className='window-button'
+                    onClick={() => handleSetWindow('total')}
+                >
+                    All
+                </button>
+            </div>
+            <div>
+                <table>
+                    <tr>
+                        <td>{'Volume'}</td>
+                        <td>{volumeValue}</td>
+                        <td>
+                            {stats?.volumeUSDChange && (
+                                <PercentChangeStat
+                                    value={stats?.volumeUSDChange?.times(100)}
+                                />
+                            )}
+                        </td>
+                    </tr>
+
+                    {/* {`${prefix} USD Volume`} */}
+                    {/* <Badge variant='secondary'>
+                        {`#${
+                            allPairs?.lookups?.[lpInfo.pairData.id]
+                                ?.volumeRanking || ''
+                        }`}
+                    </Badge> */}
+                    {/* <p>{displayValue}</p> */}
+                    {/* <div>
+                        {stats?.volumeUSDChange && (
                             <PercentChangeStat
                                 value={stats?.volumeUSDChange?.times(100)}
                             />
-                        )
-                    }
-                />
-                <USDValueWidget
-                    title={'Total Liquidity'}
+                        )}
+                    </div> */}
+                    <tr>
+                        <td>Liquidity</td>
+                        <td>{liquidityValue}</td>
+                        <td>
+                            {stats?.liquidityUSDChange && (
+                                <PercentChangeStat
+                                    value={stats?.liquidityUSDChange?.times(
+                                        100
+                                    )}
+                                />
+                            )}
+                        </td>
+                    </tr>
+                    {/* title={'Total Liquidity'}
                     badge={`#${
                         allPairs?.lookups?.[lpInfo.pairData.id]
                             ?.liquidityRanking || ''
@@ -86,9 +141,20 @@ function TotalPoolStats({
                             />
                         )
                     }
-                />
-                <USDValueWidget
-                    title={`${prefix} Fees Collected`}
+                /> */}
+                    <tr>
+                        <td>{'Fees'}</td>
+                        <td>{feesValue}</td>
+                        <td>
+                            {stats?.feesUSDChange && (
+                                <PercentChangeStat
+                                    value={stats?.feesUSDChange?.times(100)}
+                                />
+                            )}
+                        </td>
+                    </tr>
+                </table>
+                {/* title={`${prefix} Fees Collected`}
                     badge={`#${
                         allPairs?.lookups?.[lpInfo.pairData.id]
                             ?.volumeRanking || ''
@@ -101,34 +167,8 @@ function TotalPoolStats({
                             />
                         )
                     }
-                />
-                <Card className='stats-card window-button-card no-border' body>
-                    <Button
-                        variant={
-                            defaultWindow === 'day'
-                                ? 'primary'
-                                : 'outline-primary'
-                        }
-                        size='sm'
-                        className='window-button'
-                        onClick={() => handleSetWindow('day')}
-                    >
-                        24H
-                    </Button>
-                    <Button
-                        variant={
-                            defaultWindow === 'week'
-                                ? 'primary'
-                                : 'outline-primary'
-                        }
-                        size='sm'
-                        className='window-button'
-                        onClick={() => handleSetWindow('week')}
-                    >
-                        7D
-                    </Button>
-                </Card>
-            </CardGroup>
+                /> */}
+            </div>
         </div>
     );
 }

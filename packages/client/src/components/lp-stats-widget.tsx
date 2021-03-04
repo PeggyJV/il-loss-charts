@@ -27,44 +27,36 @@ function LPStatsWidget({
     };
 
     return (
-        <Card className='lp-stats-card'>
-            <Card.Body className='lp-stats-widget'>
-                {title && <p>{title}</p>}
-                {subtitle && (
-                    <p className='stats-widget-subtitle'>{subtitle}</p>
-                )}
-                <Table borderless className='lp-stats-table'>
-                    <tbody>
-                        <tr>
-                            <td className='lp-stats-table-cell label'>
-                                Fees Collected
-                            </td>
-                            <td className='lp-stats-table-cell value'>
-                                {displayValue(lpStats.totalFees)}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className='lp-stats-table-cell label'>
-                                Impermanent Loss
-                            </td>
-                            <td className='lp-stats-table-cell value'>
-                                {displayValue(lpStats.impermanentLoss)}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className='lp-stats-table-cell label'>
-                                <strong>Total Return</strong>
-                            </td>
-                            <td className='lp-stats-table-cell value'>
-                                <strong>
-                                    {displayValue(lpStats.totalReturn)}
-                                </strong>
-                            </td>
-                        </tr>
-                    </tbody>
-                </Table>
-            </Card.Body>
-        </Card>
+        <div className='pair-volume-liquidity-stats '>
+            <table>
+                <tbody>
+                    <tr>
+                        <td className='lp-stats-table-cell label'>
+                            Fees
+                        </td>
+                        <td className='lp-stats-table-cell value'>
+                            {displayValue(lpStats.totalFees)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td className='lp-stats-table-cell label'>
+                            IL
+                        </td>
+                        <td className='lp-stats-table-cell value'>
+                            {displayValue(lpStats.impermanentLoss)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td className='lp-stats-table-cell label'>
+                            NR
+                        </td>
+                        <td className='lp-stats-table-cell value'>
+                            {displayValue(lpStats.totalReturn)}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     );
 }
 

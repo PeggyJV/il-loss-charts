@@ -31,14 +31,13 @@ function ConnectWalletButton({
 
     return (
         <>
-            <Button
-                size='sm'
+            <button
                 className='connect-wallet-button'
-                style={account ? accountStyle : walletStyle}
+                // style={account ? accountStyle : walletStyle}
                 onClick={onClick}
             >
                 {buttonText}
-            </Button>
+            </button>
         </>
     );
 }
