@@ -25,8 +25,10 @@ import mixpanel from 'util/mixpanel';
 
 import erc20Abi from 'constants/abis/erc20.json';
 import exchangeAddAbi from 'constants/abis/volumefi_add_liquidity_uniswap.json';
+import exchangeRemoveAbi from 'constants/abis/volumefi_remove_liquidity_uniswap.json';
 
 const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
+const EXCHANGE_REMOVE_ABI_ADDRESS = '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
 
 import {
     EthGasPrices,
@@ -308,6 +310,42 @@ function AddLiquidityModal({
         }, 1000);
     };
 
+    const doRemoveLiquidity = async () => {
+        if (!pairData || !provider || !currentLpTokens) return;
+
+        if (!currentGasPrice) {
+            throw new Error('Gas price not selected.');
+        }
+
+        // Create signer
+        const signer = provider.getSigner();
+        // Create read-write contract instance
+        const removeLiquidityContract = new ethers.Contract(
+            EXCHANGE_REMOVE_ABI_ADDRESS,
+            exchangeRemoveAbi,
+            signer
+        );
+
+        // Call the contract and sign
+        const ethAddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+        const baseGasPrice = ethers.utils
+            .parseUnits(currentGasPrice.toString(), 9)
+            .toString();
+
+        const baseMsgValue = ethers.utils.parseUnits('0.01', 18).toString();
+        const baseLpTokens = ethers.utils
+            .parseUnits(currentLpTokens.toString(), 18)
+            .toString();
+
+        await removeLiquidityContract[
+            'divestEthPairToToken(address,address,uint256)'
+        ](pairData.id, ethAddress, baseLpTokens, {
+            gasPrice: baseGasPrice,
+            gasLimit: '500000', // setting a high gas limit because it is hard to predict gas we will use
+            value: baseMsgValue, // flat fee sent to contract - 0.0005 ETH
+        });
+    }
+
     const modalFooter = useMemo(() => {
         if (gasPrices == null) {
             return (
@@ -543,6 +581,11 @@ function AddLiquidityModal({
                 }
             </Modal.Body>
             <Modal.Footer>
+                {currentLpTokens && parseFloat(currentLpTokens) > 0 &&
+                    <Button variant='primary' onClick={doRemoveLiquidity}>
+                        Remove Liquidity
+                    </Button>
+                }
                 {modalFooter}
             </Modal.Footer>
         </Modal>

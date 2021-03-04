@@ -1,0 +1,170 @@
+[
+    {
+        "outputs": [],
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "name": "divestEthPairToToken",
+        "outputs": [
+            {
+                "type": "uint256",
+                "name": ""
+            }
+        ],
+        "inputs": [
+            {
+                "type": "address",
+                "name": "pair"
+            },
+            {
+                "type": "address",
+                "name": "token"
+            },
+            {
+                "type": "uint256",
+                "name": "amount"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "name": "divestEthPairToToken",
+        "outputs": [
+            {
+                "type": "uint256",
+                "name": ""
+            }
+        ],
+        "inputs": [
+            {
+                "type": "address",
+                "name": "pair"
+            },
+            {
+                "type": "address",
+                "name": "token"
+            },
+            {
+                "type": "uint256",
+                "name": "amount"
+            },
+            {
+                "type": "uint256",
+                "name": "deadline"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "name": "pause",
+        "outputs": [],
+        "inputs": [
+            {
+                "type": "bool",
+                "name": "_paused"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "gas": "36397"
+    },
+    {
+        "name": "newAdmin",
+        "outputs": [],
+        "inputs": [
+            {
+                "type": "address",
+                "name": "_admin"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "gas": "36427"
+    },
+    {
+        "name": "newFeeAmount",
+        "outputs": [],
+        "inputs": [
+            {
+                "type": "uint256",
+                "name": "_feeAmount"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "gas": "36357"
+    },
+    {
+        "name": "newFeeAddress",
+        "outputs": [],
+        "inputs": [
+            {
+                "type": "address",
+                "name": "_feeAddress"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "gas": "36487"
+    },
+    {
+        "stateMutability": "payable",
+        "type": "fallback"
+    },
+    {
+        "name": "paused",
+        "outputs": [
+            {
+                "type": "bool",
+                "name": ""
+            }
+        ],
+        "inputs": [],
+        "stateMutability": "view",
+        "type": "function",
+        "gas": "1331"
+    },
+    {
+        "name": "admin",
+        "outputs": [
+            {
+                "type": "address",
+                "name": ""
+            }
+        ],
+        "inputs": [],
+        "stateMutability": "view",
+        "type": "function",
+        "gas": "1361"
+    },
+    {
+        "name": "feeAmount",
+        "outputs": [
+            {
+                "type": "uint256",
+                "name": ""
+            }
+        ],
+        "inputs": [],
+        "stateMutability": "view",
+        "type": "function",
+        "gas": "1391"
+    },
+    {
+        "name": "feeAddress",
+        "outputs": [
+            {
+                "type": "address",
+                "name": ""
+            }
+        ],
+        "inputs": [],
+        "stateMutability": "view",
+        "type": "function",
+        "gas": "1421"
+    }
+]

@@ -317,6 +317,12 @@ export async function calculateStatsForPositions(
     const statsPromises = entries.map(async ([pairId, positionSnapshots]) => {
         // Get historical daily data across the length of the position
         const startDate = new Date(positionSnapshots[0].timestamp * 1000);
+
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        const startDateDayStart = new Date(
+            Math.floor(startDate.getTime() / oneDayMs) * oneDayMs
+        );
+
         const lastSnapshot = positionSnapshots[positionSnapshots.length - 1];
         let endDate: Date;
 
@@ -332,11 +338,15 @@ export async function calculateStatsForPositions(
             fetchCurrent = true;
         }
 
+        const endDateDayEnd = new Date(
+            Math.ceil(endDate.getTime() / oneDayMs) * oneDayMs + 1000
+        );
+
         // get historical data
         const historicalDailyData = await UniswapFetcher.getHistoricalDailyData(
             pairId,
-            startDate,
-            endDate
+            startDateDayStart,
+            endDateDayEnd
         );
 
         const sliceHistoricalData = (

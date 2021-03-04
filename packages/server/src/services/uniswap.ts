@@ -578,7 +578,7 @@ export default class UniswapFetcher {
         if (hourlyData.length === 0) {
             throw new HTTPError(
                 404,
-                `Could not fetch any historical hourly data for the given timeframe. Make sure the window is at least 1 day.`
+                `Could not fetch any historical hourly data for the given timeframe. Make sure the window is at least 1 hour.`
             );
         }
 
