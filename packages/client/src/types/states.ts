@@ -7,6 +7,8 @@ import {
     UniswapMintOrBurn,
 } from '@sommelier/shared-types';
 
+import { ethers } from 'ethers';
+
 export interface AllPairsState {
     isLoading: boolean;
     pairs: UniswapPair[] | null;
@@ -80,3 +82,12 @@ export type ManageLiquidityActionState =
     | 'needsSubmit'
     | 'submitted'
     | 'unknown';
+
+export interface WalletBalances {
+    [tokenName: string]: {
+        balance: ethers.BigNumber;
+        symbol?: string;
+        decimals?: string;
+        allowance: ethers.BigNumber;
+    }
+}

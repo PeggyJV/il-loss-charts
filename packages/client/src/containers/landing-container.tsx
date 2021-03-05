@@ -6,8 +6,7 @@ import { MarketStats, EthGasPrices } from '@sommelier/shared-types';
 import { TopPairsState, Wallet } from 'types/states';
 
 import mixpanel from 'util/mixpanel';
-
-import AddLiquidityModal from 'components/add-liquidity-modal';
+import ManageLiquidityModal from 'components/manage-liquidity-modal';
 import TopPairsWidget from 'components/top-pairs-widget';
 import TelegramCTA from 'components/telegram-cta';
 function LandingContainer({
@@ -52,7 +51,7 @@ function LandingContainer({
 
     return (
         <div>
-            <AddLiquidityModal
+            <ManageLiquidityModal
                 show={showAddLiquidity}
                 setShow={setShowAddLiquidity}
                 wallet={wallet}
