@@ -68,3 +68,15 @@ export interface GasPrices {
     fast: number;
     faster: number;
 }
+
+export type ManageLiquidityActionState = 
+    'awaitingGasPrices'
+    | 'gasPriceNotSelected'
+    | 'amountNotEntered'
+    | 'insufficientFunds'
+    | 'slippageTooHigh'
+    | 'needsApproval'
+    | 'waitingApproval'
+    | 'needsSubmit'
+    | 'submitted'
+    | 'unknown';

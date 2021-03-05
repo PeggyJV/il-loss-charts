@@ -18,9 +18,6 @@ import {
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleNotch, faCheck } from '@fortawesome/free-solid-svg-icons';
-
 import mixpanel from 'util/mixpanel';
 
 import erc20Abi from 'constants/abis/erc20.json';
@@ -37,12 +34,13 @@ import {
     UniswapPair,
     Token,
 } from '@sommelier/shared-types';
-import { Wallet } from 'types/states';
+import { Wallet, ManageLiquidityActionState } from 'types/states';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { calculatePoolEntryData } from 'util/uniswap-pricing';
 
 import { resolveLogo } from 'components/token-with-logo';
+import { AddLiquidityActionButton } from 'components/liquidity-action-button';
 
 function AddLiquidityModal({
     show,
@@ -79,6 +77,7 @@ function AddLiquidityModal({
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
     );
+    const [approvalState, setApprovalState] = useState<'needed' | 'pending' | 'done'>('needed');
     const [txSubmitted, setTxSubmitted] = useState(false);
     const maxBalance = balances[entryToken]?.balance;
     const maxBalanceStr = ethers.utils.formatUnits(
@@ -216,6 +215,63 @@ function AddLiquidityModal({
         setEntryAmount(0);
     }, [entryToken]);
 
+    const doApprove = async () => {
+        if (!pairData || !provider) return;
+
+        if (!currentGasPrice) {
+            throw new Error('Gas price not selected.');
+        }
+
+        // Create signer
+        const signer = provider.getSigner();
+        // Create read-write contract instance
+
+        let sellToken = entryToken;
+        const symbol0 = pairData.token0.symbol;
+        const symbol1 = pairData.token1.symbol;
+
+        if (entryToken === symbol0 && symbol0 !== 'WETH') {
+            sellToken = (pairData.token0 as Token).id;
+        } else if (entryToken === symbol1 && symbol1 !== 'WETH') {
+            sellToken = (pairData.token1 as Token).id;
+        } else if (entryToken === 'WETH') {
+            // We have ETH
+            sellToken = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
+        } else {
+            throw new Error(`Could not sell from this token: ${sellToken}`);
+        }
+
+        const sellTokenContract = new ethers.Contract(
+            sellToken,
+            erc20Abi,
+            signer
+        );
+
+        const decimals = parseInt(balances[entryToken]?.decimals || '0', 10);
+        if (decimals === 0) {
+            throw new Error(
+                `Do not have decimal units for ${decimals} - unsafe, cannot proceed`
+            );
+        }
+
+        const baseAmount = ethers.utils
+            .parseUnits((entryAmount * 100).toString(), decimals)
+            .toString();
+        const baseGasPrice = ethers.utils
+            .parseUnits(currentGasPrice.toString(), 9)
+            .toString();
+
+        // Approve the add liquidity contract to spend entry tokens
+        const txResponse = await sellTokenContract.approve(EXCHANGE_ADD_ABI_ADDRESS, baseAmount, {
+            gasPrice: baseGasPrice,
+            gasLimit: '200000', // setting a high gas limit because it is hard to predict gas we will use
+        });
+
+        setApprovalState('pending');
+        await provider.waitForTransaction(txResponse.hash);
+        setApprovalState('done');
+    }
+
     const doAddLiquidity = async () => {
         if (!pairData || !provider) return;
 
@@ -346,54 +402,40 @@ function AddLiquidityModal({
         });
     }
 
-    const modalFooter = useMemo(() => {
+    const addLiquidityActionState: ManageLiquidityActionState = useMemo(() => {
         if (gasPrices == null) {
-            return (
-                <Button variant='secondary' disabled>
-                    <FontAwesomeIcon icon={faCircleNotch} className='fa-spin' />{' '}
-                    Awaiting gas prices...
-                </Button>
-            )
+            return 'awaitingGasPrices';
         } else if (txSubmitted) {
-            return (
-                <Button variant='success' disabled>
-                    <FontAwesomeIcon icon={faCheck} />{' '}
-                    Submitted
-                </Button>
-            );
-        } else if (new BigNumber(entryAmount).lte(0)) {
-            return (
-                <Button variant='secondary' disabled>
-                    Enter Amount
-                </Button>
-            );
+            return 'submitted';
+        } else if (!entryAmount || new BigNumber(entryAmount).lte(0)) {
+            return 'amountNotEntered';
         } else if (new BigNumber(entryAmount).gte(maxBalanceStr)) {
-            return (
-                <Button variant='secondary' disabled>
-                    Insufficient Funds
-                </Button>
-            );
+            return 'insufficientFunds';
         } else if (new BigNumber(expectedPriceImpact).gt(slippageTolerance)) {
-            return (
-                <Button variant='danger' disabled>
-                    Slippage Too High
-                </Button>
-            )
+            return 'slippageTooHigh';
         } else if (currentGasPrice == null) {
-            return (
-                <Button variant='secondary' disabled>
-                    Select Gas Price
-                </Button>
-            );
+            return 'gasPriceNotSelected';
+        } else if (approvalState === 'needed' && entryToken !== 'ETH') {
+            return 'needsApproval';
+        } else if (approvalState === 'pending') {
+            return 'waitingApproval';
         } else if (new BigNumber(entryAmount).lte(maxBalanceStr) &&
             new BigNumber(entryAmount).gt(0)) {
-            return (
-                <Button variant='success' onClick={doAddLiquidity}>
-                    Confirm
-                </Button>
-            );
+            return 'needsSubmit'
+        } else {
+            return 'unknown';
         }
-    }, [gasPrices, currentGasPrice, entryAmount, maxBalanceStr, expectedPriceImpact, slippageTolerance, txSubmitted]);
+    }, [
+        gasPrices,
+        currentGasPrice, 
+        entryAmount, 
+        entryToken,
+        maxBalanceStr, 
+        expectedPriceImpact, 
+        slippageTolerance, 
+        txSubmitted, 
+        approvalState
+    ]);
 
 
     if (!wallet || !provider || !pair) {
@@ -586,7 +628,11 @@ function AddLiquidityModal({
                         Remove Liquidity
                     </Button>
                 }
-                {modalFooter}
+                <AddLiquidityActionButton 
+                    state={addLiquidityActionState}
+                    onApprove={doApprove}
+                    onAddLiquidity={doAddLiquidity}
+                />
             </Modal.Footer>
         </Modal>
     );
