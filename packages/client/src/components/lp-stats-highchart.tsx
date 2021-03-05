@@ -30,7 +30,9 @@ function LPStatsChart({
             lpStats.runningReturn[i]
         ).toNumber();
 
-        const date = new Date(lpStats.fullDates?.[i] as Date | number).getTime();
+        const date = new Date(
+            lpStats.fullDates?.[i] as Date | number
+        ).getTime();
 
         chartData.push([date, runningFee, runningReturn]);
 
@@ -49,7 +51,10 @@ function LPStatsChart({
     const options: Highcharts.Options = {
         chart: {
             type: 'areaspline',
-            height: 563,
+            height: 500,
+            backgroundColor: 'var(--bgContainer)',
+            margin: [0, 50, 100, 50],
+            className: 'chart-base-styles',
         },
         credits: {
             enabled: false,
@@ -60,9 +65,22 @@ function LPStatsChart({
             title: {
                 text: null,
             },
+            labels: {
+                style: {
+                    color: 'var(--faceSecondary)',
+                },
+            },
         },
         rangeSelector: {
-            selected: 5,
+            // selected: 5,
+            inputEnabled: false,
+            enabled: false,
+        },
+        navigator: {
+            enabled: false,
+        },
+        scrollbar: {
+            enabled: false,
         },
         plotOptions: {
             areasplinerange: {
@@ -74,7 +92,7 @@ function LPStatsChart({
                         y2: 1,
                     },
                     stops: [
-                        [0, Highcharts.getOptions().colors?.[0] as string],
+                        [0, 'var(--bgSecondary)'],
                         [
                             1,
                             Highcharts.color(
@@ -94,11 +112,15 @@ function LPStatsChart({
                 },
                 height: '80%',
                 labels: {
+                    style: {
+                        color: 'var(--faceSecondary)',
+                    },
                     formatter: function () {
                         return formatUSD(this.value);
                     },
                 },
                 tickPosition: 'outside',
+                gridLineColor: 'var(--bgMain)',
             },
             {
                 visible: false,
@@ -123,12 +145,13 @@ function LPStatsChart({
                 data: chartData,
                 marker: { enabled: false },
                 yAxis: 0,
+                color: 'var(--faceMoon)',
             },
             {
                 name: 'Total Return',
                 type: 'spline',
                 data: chartData.map((c) => [c[0], c[2]]),
-                color: '#0089ff',
+                color: 'var(--faceAccentAlt)',
                 marker: { enabled: false },
                 yAxis: 0,
             },
@@ -140,7 +163,7 @@ function LPStatsChart({
                 yAxis: 1,
             },
             {
-                color: '#90ED7D',
+                color: 'var(--faceAccentAlt)',
                 name: 'Total Pool Liquidity',
                 type: 'column',
                 data: liqChartData,
@@ -149,10 +172,19 @@ function LPStatsChart({
         ],
         legend: {
             enabled: true,
+            itemStyle: {
+                color: 'var(--faceSecondary)',
+            },
         },
         tooltip: {
             split: false,
             shared: true,
+            backgroundColor: 'var(--bgDeep)',
+            borderColor: 'var(--borderMain)',
+            borderRadius: 0,
+            style: {
+                color: 'var(--faceSecondary)',
+            },
             formatter: function (tooltip) {
                 if (!this.points) {
                     return tooltip.defaultFormatter.call(this, tooltip);
@@ -177,7 +209,7 @@ function LPStatsChart({
                 const date = format(new Date(this.x), 'MMMM d, yyyy HH:mm:ss');
 
                 return `
-                    <em>${date}</em><br><br>
+                    <strong>${date}</strong><br><br>
                     ${
                         feesPoint
                             ? `<span style="color:${
@@ -233,6 +265,9 @@ function LPStatsChart({
                         maxWidth: 800,
                     },
                     chartOptions: {
+                        chart: {
+                            margin: [0, 5, 150, 5],
+                        },
                         rangeSelector: {
                             inputEnabled: false,
                         },
@@ -243,13 +278,11 @@ function LPStatsChart({
     };
 
     return (
-        <Card body className='no-border'>
-            <HighchartsReact
-                constructorType='stockChart'
-                highcharts={Highcharts}
-                options={options}
-            />
-        </Card>
+        <HighchartsReact
+            constructorType='stockChart'
+            highcharts={Highcharts}
+            options={options}
+        />
     );
 }
 

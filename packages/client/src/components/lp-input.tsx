@@ -102,7 +102,7 @@ function LPInput({
     }, [lpShare, dataAtLPDate]);
 
     return (
-        <div>
+        <div className='lp-input-group'>
             <Form>
                 <Form.Row>
                     <Form.Group as={Col}>

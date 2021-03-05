@@ -305,22 +305,28 @@ p {
     border: 1px solid var(--borderMain);
     border-radius: 0;
     &:active {
-        background: red;
+        background-color: var(--bgDeep);
     }
-}
-.input-group {
     &:focus {
-        background: var(--bgDeep);
-        border: 1px solid red;
+        background-color: var(--bgDeep);
         outline: none;
         box-shadow: none;
-        color: var(--faceSecondary);
+        color: var(--facePrimary);
+        border: 1px solid var(--borderAccentAlt);
     }
 }
+// .input-group {
+//     &:focus {
+//         background-color: var(--bgDeep);
+//         outline: none;
+//         box-shadow: none;
+//         color: var(--faceSecondary);
+//     }
+// }
 
 .rw-widget-container {
     background: var(--bgMain);
-    border-radius: none;
+    border-radius: 0;
     border: 1px solid var(--borderDeep);
 }
 .rw-select-bordered,
@@ -408,22 +414,26 @@ p {
 .pair-controls {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 2rem;
 }
 .pair-and-pool-stats {
     display: flex;
     justify-content: flex-start;
-    > div {
+    border: 1px solid var(--borderMain);
+    background: var(--bgContainer);
+    padding: 1rem;
+    > div:first-child {
         margin-right: 1rem;
     }
     margin-bottom: 1rem;
 }
 
 .pair-volume-liquidity-stats {
-    border: 1px solid var(--borderMain);
-    background: var(--bgContainer);
-    padding: 0.25rem 0.5rem;
+    // border: 1px solid var(--borderMain);
+    // background: var(--bgContainer);
+    // padding: 0.25rem 0.5rem;
     font-size: 1rem;
-    color: var(--faceSecondary);
+    color: var(--facePrimary);
     table {
         tr {
             td {
@@ -454,14 +464,24 @@ p {
     font-size: 0.8rem;
     justify-content: flex-end;
     align-items: flex-start;
+    border: 1px solid var(--borderMain);
+    background: var(--bgContainer);
+    padding: 1rem;
     input {
         font-size: 0.75rem;
     }
-    > div {
+    > div:first-child {
         margin-right: 1rem;
     }
 }
+.lp-input-group {
+    min-width: 250px;
+}
 // end pair container styles
+.chart-base-styles {
+    border: 1px solid var(--borderDeep);
+    color: var(--faceSecondary);
+}
 .card {
     // background: var(--bgContainer);
     // border: 1px solid var(--borderMain);
@@ -497,9 +517,8 @@ p {
 
 .pair-selector-container {
     display: flex;
-    padding: 0.5rem 1rem;
     min-width: 200px;
-    max-width: 225px;
+    max-width: 200px;
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
@@ -588,11 +607,11 @@ p {
 }
 
 .pct-change-up {
-    color: #3e832a;
+    color: var(--faceMoon);
 }
 
 .pct-change-down {
-    color: #d54152;
+    color: var(--faceDump);
 }
 
 .sidebar-buttons {
@@ -749,7 +768,26 @@ th .caret-4-desc:after {
         margin-top: 0;
     }
 }
-
+@media (max-width: 1200px) {
+    .pair-controls {
+        flex-direction: column;
+    }
+    .pair-and-pool-stats,
+    .lp-input-with-stats {
+        justify-content: space-between;
+    }
+}
+@media (max-width: 765px) {
+    .pair-controls {
+        align-items: center;
+    }
+    .pair-and-pool-stats,
+    .lp-input-with-stats {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+}
 @media (max-width: 500px) {
     .app-body {
         width: 100%;
