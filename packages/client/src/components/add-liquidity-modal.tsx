@@ -64,6 +64,7 @@ function AddLiquidityModal({
             balance: ethers.BigNumber;
             symbol?: string;
             decimals?: string;
+            allowance: ethers.BigNumber;
         };
     }>({});
     const [entryToken, setEntryToken] = useState<string>('ETH');
@@ -127,26 +128,48 @@ function AddLiquidityModal({
                 }
             );
 
+            const getAllowances = [pair.token0.id, pair.token1.id].map(
+                async (tokenAddress) => {
+                    if (!tokenAddress) {
+                        throw new Error(
+                            'Could not get balance for pair without token address'
+                        );
+                    }
+                    const token = new ethers.Contract(
+                        tokenAddress,
+                        erc20Abi
+                    ).connect(provider as ethers.providers.Web3Provider);
+                    const allowance: ethers.BigNumber = await token.allowance(
+                        wallet.account,
+                        EXCHANGE_ADD_ABI_ADDRESS
+                    );
+                    return allowance;
+                }
+            );
+
             const getEthBalance = provider.getBalance(wallet.account);
             const [
                 ethBalance,
                 token0Balance,
                 token1Balance,
-            ] = await Promise.all([getEthBalance, ...getTokenBalances]);
+                token0Allowance,
+                token1Allowance
+            ] = await Promise.all([getEthBalance, ...getTokenBalances, ...getAllowances]);
 
             // Get balance for other two tokens
             setBalances((prevBalances) => ({
-                ...prevBalances,
-                ETH: { symbol: 'ETH', balance: ethBalance, decimals: '18' },
+                ETH: { symbol: 'ETH', balance: ethBalance, decimals: '18', allowance: ethers.BigNumber.from(0) },
                 [pair.token0.symbol as string]: {
                     symbol: pair.token0.symbol,
                     balance: token0Balance,
                     decimals: pair.token0.decimals,
+                    allowance: token0Allowance
                 },
                 [pair.token1.symbol as string]: {
                     symbol: pair.token1.symbol,
                     balance: token1Balance,
                     decimals: pair.token0.decimals,
+                    allowance: token1Allowance
                 },
             }));
         };
@@ -179,6 +202,30 @@ function AddLiquidityModal({
 
         void fetchPairData();
     }, [pair]);
+
+    useEffect(() => {
+        // No need to check allowances for ETH
+        if (entryToken === 'ETH' || !entryAmount) return;
+
+        const allowance = balances[entryToken]?.allowance;
+
+        if (!allowance) return;
+
+        const entryAmtNum = new BigNumber(entryAmount);
+        const allowanceStr = ethers.utils.formatUnits(
+            allowance || 0,
+            parseInt(balances[entryToken]?.decimals || '0', 10)
+        );
+        const allowanceNum = new BigNumber(allowanceStr);
+
+        // If allowance is less than entry amount, make it needed
+        if (entryAmtNum.gt(allowanceNum)) {
+            setApprovalState('needed');
+        } else {
+            // else make it done
+            setApprovalState('done')
+        }
+    }, [entryAmount, entryToken, balances])
 
     useEffect(() => {
         const fetchPositionsForWallet = async () => {
