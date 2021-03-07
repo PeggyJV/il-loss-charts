@@ -268,7 +268,7 @@ function AddLiquidity({
             return 'submitted';
         } else if (!entryAmount || new BigNumber(entryAmount).lte(0)) {
             return 'amountNotEntered';
-        } else if (new BigNumber(entryAmount).gte(maxBalanceStr)) {
+        } else if (new BigNumber(entryAmount).gt(maxBalanceStr)) {
             return 'insufficientFunds';
         } else if (new BigNumber(expectedPriceImpact).gt(slippageTolerance)) {
             return 'slippageTooHigh';

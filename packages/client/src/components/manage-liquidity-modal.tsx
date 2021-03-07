@@ -63,7 +63,7 @@ function ManageLiquidityModal({
         const getBalances = async () => {
             if (!provider || !wallet.account || !pair) return;
 
-            const getTokenBalances = [pair.token0.id, pair.token1.id].map(
+            const getTokenBalances = [pair.token0.id, pair.token1.id, pair.id].map(
                 async (tokenAddress) => {
                     if (!tokenAddress) {
                         throw new Error(
@@ -81,7 +81,7 @@ function ManageLiquidityModal({
                 }
             );
 
-            const getAllowances = [pair.token0.id, pair.token1.id].map(
+            const getAllowances = [pair.token0.id, pair.token1.id, pair.id].map(
                 async (tokenAddress) => {
                     if (!tokenAddress) {
                         throw new Error(
@@ -94,8 +94,9 @@ function ManageLiquidityModal({
                     ).connect(provider as ethers.providers.Web3Provider);
                     const allowance: ethers.BigNumber = await token.allowance(
                         wallet.account,
-                        EXCHANGE_ADD_ABI_ADDRESS
+                        tokenAddress === pair.id ? EXCHANGE_REMOVE_ABI_ADDRESS : EXCHANGE_ADD_ABI_ADDRESS
                     );
+
                     return allowance;
                 }
             );
@@ -105,8 +106,10 @@ function ManageLiquidityModal({
                 ethBalance,
                 token0Balance,
                 token1Balance,
+                pairBalance,
                 token0Allowance,
-                token1Allowance
+                token1Allowance,
+                pairAllowance
             ] = await Promise.all([getEthBalance, ...getTokenBalances, ...getAllowances]);
 
             // Get balance for other two tokens
@@ -132,11 +135,18 @@ function ManageLiquidityModal({
                     decimals: pair.token0.decimals,
                     allowance: token1Allowance
                 },
+                currentPair: {
+                    id: pair.id,
+                    symbol: `${(pair.token0 as Token).symbol}/${(pair.token1 as Token).symbol}`,
+                    balance: pairBalance,
+                    decimals: '18',
+                    allowance: pairAllowance
+                }
             });
         };
 
         void getBalances();
-    }, [wallet, show]);
+    }, [wallet, show, pair]);
 
     useEffect(() => {
         const fetchPairData = async () => {

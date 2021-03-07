@@ -26,6 +26,7 @@ import {
     EthGasPrices,
     LPPositionData,
     UniswapPair,
+    Token
 } from '@sommelier/shared-types';
 import { Wallet, WalletBalances, ManageLiquidityActionState } from 'types/states';
 
@@ -131,35 +132,33 @@ function RemoveLiquidity({
 
     let currentLpTokens: string | null = null;
 
-    // useEffect(() => {
-    //     // No need to check allowances for ETH
-    //     if (entryToken === 'ETH' || !entryAmount) return;
+    useEffect(() => {
+        // No need to check allowances for ETH
+        const allowance = balances?.currentPair?.allowance;
 
-    //     const allowance = balances[entryToken]?.allowance;
+        if (!allowance) return;
 
-    //     if (!allowance) return;
+        const exitAmountNum = new BigNumber(exitAmount);
+        const allowanceStr = ethers.utils.formatUnits(
+            allowance || 0,
+            parseInt(balances.currentPair?.decimals || '0', 10)
+        );
+        const allowanceNum = new BigNumber(allowanceStr);
 
-    //     const entryAmtNum = new BigNumber(entryAmount);
-    //     const allowanceStr = ethers.utils.formatUnits(
-    //         allowance || 0,
-    //         parseInt(balances[entryToken]?.decimals || '0', 10)
-    //     );
-    //     const allowanceNum = new BigNumber(allowanceStr);
-
-    //     // If allowance is less than entry amount, make it needed
-    //     if (entryAmtNum.gt(allowanceNum)) {
-    //         setApprovalState('needed');
-    //     } else {
-    //         // else make it done
-    //         setApprovalState('done')
-    //     }
-    // }, [entryAmount, entryToken, balances]);
+        // If allowance is less than entry amount, make it needed
+        if (exitAmountNum.gt(allowanceNum)) {
+            setApprovalState('needed');
+        } else {
+            // else make it done
+            setApprovalState('done')
+        }
+    }, [exitAmount, balances]);
 
     useEffect(() => {
         setExitAmount(0);
     }, []);
 
-    const doApprove = () => {
+    const doApprove = async () => {
         if (!pairData || !provider) return;
 
         if (!currentGasPrice) {
@@ -170,50 +169,35 @@ function RemoveLiquidity({
         const signer = provider.getSigner();
         // // Create read-write contract instance
 
-        // let sellToken = entryToken;
-        // const symbol0 = pairData.token0.symbol;
-        // const symbol1 = pairData.token1.symbol;
+        const pairContract = new ethers.Contract(
+            pairData.id,
+            erc20Abi,
+            signer
+        );
 
-        // if (entryToken === symbol0 && symbol0 !== 'WETH') {
-        //     sellToken = (pairData.token0 as Token).id;
-        // } else if (entryToken === symbol1 && symbol1 !== 'WETH') {
-        //     sellToken = (pairData.token1 as Token).id;
-        // } else if (entryToken === 'WETH') {
-        //     // We have ETH
-        //     sellToken = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
-        // } else {
-        //     throw new Error(`Could not sell from this token: ${sellToken}`);
-        // }
+        const decimals = parseInt(balances.currentPair?.decimals || '0', 10);
+        if (decimals === 0) {
+            throw new Error(
+                `Do not have decimal units for ${decimals} - unsafe, cannot proceed`
+            );
+        }
 
-        // const sellTokenContract = new ethers.Contract(
-        //     sellToken,
-        //     erc20Abi,
-        //     signer
-        // );
-
-        // const decimals = parseInt(balances[entryToken]?.decimals || '0', 10);
-        // if (decimals === 0) {
-        //     throw new Error(
-        //         `Do not have decimal units for ${decimals} - unsafe, cannot proceed`
-        //     );
-        // }
-
-        // const baseAmount = ethers.utils
-        //     .parseUnits((entryAmount * 100).toString(), decimals)
-        //     .toString();
-        // const baseGasPrice = ethers.utils
-        //     .parseUnits(currentGasPrice.toString(), 9)
-        //     .toString();
+        const baseAmount = ethers.utils
+            .parseUnits((exitAmount * 100).toString(), decimals)
+            .toString();
+        const baseGasPrice = ethers.utils
+            .parseUnits(currentGasPrice.toString(), 9)
+            .toString();
 
         // // Approve the add liquidity contract to spend entry tokens
-        // const txResponse = await sellTokenContract.approve(EXCHANGE_ADD_ABI_ADDRESS, baseAmount, {
-        //     gasPrice: baseGasPrice,
-        //     gasLimit: '200000', // setting a high gas limit because it is hard to predict gas we will use
-        // });
+        const txResponse = await pairContract.approve(EXCHANGE_REMOVE_ABI_ADDRESS, baseAmount, {
+            gasPrice: baseGasPrice,
+            gasLimit: '200000', // setting a high gas limit because it is hard to predict gas we will use
+        });
 
-        // setApprovalState('pending');
-        // await provider.waitForTransaction(txResponse.hash);
-        // setApprovalState('done');
+        setApprovalState('pending');
+        await provider.waitForTransaction(txResponse.hash);
+        setApprovalState('done');
     }
 
     const doRemoveLiquidity = async () => {
@@ -233,23 +217,39 @@ function RemoveLiquidity({
         );
 
         // Call the contract and sign
-        const ethAddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+        let exitAddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+
+        if (exitToken === pairData.token0.symbol) {
+            exitAddress = (pairData.token0 as Token).id;
+        } else if (exitToken === pairData.token1.symbol) {
+            exitAddress = (pairData.token1 as Token).id;
+        }
+
         const baseGasPrice = ethers.utils
             .parseUnits(currentGasPrice.toString(), 9)
             .toString();
 
         const baseMsgValue = ethers.utils.parseUnits('0.01', 18).toString();
         const baseLpTokens = ethers.utils
-            .parseUnits(currentLpTokens.toString(), 18)
+            .parseUnits(exitAmount.toString(), 18)
             .toString();
 
         await removeLiquidityContract[
             'divestEthPairToToken(address,address,uint256)'
-        ](pairData.id, ethAddress, baseLpTokens, {
+        ](pairData.id, exitAddress, baseLpTokens, {
             gasPrice: baseGasPrice,
             gasLimit: '500000', // setting a high gas limit because it is hard to predict gas we will use
             value: baseMsgValue, // flat fee sent to contract - 0.0005 ETH
         });
+
+        setTxSubmitted(true);
+
+        // Close the modal after one second
+        setTimeout(() => {
+            setTxSubmitted(false);
+            resetForm();
+            onDone?.();
+        }, 1000);
     }
 
     if (positionData && pairData) {
@@ -272,7 +272,7 @@ function RemoveLiquidity({
             return 'submitted';
         } else if (!exitAmount || new BigNumber(exitAmount).lte(0)) {
             return 'amountNotEntered';
-        } else if (new BigNumber(exitAmount).gte(currentLpTokens || 0)) {
+        } else if (new BigNumber(exitAmount).gt(currentLpTokens || 0)) {
             return 'insufficientFunds';
         } else if (currentGasPrice == null) {
             return 'gasPriceNotSelected';
