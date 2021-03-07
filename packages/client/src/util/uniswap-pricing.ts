@@ -132,7 +132,7 @@ export function calculatePoolEntryData(pairData: UniswapPair | null, entryToken:
 
     // If we have one side of the pair and need to swap for the other, we will drive the
     // price of that other token up
-    const expectedLpTokens = pctShare.times(pairData.totalSupply).toFixed(4);
+    const expectedLpTokens = pctShare.times(pairData.totalSupply).toFixed(8);
 
     return {
         expectedLpTokens,

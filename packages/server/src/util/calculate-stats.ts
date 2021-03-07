@@ -320,7 +320,7 @@ export async function calculateStatsForPositions(
 
         const oneDayMs = 24 * 60 * 60 * 1000;
         const startDateDayStart = new Date(
-            Math.floor(startDate.getTime() / oneDayMs) * oneDayMs
+            Math.floor(startDate.getTime() / oneDayMs) * oneDayMs - oneDayMs
         );
 
         const lastSnapshot = positionSnapshots[positionSnapshots.length - 1];
@@ -446,12 +446,19 @@ export async function calculateStatsForPositions(
             if (historicalDataBetween.length < 7) {
                 // If within the same week, we should try to get hourlies
                 // So try to get hourlies - if within the same hour, we can't get data
+                const oneHourMs = 60 * 60 * 1000;
+
                 const hourlyStartDate = new Date(prevSnapshot.timestamp * 1000);
-                const hourlyEndDate = endDate;
+                const startDateHourStart = new Date(
+                    Math.floor(hourlyStartDate.getTime() / oneHourMs) * oneHourMs
+                );
+                const endDateHourEnd = new Date(
+                    Math.ceil(endDate.getTime() / oneHourMs) * oneHourMs
+                );
                 historicalDataBetween = await UniswapFetcher.getHourlyData(
                     pairId,
-                    hourlyStartDate,
-                    hourlyEndDate
+                    startDateHourStart,
+                    endDateHourEnd
                 );
 
                 // We can't do anything here, it's within the same hour

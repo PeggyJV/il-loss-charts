@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
     Alert,
+    Container,
     Row,
     Col,
     Card,
@@ -256,12 +257,12 @@ function RemoveLiquidity({
         const pairPosition = positionData.positions[pairData.id];
 
         if (!pairPosition) {
-            currentLpTokens = new BigNumber(0).toFixed(4);
+            currentLpTokens = new BigNumber(0).toFixed(8);
         } else {
             const lastPosition = pairPosition[pairPosition.length - 1];
             currentLpTokens = new BigNumber(
                 lastPosition.liquidityTokenBalance
-            ).toFixed(4);
+            ).toFixed(8);
         }
     }
 
@@ -320,6 +321,16 @@ function RemoveLiquidity({
             setExitToken(value.symbol);
         }
     };
+
+    if (!currentLpTokens || new BigNumber(currentLpTokens).eq(0)) {
+        return (
+            <Modal.Body className='connect-wallet-modal'>
+                <Container className='error-container'>
+                    Nothing to remove! No LP position in {pairData.token0.symbol}/{pairData.token1.symbol}.
+                </Container>
+            </Modal.Body>
+        );
+    }
 
     return (
         <>
