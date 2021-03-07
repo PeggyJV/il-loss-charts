@@ -34,6 +34,7 @@ const TokenWithLogo = (side: 'left' | 'right') => {
     return TokenOnGivenSide;
 };
 
+
 TokenWithLogo.displayName = 'TokenWithLogo';
 
 export function resolveLogo(addressLower?: string): JSX.Element {

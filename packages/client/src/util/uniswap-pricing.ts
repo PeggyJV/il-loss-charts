@@ -37,7 +37,7 @@ export function calculatePoolEntryData(pairData: UniswapPair | null, entryToken:
     let expectedPoolToken0 = pctShare.times(pairData.reserve0).toFixed(4);
     let expectedPoolToken1 = pctShare.times(pairData.reserve1).toFixed(4);
     const currentInvariant = new BigNumber(pairData.reserve0).times(pairData.reserve1);
-    let expectedPriceImpact = 'wrong';
+    let expectedPriceImpact = '';
 
     // Calculate price impact
     if (entryToken === 'ETH') {

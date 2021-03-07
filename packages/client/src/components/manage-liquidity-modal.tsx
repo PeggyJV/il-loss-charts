@@ -1,28 +1,16 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Alert,
-    Row,
-    Col,
-    Card,
     ButtonGroup,
     Button,
-    DropdownButton,
-    Dropdown,
-    Form,
-    FormControl,
-    InputGroup,
     Modal,
 } from 'react-bootstrap';
 
 import { ethers } from 'ethers';
-import BigNumber from 'bignumber.js';
 
 import mixpanel from 'util/mixpanel';
 
 import erc20Abi from 'constants/abis/erc20.json';
-import exchangeAddAbi from 'constants/abis/volumefi_add_liquidity_uniswap.json';
-import exchangeRemoveAbi from 'constants/abis/volumefi_remove_liquidity_uniswap.json';
 
 const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
 const EXCHANGE_REMOVE_ABI_ADDRESS = '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
@@ -34,14 +22,11 @@ import {
     UniswapPair,
     Token,
 } from '@sommelier/shared-types';
-import { Wallet, ManageLiquidityActionState } from 'types/states';
+import { Wallet, WalletBalances } from 'types/states';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
-import { calculatePoolEntryData } from 'util/uniswap-pricing';
-
-import { resolveLogo } from 'components/token-with-logo';
-import { AddLiquidityActionButton } from 'components/liquidity-action-button';
 import AddLiquidity from 'components/add-liquidity';
+import RemoveLiquidity from 'components/remove-liquidity';
 
 function ManageLiquidityModal({
     show,
@@ -59,14 +44,8 @@ function ManageLiquidityModal({
     const handleClose = () => {
         setShow(false);
     }
-    const [balances, setBalances] = useState<{
-        [tokenName: string]: {
-            balance: ethers.BigNumber;
-            symbol?: string;
-            decimals?: string;
-            allowance: ethers.BigNumber;
-        };
-    }>({});
+    const [mode, setMode] = useState<'add' | 'remove'>('add');
+    const [balances, setBalances] = useState<WalletBalances>({});
     const [pairData, setPairData] = useState<UniswapPair | null>(null);
     const [
         positionData,
@@ -132,14 +111,22 @@ function ManageLiquidityModal({
 
             // Get balance for other two tokens
             setBalances({
-                ETH: { symbol: 'ETH', balance: ethBalance, decimals: '18', allowance: ethers.BigNumber.from(0) },
+                ETH: { 
+                    id: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+                    symbol: 'ETH', 
+                    balance: ethBalance, 
+                    decimals: '18', 
+                    allowance: ethers.BigNumber.from(0) 
+                },
                 [pair.token0.symbol as string]: {
+                    id: pair.token0.id as string,
                     symbol: pair.token0.symbol,
                     balance: token0Balance,
                     decimals: pair.token0.decimals,
                     allowance: token0Allowance
                 },
                 [pair.token1.symbol as string]: {
+                    id: pair.token1.id as string,
                     symbol: pair.token1.symbol,
                     balance: token1Balance,
                     decimals: pair.token0.decimals,
@@ -208,42 +195,6 @@ function ManageLiquidityModal({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet.account]);
 
-    // const doRemoveLiquidity = async () => {
-    //     if (!pairData || !provider || !currentLpTokens) return;
-
-    //     if (!currentGasPrice) {
-    //         throw new Error('Gas price not selected.');
-    //     }
-
-    //     // Create signer
-    //     const signer = provider.getSigner();
-    //     // Create read-write contract instance
-    //     const removeLiquidityContract = new ethers.Contract(
-    //         EXCHANGE_REMOVE_ABI_ADDRESS,
-    //         exchangeRemoveAbi,
-    //         signer
-    //     );
-
-    //     // Call the contract and sign
-    //     const ethAddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
-    //     const baseGasPrice = ethers.utils
-    //         .parseUnits(currentGasPrice.toString(), 9)
-    //         .toString();
-
-    //     const baseMsgValue = ethers.utils.parseUnits('0.01', 18).toString();
-    //     const baseLpTokens = ethers.utils
-    //         .parseUnits(currentLpTokens.toString(), 18)
-    //         .toString();
-
-    //     await removeLiquidityContract[
-    //         'divestEthPairToToken(address,address,uint256)'
-    //     ](pairData.id, ethAddress, baseLpTokens, {
-    //         gasPrice: baseGasPrice,
-    //         gasLimit: '500000', // setting a high gas limit because it is hard to predict gas we will use
-    //         value: baseMsgValue, // flat fee sent to contract - 0.0005 ETH
-    //     });
-    // }
-
     if (!wallet || !provider || !pair) {
         return (
             <Modal show={show} onHide={handleClose}>
@@ -267,18 +218,45 @@ function ManageLiquidityModal({
 
     return (
         <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-                <Modal.Title>Add Liquidity</Modal.Title>
+            <Modal.Header className='manage-liquidity-modal-header'>
+                <ButtonGroup>
+                    <Button 
+                        className='add-btn' 
+                        onClick={() => setMode('add')}
+                        variant={mode === 'add' ? 'primary' : 'outline-primary'}
+                    >
+                        Add
+                    </Button>
+                    <Button 
+                        className='remove-btn'
+                        onClick={() => setMode('remove')}
+                        variant={mode === 'remove' ? 'primary' : 'outline-primary'}
+                    >
+                        Remove
+                    </Button>
+                </ButtonGroup>
             </Modal.Header>
-            <AddLiquidity
-                wallet={wallet}
-                provider={provider}
-                pairData={pairData}
-                positionData={positionData}
-                gasPrices={gasPrices}
-                balances={balances}
-                onDone={handleClose}
-            />
+            {mode === 'add' ?
+                <AddLiquidity
+                    wallet={wallet}
+                    provider={provider}
+                    pairData={pairData}
+                    positionData={positionData}
+                    gasPrices={gasPrices}
+                    balances={balances}
+                    onDone={handleClose}
+                />
+                :
+                <RemoveLiquidity
+                    wallet={wallet}
+                    provider={provider}
+                    pairData={pairData}
+                    positionData={positionData}
+                    gasPrices={gasPrices}
+                    balances={balances}
+                    onDone={handleClose}
+                />
+            }
         </Modal>
     );
 }

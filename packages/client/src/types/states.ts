@@ -85,6 +85,7 @@ export type ManageLiquidityActionState =
 
 export interface WalletBalances {
     [tokenName: string]: {
+        id: string;
         balance: ethers.BigNumber;
         symbol?: string;
         decimals?: string;

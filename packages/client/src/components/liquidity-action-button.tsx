@@ -84,11 +84,11 @@ export function AddLiquidityActionButton({
 export function RemoveLiquidityActionButton({
     state,
     onApprove,
-    onAddLiquidity
+    onRemoveLiquidity
 }: {
     state: ManageLiquidityActionState;
     onApprove: () => void;
-    onAddLiquidity: () => void;
+    onRemoveLiquidity: () => void;
 }): JSX.Element {
     switch (state) {
         case 'awaitingGasPrices':
@@ -102,6 +102,18 @@ export function RemoveLiquidityActionButton({
             return (
                 <Button variant='secondary' disabled>
                     Select Gas Price
+                </Button>
+            );
+        case 'amountNotEntered':
+            return (
+                <Button variant='secondary' disabled>
+                    Enter Amount
+                </Button>
+            );
+        case 'insufficientFunds':
+            return (
+                <Button variant='secondary' disabled>
+                    Insufficient Funds
                 </Button>
             );
         case 'needsApproval':
@@ -119,7 +131,7 @@ export function RemoveLiquidityActionButton({
             );
         case 'needsSubmit':
             return (
-                <Button variant='success' onClick={onAddLiquidity}>
+                <Button variant='success' onClick={onRemoveLiquidity}>
                     Confirm
                 </Button>
             );
