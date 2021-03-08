@@ -50,7 +50,7 @@ export const PairCard = ({
 }: {
     pairStats: MarketStats;
     mode: 'daily' | 'weekly';
-    handleAddLiquidity: (pairId: MarketStats) => void;
+    handleAddLiquidity: (pairId: string) => void;
 }): JSX.Element => {
     const multiplier = mode === 'daily' ? 365 : 52;
 
@@ -75,7 +75,7 @@ export const PairCard = ({
                 <button
                     className='btn-addl'
                     onClick={() => {
-                        handleAddLiquidity(pairStats);
+                        handleAddLiquidity(pairStats.id);
                     }}
                 >
                     ADDL

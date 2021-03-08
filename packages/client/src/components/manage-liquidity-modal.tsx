@@ -32,13 +32,14 @@ function ManageLiquidityModal({
     show,
     setShow,
     wallet,
-    pair,
+    pairId,
     gasPrices,
 }: {
     wallet: Wallet;
     show: boolean;
     setShow: (show: boolean) => void;
-    pair: MarketStats | null;
+    // pair: MarketStats | null;
+    pairId: string | null;
     gasPrices: EthGasPrices | null;
 }): JSX.Element | null {
     const handleClose = () => {
@@ -58,12 +59,38 @@ function ManageLiquidityModal({
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
 
+     useEffect(() => {
+         const fetchPairData = async () => {
+             if (!pairId) return;
+
+             // Fetch pair overview when pair ID changes
+             // Default to createdAt date if LP date not set
+             const { data: newPair, error } = await Uniswap.getPairOverview(
+                 pairId
+             );
+
+             if (error) {
+                 // we could not get data for this new pair
+                 console.warn(
+                     `Could not fetch pair data for ${pairId}: ${error}`
+                 );
+                 return;
+             }
+
+             if (newPair) {
+                 setPairData(newPair);
+             }
+         };
+
+         void fetchPairData();
+     }, [pairId]);
+
     useEffect(() => {
         // get balances of both tokens
         const getBalances = async () => {
-            if (!provider || !wallet.account || !pair) return;
+            if (!provider || !wallet.account || !pairData) return;
 
-            const getTokenBalances = [pair.token0.id, pair.token1.id, pair.id].map(
+            const getTokenBalances = [pairData.token0.id, pairData.token1.id, pairData.id].map(
                 async (tokenAddress) => {
                     if (!tokenAddress) {
                         throw new Error(
@@ -81,7 +108,7 @@ function ManageLiquidityModal({
                 }
             );
 
-            const getAllowances = [pair.token0.id, pair.token1.id, pair.id].map(
+            const getAllowances = [pairData.token0.id, pairData.token1.id, pairData.id].map(
                 async (tokenAddress) => {
                     if (!tokenAddress) {
                         throw new Error(
@@ -94,7 +121,7 @@ function ManageLiquidityModal({
                     ).connect(provider as ethers.providers.Web3Provider);
                     const allowance: ethers.BigNumber = await token.allowance(
                         wallet.account,
-                        tokenAddress === pair.id ? EXCHANGE_REMOVE_ABI_ADDRESS : EXCHANGE_ADD_ABI_ADDRESS
+                        tokenAddress === pairData.id ? EXCHANGE_REMOVE_ABI_ADDRESS : EXCHANGE_ADD_ABI_ADDRESS
                     );
 
                     return allowance;
@@ -121,23 +148,23 @@ function ManageLiquidityModal({
                     decimals: '18', 
                     allowance: ethers.BigNumber.from(0) 
                 },
-                [pair.token0.symbol as string]: {
-                    id: pair.token0.id as string,
-                    symbol: pair.token0.symbol,
+                [pairData.token0.symbol as string]: {
+                    id: pairData.token0.id as string,
+                    symbol: pairData.token0.symbol,
                     balance: token0Balance,
-                    decimals: pair.token0.decimals,
+                    decimals: pairData.token0.decimals,
                     allowance: token0Allowance
                 },
-                [pair.token1.symbol as string]: {
-                    id: pair.token1.id as string,
-                    symbol: pair.token1.symbol,
+                [pairData.token1.symbol as string]: {
+                    id: pairData.token1.id as string,
+                    symbol: pairData.token1.symbol,
                     balance: token1Balance,
-                    decimals: pair.token0.decimals,
+                    decimals: pairData.token0.decimals,
                     allowance: token1Allowance
                 },
                 currentPair: {
-                    id: pair.id,
-                    symbol: `${(pair.token0 as Token).symbol}/${(pair.token1 as Token).symbol}`,
+                    id: pairData.id,
+                    symbol: `${(pairData.token0 as Token).symbol}/${(pairData.token1 as Token).symbol}`,
                     balance: pairBalance,
                     decimals: '18',
                     allowance: pairAllowance
@@ -146,33 +173,7 @@ function ManageLiquidityModal({
         };
 
         void getBalances();
-    }, [wallet, show, pair]);
-
-    useEffect(() => {
-        const fetchPairData = async () => {
-            if (!pair) return;
-
-            // Fetch pair overview when pair ID changes
-            // Default to createdAt date if LP date not set
-            const { data: newPair, error } = await Uniswap.getPairOverview(
-                pair.id
-            );
-
-            if (error) {
-                // we could not get data for this new pair
-                console.warn(
-                    `Could not fetch pair data for ${pair.id}: ${error}`
-                );
-                return;
-            }
-
-            if (newPair) {
-                setPairData(newPair);
-            }
-        };
-
-        void fetchPairData();
-    }, [pair]);
+    }, [wallet, show, pairData]);
 
     useEffect(() => {
         const fetchPositionsForWallet = async () => {
@@ -205,7 +206,7 @@ function ManageLiquidityModal({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet.account]);
 
-    if (!wallet || !provider || !pair) {
+    if (!wallet || !provider || !pairId) {
         return (
             <Modal show={show} onHide={handleClose}>
                 <Modal.Body className='connect-wallet-modal'>

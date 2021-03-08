@@ -185,6 +185,7 @@ p {
     border: 0;
 }
 .il-market-container table thead th {
+    border-top: 0;
     border-bottom: 1px solid var(--borderDeep);
     background: var(--bgDeep);
     font-weight: normal;
@@ -193,7 +194,7 @@ p {
         outline: none;
     }
 }
-.market-data-table-header th {
+.market-data-table-header table th {
     border-top: 0;
     border-bottom: 1px solid var(--borderSecondary);
     color: var(--facePrimary);
@@ -706,7 +707,7 @@ p {
 }
 
 .il-market-container {
-    height: 45em;
+    max-height: 45em;
     background: var(--bgContainer);
     overflow: scroll;
     border: 1px solid var(--borderDeep);

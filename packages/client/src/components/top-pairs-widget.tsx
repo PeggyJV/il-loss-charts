@@ -12,7 +12,7 @@ function TopPairsWidget({
 }: {
     topPairs: MarketStats[];
     mode: 'daily' | 'weekly';
-    handleAddLiquidity: (pairId: MarketStats) => void;
+    handleAddLiquidity: (pairId: string) => void;
 }): JSX.Element {
     return (
         <div className='pool-stats-container'>
