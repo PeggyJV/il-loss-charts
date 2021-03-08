@@ -188,6 +188,10 @@ p {
     border-bottom: 1px solid var(--borderDeep);
     background: var(--bgDeep);
     font-weight: normal;
+    cursor: pointer;
+    &:focus {
+        outline: none;
+    }
 }
 .market-data-table-header th {
     border-top: 0;
@@ -559,7 +563,7 @@ p {
 
 .pool-stats-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, 250px);
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     grid-gap: 2rem;
 }
 
@@ -567,7 +571,6 @@ p {
     flex-grow: 1;
     height: 8em;
     min-width: 122px;
-    border: 1px solid red;
 }
 
 .stats-card.gray {
@@ -643,6 +646,7 @@ p {
 .connect-wallet-button {
     color: var(--faceDeep);
     width: 100%;
+    max-width: 150px;
     font-size: 0.8rem;
     overflow: hidden;
     white-space: nowrap;
