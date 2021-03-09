@@ -430,7 +430,6 @@ p {
     > div:first-child {
         margin-right: 1rem;
     }
-    margin-bottom: 1rem;
 }
 
 .pair-volume-liquidity-stats {
@@ -850,6 +849,7 @@ th .caret-4-desc:after {
     .pair-and-pool-stats,
     .lp-input-with-stats {
         justify-content: space-between;
+        margin-bottom: 10px;
     }
 }
 @media (max-width: 765px) {
