@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Prod entrypoint for the application
 # Fetch secrets from docker and set environment variables
 
