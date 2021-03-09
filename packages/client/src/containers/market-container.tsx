@@ -36,13 +36,13 @@ function OverviewContainer({
 
     return (
         <div>
-            <h3>Highest Impermanent Loss Pairs on Uniswap since December 1</h3>
-            <p>
-                <em>
-                    * The impermanent loss percentage is a reflection of the
-                    amount of IL due to price fluctation relative to the total
-                    return of the pool.
-                </em>
+            <h4 className='heading-main'>
+                Highest Impermanent Loss Pairs on Uniswap*
+            </h4>
+            <p className='warning-well'>
+                * The impermanent loss percentage is a reflection of the amount
+                of IL due to price fluctation relative to the total return of
+                the pool. Data since December 1.
             </p>
             {marketData && <MarketDataTable data={marketData} />}
         </div>
@@ -146,7 +146,6 @@ function MarketDataTable({ data }: { data: MarketStats[] }) {
                     bordered={false}
                     condensed={true}
                     rowEvents={{ onClick: onRowClick }}
-                    hover
                 />
             </div>
         </>

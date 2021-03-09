@@ -1,0 +1,99 @@
+@import './colors.scss';
+
+.dark {
+  //backgrounds
+    --bgDeep: var(--purple100);
+    --bgMain: var(--purple80);
+    --bgSecondary: var(--purple70);
+    --bgContainer: var(--purple90);
+    --bgOffset: var(--bubble50);
+    --bgMoon: var(--green60);
+    --bgDump: var(--red70);
+    --bgAccent: var(--jam70);
+
+
+    --borderDeep: var(--purple100);
+    --borderMain: var(--purple60);
+    --borderSecondary: var(--purple80);
+    --borderOffset: var(--bubble10);
+    --borderAccent: var(--jam40);
+    --borderAccentAlt: var(--bubble40);
+  
+    //fonts & svgs
+    --faceDeep: var(--mono10);
+    --facePrimary: var(--mono20);
+    --faceSecondary: var(--mono40);
+    --faceOffset: var(--mono80);
+    --faceDisabled: var(--mono60);
+    --faceAccent: var(--jam50);
+    --faceAccentAlt: var(--bubble50);
+    --faceMoon: var(--green30);
+    --faceMoonSubtle: var(--green40);
+    --faceDump: var(--red50);
+
+    // semantic colors / UI objects
+    // info
+    // --bgInfo: var();
+    // --bgInfoDeep: var();
+    // --bgInfoOffset: var();
+    // --borderInfo: var();
+    // --borderInfoDeep: var();
+    // --borderInfoOffset: var();
+    // --btnInfo: var();
+    // --btnInfoBorder: var();
+    // --btnInfoActive: var();
+    // --btnInfoHover: var();
+
+    // action
+    --bgAction: var(--jam50);
+    --btnAction: var(--faceDeep);
+    --btnActionHover: var(--jam50);
+
+
+    // neutral
+
+    // warn
+
+    // alert
+
+    // moon
+    --btnMoon: var(--green80);
+    --btnMoonHover: var(--green70);
+    --btnMoonBorder: var(--green70);
+
+    // dump
+
+    // fixeMe
+    background: black;
+
+}
+
+.light {
+   //backgrounds
+    --bgDeep: var(--purple20);
+    --bgMain: var(--purple10);
+    --bgSecondary: var(--purple10);
+    --bgOffset: var(--blue80);
+    --bgMoon: var(--green60);
+    --bgDump: var(--red70);
+    --bgAccent: var(--jam60);
+
+
+    --borderMain: var(--purple30);
+    --borderSecondary: var(--purple20);
+    --borderOffset: var(--blue10);
+    --borderAccent: var(--jam50);
+    --borderAccentAlt: var(--bubble50);
+  
+    //fonts
+    --facePrimary: var(--mono100);
+    --faceSecondary: var(--mono90);
+    --faceOffset: var(--purple70);
+    --faceDisabled: var(--mono60);
+    --faceAccent: var(--jam50);
+    --faceAccentAlt: var(--bubble50);
+    --faceMoon: var(--green50);
+    --faceDump: var(--red50)
+}
+
+

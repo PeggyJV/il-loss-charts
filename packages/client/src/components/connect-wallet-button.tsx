@@ -11,19 +11,33 @@ function ConnectWalletButton({
     wallet: Wallet;
 }): JSX.Element {
     const account = wallet?.account;
-    const buttonText = account ? `Connected: ${account}` : 'Connect Wallet';
-    const buttonVariant = account ? 'success' : 'primary';
+    const buttonText = account ? `Connected: ${account}` : 'CONNECT WALLET';
+
+    const buttonStyle = {
+        fontWeight: 800,
+        border: 'none',
+        borderRadius: 0,
+        padding: '0.5rem 2rem',
+        width: 'fit-content',
+    };
+    const walletStyle = {
+        ...buttonStyle,
+        background: 'var(--bgAccent)',
+    };
+    const accountStyle = {
+        ...buttonStyle,
+        background: 'var(--bgMoon)',
+    };
 
     return (
         <>
-            <Button
-                variant={buttonVariant}
-                size='sm'
+            <button
                 className='connect-wallet-button'
+                // style={account ? accountStyle : walletStyle}
                 onClick={onClick}
             >
                 {buttonText}
-            </Button>
+            </button>
         </>
     );
 }

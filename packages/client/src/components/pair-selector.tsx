@@ -7,6 +7,8 @@ import { UniswapPair } from '@sommelier/shared-types';
 
 import { Pair } from 'constants/prop-types';
 import TokenWithLogo, { resolveLogo } from 'components/token-with-logo';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 
 function PairSelector({
     pairs,
@@ -82,58 +84,53 @@ function PairSelector({
     };
 
     return (
-        <Card className='pair-selector-card'>
-            <Card.Body>
-                <Card.Title className='stats-card-title'>Market</Card.Title>
-                <div className='pair-selector-container'>
-                    <InputGroup>
-                        <InputGroup.Prepend className='token-logo'>
-                            <InputGroup.Text className='logo-span'>
-                                {resolveLogo(defaultValue.token0.id)}
-                            </InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <Combobox
-                            // @ts-expect-error: className is not on the props definition but does propagate to component
-                            className='pair-selector'
-                            data={leftSideOptions}
-                            value={currentValue}
-                            textField={renderPairText('left')}
-                            itemComponent={TokenWithLogo('left')}
-                            defaultValue={defaultValue}
-                            filter='contains'
-                            caseSensitive={false}
-                            onChange={handleChange('left')}
-                        />
-                    </InputGroup>
-                    {isLoading ? (
-                        <div className='wine-spin pair-selector-separator'>
-                            🍷
-                        </div>
-                    ) : (
-                        <div className='pair-selector-separator'>✖️</div>
-                    )}
-                    <InputGroup>
-                        <InputGroup.Prepend className='token-logo'>
-                            <InputGroup.Text className='logo-span'>
-                                {resolveLogo(defaultValue.token1.id)}
-                            </InputGroup.Text>
-                        </InputGroup.Prepend>
-                        <Combobox
-                            // @ts-expect-error: className is not on the props definition but does propagate to component
-                            className='pair-selector'
-                            data={rightSideOptions}
-                            value={currentValue}
-                            textField={renderPairText('right')}
-                            itemComponent={TokenWithLogo('right')}
-                            defaultValue={defaultValue}
-                            filter='contains'
-                            caseSensitive={false}
-                            onChange={handleChange('right')}
-                        />
-                    </InputGroup>
+        <div className='pair-selector-container'>
+            <InputGroup>
+                <InputGroup.Prepend className='token-logo'>
+                    <InputGroup.Text className='logo-span'>
+                        {resolveLogo(defaultValue.token0.id)}
+                    </InputGroup.Text>
+                </InputGroup.Prepend>
+                <Combobox
+                    // @ts-expect-error: className is not on the props definition but does propagate to component
+                    className='pair-selector'
+                    data={leftSideOptions}
+                    value={currentValue}
+                    textField={renderPairText('left')}
+                    itemComponent={TokenWithLogo('left')}
+                    defaultValue={defaultValue}
+                    filter='contains'
+                    caseSensitive={false}
+                    onChange={handleChange('left')}
+                />
+            </InputGroup>
+            {isLoading ? (
+                <div className='wine-spin pair-selector-separator'>🍷</div>
+            ) : (
+                <div>
+                    <FontAwesomeIcon icon={faRetweet} />
                 </div>
-            </Card.Body>
-        </Card>
+            )}
+            <InputGroup>
+                <InputGroup.Prepend className='token-logo'>
+                    <InputGroup.Text className='logo-span'>
+                        {resolveLogo(defaultValue.token1.id)}
+                    </InputGroup.Text>
+                </InputGroup.Prepend>
+                <Combobox
+                    // @ts-expect-error: className is not on the props definition but does propagate to component
+                    className='pair-selector'
+                    data={rightSideOptions}
+                    value={currentValue}
+                    textField={renderPairText('right')}
+                    itemComponent={TokenWithLogo('right')}
+                    defaultValue={defaultValue}
+                    filter='contains'
+                    caseSensitive={false}
+                    onChange={handleChange('right')}
+                />
+            </InputGroup>
+        </div>
     );
 }
 

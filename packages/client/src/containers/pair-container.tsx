@@ -356,34 +356,39 @@ function PairContainer({
     }
 
     return (
-        <Container fluid>
-            <h4>Impermanent Loss Calculator</h4>
-            <TelegramCTA />
+        <div>
+            <h4 className='heading-main'>Impermanent Loss Calculator</h4>
             <PairSearch pairs={allPairs.pairs} setPair={setPairId} />
-            <Row>
-                <Col lg={isLargestBreakpoint ? 10 : 12}>
-                    <Row className='top-stats-row'>
-                        <Col className='stats-row-col' lg={4}>
-                            <PairSelector
-                                pairs={allPairs.pairs}
-                                currentPairId={pairId}
-                                setPair={setPairId}
-                                isLoading={isLoading}
-                            />
-                        </Col>
-                        <Col className='stats-row-col' lg={8}>
-                            <TotalPoolStats
-                                allPairs={allPairs}
-                                lpInfo={lpInfo}
-                                defaultWindow={timeWindow}
-                                setWindow={setWindow}
-                            />
-                        </Col>
-                    </Row>
-                    <Row noGutters>
-                        {isDesktop ? (
-                            <>
-                                {/* <Col lg={3} className='trades-sidebar'>
+            <div className='pair-controls'>
+                <div className='pair-and-pool-stats'>
+                    <PairSelector
+                        pairs={allPairs.pairs}
+                        currentPairId={pairId}
+                        setPair={setPairId}
+                        isLoading={isLoading}
+                    />
+                    <TotalPoolStats
+                        allPairs={allPairs}
+                        lpInfo={lpInfo}
+                        defaultWindow={timeWindow}
+                        setWindow={setWindow}
+                    />
+                </div>
+                <div className='lp-input-with-stats'>
+                    <LPInput
+                        {...lpInfo}
+                        lpDate={lpDate}
+                        lpShare={lpShare}
+                        setLPDate={setLPDate}
+                        setLPShare={setLPShare}
+                        dataAtLPDate={dataAtLPDate}
+                    />
+                    <LPStatsWidget lpStats={lpStats} />
+                </div>
+            </div>
+            <LPStatsChart lpStats={lpStats} />
+
+            {/* <Col lg={3} className='trades-sidebar'>
                                     {latestSwaps && (
                                         <LatestTradesSidebar
                                             latestBlock={latestBlock}
@@ -391,18 +396,13 @@ function PairContainer({
                                         />
                                     )}
                                 </Col> */}
-                                <Col>
-                                    {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
-                                    <LPStatsChart lpStats={lpStats} />
-                                </Col>
-                            </>
-                        ) : (
-                            <>
-                                <Col>
-                                    {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
-                                    <LPStatsChart lpStats={lpStats} />
-                                </Col>
-                                {/* <Col lg={3} className='trades-sidebar'>
+
+            {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
+            {/* <LPStatsChart lpStats={lpStats} /> */}
+            {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
+            {/* <LPStatsChart lpStats={lpStats} /> */}
+
+            {/* <Col lg={3} className='trades-sidebar'>
                                     {latestSwaps && (
                                         <LatestTradesSidebar
                                             latestBlock={latestBlock}
@@ -410,47 +410,21 @@ function PairContainer({
                                         />
                                     )}
                                 </Col> */}
-                            </>
-                        )}
-                    </Row>
-                </Col>
-                {isLargestBreakpoint && (
-                    <>
-                        <Col lg={2}>
-                            <LPInput
-                                {...lpInfo}
-                                lpDate={lpDate}
-                                lpShare={lpShare}
-                                setLPDate={setLPDate}
-                                setLPShare={setLPShare}
-                                dataAtLPDate={dataAtLPDate}
-                            />
-                            <LPStatsWidget lpStats={lpStats} />
-                        </Col>
-                    </>
-                )}
-            </Row>
-            {!isLargestBreakpoint && (
-                <Row>
-                    <Col lg={8}>
-                        <LPInput
-                            {...lpInfo}
-                            lpDate={lpDate}
-                            lpShare={lpShare}
-                            setLPDate={setLPDate}
-                            setLPShare={setLPShare}
-                            dataAtLPDate={dataAtLPDate}
-                        />
-                    </Col>
-                    <Col lg={4}>
-                        <LPStatsWidget lpStats={lpStats} />
-                    </Col>
-                </Row>
-            )}
+
+            {/* <LPInput
+                {...lpInfo}
+                lpDate={lpDate}
+                lpShare={lpShare}
+                setLPDate={setLPDate}
+                setLPShare={setLPShare}
+                dataAtLPDate={dataAtLPDate}
+            />
+            <LPStatsWidget lpStats={lpStats} /> */}
+
             {/* <Row>
                 <RealtimeStatusBar latestBlock={latestBlock} />
             </Row> */}
-        </Container>
+        </div>
     );
 }
 

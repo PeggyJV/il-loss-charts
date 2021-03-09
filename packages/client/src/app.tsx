@@ -1,6 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-widgets/dist/css/react-widgets.css';
 import 'styles/app.scss';
+import classNames from 'classnames';
 
 import { useState, useEffect, ReactElement } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
@@ -188,12 +189,9 @@ function App(): ReactElement {
 
     return (
         <Router>
-            <div className='app' id='app-wrap'>
+            <div className={classNames('app', 'dark')} id='app-wrap'>
                 <div className='side-menu-wrapper'>
-                    <SideMenu
-                        setShowConnectWallet={setShowConnectWallet}
-                        wallet={useWalletProps.wallet}
-                    />
+                    <SideMenu wallet={useWalletProps.wallet} />
                 </div>
                 <div className='app-body' id='app-body'>
                     {currentError ? (
@@ -206,9 +204,9 @@ function App(): ReactElement {
                                 {...useWalletProps}
                             />
                             <Switch>
-                                {/* <Route path='/positions'>
+                                <Route path='/positions'>
                                     <PositionContainer wallet={useWalletProps.wallet} />
-                                </Route> */}
+                                </Route>
                                 <Route path='/market'>
                                     <MarketContainer marketData={marketData} />
                                 </Route>
@@ -222,9 +220,9 @@ function App(): ReactElement {
                                     <SearchContainer allPairs={allPairs} />
                                 </Route>
                                 <Route path='/'>
-                                    <LandingContainer 
-                                        topPairs={topPairs} 
-                                        wallet={useWalletProps.wallet} 
+                                    <LandingContainer
+                                        topPairs={topPairs}
+                                        wallet={useWalletProps.wallet}
                                         gasPrices={gasPrices}
                                         setShowConnectWallet={setShowConnectWallet}
                                     />

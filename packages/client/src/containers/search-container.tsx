@@ -30,12 +30,8 @@ function SearchContainer({
 
     return (
         <Container className='pair-search-container' fluid>
-            <p>
-                Use the search bar below to get started. All Uniswap pairs
-                supported.
-            </p>
+            <h4 className='heading-main'>Search :: Uniswap Pairs</h4>
             <PairSearch pairs={allPairs.pairs} setPair={setPairId} />
-            <TelegramCTA />
         </Container>
     );
 }

@@ -15,12 +15,7 @@ function TelegramCTA({
                 </a>
             </p> */}
             <p>
-                🍷 Join the
-                <a href='https://t.me/getsomm_alerts'>
-                    {' '}
-                    Sommelier.Finance
-                </a>{' '}
-                Community!
+                <a href='https://t.me/getsomm_alerts'>🍷 Join the Community!</a>
             </p>
             <hr />
         </div>

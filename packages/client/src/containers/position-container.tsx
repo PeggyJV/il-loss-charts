@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import mixpanel from 'util/mixpanel';
+import PositionsTable from 'components/positions-table';
 
 import { LPPositionData, Token } from '@sommelier/shared-types';
 import { Wallet } from 'types/states';
@@ -9,7 +10,6 @@ import { Wallet } from 'types/states';
 // import PositionSelector from 'components/position-selector';
 import LPStatsChart from 'components/lp-stats-highchart';
 import USDValueWidget from 'components/usd-value-widget';
-import PositionsTable from 'components/positions-table';
 import { resolveLogo } from 'components/token-with-logo';
 import PageError from 'components/page-error';
 
@@ -128,6 +128,8 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
                 positionData={positionData}
                 pairId={pairId}
                 setPairId={setPairId}
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
+                handleAddLiquidity={() => {}}
             />
             <hr />
             <Row className='top-stats-row'>

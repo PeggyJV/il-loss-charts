@@ -1,31 +1,31 @@
 /* Position and sizing of burger button */
 .bm-burger-button {
-  position: fixed;
-  width: 36px;
-  height: 30px;
-  left: 36px;
-  top: 36px;
+    position: fixed;
+    width: 36px;
+    height: 30px;
+    left: 36px;
+    top: 36px;
 }
 
 /* Color/shape of burger icon bars */
 .bm-burger-bars {
-  background: #373a47;
+    background: var(--faceSecondary);
 }
 
 /* Color/shape of burger icon bars on hover*/
 .bm-burger-bars-hover {
-  background: #a90000;
+    background: var(--facePrimary);
 }
 
 /* Position and sizing of clickable cross button */
 .bm-cross-button {
-  height: 24px;
-  width: 24px;
+    height: 24px;
+    width: 24px;
 }
 
 /* Color/shape of close button cross */
 .bm-cross {
-  background: #bdc3c7;
+    background: var(--faceSecondary);
 }
 
 /*
@@ -33,65 +33,78 @@ Sidebar wrapper styles
 Note: Beware of modifying this element as it can break the animations - you should not need to touch it in most cases
 */
 .bm-menu-wrap {
-  position: fixed;
-  height: 100%;
+    position: fixed;
+    height: 100%;
+    background: var(--bgMain);
+    border-right: 1px solid var(--borderDeep);
 }
 
 /* General sidebar styles */
 .bm-menu {
-  background: rgb(247,247,251);
-  padding: 2.5em 0;
-  font-size: 1.15em;
+    padding: 2.5em 0;
+    // font-size: 1.15em;
+    display: flex;
+}
+.bm-item-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
 }
 
 /* Morph shape necessary with bubble or elastic */
 .bm-morph-shape {
-  fill: #373a47;
+    fill: #373a47;
 }
 
-.bm-item.side-menu-link:hover {
-    background-color: rgb(220,220,230);
+.bm-item .side-menu-link:hover {
     text-decoration: none;
 }
 
-.bm-item.side-menu-link.side-menu-active {
-    background-color: rgb(220,220,230);    
+.bm-item .side-menu-link.side-menu-active a {
+        color: var(--faceAccentAlt);
 }
 
-.bm-item.side-menu-title {
-  color: #333333;
-  margin-bottom: 2em;
-}
 
 /* Individual item */
-.bm-menu-wrap {
-    border-right: 1px solid rgba(0, 0, 0, 0.125);
-}
 
 .bm-item {
-    display: inline-block;
-    padding: 0.5em 1.5em;
+    display: flex;
+    padding: 0.4rem 1.4rem;
     margin: 0;
     outline: none;
+    > p {
+      border-bottom: 1px solid var(--bgDeep);
+    }
+    > p:last-child{
+      border-bottom: none;
+    }
 }
 
 .bm-item svg {
-    margin-right: 1em;
+    margin-right: 1rem;
 }
-
-.bm-item.side-menu-link a {
-    font-weight: 500;
+.bm-item .side-menu-link {
+  padding: 0.8rem 1rem;
+}
+.bm-item .side-menu-link a {
     font-size: 1rem;
-    color: #555555;
+    color: var(--faceSecondary);
+    text-transform: uppercase;
+    & svg{
+      font-size: 1rem;
+      color: var(--faceSecondary);
+    } 
 }
 
-.bm-item.side-menu-link a:hover {
+.bm-item .side-menu-link a:hover {
     text-decoration: none;
+    color: var(--faceAccentAlt);
 }
 
 /* Styling of overlay */
 .bm-overlay {
-  background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .disabled-link {
@@ -100,11 +113,14 @@ Note: Beware of modifying this element as it can break the animations - you shou
 }
 
 .disabled-link:hover {
-    color: gray;
+    color: var(--faceDisabled);
     cursor: initial;
     text-decoration: none;
 }
 
 .side-menu-title {
     font-weight: 700;
+    font-family: 'Barlow Condensed';
+    text-align: center;
+    text-transform: uppercase;
 }

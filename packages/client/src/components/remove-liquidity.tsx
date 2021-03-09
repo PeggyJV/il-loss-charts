@@ -363,11 +363,11 @@ function RemoveLiquidity({
                             data={Object.values(balances)}
                             value={exitToken}
                             textField={renderPairText}
-                            itemComponent={({ item: token }) => 
+                            itemComponent={({ item: token }) => (
                                 <span>
                                     {resolveLogo(token.id)} {token.symbol}
                                 </span>
-                            }
+                            )}
                             caseSensitive={false}
                             onChange={handleChange}
                         />
@@ -380,7 +380,9 @@ function RemoveLiquidity({
                     <Col sm={6}>
                         <p>
                             {resolveLogo(balances[exitToken].id)}{' '}
-                            {expectedExitToken !== 'NaN' ? expectedExitToken : 0}{' '}
+                            {expectedExitToken !== 'NaN'
+                                ? expectedExitToken
+                                : 0}{' '}
                             {balances[exitToken].symbol}
                         </p>
                     </Col>
@@ -454,17 +456,18 @@ function RemoveLiquidity({
                         </Form.Group>
                     )}
                 </Card>
-                {new BigNumber(pairData.reserveUSD).lt(2000000) &&
-                    <>
-                        <br />
-                        <Alert variant='warning'>
-                            <strong>Warning: </strong> Low liquidity pairs can experience high slippage
-                            during liquidation. Be careful when using high slippage tolerance.
-                        </Alert>
-                    </>
-                }
+                <br />
+                {new BigNumber(pairData.reserveUSD).lt(2000000) && (
+                    <div className='warning-well'>
+                        <p>
+                            <strong>Warning: </strong> Low liquidity pairs can
+                            experience high slippage at low entry amounts. Be
+                            careful when using high slippage tolerance.
+                        </p>
+                    </div>
+                )}
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className='manage-liquidity-modal-footer'>
                 <RemoveLiquidityActionButton
                     state={removeLiquidityActionState}
                     onApprove={doApprove}

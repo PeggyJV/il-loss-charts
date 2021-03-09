@@ -1,0 +1,72 @@
+.pair-card {
+    padding: 1rem 1.5rem;
+    // min-width: 16rem;
+    border: 1px solid var(--borderMain);
+    box-shadow: 0 0 5px 1px var(--bgDeep);
+    background: var(--bgContainer);
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Barlow Condensed';
+}
+
+.pair-returns {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.2rem;
+}
+.pair-combo {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.4rem;
+    color: var(--faceSecondary);
+    svg {
+      font-size: 0.8rem;
+      color: var(--faceAccentAlt);  
+    }
+    &:hover {
+      text-decoration: none;
+      color: var(--faceAccentAlt);
+    }
+}
+.apy {
+    font-size: 1.4rem;
+    color: var(--faceSecondary);
+}
+.return-duration {
+  color: var(--faceSecondary);
+}
+.pct-change-up {
+    color: var(--faceMoon);
+}
+.pct-change-down {
+    color: var(--faceDump);
+}
+.pct-return {
+    font-size: 0.6rem;
+    color: var(--faceMoonSubtle);
+    font-family: 'Source Sans Pro';
+}
+.stats-and-ape {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.btn-addl {
+    padding: 0.25rem 0.5rem;
+    font-family: 'Source Sans Pro';
+    color: var(--faceDeep);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid var(--btnMoonBorder);
+    border-radius: 2px;
+    background: var(--btnMoon);
+    &:hover {
+      background: var(--btnMoonHover);
+
+    }
+    background: rgb(3,88,27);
+}

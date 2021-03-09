@@ -49,7 +49,7 @@ export function resolveLogo(addressLower?: string): JSX.Element {
     const imgUrl = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`;
     return (
         <span>
-            <img style={{ height: '1em' }} src={imgUrl} alt='🍇' />
+            <img style={{ height: '1rem' }} src={imgUrl} alt='🍇' />
         </span>
     );
 }
