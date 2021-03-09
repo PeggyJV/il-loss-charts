@@ -51,26 +51,24 @@ function ConnectWalletModal({
                         Choose a wallet provider to connect with.
                     </p>
                     <div className='connect-wallet-modal-options-container'>
-                        <Button
+                        <button
                             className='connect-wallet-modal-option'
-                            variant='outline-secondary'
                             disabled={!availableProviders.metamask}
                             onClick={handleConnectMetaMask}
                         >
                             <MetamaskLogo />
-                        </Button>
-                        <Button
+                        </button>
+                        <button
                             className='connect-wallet-modal-option'
-                            variant='outline-secondary'
                             disabled={!availableProviders.walletconnect}
                             onClick={handleConnectWalletConnect}
                         >
                             <WalletConnectLogo />
-                        </Button>
+                        </button>
                     </div>
                 </Modal.Body>
             )}
-            {wallet && (
+            {wallet?.account && (
                 <Modal.Footer className='manage-liquidity-modal-footer'>
                     <Button
                         variant='danger'

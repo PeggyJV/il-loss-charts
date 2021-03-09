@@ -456,7 +456,6 @@ function AddLiquidity({
                         </Form.Group>
                     )}
                 </Card>
-                <br />
                 {new BigNumber(pairData.reserveUSD).lt(2000000) &&
                     <div className='warning-well'>
                         <p>

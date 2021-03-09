@@ -326,7 +326,7 @@ function RemoveLiquidity({
         return (
             <Modal.Body className='connect-wallet-modal'>
                 <Container className='error-container'>
-                    Nothing to remove! No LP position in {pairData.token0.symbol}/{pairData.token1.symbol}.
+                    No LP position in {pairData.token0.symbol}/{pairData.token1.symbol}.
                 </Container>
             </Modal.Body>
         );
@@ -456,7 +456,6 @@ function RemoveLiquidity({
                         </Form.Group>
                     )}
                 </Card>
-                <br />
                 {new BigNumber(pairData.reserveUSD).lt(2000000) && (
                     <div className='warning-well'>
                         <p>

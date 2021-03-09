@@ -41,7 +41,7 @@ p {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 2rem 0;
+    padding: 1rem 0;
 }
 
 .warning-well {
@@ -50,6 +50,7 @@ p {
     padding: 10px;
     font-size: 0.8rem;
     color: var(--faceDisabled);
+    margin: 1rem 0;
 }
 
 .info-well {
@@ -68,7 +69,7 @@ p {
 }
 
 .wine-pulse {
-    font-size: 5rem;
+    font-size: 2rem;
     animation-duration: 2s;
     animation-iteration-count: infinite;
     transform-origin: bottom;
@@ -148,12 +149,15 @@ p {
 
 .app-body {
     width: calc(100% - 250px);
-    padding: 2em;
+    padding: 2rem;
+    // border: 1px solid var(--bgDeep);
+    background: var(--bgMain);
+    // margin: 0 auto;
 }
 
 .page-title {
     text-align: center;
-    margin-top: 1em;
+    margin-top: 1rem;
 }
 
 .centered {
@@ -161,7 +165,7 @@ p {
 }
 
 .telegram-cta {
-    font-size: 0.85em;
+    font-size: 0.85rem;
     padding: 0 0.5rem;
     text-align: center;
     a {
@@ -177,7 +181,7 @@ p {
 }
 
 .pair-search-container {
-    height: 20em;
+    height: 20rem;
 }
 
 .card.no-border {
@@ -307,7 +311,7 @@ p {
 .form-control {
     background-color: var(--bgDeep);
     color: var(--faceSecondary);
-    border: 1px solid var(--borderMain);
+    border: 1px solid var(--borderSecondary);
     border-radius: 0;
     &:active {
         background-color: var(--bgDeep);
@@ -402,12 +406,10 @@ p {
 }
 
 .error-container {
-    height: 40em;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    opacity: 0.8;
 }
 
 .error-container .error-message {
@@ -424,11 +426,15 @@ p {
 .pair-and-pool-stats {
     display: flex;
     justify-content: flex-start;
-    border: 1px solid var(--borderMain);
+    border: 1px solid var(--borderDeep);
     background: var(--bgContainer);
     padding: 1rem;
     > div:first-child {
         margin-right: 1rem;
+    }
+    .pool-stats-addl {
+        display: flex;
+        flex-direction: column;
     }
 }
 
@@ -468,7 +474,7 @@ p {
     font-size: 0.8rem;
     justify-content: flex-end;
     align-items: flex-start;
-    border: 1px solid var(--borderMain);
+    border: 1px solid var(--borderDeep);
     background: var(--bgContainer);
     padding: 1rem;
     input {
@@ -640,7 +646,26 @@ p {
     background: var(--bgOffset);
     border: var(--bgAccentAlt);
 }
-
+.connect-wallet-modal-header, .connect-wallet-modal-footer {
+    color: var(--faceAccentAlt);
+    background: var(--bgMain);
+    .close {
+        color: var(--faceSecondary);
+        text-shadow: none;
+    }
+}
+.connect-wallet-modal {
+    background: var(--bgSecondary);
+    color: var(--faceSecondary);
+}
+.connect-wallet-modal-option svg {
+    width: 8rem;
+    color: var(--facePrimary);
+}
+.connect-wallet-modal-option:hover {
+    border: 1px solid var(--borderAccent);
+    background: var(--bgOffset);
+}
 .connect-wallet-modal .error-container {
     opacity: 0.7;
 }
@@ -737,28 +762,6 @@ p {
 
 .manage-liquidity-modal-header .btn-group .remove-btn {
     border-bottom-right-radius: 0;
-}
-.connect-wallet-modal-header, .connect-wallet-modal-footer {
-    color: var(--faceAccentAlt);
-    background: var(--bgMain);
-    .close {
-        color: var(--faceSecondary);
-        text-shadow: none;
-    }
-}
-
-
-.connect-wallet-modal {
-    background: var(--bgSecondary);
-    color: var(--faceSecondary);
-}
-.connect-wallet-modal-option svg {
-    width: 10em;
-    color: var(--facePrimary);
-}
-.connect-wallet-modal-option:hover {
-    border: 1px solid var(--borderAccent);
-    background: var(--bgOffset);
 }
 
 .positions-table-pair-span {
@@ -862,11 +865,14 @@ th .caret-4-desc:after {
         align-items: center;
         width: 100%;
     }
+    .app-body {
+        padding: 0 1rem;
+    }
 }
 @media (max-width: 500px) {
     .app-body {
         width: 100%;
-        margin-top: 3em;
+        margin-top: 2rem;
     }
     .pool-stats-container {
         grid-template-columns: 1fr;

@@ -44,9 +44,11 @@ import PageError from 'components/page-error';
 function PairContainer({
     allPairs,
     prefetchedPairs,
+    handleAddLiquidity,
 }: {
     allPairs: AllPairsState;
     prefetchedPairs: PrefetchedPairState | null;
+    handleAddLiquidity: (pairId: string) => void;
 }): JSX.Element {
     const isDesktop = useMediaQuery({ query: '(min-width: 1200px)' });
     const isLargestBreakpoint = useMediaQuery({ query: '(min-width: 1500px)' });
@@ -367,12 +369,15 @@ function PairContainer({
                         setPair={setPairId}
                         isLoading={isLoading}
                     />
-                    <TotalPoolStats
-                        allPairs={allPairs}
-                        lpInfo={lpInfo}
-                        defaultWindow={timeWindow}
-                        setWindow={setWindow}
-                    />
+                    <div className='pool-stats-addl'>
+                        <TotalPoolStats
+                            allPairs={allPairs}
+                            lpInfo={lpInfo}
+                            defaultWindow={timeWindow}
+                            setWindow={setWindow}
+                        />
+                        <button className='btn-addl' onClick={() => handleAddLiquidity(pairId)}>MANAGE LIQUIDITY</button>
+                    </div>
                 </div>
                 <div className='lp-input-with-stats'>
                     <LPInput

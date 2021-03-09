@@ -13,12 +13,21 @@ import {
     faCalculator,
 } from '@fortawesome/free-solid-svg-icons';
 import { faTelegram } from '@fortawesome/free-brands-svg-icons';
+import ConnectWalletButton from 'components/connect-wallet-button';
 
 import 'styles/burger-menu.scss';
 
-function SideMenu({ wallet }:{ wallet: Wallet}): JSX.Element {
+function SideMenu({
+    wallet,
+    setShowConnectWallet,
+}: {
+    wallet: Wallet;
+    setShowConnectWallet: (wallet: boolean) => void;
+}): JSX.Element {
     const location = useLocation();
     const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
+
+    const showModal = () => setShowConnectWallet(true);
 
     const getSideLinkClass = (path: string) =>
         classNames({
@@ -38,6 +47,9 @@ function SideMenu({ wallet }:{ wallet: Wallet}): JSX.Element {
         >
             <div>
                 <h5 className='side-menu-title'>SOMMELIER FINANCE</h5>
+                <div className='side-menu-connected'>
+                    <ConnectWalletButton onClick={showModal} wallet={wallet} />
+                </div>
             </div>
             <div>
                 <p className={getSideLinkClass('/search')}>
@@ -79,7 +91,7 @@ function SideMenu({ wallet }:{ wallet: Wallet}): JSX.Element {
                 <a href='https://t.me/getsomm'>
                     <FontAwesomeIcon icon={faTelegram} /> Join the Community
                 </a> */}
-                <TelegramCTA />
+            <TelegramCTA />
             {/* </h6> */}
         </Menu>
     );

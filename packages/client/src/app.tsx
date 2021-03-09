@@ -7,7 +7,7 @@ import { useState, useEffect, ReactElement } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import useWebSocket from 'react-use-websocket';
-
+import ManageLiquidityModal from 'components/manage-liquidity-modal';
 import config from 'config';
 import { EthGasPrices } from '@sommelier/shared-types';
 
@@ -44,7 +44,7 @@ function App(): ReactElement {
     const [currentError, setError] = useState<string | null>(null);
     const [gasPrices, setGasPrices] = useState<EthGasPrices | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
-    const useWalletProps = useWallet();
+    const {wallet, ...restWalletProps} = useWallet();
     const [prefetchedPairs, setPairsToFetch] = usePrefetch(null);
 
     useEffect(() => {
@@ -187,11 +187,27 @@ function App(): ReactElement {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    const [showAddLiquidity, setShowAddLiquidity] = useState(false);
+    const [currentPairId, setCurrentPairId] = useState<string | null>(null);
+    const handleAddLiquidity = (pairId: string) => {
+        setCurrentPairId(pairId);
+
+        // Check if wallet exists, if not show wallet modal
+        if (wallet && wallet.account) {
+            setShowAddLiquidity(true);
+        } else {
+            setShowConnectWallet(true);
+        }
+    };
+
     return (
         <Router>
             <div className={classNames('app', 'dark')} id='app-wrap'>
                 <div className='side-menu-wrapper'>
-                    <SideMenu wallet={useWalletProps.wallet} />
+                    <SideMenu
+                        wallet={wallet}
+                        setShowConnectWallet={setShowConnectWallet}
+                    />
                 </div>
                 <div className='app-body' id='app-body'>
                     {currentError ? (
@@ -201,11 +217,19 @@ function App(): ReactElement {
                             <ConnectWalletModal
                                 show={showConnectWallet}
                                 setShow={setShowConnectWallet}
-                                {...useWalletProps}
+                                wallet={wallet}
+                                {...restWalletProps}
+                            />
+                            <ManageLiquidityModal
+                                show={showAddLiquidity}
+                                setShow={setShowAddLiquidity}
+                                wallet={wallet}
+                                pairId={currentPairId}
+                                gasPrices={gasPrices}
                             />
                             <Switch>
                                 <Route path='/positions'>
-                                    <PositionContainer wallet={useWalletProps.wallet} />
+                                    <PositionContainer wallet={wallet} />
                                 </Route>
                                 <Route path='/market'>
                                     <MarketContainer marketData={marketData} />
@@ -214,6 +238,7 @@ function App(): ReactElement {
                                     <PairContainer
                                         allPairs={allPairs}
                                         prefetchedPairs={prefetchedPairs}
+                                        handleAddLiquidity={handleAddLiquidity}
                                     />
                                 </Route>
                                 <Route path='/search'>
@@ -222,9 +247,12 @@ function App(): ReactElement {
                                 <Route path='/'>
                                     <LandingContainer
                                         topPairs={topPairs}
-                                        wallet={useWalletProps.wallet}
+                                        wallet={wallet}
                                         gasPrices={gasPrices}
-                                        setShowConnectWallet={setShowConnectWallet}
+                                        setShowConnectWallet={
+                                            setShowConnectWallet
+                                        }
+                                        handleAddLiquidity={handleAddLiquidity}
                                     />
                                 </Route>
                             </Switch>
