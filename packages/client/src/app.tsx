@@ -191,7 +191,10 @@ function App(): ReactElement {
         <Router>
             <div className={classNames('app', 'dark')} id='app-wrap'>
                 <div className='side-menu-wrapper'>
-                    <SideMenu wallet={useWalletProps.wallet} />
+                    <SideMenu
+                        wallet={useWalletProps.wallet}
+                        setShowConnectWallet={setShowConnectWallet}
+                    />
                 </div>
                 <div className='app-body' id='app-body'>
                     {currentError ? (
@@ -205,7 +208,9 @@ function App(): ReactElement {
                             />
                             <Switch>
                                 <Route path='/positions'>
-                                    <PositionContainer wallet={useWalletProps.wallet} />
+                                    <PositionContainer
+                                        wallet={useWalletProps.wallet}
+                                    />
                                 </Route>
                                 <Route path='/market'>
                                     <MarketContainer marketData={marketData} />
@@ -224,7 +229,9 @@ function App(): ReactElement {
                                         topPairs={topPairs}
                                         wallet={useWalletProps.wallet}
                                         gasPrices={gasPrices}
-                                        setShowConnectWallet={setShowConnectWallet}
+                                        setShowConnectWallet={
+                                            setShowConnectWallet
+                                        }
                                     />
                                 </Route>
                             </Switch>

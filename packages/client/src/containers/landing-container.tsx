@@ -115,6 +115,9 @@ function LandingContainer({
                 pairId={currentPairId}
                 gasPrices={gasPrices}
             />
+            <div>
+                <ConnectWalletButton onClick={showModal} wallet={wallet} />
+            </div>
             <div className='warning-well'>
                 <p>
                     Not financial advice. This is an alpha project. Trade at
@@ -125,10 +128,7 @@ function LandingContainer({
             </div>
             {wallet.account && positionData && (
                 <>
-                <br />
-                <h4 className='heading-main'>
-                    Open Positions
-                </h4>
+                    <h4 className='heading-main'>Open Positions</h4>
                     <PositionsTable
                         positionData={positionData}
                         pairId={pairId as string}
@@ -141,10 +141,6 @@ function LandingContainer({
                 <h4 className='heading-main'>
                     TOP LIQUIDITY POOLS :: 24 Hours
                 </h4>
-
-                <div>
-                    <ConnectWalletButton onClick={showModal} wallet={wallet} />
-                </div>
             </div>
             {/* <p>
                 <em>
