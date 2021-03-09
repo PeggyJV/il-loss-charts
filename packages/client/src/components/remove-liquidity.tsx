@@ -326,7 +326,7 @@ function RemoveLiquidity({
         return (
             <Modal.Body className='connect-wallet-modal'>
                 <Container className='error-container'>
-                    Nothing to remove! No LP position in {pairData.token0.symbol}/{pairData.token1.symbol}.
+                    No LP position in {pairData.token0.symbol}/{pairData.token1.symbol}.
                 </Container>
             </Modal.Body>
         );

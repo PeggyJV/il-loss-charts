@@ -406,12 +406,10 @@ p {
 }
 
 .error-container {
-    height: 40em;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    opacity: 0.8;
 }
 
 .error-container .error-message {
@@ -433,6 +431,10 @@ p {
     padding: 1rem;
     > div:first-child {
         margin-right: 1rem;
+    }
+    .pool-stats-addl {
+        display: flex;
+        flex-direction: column;
     }
 }
 

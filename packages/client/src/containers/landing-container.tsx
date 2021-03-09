@@ -8,7 +8,6 @@ import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { LPPositionData, Token } from '@sommelier/shared-types';
 
 import mixpanel from 'util/mixpanel';
-import ManageLiquidityModal from 'components/manage-liquidity-modal';
 import TopPairsWidget from 'components/top-pairs-widget';
 import TelegramCTA from 'components/telegram-cta';
 import ConnectWalletButton from 'components/connect-wallet-button';
@@ -18,15 +17,15 @@ function LandingContainer({
     wallet,
     gasPrices,
     setShowConnectWallet,
+    handleAddLiquidity,
 }: {
     topPairs: TopPairsState | null;
     wallet: Wallet;
     gasPrices: EthGasPrices | null;
     setShowConnectWallet: (wallet: boolean) => void;
+    handleAddLiquidity: (paidId: string) => void;
 }): JSX.Element {
-    const [showAddLiquidity, setShowAddLiquidity] = useState(false);
-    const [currentPairId, setCurrentPairId] = useState<string | null>(null);
-
+    
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [currentError, setError] = useState<string | null>(null);
@@ -84,16 +83,6 @@ function LandingContainer({
         mixpanel.track('pageview:landing', {});
     }, []);
 
-    const handleAddLiquidity = (pairId: string) => {
-        setCurrentPairId(pairId);
-
-        // Check if wallet exists, if not show wallet modal
-        if (wallet && wallet.account) {
-            setShowAddLiquidity(true);
-        } else {
-            setShowConnectWallet(true);
-        }
-    };
 
     // (window as any).marketData = marketData;
     (window as any).topPairs = topPairs;
@@ -108,14 +97,7 @@ function LandingContainer({
 
     return (
         <div>
-            <ManageLiquidityModal
-                show={showAddLiquidity}
-                setShow={setShowAddLiquidity}
-                wallet={wallet}
-                pairId={currentPairId}
-                gasPrices={gasPrices}
-            />
-            <div>
+            <div style={{'textAlign': 'right'}}>
                 <ConnectWalletButton onClick={showModal} wallet={wallet} />
             </div>
             <div className='warning-well'>
