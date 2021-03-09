@@ -1,19 +1,16 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import {
-    ButtonGroup,
-    Button,
-    Modal,
-} from 'react-bootstrap';
+import { ButtonGroup, Button, Modal } from 'react-bootstrap';
+import classNames from 'classnames';
 
 import { ethers } from 'ethers';
-
 import mixpanel from 'util/mixpanel';
 
 import erc20Abi from 'constants/abis/erc20.json';
 
 const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
-const EXCHANGE_REMOVE_ABI_ADDRESS = '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
+const EXCHANGE_REMOVE_ABI_ADDRESS =
+    '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
 
 import {
     EthGasPrices,
@@ -44,7 +41,7 @@ function ManageLiquidityModal({
 }): JSX.Element | null {
     const handleClose = () => {
         setShow(false);
-    }
+    };
     const [mode, setMode] = useState<'add' | 'remove'>('add');
     const [balances, setBalances] = useState<WalletBalances>({});
     const [pairData, setPairData] = useState<UniswapPair | null>(null);
@@ -59,74 +56,80 @@ function ManageLiquidityModal({
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
 
-     useEffect(() => {
-         const fetchPairData = async () => {
-             if (!pairId) return;
+    useEffect(() => {
+        const fetchPairData = async () => {
+            if (!pairId) return;
 
-             // Fetch pair overview when pair ID changes
-             // Default to createdAt date if LP date not set
-             const { data: newPair, error } = await Uniswap.getPairOverview(
-                 pairId
-             );
+            // Fetch pair overview when pair ID changes
+            // Default to createdAt date if LP date not set
+            const { data: newPair, error } = await Uniswap.getPairOverview(
+                pairId
+            );
 
-             if (error) {
-                 // we could not get data for this new pair
-                 console.warn(
-                     `Could not fetch pair data for ${pairId}: ${error}`
-                 );
-                 return;
-             }
+            if (error) {
+                // we could not get data for this new pair
+                console.warn(
+                    `Could not fetch pair data for ${pairId}: ${error}`
+                );
+                return;
+            }
 
-             if (newPair) {
-                 setPairData(newPair);
-             }
-         };
+            if (newPair) {
+                setPairData(newPair);
+            }
+        };
 
-         void fetchPairData();
-     }, [pairId]);
+        void fetchPairData();
+    }, [pairId]);
 
     useEffect(() => {
         // get balances of both tokens
         const getBalances = async () => {
             if (!provider || !wallet.account || !pairData) return;
 
-            const getTokenBalances = [pairData.token0.id, pairData.token1.id, pairData.id].map(
-                async (tokenAddress) => {
-                    if (!tokenAddress) {
-                        throw new Error(
-                            'Could not get balance for pair without token address'
-                        );
-                    }
-                    const token = new ethers.Contract(
-                        tokenAddress,
-                        erc20Abi
-                    ).connect(provider as ethers.providers.Web3Provider);
-                    const balance: ethers.BigNumber = await token.balanceOf(
-                        wallet.account
+            const getTokenBalances = [
+                pairData.token0.id,
+                pairData.token1.id,
+                pairData.id,
+            ].map(async (tokenAddress) => {
+                if (!tokenAddress) {
+                    throw new Error(
+                        'Could not get balance for pair without token address'
                     );
-                    return balance;
                 }
-            );
+                const token = new ethers.Contract(
+                    tokenAddress,
+                    erc20Abi
+                ).connect(provider as ethers.providers.Web3Provider);
+                const balance: ethers.BigNumber = await token.balanceOf(
+                    wallet.account
+                );
+                return balance;
+            });
 
-            const getAllowances = [pairData.token0.id, pairData.token1.id, pairData.id].map(
-                async (tokenAddress) => {
-                    if (!tokenAddress) {
-                        throw new Error(
-                            'Could not get balance for pair without token address'
-                        );
-                    }
-                    const token = new ethers.Contract(
-                        tokenAddress,
-                        erc20Abi
-                    ).connect(provider as ethers.providers.Web3Provider);
-                    const allowance: ethers.BigNumber = await token.allowance(
-                        wallet.account,
-                        tokenAddress === pairData.id ? EXCHANGE_REMOVE_ABI_ADDRESS : EXCHANGE_ADD_ABI_ADDRESS
+            const getAllowances = [
+                pairData.token0.id,
+                pairData.token1.id,
+                pairData.id,
+            ].map(async (tokenAddress) => {
+                if (!tokenAddress) {
+                    throw new Error(
+                        'Could not get balance for pair without token address'
                     );
-
-                    return allowance;
                 }
-            );
+                const token = new ethers.Contract(
+                    tokenAddress,
+                    erc20Abi
+                ).connect(provider as ethers.providers.Web3Provider);
+                const allowance: ethers.BigNumber = await token.allowance(
+                    wallet.account,
+                    tokenAddress === pairData.id
+                        ? EXCHANGE_REMOVE_ABI_ADDRESS
+                        : EXCHANGE_ADD_ABI_ADDRESS
+                );
+
+                return allowance;
+            });
 
             const getEthBalance = provider.getBalance(wallet.account);
             const [
@@ -136,39 +139,45 @@ function ManageLiquidityModal({
                 pairBalance,
                 token0Allowance,
                 token1Allowance,
-                pairAllowance
-            ] = await Promise.all([getEthBalance, ...getTokenBalances, ...getAllowances]);
+                pairAllowance,
+            ] = await Promise.all([
+                getEthBalance,
+                ...getTokenBalances,
+                ...getAllowances,
+            ]);
 
             // Get balance for other two tokens
             setBalances({
-                ETH: { 
+                ETH: {
                     id: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-                    symbol: 'ETH', 
-                    balance: ethBalance, 
-                    decimals: '18', 
-                    allowance: ethers.BigNumber.from(0) 
+                    symbol: 'ETH',
+                    balance: ethBalance,
+                    decimals: '18',
+                    allowance: ethers.BigNumber.from(0),
                 },
                 [pairData.token0.symbol as string]: {
                     id: pairData.token0.id as string,
                     symbol: pairData.token0.symbol,
                     balance: token0Balance,
                     decimals: pairData.token0.decimals,
-                    allowance: token0Allowance
+                    allowance: token0Allowance,
                 },
                 [pairData.token1.symbol as string]: {
                     id: pairData.token1.id as string,
                     symbol: pairData.token1.symbol,
                     balance: token1Balance,
                     decimals: pairData.token0.decimals,
-                    allowance: token1Allowance
+                    allowance: token1Allowance,
                 },
                 currentPair: {
                     id: pairData.id,
-                    symbol: `${(pairData.token0 as Token).symbol}/${(pairData.token1 as Token).symbol}`,
+                    symbol: `${(pairData.token0 as Token).symbol}/${
+                        (pairData.token1 as Token).symbol
+                    }`,
                     balance: pairBalance,
                     decimals: '18',
-                    allowance: pairAllowance
-                }
+                    allowance: pairAllowance,
+                },
             });
         };
 
@@ -228,26 +237,34 @@ function ManageLiquidityModal({
     }
 
     return (
-        <Modal show={show} onHide={handleClose}>
+        <Modal
+            show={show}
+            onHide={handleClose}
+            dialogClassName='dark manage-liquidity-modal'
+        >
             <Modal.Header className='manage-liquidity-modal-header'>
                 <ButtonGroup>
-                    <Button 
-                        className='add-btn' 
+                    <button
+                        className={classNames({
+                            'modal-tab': true,
+                            active: mode === 'add',
+                        })}
                         onClick={() => setMode('add')}
-                        variant={mode === 'add' ? 'primary' : 'outline-primary'}
                     >
                         Add
-                    </Button>
-                    <Button 
-                        className='remove-btn'
+                    </button>
+                    <button
+                        className={classNames({
+                            'modal-tab': true,
+                            active: mode === 'remove',
+                        })}
                         onClick={() => setMode('remove')}
-                        variant={mode === 'remove' ? 'primary' : 'outline-primary'}
                     >
                         Remove
-                    </Button>
+                    </button>
                 </ButtonGroup>
             </Modal.Header>
-            {mode === 'add' ?
+            {mode === 'add' ? (
                 <AddLiquidity
                     wallet={wallet}
                     provider={provider}
@@ -257,7 +274,7 @@ function ManageLiquidityModal({
                     balances={balances}
                     onDone={handleClose}
                 />
-                :
+            ) : (
                 <RemoveLiquidity
                     wallet={wallet}
                     provider={provider}
@@ -267,7 +284,7 @@ function ManageLiquidityModal({
                     balances={balances}
                     onDone={handleClose}
                 />
-            }
+            )}
         </Modal>
     );
 }

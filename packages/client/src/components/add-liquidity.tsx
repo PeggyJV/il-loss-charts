@@ -456,17 +456,17 @@ function AddLiquidity({
                         </Form.Group>
                     )}
                 </Card>
+                <br />
                 {new BigNumber(pairData.reserveUSD).lt(2000000) &&
-                    <>
-                        <br />
-                        <Alert variant='warning'>
+                    <div className='warning-well'>
+                        <p>
                             <strong>Warning: </strong> Low liquidity pairs can experience high slippage
                             at low entry amounts. Be careful when using high slippage tolerance.
-                        </Alert>
-                    </>
+                        </p>
+                    </div>
                 }
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className='manage-liquidity-modal-footer'>
                 <AddLiquidityActionButton
                     state={addLiquidityActionState}
                     onApprove={doApprove}

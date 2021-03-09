@@ -39,37 +39,39 @@ function ConnectWalletModal({
     };
 
     return (
-        <Modal show={show} onHide={handleClose}>
+        <Modal show={show} onHide={handleClose} dialogClassName='dark'>
             <Modal.Header className='connect-wallet-modal-header' closeButton>
                 <Modal.Title className='connect-wallet-modal-title'>
                     {titleText}
                 </Modal.Title>
             </Modal.Header>
-            <Modal.Body className='connect-wallet-modal'>
-                <p className='centered'>
-                    Choose a wallet provider to connect with.
-                </p>
-                <div className='connect-wallet-modal-options-container'>
-                    <Button
-                        className='connect-wallet-modal-option'
-                        variant='outline-secondary'
-                        disabled={!availableProviders.metamask}
-                        onClick={handleConnectMetaMask}
-                    >
-                        <MetamaskLogo />
-                    </Button>
-                    <Button
-                        className='connect-wallet-modal-option'
-                        variant='outline-secondary'
-                        disabled={!availableProviders.walletconnect}
-                        onClick={handleConnectWalletConnect}
-                    >
-                        <WalletConnectLogo />
-                    </Button>
-                </div>
-            </Modal.Body>
+            {!wallet?.account && (
+                <Modal.Body className='connect-wallet-modal'>
+                    <p className='centered'>
+                        Choose a wallet provider to connect with.
+                    </p>
+                    <div className='connect-wallet-modal-options-container'>
+                        <Button
+                            className='connect-wallet-modal-option'
+                            variant='outline-secondary'
+                            disabled={!availableProviders.metamask}
+                            onClick={handleConnectMetaMask}
+                        >
+                            <MetamaskLogo />
+                        </Button>
+                        <Button
+                            className='connect-wallet-modal-option'
+                            variant='outline-secondary'
+                            disabled={!availableProviders.walletconnect}
+                            onClick={handleConnectWalletConnect}
+                        >
+                            <WalletConnectLogo />
+                        </Button>
+                    </div>
+                </Modal.Body>
+            )}
             {wallet && (
-                <Modal.Footer>
+                <Modal.Footer className='manage-liquidity-modal-footer'>
                     <Button
                         variant='danger'
                         size='sm'
