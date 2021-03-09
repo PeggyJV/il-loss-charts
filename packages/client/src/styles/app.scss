@@ -778,6 +778,9 @@ p {
     background: var(--bgContainer);
     overflow: scroll;
     border: 1px solid var(--borderDeep);
+    table {
+        margin: 0;
+    }
 }
 
 .slippage-tolerance-input {
