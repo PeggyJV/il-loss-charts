@@ -3,8 +3,10 @@ import Server from 'common/server';
 import WebsocketServer from 'ws/server';
 import routes from 'routes';
 
+import config from 'config';
+
 function startServer() {
-    const port = parseInt(process.env.PORT || '3000');
+    const port = parseInt(config.port);
 
     const server = new Server().router(routes);
     server.listen(port);

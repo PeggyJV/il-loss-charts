@@ -12,6 +12,8 @@ import Mixpanel from 'mixpanel';
 import errorHandler from '../api/middlewares/error.handler';
 import * as OpenApiValidator from 'express-openapi-validator';
 
+import config from 'config';
+
 let mixpanel: Mixpanel.Mixpanel;
 
 if (process.env.MIXPANEL_TOKEN) {
@@ -30,31 +32,27 @@ export default class ExpressServer {
         app.use(morgan('dev'));
 
         app.use(
-            bodyParser.json({ limit: process.env.REQUEST_LIMIT || '100kb' })
+            bodyParser.json({ limit: config.requestLimit })
         );
         app.use(
             bodyParser.urlencoded({
                 extended: true,
-                limit: process.env.REQUEST_LIMIT || '100kb',
+                limit: config.requestLimit,
             })
         );
         app.use(
-            bodyParser.text({ limit: process.env.REQUEST_LIMIT || '100kb' })
+            bodyParser.text({ limit: config.requestLimit })
         );
         app.use(cookieParser(process.env.SESSION_SECRET));
         app.use(express.static(`${root}/public`));
         app.use(express.static(`${clientRoot}/build`));
 
         const apiSpec = path.join(__dirname, '../docs/api.yml');
-        const validateResponses = !!(
-            process.env.OPENAPI_ENABLE_RESPONSE_VALIDATION &&
-            process.env.OPENAPI_ENABLE_RESPONSE_VALIDATION.toLowerCase() ===
-                'true'
-        );
+        const validateResponses = config.enableResponseValidation;
         const apiDoc = YAML.load(apiSpec);
 
         app.use('/api/explorer', swaggerUi.serve, swaggerUi.setup(apiDoc));
-        app.use(process.env.OPENAPI_SPEC || '/spec', express.static(apiSpec));
+        app.use(config.openApiSpec, express.static(apiSpec));
 
         app.use(
             OpenApiValidator.middleware({

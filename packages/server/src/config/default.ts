@@ -5,6 +5,10 @@ const config: AppConfig = {
     redisPort: process.env.REDIS_PORT
         ? parseInt(process.env.REDIS_PORT, 10)
         : 6379,
+    port: process.env.PORT || '3001',
+    requestLimit: process.env.REQUEST_LIMIT || '10kb',
+    openApiSpec: '/api/v1/spec',
+    enableResponseValidation: false
 };
 
 export default config;
