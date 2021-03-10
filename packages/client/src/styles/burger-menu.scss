@@ -126,6 +126,9 @@ Note: Beware of modifying this element as it can break the animations - you shou
     text-align: center;
     text-transform: uppercase;
     margin-bottom: 2rem;
+    a,:visited,:active,:focus {
+        color: var(--facePrimary);
+    }
 }
 
 .side-menu-connected {

@@ -1,5 +1,5 @@
 import { push as Menu } from 'react-burger-menu';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
 import classNames from 'classnames';
 import { Wallet } from 'types/states';
@@ -46,7 +46,9 @@ function SideMenu({
             customBurgerIcon={isMobile ? undefined : false}
         >
             <div>
-                <h5 className='side-menu-title'>SOMMELIER FINANCE</h5>
+                <h5 className='side-menu-title'>
+                    <Link to={'/'}>SOMMELIER FINANCE</Link>
+                </h5>
                 <div className='side-menu-connected'>
                     <ConnectWalletButton onClick={showModal} wallet={wallet} />
                 </div>

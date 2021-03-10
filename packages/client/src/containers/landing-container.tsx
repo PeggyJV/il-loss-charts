@@ -100,9 +100,9 @@ function LandingContainer({
             <div style={{'textAlign': 'right'}}>
                 <ConnectWalletButton onClick={showModal} wallet={wallet} />
             </div>
-            <div className='warning-well'>
+            <div className='alert-well'>
                 <p>
-                    Not financial advice. This is an alpha project. Trade at
+                    This is not financial advice. This is an alpha project. Trade at
                     your own risk. All calculated returns include Impermanent
                     Loss.
                 </p>
