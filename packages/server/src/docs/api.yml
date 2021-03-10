@@ -11,6 +11,12 @@ tags:
     - name: Sommelier 
       description: Routes for IL management via the Sommelier Protocol.
 paths:
+    /healthcheck:
+      get:
+        description: App health-check.
+        responses:
+          200:
+            description: Returns an 'alive' message.
     /uniswap/ethPrice:
         get:
             tags:
