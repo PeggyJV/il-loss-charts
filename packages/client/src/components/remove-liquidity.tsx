@@ -457,7 +457,7 @@ function RemoveLiquidity({
                     )}
                 </Card>
                 {new BigNumber(pairData.reserveUSD).lt(2000000) && (
-                    <div className='warning-well'>
+                    <div className='warn-well'>
                         <p>
                             <strong>Warning: </strong> Low liquidity pairs can
                             experience high slippage at low entry amounts. Be

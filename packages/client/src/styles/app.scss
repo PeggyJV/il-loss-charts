@@ -44,19 +44,34 @@ p {
     padding: 1rem 0;
 }
 
-.warning-well {
-    border: 1px solid var(--borderSecondary);
-    background: var(--bgDeep);
+.info-well {
+    border: 1px solid var(--bgInfoBorder);
+    background: var(--bgInfo);
     padding: 10px;
-    font-size: 0.8rem;
-    color: var(--faceDisabled);
+    font-size: 0.85rem;
+    border-radius: 5px;
+    color: var(--facePrimary);
     margin: 1rem 0;
 }
 
-.info-well {
+.warn-well {
+    border: 1px solid var(--bgWarnBorder);
+    background: var(--bgWarn);
     padding: 10px;
-    font-size: 0.8rem;
-    color: var(--faceDisabled);
+    font-size: 0.85rem;
+    border-radius: 5px;
+    color: var(--facePrimary);
+    margin: 1rem 0;
+}
+
+.alert-well {
+    border: 1px solid var(--bgAlertBorder);
+    background: var(--bgAlert);
+    padding: 10px;
+    font-size: 0.85rem;
+    border-radius: 5px;
+    color: var(--facePrimary);
+    margin: 1rem 0;
 }
 
 .wine-bounce {
@@ -421,7 +436,7 @@ p {
 .pair-controls {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 .pair-and-pool-stats {
     display: flex;
@@ -646,7 +661,8 @@ p {
     background: var(--bgOffset);
     border: var(--bgAccentAlt);
 }
-.connect-wallet-modal-header, .connect-wallet-modal-footer {
+.connect-wallet-modal-header,
+.connect-wallet-modal-footer {
     color: var(--faceAccentAlt);
     background: var(--bgMain);
     .close {
@@ -657,6 +673,15 @@ p {
 .connect-wallet-modal {
     background: var(--bgSecondary);
     color: var(--faceSecondary);
+}
+
+// nasty override dude, get rid of this
+.input-group-append {
+    .input-group-text {
+        background: none;
+        border:1px solid var(--borderSecondary);
+        color: var(--faceSecondary);
+    }
 }
 .connect-wallet-modal-option svg {
     width: 8rem;
@@ -697,9 +722,9 @@ p {
 }
 
 .connect-wallet-modal {
-    .dropdown{
+    .dropdown {
         outline: none;
-        .btn-primary{
+        .btn-primary {
             background: var(--bgAccentAlt);
         }
     }
@@ -742,6 +767,9 @@ p {
     .active {
         background: var(--bgSecondary);
         color: var(--faceAccentAlt);
+        border:1px solid var(--borderAccentAlt);
+        border-bottom: 0;
+        text-transform: uppercase;
     }
 }
 .manage-liquidity-modal-footer {
@@ -764,9 +792,6 @@ p {
     border-bottom-right-radius: 0;
 }
 
-.positions-table-pair-span {
-    color: #007bff;
-}
 
 .pair-text-large {
     display: flex;
@@ -848,16 +873,18 @@ th .caret-4-desc:after {
 @media (max-width: 1200px) {
     .pair-controls {
         flex-direction: column;
+        margin-bottom: 0;
     }
     .pair-and-pool-stats,
     .lp-input-with-stats {
         justify-content: space-between;
-        margin-bottom: 10px;
+        margin-bottom: 1rem;
     }
 }
 @media (max-width: 765px) {
     .pair-controls {
         align-items: center;
+        margin-bottom: 0;
     }
     .pair-and-pool-stats,
     .lp-input-with-stats {

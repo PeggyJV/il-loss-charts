@@ -360,6 +360,15 @@ function PairContainer({
     return (
         <div>
             <h4 className='heading-main'>Impermanent Loss Calculator</h4>
+            <div className='alert-well'>
+                <p>
+                    This is not financial advice. This is an alpha project.
+                    Trade at your own risk. All calculated returns include
+                    Impermanent Loss.
+                </p>
+                <p>*All calculated returns include Impermanent Loss.</p>
+            </div>
+
             <PairSearch pairs={allPairs.pairs} setPair={setPairId} />
             <div className='pair-controls'>
                 <div className='pair-and-pool-stats'>
@@ -376,7 +385,12 @@ function PairContainer({
                             defaultWindow={timeWindow}
                             setWindow={setWindow}
                         />
-                        <button className='btn-addl' onClick={() => handleAddLiquidity(pairId)}>MANAGE LIQUIDITY</button>
+                        <button
+                            className='btn-addl'
+                            onClick={() => handleAddLiquidity(pairId)}
+                        >
+                            MANAGE LIQUIDITY
+                        </button>
                     </div>
                 </div>
                 <div className='lp-input-with-stats'>

@@ -50,11 +50,17 @@
     --btnActionHover: var(--jam50);
 
 
-    // neutral
+    // info
+    --bgInfo: var(--purple50);
+    --bgInfoBorder: var(--purple60);
 
     // warn
+    --bgWarn: var(--mono80);
+    --bgWarnBorder: var(--mono100);
 
     // alert
+    --bgAlert: var(--red90);
+    --bgAlertBorder: var(--red100);
 
     // moon
     --btnMoon: var(--green80);

@@ -2,8 +2,13 @@ import { SyntheticEvent } from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
-
-import { Token, LPPositionData, MarketStats } from '@sommelier/shared-types';
+import { Link, useHistory } from 'react-router-dom';
+import {
+    Token,
+    LPPositionData,
+    UniswapPair,
+    MarketStats,
+} from '@sommelier/shared-types';
 
 import {
     PositionData,
@@ -68,18 +73,14 @@ function PositionsTable({
         })
         .sort((a, b) => parseInt(b.liquidity, 10) - parseInt(a.liquidity, 10));
 
-    const formatPair = ({
-        token0,
-        token1,
-    }: {
-        token0: Token;
-        token1: Token;
-    }) => {
+    const formatPair = ({ id, token0, token1 }: UniswapPair) => {
         return (
             <span>
                 {resolveLogo(token0.id)}{' '}
                 <span className='market-data-pair-span positions-table-pair-span'>
-                    {token0.symbol}/{token1.symbol}
+                    <Link to={`/pair?id=${id}`}>
+                        {token0.symbol}/{token1.symbol}
+                    </Link>
                 </span>{' '}
                 {resolveLogo(token1.id)}
             </span>
@@ -87,10 +88,7 @@ function PositionsTable({
     };
 
     const renderManageLiquidity = ({ id }: { id: string }) => (
-        <button
-            className='btn-addl'
-            onClick={() => handleAddLiquidity(id)}
-        >
+        <button className='btn-addl' onClick={() => handleAddLiquidity(id)}>
             Manage Liquidity
         </button>
     );
@@ -98,6 +96,16 @@ function PositionsTable({
         new BigNumber(val).isZero()
             ? 'Position Closed'
             : formatUSD(new BigNumber(val).toNumber());
+
+    const formatReturnsUSD = (val: string | number) => {
+        if (Math.sign(Number(val)))
+            return (
+                <strong style={{ color: 'var(--bgMoon)' }}>{formatUSD(val)}</strong>
+            );
+
+        return <span style={{ color: 'var(--bgDump)' }}>{formatUSD(val)}</span>;
+    };
+
     const columns = [
         {
             dataField: 'index',
@@ -129,9 +137,9 @@ function PositionsTable({
         },
         {
             dataField: 'returnsUSD',
-            text: 'USD Returns',
+            text: 'Net USD Returns',
             sort: true,
-            formatter: formatUSD,
+            formatter: formatReturnsUSD,
         },
         {
             dataField: 'action',
@@ -141,9 +149,9 @@ function PositionsTable({
         },
     ];
 
-    const onRowClick = (e: SyntheticEvent, row: PositionTableRow) => {
-        setPairId(row.pairId);
-    };
+    // const onRowClick = (e: SyntheticEvent, row: PositionTableRow) => {
+    //     history.push(`/pair?id=${pair.id}`);
+    // };
     const getRowStyle = (row: PositionTableRow) => {
         const styles: {
             borderLeft: number;
@@ -169,7 +177,7 @@ function PositionsTable({
                 rowStyle={{ borderLeft: 0, borderRight: 0 }}
                 bordered={false}
                 condensed={true}
-                rowEvents={{ onClick: onRowClick }}
+                // rowEvents={{ onClick: onRowClick }}
             />
         </div>
     );
