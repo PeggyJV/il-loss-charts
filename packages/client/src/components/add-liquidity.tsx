@@ -323,6 +323,8 @@ function AddLiquidity({
         }
     }
 
+    const dropdownOptions = Object.values(balances).filter((balance) => balance.id !== pairData.id);
+
     return (
         <>
             <Modal.Body className='connect-wallet-modal'>
@@ -344,7 +346,7 @@ function AddLiquidity({
                             as={InputGroup.Append}
                             title={entryToken}
                         >
-                            {Object.values(balances).map((token) => (
+                            {dropdownOptions.map((token) => (
                                 <Dropdown.Item
                                     key={token.symbol}
                                     active={token.symbol === entryToken}

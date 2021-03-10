@@ -332,6 +332,8 @@ function RemoveLiquidity({
         );
     }
 
+    const exitOptions = Object.values(balances).filter((balance) => balance.id !== pairData.id);
+
     return (
         <>
             <Modal.Body className='connect-wallet-modal'>
@@ -360,7 +362,7 @@ function RemoveLiquidity({
                     </Form.Label>
                     <Col sm={6}>
                         <Combobox
-                            data={Object.values(balances)}
+                            data={exitOptions}
                             value={exitToken}
                             textField={renderPairText}
                             itemComponent={({ item: token }) => (

@@ -19,6 +19,13 @@ if (useOffline) {
     console.log('Using offline mode');
 }
 
+const shouldRetryError = (error: string) => {
+    return error.match(/ENOTFOUND/)
+        || error.match(/ECONNREFUSED/)
+        || error.match(/Unexpected/i)
+        || error.match(/canceling/);
+}
+
 export class UniswapApiFetcher extends OfflineFetcher {
     static async getPairOverview(
         pairId: string
@@ -30,7 +37,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
             ApiResponse<UniswapPair>
         >);
 
-        if (error && error.match(/ENOTFOUND/)) {
+        if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             return UniswapApiFetcher.getPairOverview(pairId);
         }
@@ -48,7 +55,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
             ApiResponse<UniswapSwap[]>
         >);
 
-        if (error && error.match(/ENOTFOUND/)) {
+        if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             return UniswapApiFetcher.getLatestSwaps(pairId);
         }
@@ -72,7 +79,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
         );
         const { data, error } = await response.json();
 
-        if (error && error.match(/ENOTFOUND/)) {
+        if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             return UniswapApiFetcher.getMintsAndBurns(pairId);
         }
@@ -90,7 +97,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
             ApiResponse<UniswapPair[]>
         >);
 
-        if (error && error.match(/ENOTFOUND/)) {
+        if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             return UniswapApiFetcher.getTopPairs(count);
         }
@@ -110,7 +117,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
             ApiResponse<MarketStats[]>
         >);
 
-        if (error && error.match(/ENOTFOUND/)) {
+        if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             return UniswapApiFetcher.getMarketData(startDate);
         }
@@ -130,7 +137,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
 
         // Retry because the graph sometimes fails
         // TODO: Implement better retry mechanism and/or remove once we have local graph
-        if (error && error.match(/ENOTFOUND/)) {
+        if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             return UniswapApiFetcher.getDailyTopPerformingPairs();
         }
@@ -152,7 +159,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
 
         // Retry because the graph sometimes fails
         // TODO: Implement better retry mechanism and/or remove once we have local graph
-        if (error && error.match(/ENOTFOUND/)) {
+        if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             return UniswapApiFetcher.getWeeklyTopPerformingPairs();
         }
@@ -179,7 +186,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
             ApiResponse<UniswapDailyData[]>
         >);
 
-        if (error && error.match(/ENOTFOUND/)) {
+        if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             return UniswapApiFetcher.getHistoricalDailyData(
                 pairId,
@@ -210,7 +217,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
             ApiResponse<UniswapHourlyData[]>
         >);
 
-        if (error && error.match(/ENOTFOUND/)) {
+        if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             return UniswapApiFetcher.getHistoricalHourlyData(
                 pairId,
@@ -232,7 +239,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
             ApiResponse<LPPositionData<string>>
         >);
 
-        if (error && error.match(/ENOTFOUND/)) {
+        if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             return UniswapApiFetcher.getPositionStats(address);
         }
