@@ -1,9 +1,9 @@
+import { useErrorHandler } from 'react-error-boundary';
 import { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';
 
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { providers } from 'ethers';
-
 import { Provider, Wallet } from 'types/states';
 import mixpanel from 'util/mixpanel';
 
@@ -15,13 +15,13 @@ const wcProvider = new WalletConnectProvider({
 
 (window as any).wcProvider = wcProvider;
 
-
 export default function useWallet(): {
     ethereum?: any;
     wallet: Wallet;
     connectMetaMask: () => Promise<void>;
     connectWalletConnect: () => Promise<void>;
     disconnectWallet: () => void;
+    error: Error | null;
     availableProviders: { [providerName in Provider]: boolean };
 } {
     const ethereum = (window as any).ethereum;
@@ -70,6 +70,7 @@ export default function useWallet(): {
     }
 
     const [wallet, setWallet] = useState<Wallet>(initialWalletState);
+    const [error, setError] = useState<Error | null>(null);
 
     // Subscribe to updates (do this before calling connection in case we load from cookies)
     if (ethereum) {
@@ -155,17 +156,24 @@ export default function useWallet(): {
 
     // re-set cookie when wallet state changes
     useEffect(() => {
-        if (wallet && wallet.account) {
-            cookies.set(
-                'current_wallet',
-                { account: wallet.account, providerName: wallet.providerName },
-                {
-                    expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
-                }
-            );
-        } else {
-            // wallet was un-set, remove cookie
-            cookies.remove('current_wallet');
+        try {
+            if (wallet && wallet.account) {
+                cookies.set(
+                    'current_wallet',
+                    {
+                        account: wallet.account,
+                        providerName: wallet.providerName,
+                    },
+                    {
+                        expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+                    }
+                );
+            } else {
+                // wallet was un-set, remove cookie
+                cookies.remove('current_wallet');
+            }
+        } catch (e) {
+            setError(e);
         }
     }, [wallet]);
 
@@ -175,6 +183,7 @@ export default function useWallet(): {
         connectMetaMask,
         connectWalletConnect,
         disconnectWallet,
+        error,
         availableProviders,
     };
 }

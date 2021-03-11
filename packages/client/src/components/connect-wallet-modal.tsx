@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Button, Modal } from 'react-bootstrap';
 
 import useWallet from 'hooks/use-wallet';
-
+import {useErrorHandler} from 'react-error-boundary';
 import { ReactComponent as MetamaskLogo } from 'styles/metamask-logo.svg';
 import { ReactComponent as WalletConnectLogo } from 'styles/walletconnect-logo.svg';
 
@@ -13,26 +13,36 @@ function ConnectWalletModal({
     connectMetaMask,
     connectWalletConnect,
     disconnectWallet,
+    error,
     availableProviders,
 }: ReturnType<typeof useWallet> & {
     show: boolean;
     setShow: (show: boolean) => void;
 }): JSX.Element {
     const handleClose = () => setShow(false);
+    const handleError = useErrorHandler();
 
     const titleText = wallet?.account
         ? `Connected: ${wallet.account}`
         : 'Connect Wallet';
 
     const handleConnectMetaMask = async () => {
-        await connectMetaMask();
+        try{
+            await connectMetaMask();
+        } catch(e){
+            handleError(e);
+        }
 
         // Close modlal after half-second
         setTimeout(handleClose, 500);
     };
 
     const handleConnectWalletConnect = async () => {
-        await connectWalletConnect();
+        try{
+            await connectWalletConnect();
+        } catch(e){
+            handleError(e);
+        }
 
         // Close modlal after half-second
         setTimeout(handleClose, 500);

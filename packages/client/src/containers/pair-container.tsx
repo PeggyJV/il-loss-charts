@@ -39,7 +39,7 @@ import LPStatsChart from 'components/lp-stats-highchart';
 import LatestTradesSidebar from 'components/latest-trades-sidebar';
 import TotalPoolStats from 'components/total-pool-stats';
 import TelegramCTA from 'components/telegram-cta';
-import PageError from 'components/page-error';
+import { PageError } from 'components/page-error';
 
 function PairContainer({
     allPairs,
@@ -368,7 +368,7 @@ function PairContainer({
                 </p>
                 <p>*All calculated returns include Impermanent Loss.</p>
             </div>
-
+            
             <PairSearch pairs={allPairs.pairs} setPair={setPairId} />
             <div className='pair-controls'>
                 <div className='pair-and-pool-stats'>

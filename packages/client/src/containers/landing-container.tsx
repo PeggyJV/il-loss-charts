@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { MarketStats, EthGasPrices } from '@sommelier/shared-types';
+import { ErrorBoundary } from 'react-error-boundary';
 import { TopPairsState, Wallet } from 'types/states';
 import PositionsTable from 'components/positions-table';
+import { ComponentError } from 'components/page-error';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { LPPositionData, Token } from '@sommelier/shared-types';
 
@@ -25,7 +27,6 @@ function LandingContainer({
     setShowConnectWallet: (wallet: boolean) => void;
     handleAddLiquidity: (paidId: string) => void;
 }): JSX.Element {
-    
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [currentError, setError] = useState<string | null>(null);
@@ -83,7 +84,6 @@ function LandingContainer({
         mixpanel.track('pageview:landing', {});
     }, []);
 
-
     // (window as any).marketData = marketData;
     (window as any).topPairs = topPairs;
 
@@ -97,26 +97,28 @@ function LandingContainer({
 
     return (
         <div>
-            <div style={{'textAlign': 'right'}}>
+            <div style={{ textAlign: 'right' }}>
                 <ConnectWalletButton onClick={showModal} wallet={wallet} />
             </div>
             <div className='alert-well'>
                 <p>
-                    This is not financial advice. This is an alpha project. Trade at
-                    your own risk. All calculated returns include Impermanent
-                    Loss.
+                    This is not financial advice. This is an alpha project.
+                    Trade at your own risk. All calculated returns include
+                    Impermanent Loss.
                 </p>
                 <p>*All calculated returns include Impermanent Loss.</p>
             </div>
             {wallet.account && positionData && (
                 <>
                     <h4 className='heading-main'>Open Positions</h4>
-                    <PositionsTable
-                        positionData={positionData}
-                        pairId={pairId as string}
-                        setPairId={setPairId}
-                        handleAddLiquidity={handleAddLiquidity}
-                    />
+                    <ErrorBoundary FallbackComponent={ComponentError}>
+                        <PositionsTable
+                            positionData={positionData}
+                            pairId={pairId as string}
+                            setPairId={setPairId}
+                            handleAddLiquidity={handleAddLiquidity}
+                        />
+                    </ErrorBoundary>
                 </>
             )}
             <div className='header-with-filter'>
@@ -131,21 +133,25 @@ function LandingContainer({
             </p> */}
 
             {topPairs?.daily && (
-                <TopPairsWidget
-                    topPairs={topPairs.daily}
-                    mode='daily'
-                    handleAddLiquidity={handleAddLiquidity}
-                />
+                <ErrorBoundary FallbackComponent={ComponentError}>
+                    <TopPairsWidget
+                        topPairs={topPairs.daily}
+                        mode='daily'
+                        handleAddLiquidity={handleAddLiquidity}
+                    />
+                </ErrorBoundary>
             )}
             <hr />
             <h4 className='heading-main'>TOP LIQUIDITY POOLS :: 7 Days</h4>
 
             {topPairs?.weekly && (
-                <TopPairsWidget
-                    topPairs={topPairs.weekly}
-                    mode='weekly'
-                    handleAddLiquidity={handleAddLiquidity}
-                />
+                <ErrorBoundary FallbackComponent={ComponentError}>
+                    <TopPairsWidget
+                        topPairs={topPairs.weekly}
+                        mode='weekly'
+                        handleAddLiquidity={handleAddLiquidity}
+                    />
+                </ErrorBoundary>
             )}
 
             {/* <h5>Highest Impermanent Loss Pairs on Uniswap since December 1</h5>

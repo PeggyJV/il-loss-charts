@@ -3,7 +3,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import mixpanel from 'util/mixpanel';
 import PositionsTable from 'components/positions-table';
-
+import { ErrorBoundary, useErrorHandler } from 'react-error-boundary';
 import { LPPositionData, Token } from '@sommelier/shared-types';
 import { Wallet } from 'types/states';
 
@@ -11,7 +11,7 @@ import { Wallet } from 'types/states';
 import LPStatsChart from 'components/lp-stats-highchart';
 import USDValueWidget from 'components/usd-value-widget';
 import { resolveLogo } from 'components/token-with-logo';
-import PageError from 'components/page-error';
+import { PageError, ComponentError } from 'components/page-error';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 
@@ -21,6 +21,7 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [currentError, setError] = useState<string | null>(null);
+    useErrorHandler(currentError);
     const [
         positionData,
         setPositionData,
@@ -121,59 +122,61 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
     }
 
     return (
-        <Container fluid>
-            <h4>Your LP Positions on Uniswap</h4>
-            <hr />
-            <PositionsTable
-                positionData={positionData}
-                pairId={pairId}
-                setPairId={setPairId}
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
-                handleAddLiquidity={() => {}}
-            />
-            <hr />
-            <Row className='top-stats-row'>
-                <Col lg={4} className='pair-text-large'>
-                    <span>
-                        {resolveLogo((pair.token0 as Token).id)}{' '}
-                        {(pair.token0 as Token).symbol}/
-                        {(pair.token1 as Token).symbol}{' '}
-                        {resolveLogo((pair.token1 as Token).id)}
-                    </span>
-                </Col>
-                <Col lg={8}>
-                    <div className='pool-stats-container'>
-                        <USDValueWidget
-                            title={'Fees Earned'}
-                            value={
-                                positionData?.stats[pairId]?.aggregatedStats
-                                    .totalFees
-                            }
-                        />
-                        <USDValueWidget
-                            title={'Impermanent Loss'}
-                            value={
-                                positionData?.stats[pairId]?.aggregatedStats
-                                    .impermanentLoss
-                            }
-                        />
-                        <USDValueWidget
-                            title={'Total Return'}
-                            value={
-                                positionData?.stats[pairId]?.aggregatedStats
-                                    .totalReturn
-                            }
-                        />
-                    </div>
-                </Col>
-            </Row>
-            <Row noGutters>
-                <Col lg={12}>
-                    {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
-                    <LPStatsChart lpStats={currentStats} />
-                </Col>
-            </Row>
-        </Container>
+        <ErrorBoundary FallbackComponent={ComponentError}>
+            <Container fluid>
+                <h4>Your LP Positions on Uniswap</h4>
+                <hr />
+                <PositionsTable
+                    positionData={positionData}
+                    pairId={pairId}
+                    setPairId={setPairId}
+                    // eslint-disable-next-line @typescript-eslint/no-empty-function
+                    handleAddLiquidity={() => {}}
+                />
+                <hr />
+                <Row className='top-stats-row'>
+                    <Col lg={4} className='pair-text-large'>
+                        <span>
+                            {resolveLogo((pair.token0 as Token).id)}{' '}
+                            {(pair.token0 as Token).symbol}/
+                            {(pair.token1 as Token).symbol}{' '}
+                            {resolveLogo((pair.token1 as Token).id)}
+                        </span>
+                    </Col>
+                    <Col lg={8}>
+                        <div className='pool-stats-container'>
+                            <USDValueWidget
+                                title={'Fees Earned'}
+                                value={
+                                    positionData?.stats[pairId]?.aggregatedStats
+                                        .totalFees
+                                }
+                            />
+                            <USDValueWidget
+                                title={'Impermanent Loss'}
+                                value={
+                                    positionData?.stats[pairId]?.aggregatedStats
+                                        .impermanentLoss
+                                }
+                            />
+                            <USDValueWidget
+                                title={'Total Return'}
+                                value={
+                                    positionData?.stats['123']?.aggregatedStats
+                                        .totalReturn
+                                }
+                            />
+                        </div>
+                    </Col>
+                </Row>
+                <Row noGutters>
+                    <Col lg={12}>
+                        {/* <FadeOnChange><LPStatsChart lpStats={lpStats} /></FadeOnChange> */}
+                        <LPStatsChart lpStats={currentStats} />
+                    </Col>
+                </Row>
+            </Container>
+        </ErrorBoundary>
     );
 }
 
