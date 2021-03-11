@@ -2,7 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-widgets/dist/css/react-widgets.css';
 import 'styles/app.scss';
 import classNames from 'classnames';
-
+import { ErrorBoundary, useErrorHandler } from 'react-error-boundary';
 import { useState, useEffect, ReactElement } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
@@ -18,7 +18,7 @@ import SearchContainer from 'containers/search-container';
 import PositionContainer from 'containers/position-container';
 import SideMenu from 'components/side-menu';
 import ConnectWalletModal from 'components/connect-wallet-modal';
-import PageError from 'components/page-error';
+import { PageError, ModalError } from 'components/page-error';
 
 import useWallet from 'hooks/use-wallet';
 import usePrefetch from 'hooks/use-prefetch';
@@ -44,9 +44,11 @@ function App(): ReactElement {
     const [currentError, setError] = useState<string | null>(null);
     const [gasPrices, setGasPrices] = useState<EthGasPrices | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
-    const {wallet, ...restWalletProps} = useWallet();
+    const { wallet, error, ...restWalletProps } = useWallet();
     const [prefetchedPairs, setPairsToFetch] = usePrefetch(null);
-
+    
+    // subscribe to the hook, will propogate to the nearest boundary
+    useErrorHandler(error);
     useEffect(() => {
         const fetchAllPairs = async () => {
             // Fetch all pairs
@@ -201,66 +203,91 @@ function App(): ReactElement {
     };
 
     return (
-        <Router>
-            <div className={classNames('app', 'dark')} id='app-wrap'>
-                <div className='side-menu-wrapper'>
-                    <SideMenu
-                        wallet={wallet}
-                        setShowConnectWallet={setShowConnectWallet}
-                    />
-                </div>
-                <div className='app-body' id='app-body'>
-                    {currentError ? (
-                        <PageError errorMsg={currentError} />
-                    ) : (
-                        <>
-                            <ConnectWalletModal
-                                show={showConnectWallet}
-                                setShow={setShowConnectWallet}
-                                wallet={wallet}
-                                {...restWalletProps}
-                            />
-                            <ManageLiquidityModal
-                                show={showAddLiquidity}
-                                setShow={setShowAddLiquidity}
-                                wallet={wallet}
-                                pairId={currentPairId}
-                                gasPrices={gasPrices}
-                            />
-                            <Switch>
-                                <Route path='/positions'>
-                                    <PositionContainer wallet={wallet} />
-                                </Route>
-                                <Route path='/market'>
-                                    <MarketContainer marketData={marketData} />
-                                </Route>
-                                <Route path='/pair'>
-                                    <PairContainer
-                                        allPairs={allPairs}
-                                        prefetchedPairs={prefetchedPairs}
-                                        handleAddLiquidity={handleAddLiquidity}
-                                    />
-                                </Route>
-                                <Route path='/search'>
-                                    <SearchContainer allPairs={allPairs} />
-                                </Route>
-                                <Route path='/'>
-                                    <LandingContainer
-                                        topPairs={topPairs}
+        <ErrorBoundary
+            fallbackRender={({ error }) => <PageError errorMsg={error} />}
+        >
+            <Router>
+                <div className={classNames('app', 'dark')} id='app-wrap'>
+                    <div className='side-menu-wrapper'>
+                        <SideMenu
+                            wallet={wallet}
+                            setShowConnectWallet={setShowConnectWallet}
+                        />
+                    </div>
+                    <div className='app-body' id='app-body'>
+                        {currentError ? (
+                            <PageError errorMsg={currentError} />
+                        ) : (
+                            <>
+                                <ErrorBoundary FallbackComponent={ModalError}>
+                                    <ConnectWalletModal
+                                        show={showConnectWallet}
+                                        setShow={setShowConnectWallet}
                                         wallet={wallet}
-                                        gasPrices={gasPrices}
-                                        setShowConnectWallet={
-                                            setShowConnectWallet
-                                        }
-                                        handleAddLiquidity={handleAddLiquidity}
+                                        error={error}
+                                        {...restWalletProps}
                                     />
-                                </Route>
-                            </Switch>
-                        </>
-                    )}
+                                    <ManageLiquidityModal
+                                        show={showAddLiquidity}
+                                        setShow={setShowAddLiquidity}
+                                        wallet={wallet}
+                                        pairId={currentPairId}
+                                        gasPrices={gasPrices}
+                                    />
+                                </ErrorBoundary>
+                                <ErrorBoundary
+                                    fallbackRender={({ error }) => (
+                                        <PageError errorMsg={error} />
+                                    )}
+                                >
+                                    <Switch>
+                                        <Route path='/positions'>
+                                            <PositionContainer
+                                                wallet={wallet}
+                                            />
+                                        </Route>
+                                        <Route path='/market'>
+                                            <MarketContainer
+                                                marketData={marketData}
+                                            />
+                                        </Route>
+                                        <Route path='/pair'>
+                                            <PairContainer
+                                                allPairs={allPairs}
+                                                prefetchedPairs={
+                                                    prefetchedPairs
+                                                }
+                                                handleAddLiquidity={
+                                                    handleAddLiquidity
+                                                }
+                                            />
+                                        </Route>
+                                        <Route path='/search'>
+                                            <SearchContainer
+                                                allPairs={allPairs}
+                                            />
+                                        </Route>
+                                        <Route path='/'>
+                                            <LandingContainer
+                                                topPairs={topPairs}
+                                                wallet={wallet}
+                                                gasPrices={gasPrices}
+                                                setShowConnectWallet={
+                                                    setShowConnectWallet
+                                                }
+                                                handleAddLiquidity={
+                                                    handleAddLiquidity
+                                                }
+                                            />
+                                        </Route>
+                                    </Switch>
+                                </ErrorBoundary>
+                            </>
+                        )}
+                    </div>
                 </div>
-            </div>
-        </Router>
+            </Router>
+        </ErrorBoundary>
     );
 }
 

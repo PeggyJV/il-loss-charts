@@ -10,10 +10,10 @@ import { UniswapPair, MarketStats } from '@sommelier/shared-types';
 import { MarketData } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 import mixpanel from 'util/mixpanel';
-
+import {ErrorBoundary} from 'react-error-boundary';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { resolveLogo } from 'components/token-with-logo';
-import PageError from 'components/page-error';
+import { PageError, ComponentError } from 'components/page-error';
 
 function OverviewContainer({
     marketData,
@@ -44,7 +44,11 @@ function OverviewContainer({
                 of IL due to price fluctation relative to the total return of
                 the pool. Data since December 1.
             </p>
-            {marketData && <MarketDataTable data={marketData} />}
+            {marketData && (
+                <ErrorBoundary FallbackComponent={ComponentError}>
+                    <MarketDataTable data={marketData} />
+                </ErrorBoundary>
+            )}
         </div>
     );
 }
