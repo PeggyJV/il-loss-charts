@@ -235,11 +235,31 @@ function RemoveLiquidity({
             .parseUnits(exitAmount.toString(), 18)
             .toString();
 
+        // Call the contract and sign
+        let gasEstimate: ethers.BigNumber;
+
+        try {
+            gasEstimate = await removeLiquidityContract.estimateGas[
+                'divestEthPairToToken(address,address,uint256)'
+            ](pairData.id, exitAddress, baseLpTokens, {
+                gasPrice: baseGasPrice,
+                value: baseMsgValue, // flat fee sent to contract - 0.001 ETH
+            });
+
+            // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
+            gasEstimate = gasEstimate.mul(1.3);
+        } catch (err) {
+            // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
+            console.error(`Could not estimate gas: ${err.message as string}`)
+
+            gasEstimate = ethers.BigNumber.from('1000000');
+        }
+
         await removeLiquidityContract[
             'divestEthPairToToken(address,address,uint256)'
         ](pairData.id, exitAddress, baseLpTokens, {
             gasPrice: baseGasPrice,
-            gasLimit: '500000', // setting a high gas limit because it is hard to predict gas we will use
+            gasLimit: gasEstimate,
             value: baseMsgValue, // flat fee sent to contract - 0.0005 ETH
         });
 
