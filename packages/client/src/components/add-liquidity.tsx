@@ -55,7 +55,7 @@ function AddLiquidity({
     onDone: () => void | null
 }): JSX.Element | null {
     const [entryToken, setEntryToken] = useState<string>('ETH');
-    const [entryAmount, setEntryAmount] = useState<number>(0);
+    const [entryAmount, setEntryAmount] = useState<string>('');
     const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
@@ -70,7 +70,7 @@ function AddLiquidity({
 
     const resetForm = () => {
         setEntryToken('ETH');
-        setEntryAmount(0);
+        setEntryAmount('0');
         setSlippageTolerance(3.0);
     };
 
@@ -106,7 +106,7 @@ function AddLiquidity({
     }, [entryAmount, entryToken, balances]);
 
     useEffect(() => {
-        setEntryAmount(0);
+        setEntryAmount('');
     }, [entryToken]);
 
     const doApprove = async () => {
@@ -149,7 +149,7 @@ function AddLiquidity({
         }
 
         const baseAmount = ethers.utils
-            .parseUnits((entryAmount * 100).toString(), decimals)
+            .parseUnits(new BigNumber(entryAmount).times(100).toString(), decimals)
             .toString();
         const baseGasPrice = ethers.utils
             .parseUnits(currentGasPrice.toString(), 9)
@@ -288,6 +288,8 @@ function AddLiquidity({
         } else if (!entryAmount || new BigNumber(entryAmount).lte(0)) {
             return 'amountNotEntered';
         } else if (new BigNumber(entryAmount).gt(maxBalanceStr)) {
+            console.log('THIS IS ENTRY AMOUNT', entryAmount)
+            console.log('THIS IS MAX BALANCE', maxBalance)
             return 'insufficientFunds';
         } else if (new BigNumber(expectedPriceImpact).gt(slippageTolerance)) {
             return 'slippageTooHigh';
@@ -356,9 +358,12 @@ function AddLiquidity({
                             min='0'
                             placeholder='Amount'
                             value={entryAmount}
-                            type='number'
                             onChange={(e) => {
-                                setEntryAmount(parseFloat(e.target.value));
+                                const val = e.target.value;
+
+                                if (!val || !new BigNumber(val).isNaN()) {
+                                    setEntryAmount(val);
+                                }                            
                             }}
                         />
                         <DropdownButton

@@ -52,7 +52,7 @@ function RemoveLiquidity({
     onDone: () => void | null
 }): JSX.Element | null {
     const [exitToken, setExitToken] = useState<string>('ETH');
-    const [exitAmount, setExitAmount] = useState<number>(0);
+    const [exitAmount, setExitAmount] = useState<string>('0');
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
     );
@@ -61,7 +61,7 @@ function RemoveLiquidity({
 
     const resetForm = () => {
         setExitToken('ETH');
-        setExitAmount(0);
+        setExitAmount('');
     };
 
     const expectedExitToken = useMemo(() => {
@@ -156,7 +156,7 @@ function RemoveLiquidity({
     }, [exitAmount, balances]);
 
     useEffect(() => {
-        setExitAmount(0);
+        setExitAmount('');
     }, []);
 
     const doApprove = async () => {
@@ -184,7 +184,7 @@ function RemoveLiquidity({
         }
 
         const baseAmount = ethers.utils
-            .parseUnits((exitAmount * 100).toString(), decimals)
+            .parseUnits(new BigNumber(exitAmount).times(100).toString(), decimals)
             .toString();
         const baseGasPrice = ethers.utils
             .parseUnits(currentGasPrice.toString(), 9)
@@ -277,12 +277,12 @@ function RemoveLiquidity({
         const pairPosition = positionData.positions[pairData.id];
 
         if (!pairPosition) {
-            currentLpTokens = new BigNumber(0).toFixed(8);
+            currentLpTokens = new BigNumber(0).toFixed();
         } else {
             const lastPosition = pairPosition[pairPosition.length - 1];
             currentLpTokens = new BigNumber(
                 lastPosition.liquidityTokenBalance
-            ).toFixed(8);
+            ).toFixed();
         }
     }
 
@@ -369,9 +369,12 @@ function RemoveLiquidity({
                             min='0'
                             placeholder='Tokens To Liquidate'
                             value={exitAmount}
-                            type='number'
                             onChange={(e) => {
-                                setExitAmount(parseFloat(e.target.value));
+                                const val = e.target.value;
+
+                                if (!val || !new BigNumber(val).isNaN()) {
+                                    setExitAmount(val);
+                                }
                             }}
                         />
                     </Col>
@@ -427,7 +430,7 @@ function RemoveLiquidity({
                                     value={slippageTolerance}
                                     type='number'
                                     onChange={(e) => {
-                                        setSlippageTolerance(parseFloat(e.target.value))
+                                        setSlippageTolerance(e.target.value)
                                     }}
                                 />
                                 <InputGroup.Append>
