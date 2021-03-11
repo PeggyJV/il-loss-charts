@@ -100,6 +100,7 @@
     "devDependencies": {
         "@babel/eslint-parser": "^7.12.1",
         "@babel/plugin-proposal-class-properties": "^7.12.1",
+        "@sentry/cli": "^1.63.1",
         "@types/mixpanel-browser": "^2.35.4",
         "@types/react-bootstrap-table-next": "^4.0.10",
         "@types/react-burger-menu": "^2.6.2",
