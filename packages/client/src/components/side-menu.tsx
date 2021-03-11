@@ -41,6 +41,7 @@ function SideMenu({
             noOverlay={!isMobile}
             customCrossIcon={isMobile ? undefined : false}
             width={250}
+            disableCloseOnEsc={true}
             pageWrapId='app-body'
             outerContainerId='app-wrap'
             customBurgerIcon={isMobile ? undefined : false}
