@@ -1,6 +1,9 @@
 {
   "extends": "../tsconfig.settings.json",
   "compilerOptions": {
+    "sourceMap": true,
+    "inlineSources": true,
+    "sourceRoot": "/",
     "target": "es5",
     "lib": [
       "dom",
@@ -21,7 +24,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "baseUrl": "src"
-  },
+, "sentry-maps.js"  },
   "include": [
     "src"
   ]
