@@ -254,7 +254,7 @@ function AddLiquidity({
             });
 
             // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
-            gasEstimate = gasEstimate.mul(1.3);
+            gasEstimate = gasEstimate.add(gasEstimate.div(3));
         } catch (err) {
             // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
             console.error(`Could not estimate gas: ${err.message as string}`)
