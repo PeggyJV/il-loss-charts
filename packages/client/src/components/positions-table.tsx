@@ -98,12 +98,16 @@ function PositionsTable({
             : formatUSD(new BigNumber(val).toNumber());
 
     const formatReturnsUSD = (val: string | number) => {
-        if (Math.sign(Number(val)))
+        if (Math.sign(Number(val)) === -1)
             return (
-                <strong style={{ color: 'var(--bgMoon)' }}>{formatUSD(val)}</strong>
+                <strong className='pct-change-down'>{`${formatUSD(
+                    val
+                )} ↘`}</strong>
             );
 
-        return <span style={{ color: 'var(--bgDump)' }}>{formatUSD(val)}</span>;
+        return (
+            <strong className='pct-change-up'>{`${formatUSD(val)} ↗`}</strong>
+        );
     };
 
     const columns = [
