@@ -30,7 +30,11 @@ import {
     UniswapPair,
     Token,
 } from '@sommelier/shared-types';
-import { Wallet, WalletBalances, ManageLiquidityActionState } from 'types/states';
+import {
+    Wallet,
+    WalletBalances,
+    ManageLiquidityActionState,
+} from 'types/states';
 
 import { calculatePoolEntryData } from 'util/uniswap-pricing';
 
@@ -44,15 +48,15 @@ function AddLiquidity({
     positionData,
     gasPrices,
     balances,
-    onDone
+    onDone,
 }: {
     wallet: Wallet;
     provider: ethers.providers.Web3Provider | null;
     pairData: UniswapPair | null;
     positionData: LPPositionData<string> | null;
     gasPrices: EthGasPrices | null;
-    balances: WalletBalances
-    onDone: () => void | null
+    balances: WalletBalances;
+    onDone: () => void | null;
 }): JSX.Element | null {
     const [entryToken, setEntryToken] = useState<string>('ETH');
     const [entryAmount, setEntryAmount] = useState<string>('');
@@ -60,7 +64,9 @@ function AddLiquidity({
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
     );
-    const [approvalState, setApprovalState] = useState<'needed' | 'pending' | 'done'>('needed');
+    const [approvalState, setApprovalState] = useState<
+        'needed' | 'pending' | 'done'
+    >('needed');
     const [txSubmitted, setTxSubmitted] = useState(false);
     const maxBalance = balances[entryToken]?.balance;
     const maxBalanceStr = ethers.utils.formatUnits(
@@ -78,7 +84,7 @@ function AddLiquidity({
         expectedLpTokens,
         expectedPoolToken0,
         expectedPoolToken1,
-        expectedPriceImpact
+        expectedPriceImpact,
     } = calculatePoolEntryData(pairData, entryToken, entryAmount);
 
     useEffect(() => {
@@ -101,7 +107,7 @@ function AddLiquidity({
             setApprovalState('needed');
         } else {
             // else make it done
-            setApprovalState('done')
+            setApprovalState('done');
         }
     }, [entryAmount, entryToken, balances]);
 
@@ -156,15 +162,19 @@ function AddLiquidity({
             .toString();
 
         // Approve the add liquidity contract to spend entry tokens
-        const txResponse = await sellTokenContract.approve(EXCHANGE_ADD_ABI_ADDRESS, baseAmount, {
-            gasPrice: baseGasPrice,
-            gasLimit: '200000', // setting a high gas limit because it is hard to predict gas we will use
-        });
+        const txResponse = await sellTokenContract.approve(
+            EXCHANGE_ADD_ABI_ADDRESS,
+            baseAmount,
+            {
+                gasPrice: baseGasPrice,
+                gasLimit: '200000', // setting a high gas limit because it is hard to predict gas we will use
+            }
+        );
 
         setApprovalState('pending');
         await provider.waitForTransaction(txResponse.hash);
         setApprovalState('done');
-    }
+    };
 
     const doAddLiquidity = async () => {
         if (!pairData || !provider) return;
@@ -236,7 +246,7 @@ function AddLiquidity({
                 entryToken,
                 pair: pairAddress,
                 slippageTolerance,
-                wallet: wallet.account
+                wallet: wallet.account,
             });
         } catch (e) {
             console.error(`Metrics error on add liquidity.`);
@@ -299,9 +309,11 @@ function AddLiquidity({
             return 'needsApproval';
         } else if (approvalState === 'pending') {
             return 'waitingApproval';
-        } else if (new BigNumber(entryAmount).lte(maxBalanceStr) &&
-            new BigNumber(entryAmount).gt(0)) {
-            return 'needsSubmit'
+        } else if (
+            new BigNumber(entryAmount).lte(maxBalanceStr) &&
+            new BigNumber(entryAmount).gt(0)
+        ) {
+            return 'needsSubmit';
         } else {
             return 'unknown';
         }
@@ -314,18 +326,14 @@ function AddLiquidity({
         expectedPriceImpact,
         slippageTolerance,
         txSubmitted,
-        approvalState
+        approvalState,
     ]);
 
-
     if (!wallet || !provider || !pairData) {
-        return (
-            <p className='centered'>Connect your wallet to continue.</p>
-        );
+        return <p className='centered'>Connect your wallet to continue.</p>;
     }
 
     let currentLpTokens: string | null = null;
-
 
     if (!maxBalance || !pairData) {
         return null;
@@ -344,7 +352,9 @@ function AddLiquidity({
         }
     }
 
-    const dropdownOptions = Object.values(balances).filter((balance) => balance.id !== pairData.id);
+    const dropdownOptions = Object.values(balances).filter(
+        (balance) => balance.id !== pairData.id
+    );
 
     return (
         <>
@@ -353,6 +363,14 @@ function AddLiquidity({
                     <Form.Label>
                         <strong>Available {entryToken}:</strong> {maxBalanceStr}
                     </Form.Label>
+                    &nbsp;&nbsp;
+                    <button className='btn-neutral'
+                        onClick={() =>
+                            setEntryAmount(parseFloat(maxBalanceStr))
+                        }
+                    >
+                        Max
+                    </button>
                     <InputGroup>
                         <FormControl
                             min='0'
@@ -410,7 +428,10 @@ function AddLiquidity({
                     </p>
                     <p>
                         <strong>Price Impact:</strong>{' '}
-                        {expectedPriceImpact !== 'NaN' ? expectedPriceImpact : 0}%
+                        {expectedPriceImpact !== 'NaN'
+                            ? expectedPriceImpact
+                            : 0}
+                        %
                     </p>
                 </Card>
                 <br />
@@ -431,7 +452,9 @@ function AddLiquidity({
                                     value={slippageTolerance}
                                     type='number'
                                     onChange={(e) => {
-                                        setSlippageTolerance(parseFloat(e.target.value))
+                                        setSlippageTolerance(
+                                            parseFloat(e.target.value)
+                                        );
                                     }}
                                 />
                                 <InputGroup.Append>
@@ -482,14 +505,15 @@ function AddLiquidity({
                         </Form.Group>
                     )}
                 </Card>
-                {new BigNumber(pairData.reserveUSD).lt(2000000) &&
+                {new BigNumber(pairData.reserveUSD).lt(2000000) && (
                     <div className='warn-well'>
                         <p>
-                            <strong>Warning: </strong> Low liquidity pairs can experience high slippage
-                            at low entry amounts. Be careful when using high slippage tolerance.
+                            <strong>Warning: </strong> Low liquidity pairs can
+                            experience high slippage at low entry amounts. Be
+                            careful when using high slippage tolerance.
                         </p>
                     </div>
-                }
+                )}
             </Modal.Body>
             <Modal.Footer className='manage-liquidity-modal-footer'>
                 <AddLiquidityActionButton
