@@ -433,9 +433,6 @@ export async function calculateStatsForPositions(
             statsArr.push(lpStats);
         }
 
-
-        console.log('PAIR', pairId, 'CURRENT', fetchCurrent)
-
         if (fetchCurrent) {
             const prevSnapshot =
                 positionSnapshots[positionSnapshots.length - 1];
@@ -443,11 +440,10 @@ export async function calculateStatsForPositions(
             // also calculate final window until now
             let historicalDataBetween = sliceHistoricalData(
                 prevSnapshot.timestamp,
-                Math.floor(endDate.getTime() / 1000)
+                Math.floor(endDateDayEnd.getTime() / 1000)
             );
 
             if (historicalDataBetween.length < 7) {
-                console.log('FETCH HOURLY', pairId);
                 // If within the same week, we should try to get hourlies
                 // So try to get hourlies - if within the same hour, we can't get data
                 const oneHourMs = 60 * 60 * 1000;
