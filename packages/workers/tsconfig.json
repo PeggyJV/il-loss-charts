@@ -4,7 +4,13 @@
         "composite": true,
         "outDir": "dist",
         "rootDir": "src",
-        "baseUrl": "./src"
+        "baseUrl": "./src",
+        "paths": {
+            "*": [
+                "*",
+                "../server/*"
+            ]
+        }
     },
     "include": [
         "src"

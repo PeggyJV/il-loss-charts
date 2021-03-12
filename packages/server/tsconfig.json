@@ -4,7 +4,12 @@
         "composite": true,
         "outDir": "dist",
         "rootDir": "src",
-        "baseUrl": "./src"
+        "baseUrl": "./src",
+        "plugins": [
+            {
+                "transform": "@zerollup/ts-transform-paths"
+            }
+        ]
     },
     "include": [
         "src"

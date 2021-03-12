@@ -14,7 +14,7 @@
     "scripts": {
         "start": "NODE_PATH=dist/ node dist/index.js",
         "clean": "rimraf dist *.tsbuildinfo",
-        "build": "tsc && yarn build:copy",
+        "build": "ttsc && yarn build:copy",
         "build:watch": "ts-node -C build.ts && tsc -w",
         "build:copy": "cp -R src/docs/ dist/docs/",
         "dev": "nodemon src/index.ts | pino-pretty",
