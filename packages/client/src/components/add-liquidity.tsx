@@ -155,7 +155,10 @@ function AddLiquidity({
         }
 
         const baseAmount = ethers.utils
-            .parseUnits(new BigNumber(entryAmount).times(100).toString(), decimals)
+            .parseUnits(
+                new BigNumber(entryAmount).times(100).toString(),
+                decimals
+            )
             .toString();
         const baseGasPrice = ethers.utils
             .parseUnits(currentGasPrice.toString(), 9)
@@ -267,11 +270,11 @@ function AddLiquidity({
             gasEstimate = gasEstimate.add(gasEstimate.div(3));
         } catch (err) {
             // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
-            console.error(`Could not estimate gas: ${err.message as string}`)
+            console.error(`Could not estimate gas: ${err.message as string}`);
 
             gasEstimate = ethers.BigNumber.from('1000000');
         }
-        
+
         await addLiquidityContract[
             'investTokenForEthPair(address,address,uint256,uint256)'
         ](sellToken, pairAddress, baseAmount, baseMinPoolTokens, {
@@ -298,8 +301,8 @@ function AddLiquidity({
         } else if (!entryAmount || new BigNumber(entryAmount).lte(0)) {
             return 'amountNotEntered';
         } else if (new BigNumber(entryAmount).gt(maxBalanceStr)) {
-            console.log('THIS IS ENTRY AMOUNT', entryAmount)
-            console.log('THIS IS MAX BALANCE', maxBalance)
+            console.log('THIS IS ENTRY AMOUNT', entryAmount);
+            console.log('THIS IS MAX BALANCE', maxBalance);
             return 'insufficientFunds';
         } else if (new BigNumber(expectedPriceImpact).gt(slippageTolerance)) {
             return 'slippageTooHigh';
@@ -364,10 +367,9 @@ function AddLiquidity({
                         <strong>Available {entryToken}:</strong> {maxBalanceStr}
                     </Form.Label>
                     &nbsp;&nbsp;
-                    <button className='btn-neutral'
-                        onClick={() =>
-                            setEntryAmount(parseFloat(maxBalanceStr))
-                        }
+                    <button
+                        className='btn-neutral'
+                        onClick={() => setEntryAmount(maxBalanceStr)}
                     >
                         Max
                     </button>
@@ -381,7 +383,7 @@ function AddLiquidity({
 
                                 if (!val || !new BigNumber(val).isNaN()) {
                                     setEntryAmount(val);
-                                }                            
+                                }
                             }}
                         />
                         <DropdownButton

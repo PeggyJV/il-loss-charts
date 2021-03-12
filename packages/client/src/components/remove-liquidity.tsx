@@ -21,15 +21,20 @@ import mixpanel from 'util/mixpanel';
 import erc20Abi from 'constants/abis/erc20.json';
 import exchangeRemoveAbi from 'constants/abis/volumefi_remove_liquidity_uniswap.json';
 
-const EXCHANGE_REMOVE_ABI_ADDRESS = '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
+const EXCHANGE_REMOVE_ABI_ADDRESS =
+    '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
 
 import {
     EthGasPrices,
     LPPositionData,
     UniswapPair,
-    Token
+    Token,
 } from '@sommelier/shared-types';
-import { Wallet, WalletBalances, ManageLiquidityActionState } from 'types/states';
+import {
+    Wallet,
+    WalletBalances,
+    ManageLiquidityActionState,
+} from 'types/states';
 
 import TokenWithLogo, { resolveLogo } from 'components/token-with-logo';
 import { RemoveLiquidityActionButton } from 'components/liquidity-action-button';
@@ -41,27 +46,29 @@ function RemoveLiquidity({
     positionData,
     gasPrices,
     balances,
-    onDone
+    onDone,
 }: {
     wallet: Wallet;
     provider: ethers.providers.Web3Provider | null;
     pairData: UniswapPair | null;
     positionData: LPPositionData<string> | null;
     gasPrices: EthGasPrices | null;
-    balances: WalletBalances
-    onDone: () => void | null
+    balances: WalletBalances;
+    onDone: () => void | null;
 }): JSX.Element | null {
     const [exitToken, setExitToken] = useState<string>('ETH');
     const [exitAmount, setExitAmount] = useState<string>('0');
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
     );
-    const [approvalState, setApprovalState] = useState<'needed' | 'pending' | 'done'>('needed');
+    const [approvalState, setApprovalState] = useState<
+        'needed' | 'pending' | 'done'
+    >('needed');
     const [txSubmitted, setTxSubmitted] = useState(false);
 
     const resetForm = () => {
         setExitToken('ETH');
-        setExitAmount('');
+        setExitAmount('0');
     };
 
     const expectedExitToken = useMemo(() => {
@@ -69,50 +76,72 @@ function RemoveLiquidity({
 
         const pctShare = new BigNumber(exitAmount).div(pairData.totalSupply);
         // Calculate amount of base token one will get, plus swap data
-        
+
         const symbol0 = pairData.token0.symbol;
         const symbol1 = pairData.token1.symbol;
 
-        const currentInvariant = new BigNumber(pairData.reserve0).times(pairData.reserve1);
+        const currentInvariant = new BigNumber(pairData.reserve0).times(
+            pairData.reserve1
+        );
 
-        if (exitToken === symbol0 || (symbol0 === 'WETH' && exitToken === 'ETH')) {
+        if (
+            exitToken === symbol0 ||
+            (symbol0 === 'WETH' && exitToken === 'ETH')
+        ) {
             // We want to sell symbol1 to get symbol0
             let expectedToken0 = pctShare.times(pairData.reserve0);
             const expectedToken1 = pctShare.times(pairData.reserve1);
 
             // Deduct fee from amount we can swap
             const purchasingPower = new BigNumber(0.997).times(expectedToken1);
-            const updatedReserve1 = new BigNumber(pairData.reserve1).plus(purchasingPower);
+            const updatedReserve1 = new BigNumber(pairData.reserve1).plus(
+                purchasingPower
+            );
             const updatedReserve0 = currentInvariant.div(updatedReserve1);
             // const newPriceRatio = updatedReserve0.div(updatedReserve1);
 
-            const expectedAdditionalToken0 = updatedReserve0.minus(pairData.reserve0).times(-1).toFixed(4);
+            const expectedAdditionalToken0 = updatedReserve0
+                .minus(pairData.reserve0)
+                .times(-1)
+                .toFixed(4);
             const invariantAfterSwap = updatedReserve0.times(updatedReserve1);
 
             if (invariantAfterSwap.toFixed(4) !== currentInvariant.toFixed(4)) {
                 // throw new Error(`Swap expectations do not meet invariant - old ${currentInvariant.toFixed(4)} - new ${invariantAfterSwap.toFixed(4)}`);
-                console.warn(`Swap expectations do not meet invariant - old ${currentInvariant.toFixed()} - new ${invariantAfterSwap.toFixed()}`);
+                console.warn(
+                    `Swap expectations do not meet invariant - old ${currentInvariant.toFixed()} - new ${invariantAfterSwap.toFixed()}`
+                );
             }
 
             expectedToken0 = expectedToken0.plus(expectedAdditionalToken0);
             return expectedToken0.toFixed(4);
-        } else if (exitToken === symbol1 || (symbol1 === 'WETH' && exitToken === 'ETH')) {
+        } else if (
+            exitToken === symbol1 ||
+            (symbol1 === 'WETH' && exitToken === 'ETH')
+        ) {
             // We want to sell symbol0 to get symbol1
             const expectedToken0 = pctShare.times(pairData.reserve0);
             let expectedToken1 = pctShare.times(pairData.reserve1);
 
             // Deduct fee from amount we can swap
             const purchasingPower = new BigNumber(0.997).times(expectedToken0);
-            const updatedReserve0 = new BigNumber(pairData.reserve0).plus(purchasingPower);
+            const updatedReserve0 = new BigNumber(pairData.reserve0).plus(
+                purchasingPower
+            );
             const updatedReserve1 = currentInvariant.div(updatedReserve0);
             // const newPriceRatio = updatedReserve0.div(updatedReserve1);
 
-            const expectedAdditionalToken1 = updatedReserve1.minus(pairData.reserve1).times(-1).toFixed(4);
+            const expectedAdditionalToken1 = updatedReserve1
+                .minus(pairData.reserve1)
+                .times(-1)
+                .toFixed(4);
             const invariantAfterSwap = updatedReserve0.times(updatedReserve1);
 
             if (invariantAfterSwap.toFixed(4) !== currentInvariant.toFixed(4)) {
                 // throw new Error(`Swap expectations do not meet invariant - old ${currentInvariant.toFixed(4)} - new ${invariantAfterSwap.toFixed(4)}`);
-                console.warn(`Swap expectations do not meet invariant - old ${currentInvariant.toFixed()} - new ${invariantAfterSwap.toFixed()}`);
+                console.warn(
+                    `Swap expectations do not meet invariant - old ${currentInvariant.toFixed()} - new ${invariantAfterSwap.toFixed()}`
+                );
             }
 
             expectedToken1 = expectedToken1.plus(expectedAdditionalToken1);
@@ -123,15 +152,17 @@ function RemoveLiquidity({
             const owedEth = pctShare.times(pairData.trackedReserveETH);
             return owedEth.toFixed(4);
         } else {
-            console.warn(`Exit token ${exitToken} does not belong to pair - could not calculate price impact`);
+            console.warn(
+                `Exit token ${exitToken} does not belong to pair - could not calculate price impact`
+            );
             return '0';
         }
         // If we are selling X LP tokens,
         // we need to figure out the LP share
-        // then figure out the amount of tokens that belong to that share 
+        // then figure out the amount of tokens that belong to that share
     }, [exitToken, exitAmount, pairData, positionData]);
 
-    let currentLpTokens: string | null = null;
+    let currentLpTokens = '0';
 
     useEffect(() => {
         // No need to check allowances for ETH
@@ -151,12 +182,12 @@ function RemoveLiquidity({
             setApprovalState('needed');
         } else {
             // else make it done
-            setApprovalState('done')
+            setApprovalState('done');
         }
     }, [exitAmount, balances]);
 
     useEffect(() => {
-        setExitAmount('');
+        setExitAmount('0');
     }, []);
 
     const doApprove = async () => {
@@ -170,11 +201,7 @@ function RemoveLiquidity({
         const signer = provider.getSigner();
         // // Create read-write contract instance
 
-        const pairContract = new ethers.Contract(
-            pairData.id,
-            erc20Abi,
-            signer
-        );
+        const pairContract = new ethers.Contract(pairData.id, erc20Abi, signer);
 
         const decimals = parseInt(balances.currentPair?.decimals || '0', 10);
         if (decimals === 0) {
@@ -184,22 +211,29 @@ function RemoveLiquidity({
         }
 
         const baseAmount = ethers.utils
-            .parseUnits(new BigNumber(exitAmount).times(100).toString(), decimals)
+            .parseUnits(
+                new BigNumber(exitAmount).times(100).toString(),
+                decimals
+            )
             .toString();
         const baseGasPrice = ethers.utils
             .parseUnits(currentGasPrice.toString(), 9)
             .toString();
 
         // // Approve the add liquidity contract to spend entry tokens
-        const txResponse = await pairContract.approve(EXCHANGE_REMOVE_ABI_ADDRESS, baseAmount, {
-            gasPrice: baseGasPrice,
-            gasLimit: '200000', // setting a high gas limit because it is hard to predict gas we will use
-        });
+        const txResponse = await pairContract.approve(
+            EXCHANGE_REMOVE_ABI_ADDRESS,
+            baseAmount,
+            {
+                gasPrice: baseGasPrice,
+                gasLimit: '200000', // setting a high gas limit because it is hard to predict gas we will use
+            }
+        );
 
         setApprovalState('pending');
         await provider.waitForTransaction(txResponse.hash);
         setApprovalState('done');
-    }
+    };
 
     const doRemoveLiquidity = async () => {
         if (!pairData || !provider || !currentLpTokens) return;
@@ -250,7 +284,7 @@ function RemoveLiquidity({
             gasEstimate = gasEstimate.add(gasEstimate.div(3));
         } catch (err) {
             // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
-            console.error(`Could not estimate gas: ${err.message as string}`)
+            console.error(`Could not estimate gas: ${err.message as string}`);
 
             gasEstimate = ethers.BigNumber.from('1000000');
         }
@@ -271,7 +305,7 @@ function RemoveLiquidity({
             resetForm();
             onDone?.();
         }, 1000);
-    }
+    };
 
     if (positionData && pairData) {
         const pairPosition = positionData.positions[pairData.id];
@@ -301,8 +335,10 @@ function RemoveLiquidity({
             return 'needsApproval';
         } else if (approvalState === 'pending') {
             return 'waitingApproval';
-        } else if (new BigNumber(exitAmount).lte(currentLpTokens || 0) &&
-            new BigNumber(exitAmount).gt(0)) {
+        } else if (
+            new BigNumber(exitAmount).lte(currentLpTokens || 0) &&
+            new BigNumber(exitAmount).gt(0)
+        ) {
             return 'needsSubmit';
         } else {
             return 'unknown';
@@ -313,16 +349,16 @@ function RemoveLiquidity({
         currentLpTokens,
         exitAmount,
         txSubmitted,
-        approvalState
+        approvalState,
     ]);
 
     if (!wallet || !provider || !pairData) {
-        return (
-            <p className='centered'>Connect your wallet to continue.</p>
-        );
+        return <p className='centered'>Connect your wallet to continue.</p>;
     }
 
-    const renderPairText = (pair: string | { id: string; symbol: string }): string => {
+    const renderPairText = (
+        pair: string | { id: string; symbol: string }
+    ): string => {
         // If pair is string, it's typed in so return
         if (typeof pair === 'string') return pair;
 
@@ -346,19 +382,29 @@ function RemoveLiquidity({
         return (
             <Modal.Body className='connect-wallet-modal'>
                 <Container className='error-container'>
-                    No LP position in {pairData.token0.symbol}/{pairData.token1.symbol}.
+                    No LP position in {pairData.token0.symbol}/
+                    {pairData.token1.symbol}.
                 </Container>
             </Modal.Body>
         );
     }
 
-    const exitOptions = Object.values(balances).filter((balance) => balance.id !== pairData.id);
+    const exitOptions = Object.values(balances).filter(
+        (balance) => balance.id !== pairData.id
+    );
 
     return (
         <>
             <Modal.Body className='connect-wallet-modal'>
                 <Form.Label className='align-right'>
                     <strong>Available LP Tokens:</strong> {currentLpTokens}
+                    &nbsp;&nbsp;
+                    <button
+                        className='btn-neutral'
+                        onClick={() => setExitAmount(currentLpTokens)}
+                    >
+                        Max
+                    </button>
                 </Form.Label>
                 <Form.Group as={Row}>
                     <Form.Label column sm={6}>
