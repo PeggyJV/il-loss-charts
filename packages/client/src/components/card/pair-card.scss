@@ -64,9 +64,12 @@
     border: 1px solid var(--btnMoonBorder);
     border-radius: 2px;
     background: var(--btnMoon);
-    &:hover {
+    &:hover,:active,:focus {
       background: var(--btnMoonHover);
 
     }
-    background: rgb(3,88,27);
+    &:focus {
+      outline: none;
+      box-shadow: 0;
+    }
 }

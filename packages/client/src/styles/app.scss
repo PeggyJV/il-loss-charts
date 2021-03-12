@@ -74,6 +74,25 @@ p {
     margin: 1rem 0;
 }
 
+.btn-neutral {
+    padding: 0.25rem 0.5rem;
+    font-family: 'Source Sans Pro';
+    color: var(--faceDeep);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid var(--btnInfoBorder);
+    border-radius: 2px;
+    background: var(--btnInfo);
+    &:hover,:active,:focus {
+      background: var(--btnInfoHover);
+    }
+    &:focus {
+      outline: none;
+      box-shadow: 0;
+    }
+}
+
 .wine-bounce {
     font-size: 5rem;
     animation-duration: 2s;
