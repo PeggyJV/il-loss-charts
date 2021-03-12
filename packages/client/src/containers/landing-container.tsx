@@ -106,7 +106,6 @@ function LandingContainer({
                     Trade at your own risk. All calculated returns include
                     Impermanent Loss.
                 </p>
-                <p>*All calculated returns include Impermanent Loss.</p>
             </div>
             {wallet.account && positionData && (
                 <>

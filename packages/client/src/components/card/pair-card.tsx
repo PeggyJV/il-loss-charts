@@ -53,6 +53,7 @@ export const PairCard = ({
     handleAddLiquidity: (pairId: string) => void;
 }): JSX.Element => {
     const multiplier = mode === 'daily' ? 365 : 52;
+    const shouldShowAddl = pairStats.token0.symbol === 'WETH' || pairStats.token1.symbol === 'WETH';
 
     return (
         <div className='pair-card'>
@@ -72,14 +73,16 @@ export const PairCard = ({
                         </span>
                     </div>
                 </div>
-                <button
-                    className='btn-addl'
-                    onClick={() => {
-                        handleAddLiquidity(pairStats.id);
-                    }}
-                >
-                    ADDL
-                </button>
+                {shouldShowAddl &&
+                    <button
+                        className='btn-addl'
+                        onClick={() => {
+                            handleAddLiquidity(pairStats.id);
+                        }}
+                    >
+                        ADDL
+                    </button>
+                }
             </div>
         </div>
     );

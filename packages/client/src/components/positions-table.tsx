@@ -64,10 +64,10 @@ function PositionsTable({
                     token0: pair.token0,
                     token1: pair.token1,
                 },
-                impermanentLoss: stats[pairId].aggregatedStats.impermanentLoss,
+                impermanentLoss: stats[pairId]?.aggregatedStats?.impermanentLoss ?? '-',
                 liquidity,
-                fees: stats[pairId].aggregatedStats.totalFees,
-                returnsUSD: stats[pairId].aggregatedStats.totalReturn,
+                fees: stats[pairId]?.aggregatedStats?.totalFees ?? '-' ,
+                returnsUSD: stats[pairId]?.aggregatedStats?.totalReturn ?? '-',
                 action: { id: pairId },
             };
         })
@@ -98,6 +98,8 @@ function PositionsTable({
             : formatUSD(new BigNumber(val).toNumber());
 
     const formatReturnsUSD = (val: string | number) => {
+        if (val === '-') return val;
+
         if (Math.sign(Number(val)))
             return (
                 <strong style={{ color: 'var(--bgMoon)' }}>{formatUSD(val)}</strong>
@@ -105,6 +107,11 @@ function PositionsTable({
 
         return <span style={{ color: 'var(--bgDump)' }}>{formatUSD(val)}</span>;
     };
+
+    const formatUSDorNA = (val: string): string => {
+        if (val === '-') return val;
+        return formatUSD(val);
+    }
 
     const columns = [
         {
@@ -127,13 +134,13 @@ function PositionsTable({
             dataField: 'fees',
             text: 'Fees Collected',
             sort: true,
-            formatter: formatUSD,
+            formatter: formatUSDorNA,
         },
         {
             dataField: 'impermanentLoss',
             text: 'Impermanent Loss',
             sort: true,
-            formatter: formatUSD,
+            formatter: formatUSDorNA,
         },
         {
             dataField: 'returnsUSD',

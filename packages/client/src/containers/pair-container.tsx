@@ -357,6 +357,8 @@ function PairContainer({
         );
     }
 
+    const shouldShowAddl = lpInfo.pairData?.token0.symbol === 'WETH' || lpInfo.pairData?.token1?.symbol === 'WETH';
+
     return (
         <div>
             <h4 className='heading-main'>Impermanent Loss Calculator</h4>
@@ -366,7 +368,6 @@ function PairContainer({
                     Trade at your own risk. All calculated returns include
                     Impermanent Loss.
                 </p>
-                <p>*All calculated returns include Impermanent Loss.</p>
             </div>
             
             <PairSearch pairs={allPairs.pairs} setPair={setPairId} />
@@ -385,12 +386,14 @@ function PairContainer({
                             defaultWindow={timeWindow}
                             setWindow={setWindow}
                         />
-                        <button
-                            className='btn-addl'
-                            onClick={() => handleAddLiquidity(pairId)}
-                        >
-                            MANAGE LIQUIDITY
-                        </button>
+                        {shouldShowAddl &&
+                            <button
+                                className='btn-addl'
+                                onClick={() => handleAddLiquidity(pairId)}
+                            >
+                                MANAGE LIQUIDITY
+                            </button>
+                        }
                     </div>
                 </div>
                 <div className='lp-input-with-stats'>
