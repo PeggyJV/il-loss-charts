@@ -122,3 +122,6 @@ dist
 
 # VS Code
 .vscode
+
+# JetBrains IDE files
+.idea
