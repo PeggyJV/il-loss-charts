@@ -14,12 +14,14 @@
         "lint": "eslint src --ext js,ts",
         "clean": "rimraf dist *.tsbuildinfo",
         "build": "tsc",
-        "worker:alerts": "ts-node src/scripts/il-alerts.ts"
+        "worker:alerts": "ts-node src/scripts/il-alerts.ts",
+        "worker:discord": "ts-node src/scripts/il-alerts-discord.ts"
     },
     "keywords": [],
     "author": "",
     "dependencies": {
         "@sommelier/data-service": "^1.0.0",
-        "@sommelier/shared-types": "^1.0.0"
+        "@sommelier/shared-types": "^1.0.0",
+        "discord.js": "^12.5.1"
     }
 }
