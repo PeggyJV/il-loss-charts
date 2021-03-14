@@ -138,18 +138,21 @@ export default function useWallet(): {
 
     const connectWalletConnect = async () => {
         await wcProvider.enable();
+        const walletObj: Wallet = {
+            account: wcProvider.accounts[0],
+            providerName: 'walletconnect',
+            provider: wcProvider,
+        };
 
         // If provider is different, sest to the WC wallet
         if (wallet.provider !== 'walletconnect') {
-            setWallet({
-                account: wcProvider.accounts[0],
-                providerName: 'walletconnect',
-                provider: wcProvider,
-            });
+            mixpanel.track('wallet:connect', walletObj);
+            setWallet(walletOb);
         }
     };
 
     const disconnectWallet = () => {
+        mixpanel.track('wallet:disconnect', { provider: wcProvider });
         setWallet({ account: null, providerName: null, provider: null });
         cookies.remove('current_wallet');
     };
