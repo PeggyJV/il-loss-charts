@@ -6,7 +6,7 @@ import { Link, useHistory } from 'react-router-dom';
 import {
     Token,
     LPPositionData,
-    UniswapPair,
+    IUniswapPair,
     MarketStats,
 } from '@sommelier/shared-types';
 
@@ -73,7 +73,7 @@ function PositionsTable({
         })
         .sort((a, b) => parseInt(b.liquidity, 10) - parseInt(a.liquidity, 10));
 
-    const formatPair = ({ id, token0, token1 }: UniswapPair) => {
+    const formatPair = ({ id, token0, token1 }: IUniswapPair) => {
         return (
             <span>
                 {resolveLogo(token0.id)}{' '}

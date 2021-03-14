@@ -27,7 +27,7 @@ const EXCHANGE_REMOVE_ABI_ADDRESS =
 import {
     EthGasPrices,
     LPPositionData,
-    UniswapPair,
+    IUniswapPair,
     Token,
 } from '@sommelier/shared-types';
 import {
@@ -50,7 +50,7 @@ function RemoveLiquidity({
 }: {
     wallet: Wallet;
     provider: ethers.providers.Web3Provider | null;
-    pairData: UniswapPair | null;
+    pairData: IUniswapPair | null;
     positionData: LPPositionData<string> | null;
     gasPrices: EthGasPrices | null;
     balances: WalletBalances;

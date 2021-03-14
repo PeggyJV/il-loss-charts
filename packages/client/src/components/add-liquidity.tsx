@@ -27,7 +27,7 @@ const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
 import {
     EthGasPrices,
     LPPositionData,
-    UniswapPair,
+    IUniswapPair,
     Token,
 } from '@sommelier/shared-types';
 import {
@@ -52,7 +52,7 @@ function AddLiquidity({
 }: {
     wallet: Wallet;
     provider: ethers.providers.Web3Provider | null;
-    pairData: UniswapPair | null;
+    pairData: IUniswapPair | null;
     positionData: LPPositionData<string> | null;
     gasPrices: EthGasPrices | null;
     balances: WalletBalances;

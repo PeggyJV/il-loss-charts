@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import pLimit from 'p-limit';
 import BigNumber from 'bignumber.js';
 
-import { UniswapPair } from '@sommelier/shared-types';
+import { IUniswapPair } from '@sommelier/shared-types';
 import { PrefetchedPairState } from 'types/states';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
@@ -12,9 +12,9 @@ const CONCURRENCY = 5;
 const limit = pLimit(CONCURRENCY);
 
 export default function usePrefetch(
-    pairs: UniswapPair[] | null
-): [PrefetchedPairState | null, (pairs: UniswapPair[]) => void] {
-    const [pairsToFetch, setPairsToFetch] = useState<UniswapPair[] | null>(
+    pairs: IUniswapPair[] | null
+): [PrefetchedPairState | null, (pairs: IUniswapPair[]) => void] {
+    const [pairsToFetch, setPairsToFetch] = useState<IUniswapPair[] | null>(
         pairs
     );
 

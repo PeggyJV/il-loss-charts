@@ -4,7 +4,7 @@ import { Combobox } from 'react-widgets';
 import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
 
-import { UniswapPair, LPPositionData } from '@sommelier/shared-types';
+import { IUniswapPair, LPPositionData } from '@sommelier/shared-types';
 
 import { Pair, PositionData, LPStats, DailyData, HourlyData } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
@@ -12,7 +12,7 @@ import { formatUSD } from 'util/formats';
 import TokenWithLogo from 'components/token-with-logo';
 
 function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionData }: {
-    pairs: UniswapPair[],
+    pairs: IUniswapPair[],
     currentPairId: string,
     setPair: (pairId: string) => void,
     isLoading: boolean,
@@ -37,7 +37,7 @@ function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionDa
         if (currentValue?.id) setPair(currentValue.id);
     }, [currentValue, setPair]);
 
-    const getPositionText = (pair: UniswapPair) => {
+    const getPositionText = (pair: IUniswapPair) => {
         const allPositions = positionData.positions[pair.id];
         const mostRecentPosition = allPositions[allPositions.length - 1];
         const tokenBalance = new BigNumber(mostRecentPosition.liquidityTokenBalance);
@@ -52,7 +52,7 @@ function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionDa
         }
     };
 
-    const PairItem = (listItem: { item: UniswapPair, value: UniswapPair }) => {
+    const PairItem = (listItem: { item: IUniswapPair, value: IUniswapPair }) => {
         return (
             <span>
                 {TokenWithLogo('left')(listItem)}/{TokenWithLogo('right')(listItem, 'right')}{' '}
@@ -61,7 +61,7 @@ function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionDa
         );
     };
 
-    const renderPairText = (pair: string | UniswapPair) => {
+    const renderPairText = (pair: string | IUniswapPair) => {
         if (typeof pair === 'string') return pair;
         return `${pair.token0.symbol}/${pair.token1.symbol} (${getPositionText(pair)})`;
     }

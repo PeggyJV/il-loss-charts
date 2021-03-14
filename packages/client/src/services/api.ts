@@ -1,6 +1,6 @@
 import {
     MarketStats,
-    UniswapPair,
+    IUniswapPair,
     UniswapSwap,
     UniswapMintOrBurn,
     UniswapDailyData,
@@ -29,12 +29,12 @@ const shouldRetryError = (error: string) => {
 export class UniswapApiFetcher extends OfflineFetcher {
     static async getPairOverview(
         pairId: string
-    ): Promise<ApiResponse<UniswapPair>> {
+    ): Promise<ApiResponse<IUniswapPair>> {
         if (useOffline) return OfflineFetcher.getPairOverview(pairId);
 
         const response = await fetch(`/api/v1/uniswap/pairs/${pairId}`);
         const { data, error } = await (response.json() as Promise<
-            ApiResponse<UniswapPair>
+            ApiResponse<IUniswapPair>
         >);
 
         if (error && shouldRetryError(error)) {
@@ -89,12 +89,12 @@ export class UniswapApiFetcher extends OfflineFetcher {
 
     static async getTopPairs(
         count = 1000
-    ): Promise<ApiResponse<UniswapPair[]>> {
+    ): Promise<ApiResponse<IUniswapPair[]>> {
         if (useOffline) return OfflineFetcher.getTopPairs(count);
 
         const response = await fetch(`/api/v1/uniswap/pairs?count=${count}`);
         const { data, error } = await (response.json() as Promise<
-            ApiResponse<UniswapPair[]>
+            ApiResponse<IUniswapPair[]>
         >);
 
         if (error && shouldRetryError(error)) {

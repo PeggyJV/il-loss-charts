@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Combobox } from 'react-widgets';
 
-import { UniswapPair, Token } from '@sommelier/shared-types';
+import { IUniswapPair, Token } from '@sommelier/shared-types';
 import { AllPairsState } from 'types/states';
 
 import { PairWithLogo } from 'components/token-with-logo';
@@ -9,20 +9,20 @@ import { PairWithLogo } from 'components/token-with-logo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
-type SearchKeys = { [searchKey: string]: UniswapPair };
+type SearchKeys = { [searchKey: string]: IUniswapPair };
 
 function PairSearch({
     pairs,
     setPair,
 }: {
-    pairs: UniswapPair[];
+    pairs: IUniswapPair[];
     setPair: (pairId: string) => void;
 }): JSX.Element {
-    const [currentValue, setCurrentValue] = useState<UniswapPair | null>(null);
+    const [currentValue, setCurrentValue] = useState<IUniswapPair | null>(null);
 
     const searchKeys: SearchKeys = useMemo(
         (): SearchKeys =>
-            pairs.reduce((acc: SearchKeys, pair: UniswapPair) => {
+            pairs.reduce((acc: SearchKeys, pair: IUniswapPair) => {
                 const symbol0 = (pair.token0 as Token).symbol.toLowerCase();
                 const symbol1 = (pair.token1 as Token).symbol.toLowerCase();
                 const symbolCombined = `${symbol0}/${symbol1}`;
@@ -50,7 +50,7 @@ function PairSearch({
         if (currentValue?.id) setPair(currentValue.id);
     }, [currentValue, searchKeys]);
 
-    const lookForPair = (pair: UniswapPair, value: string) => {
+    const lookForPair = (pair: IUniswapPair, value: string) => {
         const search = value.toLowerCase();
         const symbol0 = (pair.token0 as Token).symbol.toLowerCase();
         const symbol1 = (pair.token1 as Token).symbol.toLowerCase();
@@ -62,7 +62,7 @@ function PairSearch({
         );
     };
 
-    const renderTextField = (item: string | UniswapPair) => {
+    const renderTextField = (item: string | IUniswapPair) => {
         if (typeof item === 'string' || !item) {
             return item;
         }

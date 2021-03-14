@@ -1,6 +1,6 @@
 import {
     MarketStats,
-    UniswapPair,
+    IUniswapPair,
     UniswapSwap,
     UniswapMintOrBurn,
     UniswapDailyData,
@@ -17,8 +17,8 @@ type ApiResponse<T> = { data?: T; error?: string };
 export class UniswapApiFetcher {
     static async getPairOverview(
         pairId: string
-    ): Promise<ApiResponse<UniswapPair>> {
-        return Promise.resolve({ data: initalData.pairData as UniswapPair });
+    ): Promise<ApiResponse<IUniswapPair>> {
+        return Promise.resolve({ data: initalData.pairData as IUniswapPair });
     }
 
     static async getLatestSwaps(
@@ -47,8 +47,8 @@ export class UniswapApiFetcher {
 
     static async getTopPairs(
         count = 1000
-    ): Promise<ApiResponse<UniswapPair[]>> {
-        return Promise.resolve({ data: initalData.allPairs as UniswapPair[] });
+    ): Promise<ApiResponse<IUniswapPair[]>> {
+        return Promise.resolve({ data: initalData.allPairs as IUniswapPair[] });
     }
 
     static async getMarketData(

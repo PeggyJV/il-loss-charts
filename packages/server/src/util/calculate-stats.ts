@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 
 import UniswapFetcher from 'services/uniswap';
 import {
-    UniswapPair,
+    IUniswapPair,
     UniswapDailyData,
     UniswapHourlyData,
     LiquidityData,
@@ -17,7 +17,7 @@ const FEE_RATIO = 0.003;
 
 type HistoricalData = UniswapDailyData | UniswapHourlyData;
 type HistoricalDataList = Array<
-    UniswapDailyData[] | UniswapHourlyData[] | UniswapPair[]
+    UniswapDailyData[] | UniswapHourlyData[] | IUniswapPair[]
 >;
 type PositionMapping = { [pairId: string]: UniswapLiquidityPositionAtTime[] };
 type StatsMapping = { [pairId: string]: StatsMappingValue };
@@ -39,7 +39,7 @@ interface StatsMappingValue {
 }
 
 export async function calculateMarketStats(
-    pairs: UniswapPair[],
+    pairs: IUniswapPair[],
     historicalData: HistoricalDataList,
     period: 'daily' | 'hourly' | 'delta' = 'daily'
 ): Promise<MarketStats[]> {
@@ -81,7 +81,7 @@ export async function calculateMarketStats(
     };
 
     const marketStats = pairs.reduce(
-        (acc: MarketStats[], pair: UniswapPair, index: number) => {
+        (acc: MarketStats[], pair: IUniswapPair, index: number) => {
             const historical = historicalData[index];
 
             const firstDaily = historical[0];
@@ -126,8 +126,8 @@ export async function calculateMarketStats(
                 );
             } else {
                 volume = new BigNumber(
-                    (lastDaily as UniswapPair).volumeUSD
-                ).minus((firstDaily as UniswapPair).volumeUSD);
+                    (lastDaily as IUniswapPair).volumeUSD
+                ).minus((firstDaily as IUniswapPair).volumeUSD);
             }
             const fees = volume.times(FEE_RATIO);
             const returns = fees.plus(impermanentLoss);
@@ -160,7 +160,7 @@ export function calculateLPStats({
     lpShare: lpLiquidityUSD,
     lpDate,
 }: {
-    pairData?: UniswapPair;
+    pairData?: IUniswapPair;
     dailyData?: UniswapDailyData[];
     hourlyData?: UniswapHourlyData[];
     lpShare: number;

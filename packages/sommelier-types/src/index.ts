@@ -1,37 +1,13 @@
 import BigNumber from 'bignumber.js';
-export interface LiquidityData {
-    reserve0: string;
-    reserve1: string;
-    reserveUSD: string;
-}
-export interface Token {
-    __typename: 'Token';
-    decimals: string;
-    derivedETH: string;
-    id: string;
-    name: string;
-    symbol: string;
-    totalLiquidity: string;
-    tradeVolumeUSD: string;
-}
 
-export interface UniswapPair extends LiquidityData {
-    __typename: 'Pair';
-    createdAtTimestamp: string;
-    id: string;
-    token0: Partial<Token>;
-    token1: Partial<Token>;
-    token0Price: string;
-    token1Price: string;
-    trackedReserveETH: string;
-    txCount: string;
-    volumeUSD: string;
-    untrackedVolumeUSD: string;
-    totalSupply: string;
-    feesUSD?: string;
-}
+import { 
+    ILiquidityData, 
+    IUniswapPair, 
+    IToken 
+} from './pair';
 
-export interface UniswapDailyData extends LiquidityData {
+export { ILiquidityData, IUniswapPair, IToken };
+export interface UniswapDailyData extends ILiquidityData {
     __typename: 'PairDayData';
     date: number;
     pairAddress: string;
@@ -40,9 +16,9 @@ export interface UniswapDailyData extends LiquidityData {
     dailyVolumeUSD: string;
 }
 
-export interface UniswapHourlyData extends LiquidityData {
+export interface UniswapHourlyData extends ILiquidityData {
     __typename: 'PairHourData';
-    pair: Partial<UniswapPair>;
+    pair: Partial<IUniswapPair>;
     hourStartUnix: number;
     hourlyVolumeToken0: string;
     hourlyVolumeToken1: string;
@@ -57,7 +33,7 @@ export interface UniswapSwap {
     amount1Out: string;
     amountUSD: string;
     to: string;
-    pair: Partial<UniswapPair>;
+    pair: Partial<IUniswapPair>;
 }
 
 export interface UniswapMintOrBurn {
@@ -67,7 +43,7 @@ export interface UniswapMintOrBurn {
     amountUSD: string;
     liquidity: string;
     to: string;
-    pair: Partial<UniswapPair>;
+    pair: Partial<IUniswapPair>;
     timestamp: string;
 }
 export interface LPStats<T = BigNumber> {
@@ -100,7 +76,7 @@ export interface TimeWindowStats<T = BigNumber> {
     prevPeriodStats?: StatsOverTime<T>;
 }
 
-export interface MarketStats extends UniswapPair {
+export interface MarketStats extends IUniswapPair {
     ilGross: number;
     market: string;
     impermanentLoss: number;
@@ -111,16 +87,16 @@ export interface MarketStats extends UniswapPair {
     pctReturn: number;
 }
 
-export interface UniswapLiquidityPositionAtTime extends LiquidityData {
+export interface UniswapLiquidityPositionAtTime extends ILiquidityData {
     id: string;
     liquidityPosition: {
         id: string;
         liquidityTokenBalance: string;
-        pair: Partial<UniswapPair>;
+        pair: Partial<IUniswapPair>;
     };
     liquidityTokenBalance: string;
     liquidityTokenTotalSupply: string;
-    pair: Partial<UniswapPair>;
+    pair: Partial<IUniswapPair>;
     timestamp: number;
 }
 

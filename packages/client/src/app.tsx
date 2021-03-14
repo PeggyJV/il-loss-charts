@@ -117,7 +117,7 @@ function App(): ReactElement {
                         pair
                     ) => {
                         if (!acc.lookup[pair.id]) {
-                            // TODO: Fix this typing. We don't need a UniswapPair, or MarketStats
+                            // TODO: Fix this typing. We don't need a IUniswapPair, or MarketStats
                             // All we need is an objefct with an ID
                             acc.list.push((pair as any) as MarketStats);
                         }

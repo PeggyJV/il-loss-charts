@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import config from 'config';
 
 import {
-    UniswapPair,
+    IUniswapPair,
     UniswapSwap,
     UniswapMintOrBurn,
     UniswapDailyData,
@@ -282,7 +282,7 @@ function PairContainer({
 
     //     let blockNumber;
     //     if (topic.startsWith('uniswap:getPairOverview') && !isLoading) {
-    //         const { data: pairMsg }: { data: UniswapPair } = lastJsonMessage;
+    //         const { data: pairMsg }: { data: IUniswapPair } = lastJsonMessage;
 
     //         if (pairMsg.id === pairId) {
     //             setLPInfo({ ...lpInfo, pairData: pairMsg } as PairPricesState);

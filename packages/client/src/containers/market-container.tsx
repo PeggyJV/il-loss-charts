@@ -5,7 +5,7 @@ import { Container } from 'react-bootstrap';
 import BootstrapTable from 'react-bootstrap-table-next';
 import BigNumber from 'bignumber.js';
 
-import { UniswapPair, MarketStats } from '@sommelier/shared-types';
+import { IUniswapPair, MarketStats } from '@sommelier/shared-types';
 
 import { MarketData } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
@@ -56,7 +56,7 @@ function OverviewContainer({
 function MarketDataTable({ data }: { data: MarketStats[] }) {
     const history = useHistory();
 
-    const formatPair = ({ id, token0, token1 }: UniswapPair) => {
+    const formatPair = ({ id, token0, token1 }: IUniswapPair) => {
         return (
             <span>
                 {resolveLogo(token0.id)}{' '}
@@ -132,7 +132,7 @@ function MarketDataTable({ data }: { data: MarketStats[] }) {
 
     (window as any).sortedIL = sortedIl;
 
-    const onRowClick = (e: SyntheticEvent, pair: UniswapPair) => {
+    const onRowClick = (e: SyntheticEvent, pair: IUniswapPair) => {
         history.push(`/pair?id=${pair.id}`);
     };
 

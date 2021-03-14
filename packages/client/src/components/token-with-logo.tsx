@@ -1,11 +1,11 @@
-import { UniswapPair } from '@sommelier/shared-types';
+import { IUniswapPair } from '@sommelier/shared-types';
 
 import logoMappings from 'constants/trustwallet-mappings.json';
 import { Pair } from 'constants/prop-types';
 
 const TokenWithLogo = (side: 'left' | 'right') => {
     const TokenOnGivenSide = (
-        { item: pair }: { item: UniswapPair },
+        { item: pair }: { item: IUniswapPair },
         logoPosition = 'left'
     ) => {
         let token;
@@ -57,7 +57,7 @@ export function resolveLogo(addressLower?: string): JSX.Element {
 export function PairWithLogo({
     pair: { id, token0, token1 },
 }: {
-    pair: UniswapPair;
+    pair: IUniswapPair;
 }): JSX.Element {
     return (
         <span>

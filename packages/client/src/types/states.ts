@@ -1,6 +1,6 @@
 import {
     MarketStats,
-    UniswapPair,
+    IUniswapPair,
     UniswapDailyData,
     UniswapHourlyData,
     UniswapSwap,
@@ -11,14 +11,14 @@ import { ethers } from 'ethers';
 
 export interface AllPairsState {
     isLoading: boolean;
-    pairs: UniswapPair[] | null;
+    pairs: IUniswapPair[] | null;
     lookups: {
-        [pairId: string]: UniswapPair & {
+        [pairId: string]: IUniswapPair & {
             volumeRanking: number;
             liquidityRanking: number;
         };
     } | null;
-    byLiquidity: UniswapPair[] | null;
+    byLiquidity: IUniswapPair[] | null;
 }
 
 export type Provider = 'metamask' | 'walletconnect';
@@ -30,7 +30,7 @@ export interface Wallet {
 }
 
 export interface PairPricesState {
-    pairData: UniswapPair;
+    pairData: IUniswapPair;
     historicalDailyData: UniswapDailyData[];
     historicalHourlyData: UniswapHourlyData[];
 }

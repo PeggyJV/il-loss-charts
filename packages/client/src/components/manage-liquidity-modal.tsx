@@ -16,7 +16,7 @@ import {
     EthGasPrices,
     LPPositionData,
     MarketStats,
-    UniswapPair,
+    IUniswapPair,
     Token,
 } from '@sommelier/shared-types';
 import { Wallet, WalletBalances } from 'types/states';
@@ -44,7 +44,7 @@ function ManageLiquidityModal({
     };
     const [mode, setMode] = useState<'add' | 'remove'>('add');
     const [balances, setBalances] = useState<WalletBalances>({});
-    const [pairData, setPairData] = useState<UniswapPair | null>(null);
+    const [pairData, setPairData] = useState<IUniswapPair | null>(null);
     const [
         positionData,
         setPositionData,

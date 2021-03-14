@@ -4,7 +4,7 @@ import { Button } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
 import { resolveLogo } from 'components/token-with-logo';
-import { UniswapPair, MarketStats } from '@sommelier/shared-types';
+import { IUniswapPair, MarketStats } from '@sommelier/shared-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 
@@ -23,7 +23,7 @@ function PercentChangeStat({ value }: { value?: number }): JSX.Element {
     return <span className={className}>{valueBn.times(100).toFixed(2)}%</span>;
 }
 
-const formatPair = ({ id, token0, token1 }: UniswapPair) => {
+const formatPair = ({ id, token0, token1 }: IUniswapPair) => {
     return (
             <Link to={`/pair?id=${id}&timeWindow=day`}>
                 <div className='pair-combo'>

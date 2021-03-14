@@ -7,7 +7,7 @@ import { useMediaQuery } from 'react-responsive';
 import dateFnsLocalizer, { defaultFormats } from 'react-widgets-date-fns';
 
 import {
-    UniswapPair,
+    IUniswapPair,
     UniswapDailyData,
     LiquidityData,
 } from '@sommelier/shared-types';
@@ -29,7 +29,7 @@ function LPInput({
 }: {
     lpDate: Date;
     setLPDate: (newLPDate: Date) => void;
-    pairData: UniswapPair;
+    pairData: IUniswapPair;
     historicalDailyData: UniswapDailyData[];
     lpShare: number;
     setLPShare: (newLPShare: number) => void;

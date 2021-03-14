@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import { format } from 'date-fns';
 
 import {
-    UniswapPair,
+    IUniswapPair,
     UniswapDailyData,
     UniswapHourlyData,
     LiquidityData,
@@ -301,13 +301,13 @@ export function calculateTimeWindowStats(
 }
 
 export function calculatePairRankings(
-    pairs: UniswapPair[]
+    pairs: IUniswapPair[]
 ): {
-    byVolume: UniswapPair[];
-    byLiquidity: UniswapPair[];
-    pairs: UniswapPair[];
+    byVolume: IUniswapPair[];
+    byLiquidity: IUniswapPair[];
+    pairs: IUniswapPair[];
     pairLookups: {
-        [pairId: string]: UniswapPair & {
+        [pairId: string]: IUniswapPair & {
             volumeRanking: number;
             liquidityRanking: number;
         };
@@ -322,7 +322,7 @@ export function calculatePairRankings(
             .toNumber()
     );
     const liquidityLookup: {
-        [pairId: string]: UniswapPair;
+        [pairId: string]: IUniswapPair;
     } = byLiquidity.reduce(
         (acc, pair, index) => ({ ...acc, [pair.id]: index + 1 }),
         {}
