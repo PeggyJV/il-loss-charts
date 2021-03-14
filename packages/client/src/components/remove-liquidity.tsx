@@ -297,6 +297,13 @@ function RemoveLiquidity({
             value: baseMsgValue, // flat fee sent to contract - 0.0005 ETH
         });
 
+
+        try {
+            mixpanel.track('transaction:removeLiquidity', { amount: gasEstimate });
+        } catch (e) {
+            console.error(`Metrics error on remove liquidity.`);
+        }
+
         setTxSubmitted(true);
 
         // Close the modal after one second
