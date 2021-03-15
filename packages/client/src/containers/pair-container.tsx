@@ -109,9 +109,7 @@ function PairContainer({
         // lookup by symbol
         const symbol = query.get('symbol');
         const pairForSymbol = allPairs.pairs.find((pair) => {
-            const pairSymbol = `${(pair.token0 as IToken).symbol || ''}/${
-                (pair.token1 as IToken).symbol || ''
-            }`;
+            const pairSymbol = pair.pairReadable
             return symbol === pairSymbol;
         });
 

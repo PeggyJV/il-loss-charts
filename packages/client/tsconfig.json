@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig.settings.json",
   "compilerOptions": {
+    "composite": true,
     "sourceMap": true,
     "inlineSources": true,
     "sourceRoot": "/",
@@ -26,6 +27,7 @@
     "baseUrl": "src"
   },
   "include": [
-    "src"
+    "src",
+    "src/**/*.json"
   ]
 }

@@ -1,6 +1,7 @@
 import {
     MarketStats,
     IUniswapPair,
+    UniswapPair,
     UniswapDailyData,
     UniswapHourlyData,
     UniswapSwap,
@@ -11,7 +12,7 @@ import { ethers } from 'ethers';
 
 export interface AllPairsState {
     isLoading: boolean;
-    pairs: IUniswapPair[] | null;
+    pairs: UniswapPair[] | null;
     lookups: {
         [pairId: string]: IUniswapPair & {
             volumeRanking: number;
@@ -30,7 +31,7 @@ export interface Wallet {
 }
 
 export interface PairPricesState {
-    pairData: IUniswapPair;
+    pairData: UniswapPair;
     historicalDailyData: UniswapDailyData[];
     historicalHourlyData: UniswapHourlyData[];
 }

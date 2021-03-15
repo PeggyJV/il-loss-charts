@@ -255,9 +255,9 @@ function RemoveLiquidity({
         let exitAddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
         if (exitToken === pairData.token0.symbol) {
-            exitAddress = (pairData.token0 as IToken).id;
+            exitAddress = pairData.token0.id;
         } else if (exitToken === pairData.token1.symbol) {
-            exitAddress = (pairData.token1 as IToken).id;
+            exitAddress = pairData.token1.id;
         }
 
         const baseGasPrice = ethers.utils

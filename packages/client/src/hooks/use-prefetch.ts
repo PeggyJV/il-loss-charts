@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import pLimit from 'p-limit';
 import BigNumber from 'bignumber.js';
 
-import { IUniswapPair } from '@sommelier/shared-types';
+import { UniswapPair, IUniswapPair } from '@sommelier/shared-types';
 import { PrefetchedPairState } from 'types/states';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
@@ -124,7 +124,7 @@ export default function usePrefetch(
                             return {
                                 isLoading: false,
                                 lpInfo: {
-                                    pairData: newPair,
+                                    pairData: new UniswapPair(newPair),
                                     historicalDailyData: activeDaily,
                                     historicalHourlyData: activeHourly,
                                 },

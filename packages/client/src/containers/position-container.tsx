@@ -121,6 +121,9 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
         );
     }
 
+    const token0 = pair.token0 as IToken;
+    const token1 = pair.token1 as IToken;
+
     return (
         <ErrorBoundary FallbackComponent={ComponentError}>
             <Container fluid>
@@ -137,10 +140,9 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
                 <Row className='top-stats-row'>
                     <Col lg={4} className='pair-text-large'>
                         <span>
-                            {resolveLogo((pair.token0 as IToken).id)}{' '}
-                            {(pair.token0 as IToken).symbol}/
-                            {(pair.token1 as IToken).symbol}{' '}
-                            {resolveLogo((pair.token1 as IToken).id)}
+                            {resolveLogo(token0.id)}{' '}
+                            {`${token0.symbol}/${token1.symbol}`}{' '}
+                            {resolveLogo(token1.id)}
                         </span>
                     </Col>
                     <Col lg={8}>

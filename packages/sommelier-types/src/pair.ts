@@ -1,5 +1,7 @@
 import BigNumber from 'bignumber.js';
 
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export interface ILiquidityData {
     reserve0: string;
     reserve1: string;
@@ -17,12 +19,25 @@ export interface IToken {
     tradeVolumeUSD: string;
 }
 
+
+export interface PairToken {
+    __typename: 'Token';
+    decimals?: string;
+    derivedETH?: string;
+    id: string;
+    name?: string;
+    symbol: string;
+    totalLiquidity: string;
+    tradeVolumeUSD: string;
+}
+
+
 export interface IUniswapPair extends ILiquidityData {
     __typename: 'Pair';
     createdAtTimestamp: string;
     id: string;
-    token0: Partial<IToken>;
-    token1: Partial<IToken>;
+    token0: IToken;
+    token1: IToken;
     token0Price: string;
     token1Price: string;
     trackedReserveETH: string;
@@ -40,8 +55,8 @@ export class UniswapPair implements IUniswapPair {
     __typename: 'Pair';
     createdAtTimestamp: string;
     id: string;
-    token0: Partial<IToken>;
-    token1: Partial<IToken>;
+    token0: IToken;
+    token1: IToken;
     reserve0: string;
     reserve1: string;
     reserveUSD: string;

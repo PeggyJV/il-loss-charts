@@ -17,6 +17,7 @@ import {
     LPPositionData,
     MarketStats,
     IUniswapPair,
+    UniswapPair,
     IToken,
 } from '@sommelier/shared-types';
 import { Wallet, WalletBalances } from 'types/states';
@@ -44,7 +45,7 @@ function ManageLiquidityModal({
     };
     const [mode, setMode] = useState<'add' | 'remove'>('add');
     const [balances, setBalances] = useState<WalletBalances>({});
-    const [pairData, setPairData] = useState<IUniswapPair | null>(null);
+    const [pairData, setPairData] = useState<UniswapPair | null>(null);
     const [
         positionData,
         setPositionData,
@@ -75,7 +76,7 @@ function ManageLiquidityModal({
             }
 
             if (newPair) {
-                setPairData(newPair);
+                setPairData(new UniswapPair(newPair));
             }
         };
 
@@ -155,15 +156,15 @@ function ManageLiquidityModal({
                     decimals: '18',
                     allowance: ethers.BigNumber.from(0),
                 },
-                [pairData.token0.symbol as string]: {
-                    id: pairData.token0.id as string,
+                [pairData.token0.symbol]: {
+                    id: pairData.token0.id,
                     symbol: pairData.token0.symbol,
                     balance: token0Balance,
                     decimals: pairData.token0.decimals,
                     allowance: token0Allowance,
                 },
-                [pairData.token1.symbol as string]: {
-                    id: pairData.token1.id as string,
+                [pairData.token1.symbol]: {
+                    id: pairData.token1.id,
                     symbol: pairData.token1.symbol,
                     balance: token1Balance,
                     decimals: pairData.token0.decimals,
@@ -171,9 +172,7 @@ function ManageLiquidityModal({
                 },
                 currentPair: {
                     id: pairData.id,
-                    symbol: `${(pairData.token0 as IToken).symbol}/${
-                        (pairData.token1 as IToken).symbol
-                    }`,
+                    symbol: pairData.pairReadable,
                     balance: pairBalance,
                     decimals: '18',
                     allowance: pairAllowance,

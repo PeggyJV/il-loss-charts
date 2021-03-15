@@ -9,7 +9,7 @@ import { Container } from 'react-bootstrap';
 import useWebSocket from 'react-use-websocket';
 import ManageLiquidityModal from 'components/manage-liquidity-modal';
 import config from 'config';
-import { EthGasPrices, MarketStats } from '@sommelier/shared-types';
+import { UniswapPair, EthGasPrices, MarketStats } from '@sommelier/shared-types';
 
 import LandingContainer from 'containers/landing-container';
 import MarketContainer from 'containers/market-container';
@@ -66,7 +66,7 @@ function App(): ReactElement {
 
                 setAllPairs({
                     isLoading: false,
-                    pairs: calculated.pairs,
+                    pairs: calculated.pairs.map(p => new UniswapPair(p)),
                     lookups: calculated.pairLookups,
                     byLiquidity: calculated.byLiquidity,
                 });
@@ -151,10 +151,6 @@ function App(): ReactElement {
 
             if (marketData) {
                 setMarketData(marketData);
-            }
-
-            if (topPairs) {
-                setTopPairs(topPairs);
             }
         };
 

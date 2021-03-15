@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import BigNumber from 'bignumber.js';
 
+import { UniswapPair } from '@sommelier/shared-types';
 import { PairPricesState, SwapsState, PairDataState } from 'types/states';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
@@ -99,7 +100,7 @@ export default function usePairData(
                     setLPInfo(
                         (prevLpInfo): PairPricesState => ({
                             ...prevLpInfo,
-                            pairData: newPair,
+                            pairData: new UniswapPair(newPair),
                             historicalDailyData: activeDaily,
                             historicalHourlyData: activeHourly,
                         })

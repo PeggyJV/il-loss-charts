@@ -162,7 +162,6 @@ export default class UniswapFetcher {
                                 symbol
                                 decimals
                             }
-
                         }
                     }
                 `,
