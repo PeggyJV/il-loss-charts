@@ -47,20 +47,26 @@ export interface UniswapMintOrBurn {
     pair: Partial<IUniswapPair>;
     timestamp: string;
 }
-export interface LPStats<T = BigNumber> {
+
+export interface PoolStats<T = BigNumber> {
     timeWindow: 'daily' | 'hourly';
-    totalFees: T;
     runningVolume: T[];
     dailyVolume: T[];
-    runningFees: T[];
     runningPoolFees: T[];
-    runningImpermanentLoss: T[];
-    runningReturn: T[];
     dailyLiquidity: T[];
-    impermanentLoss: T;
-    totalReturn: T;
     ticks: string[];
     fullDates?: Date[];
+}
+export interface LPStats<T = BigNumber> extends PoolStats {
+    dailyEthPrice: T[];
+    totalFees: T;
+    totalNotionalGain: T;
+    runningFees: T[];
+    runningNotionalGain: T[];
+    runningImpermanentLoss: T[];
+    runningReturn: T[];
+    impermanentLoss: T;
+    totalReturn: T;
 }
 
 export interface StatsOverTime<T = BigNumber> {

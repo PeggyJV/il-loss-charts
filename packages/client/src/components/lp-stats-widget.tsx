@@ -9,16 +9,16 @@ import { formatUSD } from 'util/formats';
 function LPStatsWidget({
     lpStats,
 }: {
-    lpStats: Partial<ILPStats>;
+    lpStats: Partial<ILPStats<string>>;
 }): JSX.Element | null {
     if (!lpStats.totalFees) return null;
 
-    const displayValue = (value?: BigNumber) => {
+    const displayValue = (value?: string) => {
         if (!value)
             throw new Error(
                 `Could not display nonexist value in LPStatsWidget`
             );
-        return formatUSD(value.toFixed(3));
+        return formatUSD(new BigNumber(value).toFixed(3));
     };
 
     return (

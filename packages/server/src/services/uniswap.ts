@@ -742,13 +742,21 @@ export default class UniswapFetcher {
         return burns;
     }
 
-    static async getEthPrice(): Promise<{ ethPrice: number }> {
+    static async getEthPrice(
+        blockNumber?: number
+    ): Promise<{ ethPrice: number }> {
+        let filterStr = `id: "1"`;
+
+        if (blockNumber) {
+            filterStr = filterStr.concat(`, block: {number: ${blockNumber}}`);
+        }
+
         const response: ApolloResponse<{
             bundle: { ethPrice: number };
         }> = await UniswapFetcher.client.query({
             query: gql`
                 {
-                    bundle(id: "1") {
+                    bundle(${filterStr}) {
                         ethPrice
                     }
                 }

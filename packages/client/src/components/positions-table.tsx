@@ -62,6 +62,7 @@ function PositionsTable({
                 impermanentLoss: stats[pairId]?.aggregatedStats?.impermanentLoss ?? '-',
                 liquidity,
                 fees: stats[pairId]?.aggregatedStats?.totalFees ?? '-' ,
+                notionalGain: stats[pairId]?.aggregatedStats?.totalNotionalGain ?? '-' ,
                 returnsUSD: stats[pairId]?.aggregatedStats?.totalReturn ?? '-',
                 action: { id: pairId },
             };
@@ -134,6 +135,12 @@ function PositionsTable({
         {
             dataField: 'impermanentLoss',
             text: 'Impermanent Loss',
+            sort: true,
+            formatter: formatUSDorNA,
+        },
+        {
+            dataField: 'notionalGain',
+            text: 'Notional USD Gain',
             sort: true,
             formatter: formatUSDorNA,
         },

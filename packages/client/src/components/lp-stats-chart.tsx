@@ -197,11 +197,11 @@ function CustomTooltip({
 }) {
     if (!active || !payload) return null;
     const lpStats = {
-        totalFees: new BigNumber(payload[0].payload.runningFee),
-        totalReturn: new BigNumber(payload[0].payload.runningReturn),
+        totalFees: new BigNumber(payload[0].payload.runningFee).toFixed(3),
+        totalReturn: new BigNumber(payload[0].payload.runningReturn).toFixed(3),
         impermanentLoss: new BigNumber(
             payload[0].payload.runningImpermanentLoss
-        ),
+        ).toFixed(3),
     };
 
     if (!payload[0].payload.fullDate) {
@@ -223,7 +223,7 @@ function CustomTooltip({
         <LPStatsWidget
             title={tooltipDate}
             subtitle={tooltipTime}
-            lpStats={lpStats as Partial<ILPStats>}
+            lpStats={lpStats as Partial<ILPStats<string>>}
         />
     );
 }

@@ -33,7 +33,7 @@ const getCurrentTopPerformingPairs = wrapWithCache(
     300,
     true
 );
-const getEthPrice = wrapWithCache(redis, UniswapFetcher.getEthPrice, 30, true);
+const getEthPrice = wrapWithCache(redis, UniswapFetcher.getEthPrice, 60, true);
 const getHistoricalDailyData = wrapWithCache(
     redis,
     UniswapFetcher.getHistoricalDailyData,
@@ -477,7 +477,7 @@ class UniswapController {
             UniswapFetcher.getHistoricalDailyData(pairId, startDate, endDate),
         ]);
 
-        const lpStats = calculateLPStats({
+        const lpStats = await calculateLPStats({
             pairData,
             dailyData: historicalDailyData,
             lpShare: lpLiquidityUSD,

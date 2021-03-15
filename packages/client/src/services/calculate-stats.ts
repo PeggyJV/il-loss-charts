@@ -6,7 +6,7 @@ import {
     UniswapDailyData,
     UniswapHourlyData,
     ILiquidityData,
-    LPStats,
+    PoolStats,
     StatsOverTime,
     TimeWindowStats,
 } from '@sommelier/shared-types';
@@ -19,17 +19,15 @@ type HistoricalData = UniswapDailyData | UniswapHourlyData;
 const isDailyData = (data: HistoricalData): data is UniswapDailyData =>
     Object.prototype.hasOwnProperty.call(data, 'dailyVolumeUSD');
 
-export function calculateLPStats({
+export function calculatePoolStats({
     dailyData,
     hourlyData,
-    lpShare: lpLiquidityUSD,
     startDate,
 }: {
     dailyData?: UniswapDailyData[];
     hourlyData?: UniswapHourlyData[];
-    lpShare: number;
     startDate: Date;
-}): LPStats {
+}): PoolStats {
     if (dailyData && hourlyData) {
         throw new Error('Should only receive one of daily or hourly data');
     }
@@ -45,34 +43,8 @@ export function calculateLPStats({
     const dailyVolume: BigNumber[] = [];
     const runningVolume: BigNumber[] = [];
     const runningPoolFees: BigNumber[] = [];
-    const runningFees: BigNumber[] = [];
-    const runningImpermanentLoss: BigNumber[] = [];
-    const runningReturn: BigNumber[] = [];
     const fullDates: Date[] = [];
     const ticks: string[] = [];
-
-    const calculateImpermanentLoss = (
-        startDailyData: ILiquidityData,
-        endDailyData: ILiquidityData,
-        lpLiquidity: number
-    ): BigNumber => {
-        const initialExchangeRate = new BigNumber(startDailyData.reserve0).div(
-            new BigNumber(startDailyData.reserve1)
-        );
-        const currentExchangeRate = new BigNumber(endDailyData.reserve0).div(
-            new BigNumber(endDailyData.reserve1)
-        );
-        const priceRatio = currentExchangeRate.div(initialExchangeRate);
-        const impermanentLossPct = new BigNumber(2)
-            .times(priceRatio.sqrt())
-            .div(priceRatio.plus(1))
-            .minus(1);
-        const impermanentLoss = impermanentLossPct.times(
-            new BigNumber(lpLiquidity)
-        );
-
-        return impermanentLoss;
-    };
 
     const getPrevRunningValue = (list: BigNumber[]): BigNumber =>
         list.length ? list[list.length - 1] : new BigNumber(0);
@@ -92,10 +64,6 @@ export function calculateLPStats({
 
         if (!firstDaily) firstDaily = dataPoint;
 
-        const poolShare = new BigNumber(lpLiquidityUSD).div(
-            dataPoint.reserveUSD
-        );
-
         let vol: BigNumber;
 
         if (isDailyData(dataPoint)) {
@@ -106,14 +74,6 @@ export function calculateLPStats({
 
         const liquidity = new BigNumber(dataPoint.reserveUSD);
         const dailyPoolFees = vol.times(FEE_RATIO);
-        const dailyFees = dailyPoolFees.times(poolShare);
-        const newRunningFees = getPrevRunningValue(runningFees).plus(dailyFees);
-        const dailyImpermanentLoss = calculateImpermanentLoss(
-            firstDaily,
-            dataPoint,
-            lpLiquidityUSD
-        );
-        const dailyReturn = newRunningFees.plus(dailyImpermanentLoss);
 
         dailyLiquidity.push(liquidity);
         dailyVolume.push(vol);
@@ -121,9 +81,6 @@ export function calculateLPStats({
         runningPoolFees.push(
             getPrevRunningValue(runningPoolFees).plus(dailyPoolFees)
         );
-        runningFees.push(newRunningFees);
-        runningImpermanentLoss.push(dailyImpermanentLoss);
-        runningReturn.push(dailyReturn);
 
         fullDates.push(currentDate);
 
@@ -146,26 +103,12 @@ export function calculateLPStats({
         throw new Error('No provided historical data after LP date');
     }
 
-    const totalFees = runningFees[runningFees.length - 1];
-    const impermanentLoss = calculateImpermanentLoss(
-        firstDaily,
-        historicalData[historicalData.length - 1],
-        lpLiquidityUSD
-    );
-    const totalReturn = totalFees.plus(impermanentLoss);
-
     return {
         timeWindow: isDailyData(historicalData[0]) ? 'daily' : 'hourly',
         dailyLiquidity,
         dailyVolume,
-        totalFees,
         runningVolume,
-        runningFees,
         runningPoolFees,
-        runningImpermanentLoss,
-        runningReturn,
-        impermanentLoss,
-        totalReturn,
         ticks,
         fullDates,
     };
@@ -181,12 +124,11 @@ export function calculateTimeWindowStats(
     let fullDates: Date[];
 
     if (period === 'day' || period === 'week') {
-        const lpStats = calculateLPStats({
+        const lpStats = calculatePoolStats({
             hourlyData: lpInfo?.historicalHourlyData,
             startDate: new Date(
                 lpInfo?.historicalHourlyData[0].hourStartUnix * 1000
             ),
-            lpShare: new BigNumber(lpInfo.pairData.reserveUSD).toNumber(),
         });
 
         runningVolume = lpStats.runningVolume;
@@ -194,10 +136,9 @@ export function calculateTimeWindowStats(
         dailyLiquidity = lpStats.dailyLiquidity;
         fullDates = lpStats.fullDates as Date[];
     } else {
-        const lpStats = calculateLPStats({
+        const lpStats = calculatePoolStats({
             dailyData: lpInfo?.historicalDailyData,
             startDate: new Date(lpInfo?.historicalDailyData[0].date * 1000),
-            lpShare: new BigNumber(lpInfo.pairData.reserveUSD).toNumber(),
         });
 
         runningVolume = lpStats.runningVolume;

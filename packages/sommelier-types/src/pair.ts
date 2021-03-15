@@ -88,7 +88,7 @@ export class UniswapPair implements IUniswapPair {
         this.feesUSD = pairData.feesUSD;
     }
 
-    get pairSymbols(): string[] {
+    get symbols(): string[] {
         if (!this.token0.symbol || !this.token1.symbol) {
             throw new Error('Pair does not have enough data - token symbols missing');
         }
@@ -97,15 +97,15 @@ export class UniswapPair implements IUniswapPair {
     }
 
     get pairReadable(): string {
-        return this.pairSymbols.join('/');
+        return this.symbols.join('/');
     }
 
     get isStablecoinPair(): boolean {
-        return this.pairSymbols.some((symbol) => UniswapPair.STABLECOIN_SYMBOLS.includes(symbol));
+        return this.symbols.some((symbol) => UniswapPair.STABLECOIN_SYMBOLS.includes(symbol));
     }
 
     get isEthPair(): boolean {
-        return this.pairSymbols.some((symbol) => UniswapPair.ETH_SYMBOLS.includes(symbol));
+        return this.symbols.some((symbol) => UniswapPair.ETH_SYMBOLS.includes(symbol));
     }
 
     get isFloatingPair(): boolean {

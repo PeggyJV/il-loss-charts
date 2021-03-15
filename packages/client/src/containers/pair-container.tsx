@@ -21,7 +21,6 @@ import { Pair } from 'constants/prop-types';
 import initialData from 'constants/initialData.json';
 
 import usePairData from 'hooks/use-pair-data';
-import { calculateLPStats } from 'services/calculate-stats';
 import mixpanel from 'util/mixpanel';
 
 import PairSearch from 'components/pair-search';
@@ -34,6 +33,9 @@ import LPStatsChart from 'components/lp-stats-highchart';
 import TotalPoolStats from 'components/total-pool-stats';
 // import TelegramCTA from 'components/telegram-cta';
 import { PageError } from 'components/page-error';
+
+import { UniswapApiFetcher as Uniswap } from 'services/api';
+
 
 function PairContainer({
     allPairs,
@@ -59,6 +61,7 @@ function PairContainer({
         pairId,
         prefetchedPair
     );
+    const [error, setError] = useState(currentError);
 
     // TODO: Re-enable when we have a better websocket
     // Keep track of previous pair ID so we can unsubscribe
@@ -129,57 +132,35 @@ function PairContainer({
 
     const [lpDate, setLPDate] = useState(new Date(initialData.lpDate));
     const [lpShare, setLPShare] = useState(initialData.lpShare);
+    const [lpStats, setLPStats] = useState<LPStats<string> | null>(null);
 
-    // Keep track of previous lp stats to prevent entire loading UI from coming up on change
-    const lpStats: LPStats | null = useMemo(
-        () => {
-            if (!lpInfo || currentError) return null;
+    useEffect(() => {
+        const getLPStats = async () => {
+            if (!pairId) return;
 
-            let lpStats: LPStats | null = null;
-            lpStats = calculateLPStats({
-                dailyData: lpInfo?.historicalDailyData,
-                startDate: lpDate,
-                lpShare,
-            });
+            const { data: lpStats, error } = await Uniswap.getPairStats(
+                pairId,
+                lpDate,
+                new Date(),
+                lpShare
+            );
 
-            // TODO: Figure out if we should re-enable this
-            // if (timeWindow === 'total') {
-            //     // If less than 7 data points, default to hourly anyway
-            //     if (
-            //         lpInfo?.historicalDailyData?.length &&
-            //         lpInfo.historicalDailyData.length > 7
-            //     ) {
-            //         lpStats = calculateLPStats({
-            //             dailyData: lpInfo?.historicalDailyData,
-            //             startDate: lpDate,
-            //             lpShare,
-            //         });
-            //     } else {
-            //         lpStats = calculateLPStats({
-            //             hourlyData: lpInfo?.historicalHourlyData,
-            //             startDate: lpDate,
-            //             lpShare,
-            //         });
-            //     }
-            // } else if (timeWindow === 'week') {
-            //     lpStats = calculateLPStats({
-            //         dailyData: lpInfo?.historicalDailyData,
-            //         startDate: lpDate,
-            //         lpShare,
-            //     });
-            // } else if (timeWindow === 'day') {
-            //     lpStats = calculateLPStats({
-            //         hourlyData: lpInfo?.historicalHourlyData,
-            //         startDate: lpDate,
-            //         lpShare,
-            //     });
-            // }
+            if (error) {
+                // we could not list pairs
+                console.warn(`Could not fetch top pairs: ${error}`);
+                (window as any).error = error;
+                setError(error);
+                return;
+            }
 
-            return lpStats;
-        },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [lpInfo, lpDate, lpShare]
-    );
+            if (lpStats) {
+                setLPStats(lpStats);
+            }
+
+        };
+
+        void getLPStats();
+    }, [pairId, lpDate, lpShare])
 
     const dataAtLPDate = useMemo((): UniswapDailyData | null => {
         if (currentError) return null;
@@ -334,8 +315,8 @@ function PairContainer({
     // ------------------ Render code ------------------
 
     // If error, display an error page
-    if (currentError) {
-        return <PageError errorMsg={currentError} />;
+    if (currentError || error) {
+        return <PageError errorMsg={currentError || error} />;
     }
 
     // If no lp stats, we haven't completed our first data fetch yet

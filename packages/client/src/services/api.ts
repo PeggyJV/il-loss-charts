@@ -6,6 +6,7 @@ import {
     UniswapDailyData,
     UniswapHourlyData,
     LPPositionData,
+    LPStats
 } from '@sommelier/shared-types';
 
 import { UniswapApiFetcher as OfflineFetcher } from 'services/offline-api';
@@ -222,6 +223,27 @@ export class UniswapApiFetcher extends OfflineFetcher {
                 startDate,
                 endDate
             );
+        }
+
+        return { data, error };
+    }
+
+    static async getPairStats(
+        pairId: string,
+        startDate: Date,
+        endDate = new Date(),
+        lpLiquidityUSD: number
+    ): Promise<ApiResponse<LPStats<string>>> {
+        const response = await fetch(
+            `/api/v1/uniswap/pairs/${pairId}/stats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&lpLiquidityUSD=${lpLiquidityUSD}`
+        );
+        const { data, error } = await (response.json() as Promise<
+            ApiResponse<LPStats<string>>
+        >);
+
+        if (error && shouldRetryError(error)) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return UniswapApiFetcher.getPairStats(pairId, startDate, endDate, lpLiquidityUSD);
         }
 
         return { data, error };
