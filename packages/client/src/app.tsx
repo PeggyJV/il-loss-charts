@@ -9,7 +9,7 @@ import { Container } from 'react-bootstrap';
 import useWebSocket from 'react-use-websocket';
 import ManageLiquidityModal from 'components/manage-liquidity-modal';
 import config from 'config';
-import { EthGasPrices } from '@sommelier/shared-types';
+import { EthGasPrices, MarketStats } from '@sommelier/shared-types';
 
 import LandingContainer from 'containers/landing-container';
 import MarketContainer from 'containers/market-container';
@@ -27,7 +27,6 @@ import initialData from 'constants/initialData.json';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { calculatePairRankings } from 'services/calculate-stats';
 
-import { MarketStats } from '@sommelier/shared-types';
 import { AllPairsState, TopPairsState } from 'types/states';
 
 function App(): ReactElement {
@@ -118,7 +117,7 @@ function App(): ReactElement {
                     ) => {
                         if (!acc.lookup[pair.id]) {
                             // TODO: Fix this typing. We don't need a IUniswapPair, or MarketStats
-                            // All we need is an objefct with an ID
+                            // All we need is an object with an ID
                             acc.list.push((pair as any) as MarketStats);
                         }
                         return acc;

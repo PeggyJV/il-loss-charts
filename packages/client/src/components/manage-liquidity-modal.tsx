@@ -17,7 +17,7 @@ import {
     LPPositionData,
     MarketStats,
     IUniswapPair,
-    Token,
+    IToken,
 } from '@sommelier/shared-types';
 import { Wallet, WalletBalances } from 'types/states';
 
@@ -171,8 +171,8 @@ function ManageLiquidityModal({
                 },
                 currentPair: {
                     id: pairData.id,
-                    symbol: `${(pairData.token0 as Token).symbol}/${
-                        (pairData.token1 as Token).symbol
+                    symbol: `${(pairData.token0 as IToken).symbol}/${
+                        (pairData.token1 as IToken).symbol
                     }`,
                     balance: pairBalance,
                     decimals: '18',

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Card, ListGroup, Button } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 
-import { Token, UniswapSwap, UniswapMintOrBurn } from '@sommelier/shared-types';
+import { IToken, UniswapSwap, UniswapMintOrBurn } from '@sommelier/shared-types';
 
 import { MintOrBurn, Swap } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
@@ -98,13 +98,13 @@ function SwapInfo({ swap }: { swap: UniswapSwap }) {
     let inAmount: string;
 
     if (outSide === '1') {
-        outToken = (swap.pair.token1 as Token).symbol;
-        inToken = (swap.pair.token0 as Token).symbol;
+        outToken = (swap.pair.token1 as IToken).symbol;
+        inToken = (swap.pair.token0 as IToken).symbol;
         outAmount = new BigNumber(swap.amount1Out).toFixed(3);
         inAmount = new BigNumber(swap.amount0In).toFixed(3);
     } else {
-        outToken = (swap.pair.token0 as Token).symbol;
-        inToken = (swap.pair.token1 as Token).symbol;
+        outToken = (swap.pair.token0 as IToken).symbol;
+        inToken = (swap.pair.token1 as IToken).symbol;
         outAmount = new BigNumber(swap.amount0Out).toFixed(3);
         inAmount = new BigNumber(swap.amount1In).toFixed(3);
     }
@@ -124,9 +124,9 @@ function MintBurnInfo({ action }: { action: UniswapMintOrBurn }) {
     const icon = action.__typename === 'Mint' ? '💰' : '🔥';
     const actionName = action.__typename === 'Mint' ? 'Add' : 'Remove';
     const pairAmounts = `${new BigNumber(action.amount0).toFixed(3)} ${
-        (action.pair.token0 as Token).symbol
+        (action.pair.token0 as IToken).symbol
     }/${new BigNumber(action.amount1).toFixed(3)} ${
-        (action.pair.token1 as Token).symbol
+        (action.pair.token1 as IToken).symbol
     }`;
     return (
         <ListGroup.Item className='sidebar-item'>

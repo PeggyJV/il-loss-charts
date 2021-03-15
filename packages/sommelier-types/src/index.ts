@@ -3,10 +3,11 @@ import BigNumber from 'bignumber.js';
 import { 
     ILiquidityData, 
     IUniswapPair, 
-    IToken 
+    IToken,
+    UniswapPair 
 } from './pair';
 
-export { ILiquidityData, IUniswapPair, IToken };
+export { ILiquidityData, IUniswapPair, IToken, UniswapPair };
 export interface UniswapDailyData extends ILiquidityData {
     __typename: 'PairDayData';
     date: number;

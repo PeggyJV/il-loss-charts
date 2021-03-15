@@ -1,12 +1,12 @@
 import BigNumber from 'bignumber.js';
 
-export declare interface ILiquidityData {
+export interface ILiquidityData {
     reserve0: string;
     reserve1: string;
     reserveUSD: string;
 }
 
-export declare interface IToken {
+export interface IToken {
     __typename: 'Token';
     decimals: string;
     derivedETH: string;
@@ -17,8 +17,7 @@ export declare interface IToken {
     tradeVolumeUSD: string;
 }
 
-
-export declare interface IUniswapPair extends ILiquidityData {
+export interface IUniswapPair extends ILiquidityData {
     __typename: 'Pair';
     createdAtTimestamp: string;
     id: string;

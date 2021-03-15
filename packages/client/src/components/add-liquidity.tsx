@@ -28,7 +28,7 @@ import {
     EthGasPrices,
     LPPositionData,
     IUniswapPair,
-    Token,
+    IToken,
 } from '@sommelier/shared-types';
 import {
     Wallet,
@@ -131,9 +131,9 @@ function AddLiquidity({
         const symbol1 = pairData.token1.symbol;
 
         if (entryToken === symbol0 && symbol0 !== 'WETH') {
-            sellToken = (pairData.token0 as Token).id;
+            sellToken = (pairData.token0 as IToken).id;
         } else if (entryToken === symbol1 && symbol1 !== 'WETH') {
-            sellToken = (pairData.token1 as Token).id;
+            sellToken = (pairData.token1 as IToken).id;
         } else if (entryToken === 'WETH') {
             // We have ETH
             sellToken = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
@@ -198,9 +198,9 @@ function AddLiquidity({
         const pairAddress = pairData.id;
 
         if (entryToken === symbol0 && symbol0 !== 'WETH') {
-            sellToken = (pairData.token0 as Token).id;
+            sellToken = (pairData.token0 as IToken).id;
         } else if (entryToken === symbol1 && symbol1 !== 'WETH') {
-            sellToken = (pairData.token1 as Token).id;
+            sellToken = (pairData.token1 as IToken).id;
         } else if (entryToken === 'WETH') {
             // We have ETH
             sellToken = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';

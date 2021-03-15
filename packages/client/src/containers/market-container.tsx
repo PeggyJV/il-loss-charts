@@ -1,7 +1,6 @@
 import { useEffect, useState, SyntheticEvent } from 'react';
 import PropTypes from 'prop-types';
 import { Link, useHistory } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
 import BootstrapTable from 'react-bootstrap-table-next';
 import BigNumber from 'bignumber.js';
 
@@ -11,7 +10,6 @@ import { MarketData } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 import mixpanel from 'util/mixpanel';
 import {ErrorBoundary} from 'react-error-boundary';
-import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { resolveLogo } from 'components/token-with-logo';
 import { PageError, ComponentError } from 'components/page-error';
 

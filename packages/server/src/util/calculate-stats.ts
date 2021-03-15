@@ -3,10 +3,11 @@ import { format } from 'date-fns';
 
 import UniswapFetcher from 'services/uniswap';
 import {
+    UniswapPair,
     IUniswapPair,
     UniswapDailyData,
     UniswapHourlyData,
-    LiquidityData,
+    ILiquidityData,
     LPStats,
     MarketStats,
     UniswapLiquidityPositionAtTime,
@@ -47,8 +48,8 @@ export async function calculateMarketStats(
     const { ethPrice } = await UniswapFetcher.getEthPrice();
 
     const calculateImpermanentLoss = (
-        startDailyData: LiquidityData,
-        endDailyData: LiquidityData
+        startDailyData: ILiquidityData,
+        endDailyData: ILiquidityData
     ) => {
         const startReserve0 = new BigNumber(startDailyData.reserve0);
         const startReserve1 = new BigNumber(startDailyData.reserve1);
@@ -188,8 +189,8 @@ export function calculateLPStats({
     const ticks: string[] = [];
 
     const calculateImpermanentLoss = (
-        startDailyData: LiquidityData,
-        endDailyData: LiquidityData,
+        startDailyData: ILiquidityData,
+        endDailyData: ILiquidityData,
         lpLiquidity: number
     ): BigNumber => {
         const initialExchangeRate = new BigNumber(startDailyData.reserve0).div(

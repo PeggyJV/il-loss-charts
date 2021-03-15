@@ -28,7 +28,7 @@ import {
     EthGasPrices,
     LPPositionData,
     IUniswapPair,
-    Token,
+    IToken,
 } from '@sommelier/shared-types';
 import {
     Wallet,
@@ -255,9 +255,9 @@ function RemoveLiquidity({
         let exitAddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
         if (exitToken === pairData.token0.symbol) {
-            exitAddress = (pairData.token0 as Token).id;
+            exitAddress = (pairData.token0 as IToken).id;
         } else if (exitToken === pairData.token1.symbol) {
-            exitAddress = (pairData.token1 as Token).id;
+            exitAddress = (pairData.token1 as IToken).id;
         }
 
         const baseGasPrice = ethers.utils

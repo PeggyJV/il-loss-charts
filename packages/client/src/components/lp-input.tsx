@@ -9,7 +9,7 @@ import dateFnsLocalizer, { defaultFormats } from 'react-widgets-date-fns';
 import {
     IUniswapPair,
     UniswapDailyData,
-    LiquidityData,
+    ILiquidityData,
 } from '@sommelier/shared-types';
 import { Pair, DailyData, HourlyData } from 'constants/prop-types';
 
@@ -33,7 +33,7 @@ function LPInput({
     historicalDailyData: UniswapDailyData[];
     lpShare: number;
     setLPShare: (newLPShare: number) => void;
-    dataAtLPDate: LiquidityData;
+    dataAtLPDate: ILiquidityData;
 }): JSX.Element {
     const isLargestBreakpoint = useMediaQuery({ query: '(min-width: 1500px)' });
     const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
@@ -42,7 +42,7 @@ function LPInput({
 
     const calcAmounts = (
         lpShare: number,
-        dataAtLPDate: LiquidityData
+        dataAtLPDate: ILiquidityData
     ): void => {
         const poolShare = new BigNumber(lpShare).div(dataAtLPDate.reserveUSD);
         const token0Amt = poolShare.times(dataAtLPDate.reserve0).toNumber();

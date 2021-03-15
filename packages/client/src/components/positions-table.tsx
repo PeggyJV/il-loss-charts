@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
 import { Link, useHistory } from 'react-router-dom';
 import {
-    Token,
+    IToken,
     LPPositionData,
     IUniswapPair,
     MarketStats,
@@ -22,7 +22,7 @@ import { resolveLogo } from 'components/token-with-logo';
 interface PositionTableRow {
     pairId: string;
     index: number;
-    market: { id: string; token0?: Partial<Token>; token1?: Partial<Token> };
+    market: { id: string; token0?: Partial<IToken>; token1?: Partial<IToken> };
     impermanentLoss: string;
     liquidity: string;
     fees: string;

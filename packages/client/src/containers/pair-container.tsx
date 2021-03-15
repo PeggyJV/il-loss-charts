@@ -9,6 +9,7 @@ import config from 'config';
 
 import {
     IUniswapPair,
+    IToken,
     UniswapSwap,
     UniswapMintOrBurn,
     UniswapDailyData,
@@ -50,8 +51,6 @@ function PairContainer({
     prefetchedPairs: PrefetchedPairState | null;
     handleAddLiquidity: (pairId: string) => void;
 }): JSX.Element {
-    const isDesktop = useMediaQuery({ query: '(min-width: 1200px)' });
-    const isLargestBreakpoint = useMediaQuery({ query: '(min-width: 1500px)' });
 
     // ------------------ Shared State ------------------
 
@@ -110,8 +109,8 @@ function PairContainer({
         // lookup by symbol
         const symbol = query.get('symbol');
         const pairForSymbol = allPairs.pairs.find((pair) => {
-            const pairSymbol = `${pair.token0.symbol || ''}/${
-                pair.token1.symbol || ''
+            const pairSymbol = `${(pair.token0 as IToken).symbol || ''}/${
+                (pair.token1 as IToken).symbol || ''
             }`;
             return symbol === pairSymbol;
         });

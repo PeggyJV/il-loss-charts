@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Combobox } from 'react-widgets';
 
-import { IUniswapPair, Token } from '@sommelier/shared-types';
+import { IUniswapPair, IToken } from '@sommelier/shared-types';
 import { AllPairsState } from 'types/states';
 
 import { PairWithLogo } from 'components/token-with-logo';
@@ -23,8 +23,8 @@ function PairSearch({
     const searchKeys: SearchKeys = useMemo(
         (): SearchKeys =>
             pairs.reduce((acc: SearchKeys, pair: IUniswapPair) => {
-                const symbol0 = (pair.token0 as Token).symbol.toLowerCase();
-                const symbol1 = (pair.token1 as Token).symbol.toLowerCase();
+                const symbol0 = (pair.token0 as IToken).symbol.toLowerCase();
+                const symbol1 = (pair.token1 as IToken).symbol.toLowerCase();
                 const symbolCombined = `${symbol0}/${symbol1}`;
                 const address = pair.id.toLowerCase();
 
@@ -52,8 +52,8 @@ function PairSearch({
 
     const lookForPair = (pair: IUniswapPair, value: string) => {
         const search = value.toLowerCase();
-        const symbol0 = (pair.token0 as Token).symbol.toLowerCase();
-        const symbol1 = (pair.token1 as Token).symbol.toLowerCase();
+        const symbol0 = (pair.token0 as IToken).symbol.toLowerCase();
+        const symbol1 = (pair.token1 as IToken).symbol.toLowerCase();
         const symbolCombined = `${symbol0}/${symbol1}`;
         const address = pair.id.toLowerCase();
 
@@ -67,8 +67,8 @@ function PairSearch({
             return item;
         }
 
-        const symbol0 = (item.token0 as Token).symbol.toUpperCase();
-        const symbol1 = (item.token1 as Token).symbol.toUpperCase();
+        const symbol0 = (item.token0 as IToken).symbol.toUpperCase();
+        const symbol1 = (item.token1 as IToken).symbol.toUpperCase();
         return `${symbol0}/${symbol1}`;
     };
 

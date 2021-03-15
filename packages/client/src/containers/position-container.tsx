@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import mixpanel from 'util/mixpanel';
 import PositionsTable from 'components/positions-table';
 import { ErrorBoundary, useErrorHandler } from 'react-error-boundary';
-import { LPPositionData, Token } from '@sommelier/shared-types';
+import { LPPositionData, IToken } from '@sommelier/shared-types';
 import { Wallet } from 'types/states';
 
 // import PositionSelector from 'components/position-selector';
@@ -137,10 +137,10 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
                 <Row className='top-stats-row'>
                     <Col lg={4} className='pair-text-large'>
                         <span>
-                            {resolveLogo((pair.token0 as Token).id)}{' '}
-                            {(pair.token0 as Token).symbol}/
-                            {(pair.token1 as Token).symbol}{' '}
-                            {resolveLogo((pair.token1 as Token).id)}
+                            {resolveLogo((pair.token0 as IToken).id)}{' '}
+                            {(pair.token0 as IToken).symbol}/
+                            {(pair.token1 as IToken).symbol}{' '}
+                            {resolveLogo((pair.token1 as IToken).id)}
                         </span>
                     </Col>
                     <Col lg={8}>

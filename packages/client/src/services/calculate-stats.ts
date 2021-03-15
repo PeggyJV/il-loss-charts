@@ -5,7 +5,7 @@ import {
     IUniswapPair,
     UniswapDailyData,
     UniswapHourlyData,
-    LiquidityData,
+    ILiquidityData,
     LPStats,
     StatsOverTime,
     TimeWindowStats,
@@ -52,8 +52,8 @@ export function calculateLPStats({
     const ticks: string[] = [];
 
     const calculateImpermanentLoss = (
-        startDailyData: LiquidityData,
-        endDailyData: LiquidityData,
+        startDailyData: ILiquidityData,
+        endDailyData: ILiquidityData,
         lpLiquidity: number
     ): BigNumber => {
         const initialExchangeRate = new BigNumber(startDailyData.reserve0).div(

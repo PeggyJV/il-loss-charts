@@ -7,7 +7,7 @@ import { TopPairsState, Wallet } from 'types/states';
 import PositionsTable from 'components/positions-table';
 import { ComponentError } from 'components/page-error';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
-import { LPPositionData, Token } from '@sommelier/shared-types';
+import { LPPositionData } from '@sommelier/shared-types';
 
 import mixpanel from 'util/mixpanel';
 import TopPairsWidget from 'components/top-pairs-widget';

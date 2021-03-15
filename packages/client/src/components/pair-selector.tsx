@@ -29,7 +29,7 @@ function PairSelector({
         }
     }
 
-    const [currentValue, setCurrentValue] = useState(defaultValue);
+    const [currentValue, setCurrentValue] = useState<IUniswapPair>(defaultValue);
 
     const leftSideOptions = [];
     const rightSideOptions = [];
@@ -70,7 +70,7 @@ function PairSelector({
         // so just override one side
         if (typeof value === 'string') {
             const token = side === 'left' ? 'token0' : 'token1';
-            setCurrentValue((current) => ({
+            setCurrentValue((current: IUniswapPair) => ({
                 ...current,
                 id: '',
                 [token]: {
