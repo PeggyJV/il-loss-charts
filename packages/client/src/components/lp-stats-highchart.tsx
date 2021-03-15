@@ -24,7 +24,7 @@ function LPStatsChart({
     (window as any).lpStats = lpStats;
 
     lpStats.ticks.forEach((stats, i) => {
-        const runningFee = new BigNumber(lpStats.runningFees[i]).toNumber();
+        const runningGain = new BigNumber(lpStats.runningFees[i]).plus(lpStats.runningNotionalGain[i]).toNumber();
         const runningReturn = new BigNumber(
             lpStats.runningReturn[i]
         ).toNumber();
@@ -33,7 +33,7 @@ function LPStatsChart({
             lpStats.fullDates?.[i] as Date | number
         ).getTime();
 
-        chartData.push([date, runningFee, runningReturn]);
+        chartData.push([date, runningGain, runningReturn]);
 
         volChartData.push([
             date,
@@ -139,7 +139,7 @@ function LPStatsChart({
         ],
         series: [
             {
-                name: 'Fees Collected',
+                name: 'Fees Collected + Notional Gain',
                 type: 'areasplinerange',
                 data: chartData,
                 marker: { enabled: false },
@@ -190,7 +190,7 @@ function LPStatsChart({
                 }
 
                 const feesPoint = this.points.find(
-                    (p) => p.series.name === 'Fees Collected'
+                    (p) => p.series.name === 'Fees Collected + Notional Gain'
                 );
                 const returnPoint = this.points.find(
                     (p) => p.series.name === 'Total Return'
@@ -213,7 +213,7 @@ function LPStatsChart({
                         feesPoint
                             ? `<span style="color:${
                                   feesPoint.color as string
-                              };">\u25CF</span><b> Fees Collected:</b> ${formatUSD(
+                              };">\u25CF</span><b> Fees Collected + Notional Gain:</b> ${formatUSD(
                                   feesPoint.y
                               )}<br>`
                             : ''

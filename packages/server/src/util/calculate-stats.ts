@@ -261,7 +261,7 @@ export async function calculateLPStats({
             initialToken0Price = initialEthPrice.times(initialExchangeRate.pow(-1));
             initialToken1Price = initialEthPrice;
         } else {
-            throw new Error('Trying to compute notional gain for non-floating pair');
+            throw new Error(`Trying to compute notional gain for non-floating pair: ${pair.symbols.join('/')}`);
         }
 
         let endDate: Date;
@@ -286,7 +286,7 @@ export async function calculateLPStats({
             currentToken0Price = currentEthPrice.times(currentExchangeRate.pow(-1));
             currentToken1Price = currentEthPrice;
         } else {
-            throw new Error('Trying to compute notional gain for non-floating pair');
+            throw new Error(`Trying to compute notional gain for non-floating pair: ${pair.symbols.join('/')}`);
         }
 
         // Calculate gross gains based on liquidity
@@ -339,22 +339,20 @@ export async function calculateLPStats({
             dataPoint,
             lpLiquidityUSD
         );
-
         let dailyReturn = newRunningFees.plus(dailyImpermanentLoss);
 
-        if (pair && pair.isFloatingPair) {
+        if (pair.isEthPair) {
             const ethPrice = await getEthPriceAtTime(currentDate);
             dailyEthPrice.push(ethPrice);
-
+    
             // For notional gain - find which side is ETH
             // Compare eth price against price ratio to get other pair price
             // Calculate gains in both pairs
             const notionalGain = await calculateNotionalGain(firstDaily, dataPoint, lpLiquidityUSD);
             runningNotionalGain.push(notionalGain);
-
+    
             dailyReturn = dailyReturn.plus(notionalGain);
         } else {
-            dailyEthPrice.push(new BigNumber(0));
             runningNotionalGain.push(new BigNumber(0));
         }
 

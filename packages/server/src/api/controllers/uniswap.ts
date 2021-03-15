@@ -463,7 +463,7 @@ class UniswapController {
         if (endDate.getTime() !== endDate.getTime())
             throw new HTTPError(400, `Received invalid date for 'endDate'.`);
 
-        if (!req.query.lpLiquidityUSD)
+        if (req.query.lpLiquidityUSD == null)
             throw new HTTPError(400, `'lpLiquidityUSD' is required.`);
         const lpLiquidityUSD: number = parseInt(
             req.query.lpLiquidityUSD?.toString(),
