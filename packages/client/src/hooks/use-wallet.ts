@@ -1,9 +1,7 @@
-import { useErrorHandler } from 'react-error-boundary';
 import { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';
 
 import WalletConnectProvider from '@walletconnect/web3-provider';
-import { providers } from 'ethers';
 import { Provider, Wallet } from 'types/states';
 import mixpanel from 'util/mixpanel';
 

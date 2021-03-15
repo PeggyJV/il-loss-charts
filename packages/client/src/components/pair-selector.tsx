@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card, InputGroup } from 'react-bootstrap';
+import { InputGroup } from 'react-bootstrap';
 import { Combobox } from 'react-widgets';
 import PropTypes from 'prop-types';
 
@@ -60,7 +60,7 @@ function PairSelector({
         if (typeof pair === 'string') return pair;
 
         const token = side === 'left' ? 'token0' : 'token1';
-        return pair[token].symbol as string;
+        return pair[token].symbol;
     };
 
     const handleChange = (side: 'left' | 'right') => (

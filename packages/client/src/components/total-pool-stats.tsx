@@ -1,11 +1,9 @@
-import { Button, Card, CardGroup, Badge } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
 import { formatUSD } from 'util/formats';
 
-import { AllPairsState, PairPricesState, StatsWindow } from 'types/states';
+import { PairPricesState, StatsWindow } from 'types/states';
 import { Pair, DailyData, LPStats } from 'constants/prop-types';
-import USDValueWidget from 'components/usd-value-widget';
 
 import { calculateTimeWindowStats } from 'services/calculate-stats';
 
@@ -28,12 +26,10 @@ function PercentChangeStat({ value }: { value?: BigNumber }) {
 PercentChangeStat.propTypes = { value: PropTypes.instanceOf(BigNumber) };
 
 function TotalPoolStats({
-    allPairs,
     lpInfo,
     defaultWindow = 'total',
     setWindow,
 }: {
-    allPairs: AllPairsState;
     lpInfo: PairPricesState;
     defaultWindow?: StatsWindow;
     setWindow: (window: StatsWindow) => void;
@@ -52,8 +48,6 @@ function TotalPoolStats({
         else setWindow(selectedWindow);
     };
 
-    const prefix =
-        defaultWindow === 'day' ? '24h' : defaultWindow === 'week' ? '7d' : '';
     const volume = stats?.volumeUSD?.toFixed(4);
     const liquidity = stats?.liquidityUSD?.toFixed(4);
     const fees = stats?.feesUSD?.toFixed(4);
@@ -99,22 +93,6 @@ function TotalPoolStats({
                             )}
                         </td>
                     </tr>
-
-                    {/* {`${prefix} USD Volume`} */}
-                    {/* <Badge variant='secondary'>
-                        {`#${
-                            allPairs?.lookups?.[lpInfo.pairData.id]
-                                ?.volumeRanking || ''
-                        }`}
-                    </Badge> */}
-                    {/* <p>{displayValue}</p> */}
-                    {/* <div>
-                        {stats?.volumeUSDChange && (
-                            <PercentChangeStat
-                                value={stats?.volumeUSDChange?.times(100)}
-                            />
-                        )}
-                    </div> */}
                     <tr>
                         <td>Liquidity</td>
                         <td>{liquidityValue}</td>
@@ -128,20 +106,6 @@ function TotalPoolStats({
                             )}
                         </td>
                     </tr>
-                    {/* title={'Total Liquidity'}
-                    badge={`#${
-                        allPairs?.lookups?.[lpInfo.pairData.id]
-                            ?.liquidityRanking || ''
-                    }`}
-                    value={stats?.liquidityUSD?.toFixed(4)}
-                    footnote={
-                        stats?.liquidityUSDChange && (
-                            <PercentChangeStat
-                                value={stats?.liquidityUSDChange?.times(100)}
-                            />
-                        )
-                    }
-                /> */}
                     <tr>
                         <td>{'Fees'}</td>
                         <td>{feesValue}</td>
@@ -154,20 +118,6 @@ function TotalPoolStats({
                         </td>
                     </tr>
                 </table>
-                {/* title={`${prefix} Fees Collected`}
-                    badge={`#${
-                        allPairs?.lookups?.[lpInfo.pairData.id]
-                            ?.volumeRanking || ''
-                    }`}
-                    value={stats?.feesUSD?.toFixed(4)}
-                    footnote={
-                        stats?.feesUSDChange && (
-                            <PercentChangeStat
-                                value={stats?.feesUSDChange?.times(100)}
-                            />
-                        )
-                    }
-                /> */}
             </div>
         </div>
     );

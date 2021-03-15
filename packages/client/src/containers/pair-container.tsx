@@ -1,19 +1,13 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { useEffect, useState, useMemo } from 'react';
+import { Container } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
-import { useMediaQuery } from 'react-responsive';
-import useWebSocket from 'react-use-websocket';
+// import useWebSocket from 'react-use-websocket';
 import PropTypes from 'prop-types';
 
-import config from 'config';
+// import config from 'config';
 
 import {
-    IUniswapPair,
-    IToken,
-    UniswapSwap,
-    UniswapMintOrBurn,
     UniswapDailyData,
-    UniswapHourlyData,
     LPStats,
 } from '@sommelier/shared-types';
 
@@ -25,7 +19,6 @@ import {
 } from 'types/states';
 import { Pair } from 'constants/prop-types';
 import initialData from 'constants/initialData.json';
-import { UniswapApiFetcher as Uniswap } from 'services/api';
 
 import usePairData from 'hooks/use-pair-data';
 import { calculateLPStats } from 'services/calculate-stats';
@@ -37,9 +30,9 @@ import LPInput from 'components/lp-input';
 import LPStatsWidget from 'components/lp-stats-widget';
 // import LPStatsChart from 'components/lp-stats-chart';
 import LPStatsChart from 'components/lp-stats-highchart';
-import LatestTradesSidebar from 'components/latest-trades-sidebar';
+// import LatestTradesSidebar from 'components/latest-trades-sidebar';
 import TotalPoolStats from 'components/total-pool-stats';
-import TelegramCTA from 'components/telegram-cta';
+// import TelegramCTA from 'components/telegram-cta';
 import { PageError } from 'components/page-error';
 
 function PairContainer({
@@ -62,7 +55,7 @@ function PairContainer({
         prefetchedPair = prefetchedPairs[pairId];
     }
 
-    const { isLoading, currentError, lpInfo, latestSwaps } = usePairData(
+    const { isLoading, currentError, lpInfo } = usePairData(
         pairId,
         prefetchedPair
     );
@@ -125,6 +118,7 @@ function PairContainer({
 
         // There is no pair in the query, so set to default
         if (!pairId) return setPairId(initialData.defaultPairId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
 
     useEffect(() => {
@@ -267,7 +261,7 @@ function PairContainer({
     // ------------------ Websocket State - handles subscriptions ------------------
 
     // TODO: Re-enable websockets
-    const [latestBlock, setLatestBlock] = useState<number | null>(null);
+    // const [latestBlock, setLatestBlock] = useState<number | null>(null);
     // const { sendJsonMessage, lastJsonMessage } = useWebSocket(config.wsApi);
 
     // Handle websocket message
@@ -378,7 +372,6 @@ function PairContainer({
                     />
                     <div className='pool-stats-addl'>
                         <TotalPoolStats
-                            allPairs={allPairs}
                             lpInfo={lpInfo}
                             defaultWindow={timeWindow}
                             setWindow={setWindow}

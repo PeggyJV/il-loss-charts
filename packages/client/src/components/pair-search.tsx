@@ -2,7 +2,6 @@ import { useEffect, useState, useMemo } from 'react';
 import { Combobox } from 'react-widgets';
 
 import { UniswapPair } from '@sommelier/shared-types';
-import { AllPairsState } from 'types/states';
 
 import { PairWithLogo } from 'components/token-with-logo';
 
@@ -45,6 +44,8 @@ function PairSearch({
         }
 
         if (currentValue?.id) setPair(currentValue.id);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentValue, searchKeys]);
 
     const lookForPair = (pair: UniswapPair, value: string) => {

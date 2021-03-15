@@ -1,6 +1,5 @@
 import './pair-card.scss';
 import { Link } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
 import { resolveLogo } from 'components/token-with-logo';

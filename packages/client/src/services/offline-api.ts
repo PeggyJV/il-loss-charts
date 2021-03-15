@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
     MarketStats,
     IUniswapPair,
@@ -7,8 +8,6 @@ import {
     UniswapHourlyData,
     LPPositionData,
 } from '@sommelier/shared-types';
-
-import { IError } from 'types/states';
 
 import initalData from 'constants/initialData.json';
 

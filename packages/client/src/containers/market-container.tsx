@@ -1,4 +1,4 @@
-import { useEffect, useState, SyntheticEvent } from 'react';
+import { useEffect, SyntheticEvent } from 'react';
 import PropTypes from 'prop-types';
 import { Link, useHistory } from 'react-router-dom';
 import BootstrapTable from 'react-bootstrap-table-next';
@@ -11,26 +11,18 @@ import { formatUSD } from 'util/formats';
 import mixpanel from 'util/mixpanel';
 import {ErrorBoundary} from 'react-error-boundary';
 import { resolveLogo } from 'components/token-with-logo';
-import { PageError, ComponentError } from 'components/page-error';
+import { ComponentError } from 'components/page-error';
 
 function OverviewContainer({
     marketData,
 }: {
     marketData: MarketStats[] | null;
 }): JSX.Element {
-    const [topPairs, setTopPairs] = useState<MarketStats[] | null>(null);
-    const [currentError, setError] = useState<string | null>(null);
-
     useEffect(() => {
         mixpanel.track('pageview:market', {});
     }, []);
 
     (window as any).marketData = marketData;
-    (window as any).topPairs = topPairs;
-
-    if (currentError) {
-        return <PageError errorMsg={currentError} />;
-    }
 
     return (
         <div>

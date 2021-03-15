@@ -1,4 +1,3 @@
-import { Card } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 import { format } from 'date-fns';
 

@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import { ErrorBoundary, useErrorHandler } from 'react-error-boundary';
 import { useState, useEffect, ReactElement } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
 import useWebSocket from 'react-use-websocket';
 import ManageLiquidityModal from 'components/manage-liquidity-modal';
 import config from 'config';
@@ -157,6 +156,7 @@ function App(): ReactElement {
         void fetchAllPairs();
         void fetchTopPairs();
         void fetchMarketData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const { sendJsonMessage, lastJsonMessage } = useWebSocket(config.wsApi);
@@ -266,7 +266,6 @@ function App(): ReactElement {
                                             <LandingContainer
                                                 topPairs={topPairs}
                                                 wallet={wallet}
-                                                gasPrices={gasPrices}
                                                 setShowConnectWallet={
                                                     setShowConnectWallet
                                                 }

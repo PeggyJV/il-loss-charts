@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Form, Card, Col } from 'react-bootstrap';
+import { Form, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
 import { DateTimePicker } from 'react-widgets';
-import { useMediaQuery } from 'react-responsive';
 import dateFnsLocalizer, { defaultFormats } from 'react-widgets-date-fns';
 
 import {
@@ -35,9 +34,6 @@ function LPInput({
     setLPShare: (newLPShare: number) => void;
     dataAtLPDate: ILiquidityData;
 }): JSX.Element {
-    const isLargestBreakpoint = useMediaQuery({ query: '(min-width: 1500px)' });
-    const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
-
     const { token0, token1 } = pairData;
 
     const calcAmounts = (

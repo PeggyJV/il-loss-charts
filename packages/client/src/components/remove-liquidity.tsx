@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
-    Alert,
     Container,
     Row,
     Col,
@@ -16,8 +15,6 @@ import { Combobox } from 'react-widgets';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
 
-import mixpanel from 'util/mixpanel';
-
 import erc20Abi from 'constants/abis/erc20.json';
 import exchangeRemoveAbi from 'constants/abis/volumefi_remove_liquidity_uniswap.json';
 
@@ -28,7 +25,6 @@ import {
     EthGasPrices,
     LPPositionData,
     IUniswapPair,
-    IToken,
 } from '@sommelier/shared-types';
 import {
     Wallet,
@@ -36,7 +32,7 @@ import {
     ManageLiquidityActionState,
 } from 'types/states';
 
-import TokenWithLogo, { resolveLogo } from 'components/token-with-logo';
+import { resolveLogo } from 'components/token-with-logo';
 import { RemoveLiquidityActionButton } from 'components/liquidity-action-button';
 
 function RemoveLiquidity({

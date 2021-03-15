@@ -8,8 +8,6 @@ import {
     LPPositionData,
 } from '@sommelier/shared-types';
 
-import { IError } from 'types/states';
-
 import { UniswapApiFetcher as OfflineFetcher } from 'services/offline-api';
 
 type ApiResponse<T> = { data?: T; error?: string };

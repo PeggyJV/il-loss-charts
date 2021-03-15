@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { ButtonGroup, Button, Modal } from 'react-bootstrap';
+import { ButtonGroup, Modal } from 'react-bootstrap';
 import classNames from 'classnames';
 
 import { ethers } from 'ethers';
-import mixpanel from 'util/mixpanel';
 
 import erc20Abi from 'constants/abis/erc20.json';
 
@@ -15,10 +14,7 @@ const EXCHANGE_REMOVE_ABI_ADDRESS =
 import {
     EthGasPrices,
     LPPositionData,
-    MarketStats,
-    IUniswapPair,
     UniswapPair,
-    IToken,
 } from '@sommelier/shared-types';
 import { Wallet, WalletBalances } from 'types/states';
 
@@ -181,6 +177,7 @@ function ManageLiquidityModal({
         };
 
         void getBalances();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet, show, pairData]);
 
     useEffect(() => {

@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
-    Alert,
     Row,
     Col,
     Card,
@@ -28,7 +27,6 @@ import {
     EthGasPrices,
     LPPositionData,
     IUniswapPair,
-    IToken,
 } from '@sommelier/shared-types';
 import {
     Wallet,
@@ -301,8 +299,6 @@ function AddLiquidity({
         } else if (!entryAmount || new BigNumber(entryAmount).lte(0)) {
             return 'amountNotEntered';
         } else if (new BigNumber(entryAmount).gt(maxBalanceStr)) {
-            console.log('THIS IS ENTRY AMOUNT', entryAmount);
-            console.log('THIS IS MAX BALANCE', maxBalance);
             return 'insufficientFunds';
         } else if (new BigNumber(expectedPriceImpact).gt(slippageTolerance)) {
             return 'slippageTooHigh';

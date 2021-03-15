@@ -13,7 +13,6 @@ function ConnectWalletModal({
     connectMetaMask,
     connectWalletConnect,
     disconnectWallet,
-    error,
     availableProviders,
 }: ReturnType<typeof useWallet> & {
     show: boolean;

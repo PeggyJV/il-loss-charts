@@ -1,13 +1,11 @@
-import { SyntheticEvent } from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
-import { Link, useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
     IToken,
     LPPositionData,
     IUniswapPair,
-    MarketStats,
 } from '@sommelier/shared-types';
 
 import {
@@ -31,12 +29,9 @@ interface PositionTableRow {
 
 function PositionsTable({
     positionData: { positions, stats },
-    pairId,
-    setPairId,
     handleAddLiquidity,
 }: {
     positionData: LPPositionData<string>;
-    pairId: string;
     setPairId: (pairId: string) => void;
     handleAddLiquidity: (pairId: string) => void;
 }): JSX.Element {
@@ -159,19 +154,19 @@ function PositionsTable({
     // const onRowClick = (e: SyntheticEvent, row: PositionTableRow) => {
     //     history.push(`/pair?id=${pair.id}`);
     // };
-    const getRowStyle = (row: PositionTableRow) => {
-        const styles: {
-            borderLeft: number;
-            borderRight: number;
-            backgroundColor?: string;
-        } = { borderLeft: 0, borderRight: 0 };
+    // const getRowStyle = (row: PositionTableRow) => {
+    //     const styles: {
+    //         borderLeft: number;
+    //         borderRight: number;
+    //         backgroundColor?: string;
+    //     } = { borderLeft: 0, borderRight: 0 };
 
-        if (row.pairId === pairId) {
-            styles.backgroundColor = 'rgba(0, 0, 0, 0.075)';
-        }
+    //     if (row.pairId === pairId) {
+    //         styles.backgroundColor = 'rgba(0, 0, 0, 0.075)';
+    //     }
 
-        return styles;
-    };
+    //     return styles;
+    // };
 
     return (
         <div className='il-market-container'>
