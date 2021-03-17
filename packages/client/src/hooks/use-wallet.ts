@@ -92,8 +92,7 @@ export default function useWallet(): {
                   const mixpanelData = {
                     distinct_id: account,
                     account,
-                    providerName: 'metamask',
-                    provider: (window as any).ethereum,
+                    providerName: 'metamask'
                   }
 
                   mixpanel.track('wallet', mixpanelData);
@@ -121,8 +120,7 @@ export default function useWallet(): {
               const mixpanelData = {
                 distinct_id: account,
                 account,
-                providerName: 'walletconnect',
-                provider: wcProvider,
+                providerName: 'walletconnect'
               }
 
               mixpanel.track('wallet', mixpanelData);
@@ -165,8 +163,7 @@ export default function useWallet(): {
           const mixpanelData = {
             distinct_id: account,
             account,
-            providerName: 'metamask',
-            provider: (window as any).ethereum,
+            providerName: 'metamask'
           }
 
           mixpanel.track('wallet', mixpanelData);
@@ -191,8 +188,7 @@ export default function useWallet(): {
               const mixpanelData = {
                 distinct_id: wcProvider.accounts[0],
                 account: wcProvider.accounts[0],
-                providerName: 'walletconnect',
-                provider: wcProvider,
+                providerName: 'walletconnect'
               }
 
               mixpanel.track('wallet:connect', mixpanelData);
