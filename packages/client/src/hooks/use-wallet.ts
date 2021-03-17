@@ -89,8 +89,14 @@ export default function useWallet(): {
                 setWallet(walletObj);
 
                 try {
-                  (<any>walletObj).distinct_id = account;
-                  mixpanel.track('wallet', walletObj);
+                  const mixpanelData = {
+                    distinct_id: account,
+                    account,
+                    providerName: 'metamask',
+                    provider: (window as any).ethereum,
+                  }
+
+                  mixpanel.track('wallet', mixpanelData);
                 } catch (e) {
                     console.error(`Metrics error on wallet.`);
                 }
@@ -112,8 +118,14 @@ export default function useWallet(): {
             setWallet(walletObj);
 
             try {
-              (<any>walletObj).distinct_id = account;
-              mixpanel.track('wallet', walletObj);
+              const mixpanelData = {
+                distinct_id: account,
+                account,
+                providerName: 'walletconnect',
+                provider: wcProvider,
+              }
+
+              mixpanel.track('wallet', mixpanelData);
             } catch (e) {
                 console.error(`Metrics error on wallet.`);
             }
@@ -150,8 +162,14 @@ export default function useWallet(): {
         setWallet(walletObj);
 
         try {
-          (<any>walletObj).distinct_id =  account;
-          mixpanel.track('wallet', walletObj);
+          const mixpanelData = {
+            distinct_id: account,
+            account,
+            providerName: 'metamask',
+            provider: (window as any).ethereum,
+          }
+
+          mixpanel.track('wallet', mixpanelData);
         } catch (e) {
             console.error(`Metrics error on wallet.`);
         }
@@ -170,9 +188,14 @@ export default function useWallet(): {
             setWallet(walletObj);
 
             try {
+              const mixpanelData = {
+                distinct_id: wcProvider.accounts[0],
+                account: wcProvider.accounts[0],
+                providerName: 'walletconnect',
+                provider: wcProvider,
+              }
 
-              (<any>walletObj).distinct_id = wcProvider.accounts[0]
-              mixpanel.track('wallet:connect', walletObj);
+              mixpanel.track('wallet:connect', mixpanelData);
             } catch (e) {
                 console.error(`Metrics error on wallet.`);
             }
