@@ -234,6 +234,9 @@ export class UniswapApiFetcher extends OfflineFetcher {
         endDate = new Date(),
         lpLiquidityUSD: number
     ): Promise<ApiResponse<LPStats<string>>> {
+        if (useOffline)
+            return OfflineFetcher.getPairStats(pairId, startDate, endDate, lpLiquidityUSD);
+
         const response = await fetch(
             `/api/v1/uniswap/pairs/${pairId}/stats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&lpLiquidityUSD=${lpLiquidityUSD}`
         );

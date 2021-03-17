@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
     MarketStats,
+    LPStats,
     IUniswapPair,
     UniswapSwap,
     UniswapMintOrBurn,
@@ -9,7 +10,7 @@ import {
     LPPositionData,
 } from '@sommelier/shared-types';
 
-import initalData from 'constants/initialData.json';
+import initialData from 'constants/initialData.json';
 
 type ApiResponse<T> = { data?: T; error?: string };
 
@@ -17,13 +18,13 @@ export class UniswapApiFetcher {
     static async getPairOverview(
         pairId: string
     ): Promise<ApiResponse<IUniswapPair>> {
-        return Promise.resolve({ data: initalData.pairData as IUniswapPair });
+        return Promise.resolve({ data: initialData.pairData as IUniswapPair });
     }
 
     static async getLatestSwaps(
         pairId: string
     ): Promise<ApiResponse<UniswapSwap[]>> {
-        return Promise.resolve({ data: initalData.swaps as UniswapSwap[] });
+        return Promise.resolve({ data: initialData.swaps as UniswapSwap[] });
     }
 
     static async getMintsAndBurns(
@@ -37,9 +38,9 @@ export class UniswapApiFetcher {
     > {
         return Promise.resolve({
             data: {
-                mints: initalData.mints as UniswapMintOrBurn[],
-                burns: initalData.burns as UniswapMintOrBurn[],
-                combined: initalData.combined as UniswapMintOrBurn[],
+                mints: initialData.mints as UniswapMintOrBurn[],
+                burns: initialData.burns as UniswapMintOrBurn[],
+                combined: initialData.combined as UniswapMintOrBurn[],
             },
         });
     }
@@ -47,14 +48,14 @@ export class UniswapApiFetcher {
     static async getTopPairs(
         count = 1000
     ): Promise<ApiResponse<IUniswapPair[]>> {
-        return Promise.resolve({ data: initalData.allPairs as IUniswapPair[] });
+        return Promise.resolve({ data: initialData.allPairs as IUniswapPair[] });
     }
 
     static async getMarketData(
         startDate = '2020-12-01'
     ): Promise<ApiResponse<MarketStats[]>> {
         return Promise.resolve({
-            data: initalData.marketData as MarketStats[],
+            data: initialData.marketData as MarketStats[],
         });
     }
 
@@ -62,7 +63,7 @@ export class UniswapApiFetcher {
         ApiResponse<MarketStats[]>
     > {
         return Promise.resolve({
-            data: initalData.dailyTopPairs as MarketStats[],
+            data: initialData.dailyTopPairs as MarketStats[],
         });
     }
 
@@ -70,7 +71,23 @@ export class UniswapApiFetcher {
         ApiResponse<MarketStats[]>
     > {
         return Promise.resolve({
-            data: initalData.weeklyTopPairs as MarketStats[],
+            data: initialData.weeklyTopPairs as MarketStats[],
+        });
+    }
+
+    static async getPairStats(
+        pairId: string,
+        startDate: Date,
+        endDate = new Date(),
+        lpLiquidityUSD: number
+    ): Promise<ApiResponse<LPStats<string>>> {
+        const lpStats = initialData.lpStats;
+        const loadedLpStats = {
+            ...lpStats,
+            fullDates: lpStats.fullDates.map((d) => new Date(d))
+        };
+        return Promise.resolve({
+            data: loadedLpStats as LPStats<string>,
         });
     }
 
@@ -80,7 +97,7 @@ export class UniswapApiFetcher {
         endDate = new Date()
     ): Promise<ApiResponse<UniswapDailyData[]>> {
         return Promise.resolve({
-            data: initalData.historicalDailyData as UniswapDailyData[],
+            data: initialData.historicalDailyData as UniswapDailyData[],
         });
     }
 
@@ -90,7 +107,7 @@ export class UniswapApiFetcher {
         endDate = new Date()
     ): Promise<ApiResponse<UniswapHourlyData[]>> {
         return Promise.resolve({
-            data: initalData.historicalHourlyData as UniswapHourlyData[],
+            data: initialData.historicalHourlyData as UniswapHourlyData[],
         });
     }
 

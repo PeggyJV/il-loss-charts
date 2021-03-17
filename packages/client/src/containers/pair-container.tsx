@@ -14,7 +14,7 @@ import {
 import {
     AllPairsState,
     PrefetchedPairState,
-    PairDataState,
+    LPDataState,
     StatsWindow,
 } from 'types/states';
 import { Pair } from 'constants/prop-types';
@@ -53,7 +53,7 @@ function PairContainer({
     const [pairId, setPairId] = useState<string | null>(null);
     const [timeWindow, setWindow] = useState<StatsWindow>('total');
 
-    let prefetchedPair: PairDataState | null = null;
+    let prefetchedPair: LPDataState | null = null;
     if (pairId && prefetchedPairs) {
         prefetchedPair = prefetchedPairs[pairId];
     }
@@ -141,7 +141,7 @@ function PairContainer({
 
             const { data: lpStats, error } = await Uniswap.getPairStats(
                 pairId,
-                lpDate,
+                new Date(initialData.lpDate),
                 new Date(),
                 lpShare
             );
@@ -161,7 +161,11 @@ function PairContainer({
             }
         }
 
-        void getDefaultLPStats();
+        if (prefetchedPair && prefetchedPair.lpStats) {
+            setDefaultLPStats(prefetchedPair.lpStats);
+        } else {
+            void getDefaultLPStats();
+        }
     }, [pairId]);
 
 

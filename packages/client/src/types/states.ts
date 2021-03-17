@@ -6,6 +6,7 @@ import {
     UniswapHourlyData,
     UniswapSwap,
     UniswapMintOrBurn,
+    LPStats
 } from '@sommelier/shared-types';
 
 import { ethers } from 'ethers';
@@ -58,13 +59,17 @@ export interface PairDataState {
     latestSwaps?: SwapsState;
 }
 
+export interface LPDataState extends PairDataState {
+    lpStats: LPStats<string>;
+}
+
 export interface TopPairsState {
     daily: MarketStats[];
     weekly: MarketStats[];
 }
 
 export interface PrefetchedPairState {
-    [pairId: string]: PairDataState;
+    [pairId: string]: LPDataState;
 }
 export interface GasPrices {
     standard: number;

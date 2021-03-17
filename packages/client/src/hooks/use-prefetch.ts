@@ -7,6 +7,8 @@ import { PrefetchedPairState } from 'types/states';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 
+import initialData from 'constants/initialData.json';
+
 // Pre-fetch up to 5 pairs in parallel
 const CONCURRENCY = 5;
 const limit = pLimit(CONCURRENCY);
@@ -67,6 +69,7 @@ export default function usePrefetch(
                             },
                             { data: latestSwaps, error: swapsErrors },
                             { data: mintsAndBurns, error: mintBurnErrors },
+                            { data: lpStats, error: lpStatsError },
                         ] = await Promise.all([
                             Uniswap.getHistoricalDailyData(
                                 pairId,
@@ -75,13 +78,20 @@ export default function usePrefetch(
                             Uniswap.getHistoricalHourlyData(pairId, oneWeekAgo),
                             Uniswap.getLatestSwaps(pairId),
                             Uniswap.getMintsAndBurns(pairId),
+                            Uniswap.getPairStats(
+                                pairId,
+                                new Date(initialData.lpDate),
+                                new Date(),
+                                initialData.lpShare
+                            )
                         ]);
 
                         const error =
                             dailyDataError ??
                             hourlyDataError ??
                             swapsErrors ??
-                            mintBurnErrors;
+                            mintBurnErrors ??
+                            lpStatsError;
 
                         if (error) {
                             console.error(
@@ -94,7 +104,8 @@ export default function usePrefetch(
                             historicalDailyData &&
                             historicalHourlyData &&
                             latestSwaps &&
-                            mintsAndBurns
+                            mintsAndBurns &&
+                            lpStats
                         ) {
                             // Find first data points with non-zero volume and liquidity
                             const firstActiveDaily = historicalDailyData.findIndex(
@@ -132,6 +143,7 @@ export default function usePrefetch(
                                     swaps: latestSwaps,
                                     mintsAndBurns,
                                 },
+                                lpStats
                             };
                         } else {
                             throw new Error(
