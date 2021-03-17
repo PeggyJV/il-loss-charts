@@ -208,6 +208,7 @@ export async function calculateLPStats({
     const runningImpermanentLoss: BigNumber[] = [];
     const runningNotionalGain: BigNumber[] = [];
     const runningReturn: BigNumber[] = [];
+    const dataPoints: HistoricalData[] = [];
     const fullDates: Date[] = [];
     const ticks: string[] = [];
 
@@ -318,6 +319,8 @@ export async function calculateLPStats({
         if (currentDate.getTime() < lpDate.getTime()) continue;
         if (!firstDaily) firstDaily = dataPoint;
 
+        dataPoints.push(dataPoint);
+
         const poolShare = new BigNumber(lpLiquidityUSD).div(
             dataPoint.reserveUSD
         );
@@ -401,6 +404,7 @@ export async function calculateLPStats({
         totalReturn,
         ticks,
         fullDates,
+        dataPoints
     };
 }
 
@@ -648,6 +652,7 @@ export async function calculateStatsForPositions(
                     ),
                     totalReturn: acc.totalReturn.plus(currentStats.totalReturn),
                     ticks: acc.ticks.concat(...currentStats.ticks),
+                    dataPoints: acc.dataPoints.concat(...currentStats.dataPoints),
                     dailyLiquidity: acc.dailyLiquidity.concat(
                         ...currentStats.dailyLiquidity
                     ),

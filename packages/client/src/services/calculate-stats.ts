@@ -9,9 +9,11 @@ import {
     PoolStats,
     StatsOverTime,
     TimeWindowStats,
+    LPStats,
 } from '@sommelier/shared-types';
 
 import { StatsWindow, PairPricesState } from 'types/states';
+import initialData from 'constants/initialData.json';
 
 const FEE_RATIO = 0.003;
 
@@ -45,6 +47,7 @@ export function calculatePoolStats({
     const runningPoolFees: BigNumber[] = [];
     const fullDates: Date[] = [];
     const ticks: string[] = [];
+    const dataPoints: HistoricalData[] = [];
 
     const getPrevRunningValue = (list: BigNumber[]): BigNumber =>
         list.length ? list[list.length - 1] : new BigNumber(0);
@@ -61,6 +64,7 @@ export function calculatePoolStats({
 
         // Ignore if below lp date
         if (currentDate.getTime() < startDate.getTime()) return;
+        dataPoints.push(dataPoint);
 
         if (!firstDaily) firstDaily = dataPoint;
 
@@ -111,6 +115,7 @@ export function calculatePoolStats({
         runningPoolFees,
         ticks,
         fullDates,
+        dataPoints
     };
 }
 
@@ -287,4 +292,106 @@ export function calculatePairRankings(
         pairs,
         pairLookups,
     };
+}
+
+export function deriveLPStats(
+    lpStats: LPStats<string>, 
+    startDate: Date,
+    lpShare: number
+): LPStats<string> {
+    // Re-calculate LP stats for a given start/end date locally
+    // Takes advantage of having eth prices already available in the default
+
+    // Find index closest to LP date
+    // Deduct values from the rest of the items in the index
+    if (lpStats.fullDates == null) {
+        throw new Error(`Cannot slice lp stats without full dates`);
+    }
+
+    let sliceIndex = lpStats.fullDates.findIndex((tickDate) => new Date(tickDate) > startDate);
+
+    if (sliceIndex < 1) {
+        console.warn(`Cannot slice LP Stats - startDate ${startDate.toISOString()} before first date of stats ${lpStats.fullDates[0].toString()}`);
+        return lpStats;
+    }
+
+    const lpShareRatio = new BigNumber(lpShare).div(initialData.lpShare);
+
+    const calculateImpermanentLoss = (
+        startDailyData: ILiquidityData,
+        endDailyData: ILiquidityData,
+        lpLiquidity: number
+    ): BigNumber => {
+        const initialExchangeRate = new BigNumber(startDailyData.reserve0).div(
+            new BigNumber(startDailyData.reserve1)
+        );
+        const currentExchangeRate = new BigNumber(endDailyData.reserve0).div(
+            new BigNumber(endDailyData.reserve1)
+        );
+        const priceRatio = currentExchangeRate.div(initialExchangeRate);
+        const impermanentLossPct = new BigNumber(2)
+            .times(priceRatio.sqrt())
+            .div(priceRatio.plus(1))
+            .minus(1);
+        const impermanentLoss = impermanentLossPct.times(
+            new BigNumber(lpLiquidity)
+        );
+
+        return impermanentLoss;
+    };
+
+    // Move one before the slice index
+    sliceIndex--;
+    const statsAtSliceIndex = {
+        runningVolume: lpStats.runningVolume[sliceIndex],
+        runningPoolFees: lpStats.runningPoolFees[sliceIndex],
+        runningFees: lpStats.runningFees[sliceIndex],
+        runningNotionalGain: lpStats.runningNotionalGain[sliceIndex],
+        runningImpermanentLoss: lpStats.runningImpermanentLoss[sliceIndex],
+        runningReturn: lpStats.runningReturn[sliceIndex],
+        dataPoint: lpStats.dataPoints[sliceIndex]
+    };
+
+    const statsAfterSlice: LPStats<string> = {
+        timeWindow: lpStats.timeWindow,
+        runningVolume: lpStats.runningVolume.slice(sliceIndex),
+        dailyVolume: lpStats.dailyVolume.slice(sliceIndex),
+        runningPoolFees: lpStats.runningPoolFees.slice(sliceIndex),
+        dailyLiquidity: lpStats.dailyLiquidity.slice(sliceIndex),
+        dailyEthPrice: lpStats.dailyEthPrice.slice(sliceIndex),
+        totalFees: '0',
+        totalNotionalGain: '0',
+        impermanentLoss: '0',
+        totalReturn: '0',
+        runningFees: lpStats.runningFees.slice(sliceIndex),
+        runningNotionalGain: lpStats.runningNotionalGain.slice(sliceIndex),
+        runningImpermanentLoss: lpStats.runningImpermanentLoss.slice(sliceIndex),
+        runningReturn: lpStats.runningReturn.slice(sliceIndex),
+        ticks: lpStats.ticks.slice(sliceIndex),
+        fullDates: lpStats.fullDates.slice(sliceIndex),
+        dataPoints: lpStats.dataPoints.slice(sliceIndex)
+    };
+
+    if (statsAfterSlice.fullDates == null) {
+        throw new Error(`Cannot slice lp stats without full dates`);
+    }
+
+    for (let i = sliceIndex + 1; i < statsAfterSlice.fullDates.length; i++) {
+        // deduct pre-slice stats from all running totals
+        statsAfterSlice.runningVolume[i] = new BigNumber(statsAfterSlice.runningVolume[i]).minus(statsAtSliceIndex.runningVolume).times(lpShareRatio).toString();
+        statsAfterSlice.runningPoolFees[i] = new BigNumber(statsAfterSlice.runningPoolFees[i]).minus(statsAtSliceIndex.runningPoolFees).times(lpShareRatio).toString();
+        statsAfterSlice.runningFees[i] = new BigNumber(statsAfterSlice.runningFees[i]).minus(statsAtSliceIndex.runningFees).times(lpShareRatio).toString();
+        statsAfterSlice.runningNotionalGain[i] = new BigNumber(statsAfterSlice.runningNotionalGain[i]).minus(statsAtSliceIndex.runningNotionalGain).times(lpShareRatio).toString();
+
+        // Re-calculate impermanent loss and return
+        statsAfterSlice.runningImpermanentLoss[i] = calculateImpermanentLoss(statsAtSliceIndex.dataPoint, statsAfterSlice.dataPoints[i], lpShare).toString();
+        statsAfterSlice.runningReturn[i] = new BigNumber(statsAfterSlice.runningFees[i]).plus(statsAfterSlice.runningNotionalGain[i]).plus(statsAfterSlice.runningImpermanentLoss[i]).toString();
+    }
+
+    statsAfterSlice.totalFees = statsAfterSlice.runningFees[statsAfterSlice.runningFees.length - 1];
+    statsAfterSlice.impermanentLoss = statsAfterSlice.runningImpermanentLoss[statsAfterSlice.runningImpermanentLoss.length - 1];
+    statsAfterSlice.totalNotionalGain = statsAfterSlice.runningNotionalGain[statsAfterSlice.runningNotionalGain.length - 1];
+    statsAfterSlice.totalReturn = new BigNumber(statsAfterSlice.totalFees).plus(statsAfterSlice.impermanentLoss).plus(statsAfterSlice.totalNotionalGain).toString();
+
+    return statsAfterSlice;
 }

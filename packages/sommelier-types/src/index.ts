@@ -26,6 +26,7 @@ export interface UniswapHourlyData extends ILiquidityData {
     hourlyVolumeUSD: string;
 }
 
+type HistoricalData = UniswapDailyData | UniswapHourlyData;
 export interface UniswapSwap {
     __typename: 'Swap';
     amount0In: string;
@@ -56,8 +57,9 @@ export interface PoolStats<T = BigNumber> {
     dailyLiquidity: T[];
     ticks: string[];
     fullDates?: Date[];
+    dataPoints: HistoricalData[]
 }
-export interface LPStats<T = BigNumber> extends PoolStats {
+export interface LPStats<T = BigNumber> extends PoolStats<T> {
     dailyEthPrice: T[];
     totalFees: T;
     totalNotionalGain: T;
@@ -106,8 +108,6 @@ export interface UniswapLiquidityPositionAtTime extends ILiquidityData {
     pair: Partial<IUniswapPair>;
     timestamp: number;
 }
-
-type HistoricalData = UniswapDailyData | UniswapHourlyData;
 
 export interface LPPositionData<T = BigNumber> {
     positions: { [pairId: string]: UniswapLiquidityPositionAtTime[] };

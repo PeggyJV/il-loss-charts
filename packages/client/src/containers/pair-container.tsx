@@ -35,6 +35,7 @@ import TotalPoolStats from 'components/total-pool-stats';
 import { PageError } from 'components/page-error';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
+import { deriveLPStats } from 'services/calculate-stats';
 
 
 function PairContainer({
@@ -132,10 +133,10 @@ function PairContainer({
 
     const [lpDate, setLPDate] = useState(new Date(initialData.lpDate));
     const [lpShare, setLPShare] = useState(initialData.lpShare);
-    const [lpStats, setLPStats] = useState<LPStats<string> | null>(null);
+    const [defaultLPStats, setDefaultLPStats] = useState<LPStats<string> | null>(null);
 
     useEffect(() => {
-        const getLPStats = async () => {
+        const getDefaultLPStats = async () => {
             if (!pairId) return;
 
             const { data: lpStats, error } = await Uniswap.getPairStats(
@@ -144,6 +145,8 @@ function PairContainer({
                 new Date(),
                 lpShare
             );
+
+            // Slice Pair stats according to LP date
 
             if (error) {
                 // we could not list pairs
@@ -154,13 +157,20 @@ function PairContainer({
             }
 
             if (lpStats) {
-                setLPStats(lpStats);
+                setDefaultLPStats(lpStats);
             }
+        }
 
-        };
+        void getDefaultLPStats();
+    }, [pairId]);
 
-        void getLPStats();
-    }, [pairId, lpDate, lpShare])
+
+    const lpStats: LPStats<string> | null = useMemo(() => {
+        if (!defaultLPStats) return null;
+        // slice LP stats to correct time
+        // scale LP stats to correct entry
+        return deriveLPStats(defaultLPStats, lpDate, lpShare);
+    }, [defaultLPStats, lpDate, lpShare])
 
     const dataAtLPDate = useMemo((): UniswapDailyData | null => {
         if (currentError) return null;
