@@ -86,9 +86,14 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
             setIsLoading(false);
             if (isInitialLoad) setIsInitialLoad(false);
 
-            mixpanel.track('positions:query', {
-                address: wallet.account,
-            });
+            try {
+              mixpanel.track('positions:query', {
+                  distinct_id: wallet.account,
+                  address: wallet.account
+              });
+            } catch (e) {
+                console.error(`Metrics error on positions:query.`);
+            }
         };
 
         if (wallet.account) {

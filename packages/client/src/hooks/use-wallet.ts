@@ -85,8 +85,15 @@ export default function useWallet(): {
                     providerName: 'metamask',
                     provider: (window as any).ethereum,
                 };
-                mixpanel.track('wallet', walletObj);
+
                 setWallet(walletObj);
+
+                try {
+                  (<any>walletObj).distinct_id = account;
+                  mixpanel.track('wallet', walletObj);
+                } catch (e) {
+                    console.error(`Metrics error on wallet.`);
+                }
             } else {
                 disconnectWallet();
             }
@@ -101,8 +108,15 @@ export default function useWallet(): {
                 providerName: 'walletconnect',
                 provider: wcProvider,
             };
-            mixpanel.track('wallet', walletObj);
+
             setWallet(walletObj);
+
+            try {
+              (<any>walletObj).distinct_id = account;
+              mixpanel.track('wallet', walletObj);
+            } catch (e) {
+                console.error(`Metrics error on wallet.`);
+            }
         }
     });
 
@@ -132,8 +146,15 @@ export default function useWallet(): {
             providerName: 'metamask',
             provider: (window as any).ethereum,
         };
-        mixpanel.track('wallet', walletObj);
+
         setWallet(walletObj);
+
+        try {
+          (<any>walletObj).distinct_id =  account;
+          mixpanel.track('wallet', walletObj);
+        } catch (e) {
+            console.error(`Metrics error on wallet.`);
+        }
     };
 
     const connectWalletConnect = async () => {
@@ -146,8 +167,15 @@ export default function useWallet(): {
 
         // If provider is different, sest to the WC wallet
         if (wallet.provider !== 'walletconnect') {
-            mixpanel.track('wallet:connect', walletObj);
-            setWallet(walletOb);
+            setWallet(walletObj);
+
+            try {
+
+              (<any>walletObj).distinct_id = wcProvider.accounts[0]
+              mixpanel.track('wallet:connect', walletObj);
+            } catch (e) {
+                console.error(`Metrics error on wallet.`);
+            }
         }
     };
 

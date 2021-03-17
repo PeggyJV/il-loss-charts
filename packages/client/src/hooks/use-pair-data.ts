@@ -110,11 +110,16 @@ export default function usePairData(
                     );
                 }
 
-                mixpanel.track('pair:query', {
-                    pairId,
-                    token0: newPair.token0.symbol,
-                    token1: newPair.token1.symbol,
-                });
+                try {
+                  mixpanel.track('pair:query', {
+                      distinct_id: pairId,
+                      pairId,
+                      token0: newPair.token0.symbol,
+                      token1: newPair.token1.symbol,
+                  });
+                } catch (e) {
+                    console.error(`Metrics error on pair:query.`);
+                }
 
                 setIsLoading(false);
             }

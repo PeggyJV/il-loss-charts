@@ -67,9 +67,14 @@ function LandingContainer({
             setIsLoading(false);
             if (isInitialLoad) setIsInitialLoad(false);
 
-            mixpanel.track('positions:query', {
-                address: wallet.account,
-            });
+            try {
+              mixpanel.track('positions:query', {
+                  distinct_id: wallet.account,
+                  address: wallet.account
+              });
+            } catch (e) {
+                console.error(`Metrics error on add positions:query.`);
+            }
         };
 
         if (wallet.account) {
@@ -81,7 +86,11 @@ function LandingContainer({
 
     const showModal = () => setShowConnectWallet(true);
     useEffect(() => {
-        mixpanel.track('pageview:landing', {});
+        try {
+          mixpanel.track('pageview:landing', {});
+        } catch (e) {
+            console.error(`Metrics error on add positions:landing.`);
+        }
     }, []);
 
     // (window as any).marketData = marketData;
