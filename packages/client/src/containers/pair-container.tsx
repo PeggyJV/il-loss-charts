@@ -93,9 +93,14 @@ function PairContainer({
 
         const pairId = query.get('id');
         if (pairId) {
-            mixpanel.track('pair:clickthrough', {
-                pairId,
-            });
+
+            try {
+              mixpanel.track('pair:clickthrough', {
+                  distinct_id: pairId
+              });
+            } catch (e) {
+                console.error(`Metrics error on pair:clickthrough.`);
+            }
 
             return setPairId(pairId);
         }
@@ -111,11 +116,16 @@ function PairContainer({
         });
 
         if (pairForSymbol) {
-            mixpanel.track('pair:clickthrough', {
-                pairId: pairForSymbol.id,
-                token0: pairForSymbol.token0.symbol,
-                token1: pairForSymbol.token1.symbol,
-            });
+            try {
+              mixpanel.track('pair:clickthrough', {
+                  distinct_id: pairForSymbol.id,
+                  pairId: pairForSymbol.id,
+                  token0: pairForSymbol.token0.symbol,
+                  token1: pairForSymbol.token1.symbol,
+              });
+            } catch (e) {
+                console.error(`Metrics error on pair:clickthrough.`);
+            }
 
             return setPairId(pairForSymbol.id);
         }
@@ -355,7 +365,7 @@ function PairContainer({
                     Impermanent Loss.
                 </p>
             </div>
-            
+
             <PairSearch pairs={allPairs.pairs} setPair={setPairId} />
             <div className='pair-controls'>
                 <div className='pair-and-pool-stats'>

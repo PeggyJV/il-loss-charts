@@ -295,6 +295,7 @@ function RemoveLiquidity({
 
         try {
             const metrics = {
+                distinct_id: pairData.id,
                 pair_id: pairData.id,
                 exitToken: exitToken,
                 gasEstimate: gasEstimate,
