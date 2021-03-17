@@ -5,11 +5,10 @@ import classNames from 'classnames';
 import { ErrorBoundary, useErrorHandler } from 'react-error-boundary';
 import { useState, useEffect, ReactElement } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
 import useWebSocket from 'react-use-websocket';
 import ManageLiquidityModal from 'components/manage-liquidity-modal';
 import config from 'config';
-import { EthGasPrices } from '@sommelier/shared-types';
+import { UniswapPair, EthGasPrices, MarketStats } from '@sommelier/shared-types';
 
 import LandingContainer from 'containers/landing-container';
 import MarketContainer from 'containers/market-container';
@@ -27,7 +26,6 @@ import initialData from 'constants/initialData.json';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { calculatePairRankings } from 'services/calculate-stats';
 
-import { MarketStats } from '@sommelier/shared-types';
 import { AllPairsState, TopPairsState } from 'types/states';
 
 function App(): ReactElement {
@@ -67,7 +65,7 @@ function App(): ReactElement {
 
                 setAllPairs({
                     isLoading: false,
-                    pairs: calculated.pairs,
+                    pairs: calculated.pairs.map(p => new UniswapPair(p)),
                     lookups: calculated.pairLookups,
                     byLiquidity: calculated.byLiquidity,
                 });
@@ -117,8 +115,8 @@ function App(): ReactElement {
                         pair
                     ) => {
                         if (!acc.lookup[pair.id]) {
-                            // TODO: Fix this typing. We don't need a UniswapPair, or MarketStats
-                            // All we need is an objefct with an ID
+                            // TODO: Fix this typing. We don't need a IUniswapPair, or MarketStats
+                            // All we need is an object with an ID
                             acc.list.push((pair as any) as MarketStats);
                         }
                         return acc;
@@ -153,15 +151,12 @@ function App(): ReactElement {
             if (marketData) {
                 setMarketData(marketData);
             }
-
-            if (topPairs) {
-                setTopPairs(topPairs);
-            }
         };
 
         void fetchAllPairs();
         void fetchTopPairs();
         void fetchMarketData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const { sendJsonMessage, lastJsonMessage } = useWebSocket(config.wsApi);
@@ -271,7 +266,6 @@ function App(): ReactElement {
                                             <LandingContainer
                                                 topPairs={topPairs}
                                                 wallet={wallet}
-                                                gasPrices={gasPrices}
                                                 setShowConnectWallet={
                                                     setShowConnectWallet
                                                 }

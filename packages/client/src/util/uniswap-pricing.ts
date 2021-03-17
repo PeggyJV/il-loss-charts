@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js';
 
-import { UniswapPair } from '@sommelier/shared-types';
+import { IUniswapPair } from '@sommelier/shared-types';
 
-export function calculatePoolEntryData(pairData: UniswapPair | null, entryToken: string, entryAmount: string): {
+export function calculatePoolEntryData(pairData: IUniswapPair | null, entryToken: string, entryAmount: string): {
     expectedLpTokens: string;
     expectedPoolToken0: string;
     expectedPoolToken1: string;

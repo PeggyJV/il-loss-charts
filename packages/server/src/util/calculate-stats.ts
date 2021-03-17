@@ -2,22 +2,27 @@ import BigNumber from 'bignumber.js';
 import { format } from 'date-fns';
 
 import UniswapFetcher from 'services/uniswap';
+import EthBlockFetcher from 'services/eth-blocks';
 import {
     UniswapPair,
+    IUniswapPair,
     UniswapDailyData,
     UniswapHourlyData,
-    LiquidityData,
+    ILiquidityData,
     LPStats,
     MarketStats,
     UniswapLiquidityPositionAtTime,
     StatsOverTime,
 } from '@sommelier/shared-types';
 
+import redis from 'util/redis';
+import { wrapWithCache } from 'util/redis-data-cache';
+
 const FEE_RATIO = 0.003;
 
 type HistoricalData = UniswapDailyData | UniswapHourlyData;
 type HistoricalDataList = Array<
-    UniswapDailyData[] | UniswapHourlyData[] | UniswapPair[]
+    UniswapDailyData[] | UniswapHourlyData[] | IUniswapPair[]
 >;
 type PositionMapping = { [pairId: string]: UniswapLiquidityPositionAtTime[] };
 type StatsMapping = { [pairId: string]: StatsMappingValue };
@@ -32,6 +37,21 @@ const isHourlyDataList = (
 ): data is UniswapHourlyData[] =>
     Object.prototype.hasOwnProperty.call(data[0], 'hourlyVolumeUSD');
 
+const getEthPrice = wrapWithCache(redis, UniswapFetcher.getEthPrice, 3600 * 24, true);
+const getBlockAtTime = wrapWithCache(
+    redis,
+    EthBlockFetcher.getFirstBlockAfter,
+    10000,
+    false
+);
+
+async function getEthPriceAtTime(date: Date): Promise<BigNumber> {
+    const { number: blockNumber } = await getBlockAtTime(date);
+    const { ethPrice } = await getEthPrice(blockNumber);
+
+    return new BigNumber(ethPrice);
+}
+
 interface StatsMappingValue {
     historicalData: HistoricalData[];
     aggregatedStats: LPStats;
@@ -39,7 +59,7 @@ interface StatsMappingValue {
 }
 
 export async function calculateMarketStats(
-    pairs: UniswapPair[],
+    pairs: IUniswapPair[],
     historicalData: HistoricalDataList,
     period: 'daily' | 'hourly' | 'delta' = 'daily'
 ): Promise<MarketStats[]> {
@@ -47,8 +67,8 @@ export async function calculateMarketStats(
     const { ethPrice } = await UniswapFetcher.getEthPrice();
 
     const calculateImpermanentLoss = (
-        startDailyData: LiquidityData,
-        endDailyData: LiquidityData
+        startDailyData: ILiquidityData,
+        endDailyData: ILiquidityData
     ) => {
         const startReserve0 = new BigNumber(startDailyData.reserve0);
         const startReserve1 = new BigNumber(startDailyData.reserve1);
@@ -81,15 +101,14 @@ export async function calculateMarketStats(
     };
 
     const marketStats = pairs.reduce(
-        (acc: MarketStats[], pair: UniswapPair, index: number) => {
+        (acc: MarketStats[], pairData: IUniswapPair, index: number) => {
+            const pair = new UniswapPair(pairData);
             const historical = historicalData[index];
 
             const firstDaily = historical[0];
             const lastDaily = historical[historical.length - 1];
 
-            const pairReadable = `${pair.token0?.symbol || ''}/${
-                pair.token1?.symbol || ''
-            }`;
+            const { pairReadable } = pair;
 
             // Skip pair if no data
             // TODO smarter error handling
@@ -126,13 +145,14 @@ export async function calculateMarketStats(
                 );
             } else {
                 volume = new BigNumber(
-                    (lastDaily as UniswapPair).volumeUSD
-                ).minus((firstDaily as UniswapPair).volumeUSD);
+                    (lastDaily as IUniswapPair).volumeUSD
+                ).minus((firstDaily as IUniswapPair).volumeUSD);
             }
             const fees = volume.times(FEE_RATIO);
             const returns = fees.plus(impermanentLoss);
             const pctReturn = returns.div(pair.reserveUSD);
             const impermanentLossGross = impermanentLoss.times(returns);
+
 
             acc.push({
                 ...pair,
@@ -153,19 +173,19 @@ export async function calculateMarketStats(
     return marketStats;
 }
 
-export function calculateLPStats({
+export async function calculateLPStats({
     pairData,
     dailyData,
     hourlyData,
     lpShare: lpLiquidityUSD,
     lpDate,
 }: {
-    pairData?: UniswapPair;
+    pairData: IUniswapPair;
     dailyData?: UniswapDailyData[];
     hourlyData?: UniswapHourlyData[];
     lpShare: number;
     lpDate: Date;
-}): LPStats {
+}): Promise<LPStats> {
     if (dailyData && hourlyData) {
         throw new Error('Should only receive one of daily or hourly data');
     }
@@ -177,19 +197,24 @@ export function calculateLPStats({
         throw new Error('Did not receive daily or hourly data');
     }
 
+    const pair = pairData && new UniswapPair(pairData);
+
     const dailyLiquidity: BigNumber[] = [];
     const dailyVolume: BigNumber[] = [];
+    const dailyEthPrice: BigNumber[] = [];
     const runningVolume: BigNumber[] = [];
     const runningPoolFees: BigNumber[] = [];
     const runningFees: BigNumber[] = [];
     const runningImpermanentLoss: BigNumber[] = [];
+    const runningNotionalGain: BigNumber[] = [];
     const runningReturn: BigNumber[] = [];
+    const dataPoints: HistoricalData[] = [];
     const fullDates: Date[] = [];
     const ticks: string[] = [];
 
     const calculateImpermanentLoss = (
-        startDailyData: LiquidityData,
-        endDailyData: LiquidityData,
+        startDailyData: ILiquidityData,
+        endDailyData: ILiquidityData,
         lpLiquidity: number
     ): BigNumber => {
         const initialExchangeRate = new BigNumber(startDailyData.reserve0).div(
@@ -210,11 +235,78 @@ export function calculateLPStats({
         return impermanentLoss;
     };
 
+    const calculateNotionalGain = async (
+        startDailyData: HistoricalData,
+        endDailyData: HistoricalData,
+        lpLiquidity: number
+    ): Promise<BigNumber> => {
+        let startDate: Date;
+
+        if (isDailyData(startDailyData)) {
+            startDate = new Date(startDailyData.date * 1000);
+        } else {
+            startDate = new Date(startDailyData.hourStartUnix * 1000);
+        }
+
+        const initialEthPrice = await getEthPriceAtTime(startDate);
+        const initialExchangeRate = new BigNumber(startDailyData.reserve0).div(
+            new BigNumber(startDailyData.reserve1)
+        );
+
+        let initialToken0Price: BigNumber;
+        let initialToken1Price: BigNumber;
+        if (pair.symbols[0] === 'ETH' || pair.symbols[0] === 'WETH') {
+            initialToken0Price = initialEthPrice;
+            initialToken1Price = initialEthPrice.times(initialExchangeRate);
+        } else if (pair.symbols[1] === 'ETH' || pair.symbols[1] === 'WETH') {
+            initialToken0Price = initialEthPrice.times(initialExchangeRate.pow(-1));
+            initialToken1Price = initialEthPrice;
+        } else {
+            throw new Error(`Trying to compute notional gain for non-floating pair: ${pair.symbols.join('/')}`);
+        }
+
+        let endDate: Date;
+
+        if (isDailyData(endDailyData)) {
+            endDate = new Date(endDailyData.date * 1000);
+        } else {
+            endDate = new Date(endDailyData.hourStartUnix * 1000);
+        }
+
+        const currentEthPrice = await getEthPriceAtTime(endDate);
+        const currentExchangeRate = new BigNumber(endDailyData.reserve0).div(
+            new BigNumber(endDailyData.reserve1)
+        );
+
+        let currentToken0Price: BigNumber;
+        let currentToken1Price: BigNumber;
+        if (pair.symbols[0] === 'ETH' || pair.symbols[0] === 'WETH') {
+            currentToken0Price = currentEthPrice;
+            currentToken1Price = currentEthPrice.times(currentExchangeRate);
+        } else if (pair.symbols[1] === 'ETH' || pair.symbols[1] === 'WETH') {
+            currentToken0Price = currentEthPrice.times(currentExchangeRate.pow(-1));
+            currentToken1Price = currentEthPrice;
+        } else {
+            throw new Error(`Trying to compute notional gain for non-floating pair: ${pair.symbols.join('/')}`);
+        }
+
+        // Calculate gross gains based on liquidity
+        // Return sum of token0 and token1 gain
+        const token0PctGain = currentToken0Price.minus(initialToken0Price).div(initialToken0Price);
+        const token1PctGain = currentToken1Price.minus(initialToken1Price).div(initialToken1Price);
+
+        const lpLiquidityForSide = new BigNumber(lpLiquidity).div(2);
+        const token0Gain = token0PctGain.times(lpLiquidityForSide);
+        const token1Gain = token1PctGain.times(lpLiquidityForSide);
+
+        return token0Gain.plus(token1Gain);
+    };
+
     const getPrevRunningValue = (list: BigNumber[]): BigNumber =>
         list.length ? list[list.length - 1] : new BigNumber(0);
     let firstDaily: HistoricalData | null = null;
 
-    historicalData.forEach((dataPoint) => {
+    for (const dataPoint of historicalData) {
         let currentDate: Date;
 
         if (isDailyData(dataPoint)) {
@@ -224,8 +316,10 @@ export function calculateLPStats({
         }
 
         // Ignore if below lp date
-        if (currentDate.getTime() < lpDate.getTime()) return;
+        if (currentDate.getTime() < lpDate.getTime()) continue;
         if (!firstDaily) firstDaily = dataPoint;
+
+        dataPoints.push(dataPoint);
 
         const poolShare = new BigNumber(lpLiquidityUSD).div(
             dataPoint.reserveUSD
@@ -248,7 +342,22 @@ export function calculateLPStats({
             dataPoint,
             lpLiquidityUSD
         );
-        const dailyReturn = newRunningFees.plus(dailyImpermanentLoss);
+        let dailyReturn = newRunningFees.plus(dailyImpermanentLoss);
+
+        if (pair.isEthPair) {
+            const ethPrice = await getEthPriceAtTime(currentDate);
+            dailyEthPrice.push(ethPrice);
+    
+            // For notional gain - find which side is ETH
+            // Compare eth price against price ratio to get other pair price
+            // Calculate gains in both pairs
+            const notionalGain = await calculateNotionalGain(firstDaily, dataPoint, lpLiquidityUSD);
+            runningNotionalGain.push(notionalGain);
+    
+            dailyReturn = dailyReturn.plus(notionalGain);
+        } else {
+            runningNotionalGain.push(new BigNumber(0));
+        }
 
         dailyLiquidity.push(liquidity);
         dailyVolume.push(vol);
@@ -262,7 +371,7 @@ export function calculateLPStats({
 
         fullDates.push(currentDate);
         ticks.push(format(currentDate, 'MMM d'));
-    });
+    }
 
     if (!firstDaily) {
         throw new Error('No provided historical data after LP date');
@@ -274,23 +383,28 @@ export function calculateLPStats({
         historicalData[historicalData.length - 1],
         lpLiquidityUSD
     );
-    const totalReturn = totalFees.plus(impermanentLoss);
+    const totalNotionalGain = runningNotionalGain[runningNotionalGain.length - 1];
+    const totalReturn = totalFees.plus(totalNotionalGain).plus(impermanentLoss);
 
     // If no pair data, just return LP stats
     return {
         timeWindow: isDailyData(historicalData[0]) ? 'daily' : 'hourly',
         dailyLiquidity,
         dailyVolume,
+        dailyEthPrice,
         totalFees,
         runningVolume,
         runningFees,
         runningPoolFees,
         runningImpermanentLoss,
+        runningNotionalGain,
+        totalNotionalGain,
         runningReturn,
         impermanentLoss,
         totalReturn,
         ticks,
         fullDates,
+        dataPoints
     };
 }
 
@@ -413,13 +527,15 @@ export async function calculateStatsForPositions(
             // Calculate stats for historical data window
             // Get starting liquidity from previous snapshot
             if (isDailyDataList(historicalDataBetween)) {
-                lpStats = calculateLPStats({
+                lpStats = await calculateLPStats({
+                    pairData: snapshot.pair as IUniswapPair,
                     dailyData: historicalDataBetween,
                     lpShare: lpLiquidityUSD.toNumber(),
                     lpDate: new Date(prevSnapshot.timestamp * 1000),
                 });
             } else if (isHourlyDataList(historicalDataBetween)) {
-                lpStats = calculateLPStats({
+                lpStats = await calculateLPStats({
+                    pairData: snapshot.pair as IUniswapPair,
                     hourlyData: historicalDataBetween,
                     lpShare: lpLiquidityUSD.toNumber(),
                     lpDate: new Date(prevSnapshot.timestamp * 1000),
@@ -473,13 +589,15 @@ export async function calculateStatsForPositions(
                 // Calculate stats for historical data window
                 // Get starting liquidity from previous snapshot
                 if (isDailyDataList(historicalDataBetween)) {
-                    lpStats = calculateLPStats({
+                    lpStats = await calculateLPStats({
+                        pairData: prevSnapshot.pair as IUniswapPair,
                         dailyData: historicalDataBetween,
                         lpShare: lpLiquidityUSD.toNumber(),
                         lpDate: new Date(prevSnapshot.timestamp * 1000),
                     });
                 } else if (isHourlyDataList(historicalDataBetween)) {
-                    lpStats = calculateLPStats({
+                    lpStats = await calculateLPStats({
+                        pairData: prevSnapshot.pair as IUniswapPair,
                         hourlyData: historicalDataBetween,
                         lpShare: lpLiquidityUSD.toNumber(),
                         lpDate: new Date(prevSnapshot.timestamp * 1000),
@@ -504,8 +622,12 @@ export async function calculateStatsForPositions(
                 const stats: LPStats = {
                     timeWindow: acc.timeWindow,
                     totalFees: acc.totalFees.plus(currentStats.totalFees),
+                    totalNotionalGain: acc.totalNotionalGain.plus(currentStats.totalNotionalGain),
                     dailyVolume: acc.dailyVolume.concat(
                         ...currentStats.dailyVolume
+                    ),
+                    dailyEthPrice: acc.dailyEthPrice.concat(
+                        ...currentStats.dailyEthPrice
                     ),
                     runningVolume: acc.runningVolume.concat(
                         ...currentStats.runningVolume
@@ -519,6 +641,9 @@ export async function calculateStatsForPositions(
                     runningImpermanentLoss: acc.runningImpermanentLoss.concat(
                         ...currentStats.runningImpermanentLoss
                     ),
+                    runningNotionalGain: acc.runningNotionalGain.concat(
+                        ...currentStats.runningNotionalGain
+                    ),
                     runningReturn: acc.runningReturn.concat(
                         ...currentStats.runningReturn
                     ),
@@ -527,6 +652,7 @@ export async function calculateStatsForPositions(
                     ),
                     totalReturn: acc.totalReturn.plus(currentStats.totalReturn),
                     ticks: acc.ticks.concat(...currentStats.ticks),
+                    dataPoints: acc.dataPoints.concat(...currentStats.dataPoints),
                     dailyLiquidity: acc.dailyLiquidity.concat(
                         ...currentStats.dailyLiquidity
                     ),

@@ -1,29 +1,25 @@
 import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import { MarketStats, EthGasPrices } from '@sommelier/shared-types';
+import { LPPositionData } from '@sommelier/shared-types';
 import { ErrorBoundary } from 'react-error-boundary';
 import { TopPairsState, Wallet } from 'types/states';
 import PositionsTable from 'components/positions-table';
 import { ComponentError } from 'components/page-error';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
-import { LPPositionData, Token } from '@sommelier/shared-types';
 
 import mixpanel from 'util/mixpanel';
 import TopPairsWidget from 'components/top-pairs-widget';
-import TelegramCTA from 'components/telegram-cta';
 import ConnectWalletButton from 'components/connect-wallet-button';
 
 function LandingContainer({
     topPairs,
     wallet,
-    gasPrices,
     setShowConnectWallet,
     handleAddLiquidity,
 }: {
     topPairs: TopPairsState | null;
     wallet: Wallet;
-    gasPrices: EthGasPrices | null;
     setShowConnectWallet: (wallet: boolean) => void;
     handleAddLiquidity: (paidId: string) => void;
 }): JSX.Element {

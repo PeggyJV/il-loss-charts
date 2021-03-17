@@ -63,7 +63,7 @@ paths:
                                     data:
                                         type: array
                                         items: 
-                                            $ref: '#/components/schemas/UniswapPair'
+                                            $ref: '#/components/schemas/IUniswapPair'
     /uniswap/pairs/performance/daily:
         get:
             tags:
@@ -147,7 +147,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UniswapPair'
+                                $ref: '#/components/schemas/IUniswapPair'
     /uniswap/pairs/{id}/swaps:
         get:
             tags:
@@ -438,7 +438,7 @@ components:
                     type: string
                     example: "54887716003.4390479961"
                     description: Total USD volume of all Uniswap trades involving the token.
-        UniswapPair:
+        IUniswapPair:
             title: Uniswap Pair
             type: object
             required:
@@ -536,7 +536,7 @@ components:
                     example: "3211.612454595126670197539551826186"
                     description: USD value of the swapped tokens.
                 pair:
-                    $ref: '#/components/schemas/UniswapPair'
+                    $ref: '#/components/schemas/IUniswapPair'
                 to:
                     type: string
                     example: "0x28a13140fd796a0cd5a79bb464841e6c3ad7b2cc"
@@ -567,7 +567,7 @@ components:
                     example: "0.000021977326919678"
                     description: Proportional change of the total liquidity in the pool.
                 pair:
-                    $ref: '#/components/schemas/UniswapPair'
+                    $ref: '#/components/schemas/IUniswapPair'
                 createdAtTimestamp:
                     type: string
                     example: "1610490292"
@@ -659,7 +659,7 @@ components:
                     example: "55607792.23757445236929244702297876"
                     description: Combined USD equivalent of all trades in the specified hour.
                 pair:
-                    $ref: '#/components/schemas/UniswapPair'
+                    $ref: '#/components/schemas/IUniswapPair'
                 reserve0:
                     type: string
                     example: "102730.915624946031625317"
@@ -675,7 +675,7 @@ components:
         MarketStatsForPair:
             title: Overall Market Stats for Uniswap Pair
             allOf:
-                -   $ref: '#/components/schemas/UniswapPair'
+                -   $ref: '#/components/schemas/IUniswapPair'
                 -   $ref: '#/components/schemas/MarketStatsCalculations'
         MarketStatsCalculations: 
             type: object
@@ -814,7 +814,7 @@ components:
                     example: "0.000014792742175772"
                     description: The total amount of LP tokens held by all LPs in the pool.
                 pair: 
-                    $ref: '#/components/schemas/UniswapPair'
+                    $ref: '#/components/schemas/IUniswapPair'
                 reserve0:
                     type: string
                     example: "102730.915624946031625317"

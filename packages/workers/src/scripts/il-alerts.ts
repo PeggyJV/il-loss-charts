@@ -7,7 +7,7 @@ import BigNumber from 'bignumber.js';
 import { UniswapFetcher, calculateMarketStats } from '@sommelier/data-service';
 import {
     UniswapHourlyData,
-    UniswapPair,
+    IUniswapPair,
     MarketStats,
 } from '@sommelier/shared-types';
 
@@ -25,7 +25,7 @@ async function runAlertCheck(): Promise<void> {
     // For any pair with a 10% 24h change in impermanent loss, send an alert
 
     // Get 100 top pairs
-    let topPairs: UniswapPair[];
+    let topPairs: IUniswapPair[];
 
     try {
         topPairs = await UniswapFetcher.getCurrentTopPerformingPairs(100);
@@ -47,7 +47,7 @@ async function runAlertCheck(): Promise<void> {
 
     // TODO: Save requests by only fetching first and last hour
     const historicalFetches = topPairs.map(
-        (pair: UniswapPair): Promise<UniswapHourlyData[]> =>
+        (pair: IUniswapPair): Promise<UniswapHourlyData[]> =>
             UniswapFetcher.getHourlyData(pair.id, startDate, endDate)
     );
 

@@ -1,33 +1,26 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { useEffect, useState, useMemo } from 'react';
+import { Container } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
-import { useMediaQuery } from 'react-responsive';
-import useWebSocket from 'react-use-websocket';
+// import useWebSocket from 'react-use-websocket';
 import PropTypes from 'prop-types';
 
-import config from 'config';
+// import config from 'config';
 
 import {
-    UniswapPair,
-    UniswapSwap,
-    UniswapMintOrBurn,
     UniswapDailyData,
-    UniswapHourlyData,
     LPStats,
 } from '@sommelier/shared-types';
 
 import {
     AllPairsState,
     PrefetchedPairState,
-    PairDataState,
+    LPDataState,
     StatsWindow,
 } from 'types/states';
 import { Pair } from 'constants/prop-types';
 import initialData from 'constants/initialData.json';
-import { UniswapApiFetcher as Uniswap } from 'services/api';
 
 import usePairData from 'hooks/use-pair-data';
-import { calculateLPStats } from 'services/calculate-stats';
 import mixpanel from 'util/mixpanel';
 
 import PairSearch from 'components/pair-search';
@@ -36,10 +29,14 @@ import LPInput from 'components/lp-input';
 import LPStatsWidget from 'components/lp-stats-widget';
 // import LPStatsChart from 'components/lp-stats-chart';
 import LPStatsChart from 'components/lp-stats-highchart';
-import LatestTradesSidebar from 'components/latest-trades-sidebar';
+// import LatestTradesSidebar from 'components/latest-trades-sidebar';
 import TotalPoolStats from 'components/total-pool-stats';
-import TelegramCTA from 'components/telegram-cta';
+// import TelegramCTA from 'components/telegram-cta';
 import { PageError } from 'components/page-error';
+
+import { UniswapApiFetcher as Uniswap } from 'services/api';
+import { deriveLPStats } from 'services/calculate-stats';
+
 
 function PairContainer({
     allPairs,
@@ -50,23 +47,22 @@ function PairContainer({
     prefetchedPairs: PrefetchedPairState | null;
     handleAddLiquidity: (pairId: string) => void;
 }): JSX.Element {
-    const isDesktop = useMediaQuery({ query: '(min-width: 1200px)' });
-    const isLargestBreakpoint = useMediaQuery({ query: '(min-width: 1500px)' });
 
     // ------------------ Shared State ------------------
 
     const [pairId, setPairId] = useState<string | null>(null);
     const [timeWindow, setWindow] = useState<StatsWindow>('total');
 
-    let prefetchedPair: PairDataState | null = null;
+    let prefetchedPair: LPDataState | null = null;
     if (pairId && prefetchedPairs) {
         prefetchedPair = prefetchedPairs[pairId];
     }
 
-    const { isLoading, currentError, lpInfo, latestSwaps } = usePairData(
+    const { isLoading, currentError, lpInfo } = usePairData(
         pairId,
         prefetchedPair
     );
+    const [error, setError] = useState(currentError);
 
     // TODO: Re-enable when we have a better websocket
     // Keep track of previous pair ID so we can unsubscribe
@@ -110,9 +106,7 @@ function PairContainer({
         // lookup by symbol
         const symbol = query.get('symbol');
         const pairForSymbol = allPairs.pairs.find((pair) => {
-            const pairSymbol = `${pair.token0.symbol || ''}/${
-                pair.token1.symbol || ''
-            }`;
+            const pairSymbol = pair.pairReadable
             return symbol === pairSymbol;
         });
 
@@ -128,6 +122,7 @@ function PairContainer({
 
         // There is no pair in the query, so set to default
         if (!pairId) return setPairId(initialData.defaultPairId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
 
     useEffect(() => {
@@ -138,57 +133,48 @@ function PairContainer({
 
     const [lpDate, setLPDate] = useState(new Date(initialData.lpDate));
     const [lpShare, setLPShare] = useState(initialData.lpShare);
+    const [defaultLPStats, setDefaultLPStats] = useState<LPStats<string> | null>(null);
 
-    // Keep track of previous lp stats to prevent entire loading UI from coming up on change
-    const lpStats: LPStats | null = useMemo(
-        () => {
-            if (!lpInfo || currentError) return null;
+    useEffect(() => {
+        const getDefaultLPStats = async () => {
+            if (!pairId) return;
 
-            let lpStats: LPStats | null = null;
-            lpStats = calculateLPStats({
-                dailyData: lpInfo?.historicalDailyData,
-                startDate: lpDate,
-                lpShare,
-            });
+            const { data: lpStats, error } = await Uniswap.getPairStats(
+                pairId,
+                new Date(initialData.lpDate),
+                new Date(),
+                lpShare
+            );
 
-            // TODO: Figure out if we should re-enable this
-            // if (timeWindow === 'total') {
-            //     // If less than 7 data points, default to hourly anyway
-            //     if (
-            //         lpInfo?.historicalDailyData?.length &&
-            //         lpInfo.historicalDailyData.length > 7
-            //     ) {
-            //         lpStats = calculateLPStats({
-            //             dailyData: lpInfo?.historicalDailyData,
-            //             startDate: lpDate,
-            //             lpShare,
-            //         });
-            //     } else {
-            //         lpStats = calculateLPStats({
-            //             hourlyData: lpInfo?.historicalHourlyData,
-            //             startDate: lpDate,
-            //             lpShare,
-            //         });
-            //     }
-            // } else if (timeWindow === 'week') {
-            //     lpStats = calculateLPStats({
-            //         dailyData: lpInfo?.historicalDailyData,
-            //         startDate: lpDate,
-            //         lpShare,
-            //     });
-            // } else if (timeWindow === 'day') {
-            //     lpStats = calculateLPStats({
-            //         hourlyData: lpInfo?.historicalHourlyData,
-            //         startDate: lpDate,
-            //         lpShare,
-            //     });
-            // }
+            // Slice Pair stats according to LP date
 
-            return lpStats;
-        },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [lpInfo, lpDate, lpShare]
-    );
+            if (error) {
+                // we could not list pairs
+                console.warn(`Could not fetch top pairs: ${error}`);
+                (window as any).error = error;
+                setError(error);
+                return;
+            }
+
+            if (lpStats) {
+                setDefaultLPStats(lpStats);
+            }
+        }
+
+        if (prefetchedPair && prefetchedPair.lpStats) {
+            setDefaultLPStats(prefetchedPair.lpStats);
+        } else {
+            void getDefaultLPStats();
+        }
+    }, [pairId]);
+
+
+    const lpStats: LPStats<string> | null = useMemo(() => {
+        if (!defaultLPStats) return null;
+        // slice LP stats to correct time
+        // scale LP stats to correct entry
+        return deriveLPStats(defaultLPStats, lpDate, lpShare);
+    }, [defaultLPStats, lpDate, lpShare])
 
     const dataAtLPDate = useMemo((): UniswapDailyData | null => {
         if (currentError) return null;
@@ -270,7 +256,7 @@ function PairContainer({
     // ------------------ Websocket State - handles subscriptions ------------------
 
     // TODO: Re-enable websockets
-    const [latestBlock, setLatestBlock] = useState<number | null>(null);
+    // const [latestBlock, setLatestBlock] = useState<number | null>(null);
     // const { sendJsonMessage, lastJsonMessage } = useWebSocket(config.wsApi);
 
     // Handle websocket message
@@ -282,7 +268,7 @@ function PairContainer({
 
     //     let blockNumber;
     //     if (topic.startsWith('uniswap:getPairOverview') && !isLoading) {
-    //         const { data: pairMsg }: { data: UniswapPair } = lastJsonMessage;
+    //         const { data: pairMsg }: { data: IUniswapPair } = lastJsonMessage;
 
     //         if (pairMsg.id === pairId) {
     //             setLPInfo({ ...lpInfo, pairData: pairMsg } as PairPricesState);
@@ -343,8 +329,8 @@ function PairContainer({
     // ------------------ Render code ------------------
 
     // If error, display an error page
-    if (currentError) {
-        return <PageError errorMsg={currentError} />;
+    if (currentError || error) {
+        return <PageError errorMsg={currentError || error} />;
     }
 
     // If no lp stats, we haven't completed our first data fetch yet
@@ -381,7 +367,6 @@ function PairContainer({
                     />
                     <div className='pool-stats-addl'>
                         <TotalPoolStats
-                            allPairs={allPairs}
                             lpInfo={lpInfo}
                             defaultWindow={timeWindow}
                             setWindow={setWindow}

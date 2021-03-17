@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Card, InputGroup } from 'react-bootstrap';
+import { InputGroup } from 'react-bootstrap';
 import { Combobox } from 'react-widgets';
 import PropTypes from 'prop-types';
 
-import { UniswapPair } from '@sommelier/shared-types';
+import { IUniswapPair } from '@sommelier/shared-types';
 
 import { Pair } from 'constants/prop-types';
 import TokenWithLogo, { resolveLogo } from 'components/token-with-logo';
@@ -16,7 +16,7 @@ function PairSelector({
     setPair,
     isLoading,
 }: {
-    pairs: UniswapPair[];
+    pairs: IUniswapPair[];
     currentPairId: string;
     setPair: (pairId: string) => void;
     isLoading: boolean;
@@ -29,7 +29,7 @@ function PairSelector({
         }
     }
 
-    const [currentValue, setCurrentValue] = useState(defaultValue);
+    const [currentValue, setCurrentValue] = useState<IUniswapPair>(defaultValue);
 
     const leftSideOptions = [];
     const rightSideOptions = [];
@@ -54,23 +54,23 @@ function PairSelector({
     }, [currentValue, setPair]);
 
     const renderPairText = (side: 'left' | 'right') => (
-        pair: string | UniswapPair
+        pair: string | IUniswapPair
     ): string => {
         // If pair is string, it's typed in so return
         if (typeof pair === 'string') return pair;
 
         const token = side === 'left' ? 'token0' : 'token1';
-        return pair[token].symbol as string;
+        return pair[token].symbol;
     };
 
     const handleChange = (side: 'left' | 'right') => (
-        value: string | UniswapPair
+        value: string | IUniswapPair
     ): void => {
         // If pair is string, it's typed in
         // so just override one side
         if (typeof value === 'string') {
             const token = side === 'left' ? 'token0' : 'token1';
-            setCurrentValue((current) => ({
+            setCurrentValue((current: IUniswapPair) => ({
                 ...current,
                 id: '',
                 [token]: {

@@ -8,7 +8,7 @@ import EthBlockFetcher from 'services/eth-blocks';
 import {
     UniswapDailyData,
     UniswapHourlyData,
-    UniswapPair,
+    IUniswapPair,
 } from '@sommelier/shared-types';
 import { HTTPError } from 'api/util/errors';
 import wrapRequest from 'api/util/wrap-request';
@@ -33,7 +33,7 @@ const getCurrentTopPerformingPairs = wrapWithCache(
     300,
     true
 );
-const getEthPrice = wrapWithCache(redis, UniswapFetcher.getEthPrice, 30, true);
+const getEthPrice = wrapWithCache(redis, UniswapFetcher.getEthPrice, 60, true);
 const getHistoricalDailyData = wrapWithCache(
     redis,
     UniswapFetcher.getHistoricalDailyData,
@@ -73,7 +73,7 @@ class UniswapController {
                 );
         }
 
-        const topPairs: UniswapPair[] = await getTopPairs(
+        const topPairs: IUniswapPair[] = await getTopPairs(
             count,
             'volumeUSD',
             true
@@ -102,7 +102,7 @@ class UniswapController {
 
         // Get 25 top pairs
         // TODO: make this changeable by query
-        const topPairs: UniswapPair[] = await getCurrentTopPerformingPairs(
+        const topPairs: IUniswapPair[] = await getCurrentTopPerformingPairs(
             count
         );
 
@@ -112,7 +112,7 @@ class UniswapController {
         ]);
 
         const historicalFetches = topPairs.map(
-            (pair: UniswapPair): Promise<UniswapPair[]> =>
+            (pair: IUniswapPair): Promise<IUniswapPair[]> =>
                 UniswapFetcher.getPairDeltasByTime({
                     pairId: pair.id,
                     startBlock,
@@ -127,7 +127,7 @@ class UniswapController {
                 })
         );
 
-        const historicalData: UniswapPair[][] = await Promise.all(
+        const historicalData: IUniswapPair[][] = await Promise.all(
             historicalFetches
         );
 
@@ -180,13 +180,13 @@ class UniswapController {
 
         // Get 25 top pairs
         // TODO: make this changeable by query
-        const topPairs: UniswapPair[] = await getCurrentTopPerformingPairs(
+        const topPairs: IUniswapPair[] = await getCurrentTopPerformingPairs(
             count
         );
 
         // // Fetch first hour and last hour
         // const historicalFetches = topPairs.map(
-        //     async (pair: UniswapPair): Promise<UniswapHourlyData[]> => {
+        //     async (pair: IUniswapPair): Promise<UniswapHourlyData[]> => {
         //         // One hour gap between first start and end date
         //         const firstStartDate = startDate;
         //         const firstEndDate = new Date(
@@ -226,7 +226,7 @@ class UniswapController {
         ]);
 
         const historicalFetches = topPairs.map(
-            (pair: UniswapPair): Promise<UniswapPair[]> =>
+            (pair: IUniswapPair): Promise<IUniswapPair[]> =>
                 UniswapFetcher.getPairDeltasByTime({
                     pairId: pair.id,
                     startBlock,
@@ -240,7 +240,7 @@ class UniswapController {
                     throw err;
                 })
         );
-        const historicalData: UniswapPair[][] = await Promise.all(
+        const historicalData: IUniswapPair[][] = await Promise.all(
             historicalFetches
         );
 
@@ -411,7 +411,7 @@ class UniswapController {
         ]);
 
         const historicalFetches = topPairs.map(
-            (pair: UniswapPair): Promise<UniswapPair[]> =>
+            (pair: IUniswapPair): Promise<IUniswapPair[]> =>
                 UniswapFetcher.getPairDeltasByTime({
                     pairId: pair.id,
                     startBlock,
@@ -427,7 +427,7 @@ class UniswapController {
                 })
         );
 
-        const historicalData: UniswapPair[][] = await Promise.all(
+        const historicalData: IUniswapPair[][] = await Promise.all(
             historicalFetches
         );
 
@@ -463,7 +463,7 @@ class UniswapController {
         if (endDate.getTime() !== endDate.getTime())
             throw new HTTPError(400, `Received invalid date for 'endDate'.`);
 
-        if (!req.query.lpLiquidityUSD)
+        if (req.query.lpLiquidityUSD == null)
             throw new HTTPError(400, `'lpLiquidityUSD' is required.`);
         const lpLiquidityUSD: number = parseInt(
             req.query.lpLiquidityUSD?.toString(),
@@ -477,7 +477,7 @@ class UniswapController {
             UniswapFetcher.getHistoricalDailyData(pairId, startDate, endDate),
         ]);
 
-        const lpStats = calculateLPStats({
+        const lpStats = await calculateLPStats({
             pairData,
             dailyData: historicalDailyData,
             lpShare: lpLiquidityUSD,

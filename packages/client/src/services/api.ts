@@ -1,14 +1,13 @@
 import {
     MarketStats,
-    UniswapPair,
+    IUniswapPair,
     UniswapSwap,
     UniswapMintOrBurn,
     UniswapDailyData,
     UniswapHourlyData,
     LPPositionData,
+    LPStats
 } from '@sommelier/shared-types';
-
-import { IError } from 'types/states';
 
 import { UniswapApiFetcher as OfflineFetcher } from 'services/offline-api';
 
@@ -29,12 +28,12 @@ const shouldRetryError = (error: string) => {
 export class UniswapApiFetcher extends OfflineFetcher {
     static async getPairOverview(
         pairId: string
-    ): Promise<ApiResponse<UniswapPair>> {
+    ): Promise<ApiResponse<IUniswapPair>> {
         if (useOffline) return OfflineFetcher.getPairOverview(pairId);
 
         const response = await fetch(`/api/v1/uniswap/pairs/${pairId}`);
         const { data, error } = await (response.json() as Promise<
-            ApiResponse<UniswapPair>
+            ApiResponse<IUniswapPair>
         >);
 
         if (error && shouldRetryError(error)) {
@@ -89,12 +88,12 @@ export class UniswapApiFetcher extends OfflineFetcher {
 
     static async getTopPairs(
         count = 1000
-    ): Promise<ApiResponse<UniswapPair[]>> {
+    ): Promise<ApiResponse<IUniswapPair[]>> {
         if (useOffline) return OfflineFetcher.getTopPairs(count);
 
         const response = await fetch(`/api/v1/uniswap/pairs?count=${count}`);
         const { data, error } = await (response.json() as Promise<
-            ApiResponse<UniswapPair[]>
+            ApiResponse<IUniswapPair[]>
         >);
 
         if (error && shouldRetryError(error)) {
@@ -224,6 +223,30 @@ export class UniswapApiFetcher extends OfflineFetcher {
                 startDate,
                 endDate
             );
+        }
+
+        return { data, error };
+    }
+
+    static async getPairStats(
+        pairId: string,
+        startDate: Date,
+        endDate = new Date(),
+        lpLiquidityUSD: number
+    ): Promise<ApiResponse<LPStats<string>>> {
+        if (useOffline)
+            return OfflineFetcher.getPairStats(pairId, startDate, endDate, lpLiquidityUSD);
+
+        const response = await fetch(
+            `/api/v1/uniswap/pairs/${pairId}/stats?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&lpLiquidityUSD=${lpLiquidityUSD}`
+        );
+        const { data, error } = await (response.json() as Promise<
+            ApiResponse<LPStats<string>>
+        >);
+
+        if (error && shouldRetryError(error)) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return UniswapApiFetcher.getPairStats(pairId, startDate, endDate, lpLiquidityUSD);
         }
 
         return { data, error };

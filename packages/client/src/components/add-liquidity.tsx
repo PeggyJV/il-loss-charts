@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
-    Alert,
     Row,
     Col,
     Card,
@@ -27,8 +26,7 @@ const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
 import {
     EthGasPrices,
     LPPositionData,
-    UniswapPair,
-    Token,
+    IUniswapPair,
 } from '@sommelier/shared-types';
 import {
     Wallet,
@@ -52,7 +50,7 @@ function AddLiquidity({
 }: {
     wallet: Wallet;
     provider: ethers.providers.Web3Provider | null;
-    pairData: UniswapPair | null;
+    pairData: IUniswapPair | null;
     positionData: LPPositionData<string> | null;
     gasPrices: EthGasPrices | null;
     balances: WalletBalances;
@@ -131,9 +129,9 @@ function AddLiquidity({
         const symbol1 = pairData.token1.symbol;
 
         if (entryToken === symbol0 && symbol0 !== 'WETH') {
-            sellToken = (pairData.token0 as Token).id;
+            sellToken = pairData.token0.id;
         } else if (entryToken === symbol1 && symbol1 !== 'WETH') {
-            sellToken = (pairData.token1 as Token).id;
+            sellToken = pairData.token1.id;
         } else if (entryToken === 'WETH') {
             // We have ETH
             sellToken = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
@@ -198,9 +196,9 @@ function AddLiquidity({
         const pairAddress = pairData.id;
 
         if (entryToken === symbol0 && symbol0 !== 'WETH') {
-            sellToken = (pairData.token0 as Token).id;
+            sellToken = pairData.token0.id;
         } else if (entryToken === symbol1 && symbol1 !== 'WETH') {
-            sellToken = (pairData.token1 as Token).id;
+            sellToken = pairData.token1.id;
         } else if (entryToken === 'WETH') {
             // We have ETH
             sellToken = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
@@ -301,8 +299,6 @@ function AddLiquidity({
         } else if (!entryAmount || new BigNumber(entryAmount).lte(0)) {
             return 'amountNotEntered';
         } else if (new BigNumber(entryAmount).gt(maxBalanceStr)) {
-            console.log('THIS IS ENTRY AMOUNT', entryAmount);
-            console.log('THIS IS MAX BALANCE', maxBalance);
             return 'insufficientFunds';
         } else if (new BigNumber(expectedPriceImpact).gt(slippageTolerance)) {
             return 'slippageTooHigh';

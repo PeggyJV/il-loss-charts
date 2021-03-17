@@ -1,10 +1,12 @@
 import {
     MarketStats,
+    IUniswapPair,
     UniswapPair,
     UniswapDailyData,
     UniswapHourlyData,
     UniswapSwap,
     UniswapMintOrBurn,
+    LPStats
 } from '@sommelier/shared-types';
 
 import { ethers } from 'ethers';
@@ -13,12 +15,12 @@ export interface AllPairsState {
     isLoading: boolean;
     pairs: UniswapPair[] | null;
     lookups: {
-        [pairId: string]: UniswapPair & {
+        [pairId: string]: IUniswapPair & {
             volumeRanking: number;
             liquidityRanking: number;
         };
     } | null;
-    byLiquidity: UniswapPair[] | null;
+    byLiquidity: IUniswapPair[] | null;
 }
 
 export type Provider = 'metamask' | 'walletconnect';
@@ -57,13 +59,17 @@ export interface PairDataState {
     latestSwaps?: SwapsState;
 }
 
+export interface LPDataState extends PairDataState {
+    lpStats: LPStats<string>;
+}
+
 export interface TopPairsState {
     daily: MarketStats[];
     weekly: MarketStats[];
 }
 
 export interface PrefetchedPairState {
-    [pairId: string]: PairDataState;
+    [pairId: string]: LPDataState;
 }
 export interface GasPrices {
     standard: number;

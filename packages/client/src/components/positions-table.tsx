@@ -1,13 +1,11 @@
-import { SyntheticEvent } from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
-import { Link, useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
-    Token,
+    IToken,
     LPPositionData,
-    UniswapPair,
-    MarketStats,
+    IUniswapPair,
 } from '@sommelier/shared-types';
 
 import {
@@ -22,7 +20,7 @@ import { resolveLogo } from 'components/token-with-logo';
 interface PositionTableRow {
     pairId: string;
     index: number;
-    market: { id: string; token0?: Partial<Token>; token1?: Partial<Token> };
+    market: { id: string; token0?: Partial<IToken>; token1?: Partial<IToken> };
     impermanentLoss: string;
     liquidity: string;
     fees: string;
@@ -31,12 +29,9 @@ interface PositionTableRow {
 
 function PositionsTable({
     positionData: { positions, stats },
-    pairId,
-    setPairId,
     handleAddLiquidity,
 }: {
     positionData: LPPositionData<string>;
-    pairId: string;
     setPairId: (pairId: string) => void;
     handleAddLiquidity: (pairId: string) => void;
 }): JSX.Element {
@@ -67,13 +62,14 @@ function PositionsTable({
                 impermanentLoss: stats[pairId]?.aggregatedStats?.impermanentLoss ?? '-',
                 liquidity,
                 fees: stats[pairId]?.aggregatedStats?.totalFees ?? '-' ,
+                notionalGain: stats[pairId]?.aggregatedStats?.totalNotionalGain ?? '-' ,
                 returnsUSD: stats[pairId]?.aggregatedStats?.totalReturn ?? '-',
                 action: { id: pairId },
             };
         })
         .sort((a, b) => parseInt(b.liquidity, 10) - parseInt(a.liquidity, 10));
 
-    const formatPair = ({ id, token0, token1 }: UniswapPair) => {
+    const formatPair = ({ id, token0, token1 }: IUniswapPair) => {
         return (
             <span>
                 {resolveLogo(token0.id)}{' '}
@@ -143,6 +139,12 @@ function PositionsTable({
             formatter: formatUSDorNA,
         },
         {
+            dataField: 'notionalGain',
+            text: 'Notional USD Gain',
+            sort: true,
+            formatter: formatUSDorNA,
+        },
+        {
             dataField: 'returnsUSD',
             text: 'Net USD Returns',
             sort: true,
@@ -159,19 +161,19 @@ function PositionsTable({
     // const onRowClick = (e: SyntheticEvent, row: PositionTableRow) => {
     //     history.push(`/pair?id=${pair.id}`);
     // };
-    const getRowStyle = (row: PositionTableRow) => {
-        const styles: {
-            borderLeft: number;
-            borderRight: number;
-            backgroundColor?: string;
-        } = { borderLeft: 0, borderRight: 0 };
+    // const getRowStyle = (row: PositionTableRow) => {
+    //     const styles: {
+    //         borderLeft: number;
+    //         borderRight: number;
+    //         backgroundColor?: string;
+    //     } = { borderLeft: 0, borderRight: 0 };
 
-        if (row.pairId === pairId) {
-            styles.backgroundColor = 'rgba(0, 0, 0, 0.075)';
-        }
+    //     if (row.pairId === pairId) {
+    //         styles.backgroundColor = 'rgba(0, 0, 0, 0.075)';
+    //     }
 
-        return styles;
-    };
+    //     return styles;
+    // };
 
     return (
         <div className='il-market-container'>

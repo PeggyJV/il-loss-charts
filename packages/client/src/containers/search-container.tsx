@@ -4,7 +4,6 @@ import { Container } from 'react-bootstrap';
 import { AllPairsState } from 'types/states';
 
 import PairSearch from 'components/pair-search';
-import TelegramCTA from 'components/telegram-cta';
 
 function SearchContainer({
     allPairs,

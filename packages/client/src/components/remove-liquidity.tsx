@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
-    Alert,
     Container,
     Row,
     Col,
@@ -16,8 +15,6 @@ import { Combobox } from 'react-widgets';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
 
-import mixpanel from 'util/mixpanel';
-
 import erc20Abi from 'constants/abis/erc20.json';
 import exchangeRemoveAbi from 'constants/abis/volumefi_remove_liquidity_uniswap.json';
 
@@ -27,8 +24,7 @@ const EXCHANGE_REMOVE_ABI_ADDRESS =
 import {
     EthGasPrices,
     LPPositionData,
-    UniswapPair,
-    Token,
+    IUniswapPair,
 } from '@sommelier/shared-types';
 import {
     Wallet,
@@ -36,7 +32,7 @@ import {
     ManageLiquidityActionState,
 } from 'types/states';
 
-import TokenWithLogo, { resolveLogo } from 'components/token-with-logo';
+import { resolveLogo } from 'components/token-with-logo';
 import { RemoveLiquidityActionButton } from 'components/liquidity-action-button';
 
 function RemoveLiquidity({
@@ -50,7 +46,7 @@ function RemoveLiquidity({
 }: {
     wallet: Wallet;
     provider: ethers.providers.Web3Provider | null;
-    pairData: UniswapPair | null;
+    pairData: IUniswapPair | null;
     positionData: LPPositionData<string> | null;
     gasPrices: EthGasPrices | null;
     balances: WalletBalances;
@@ -255,9 +251,9 @@ function RemoveLiquidity({
         let exitAddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
         if (exitToken === pairData.token0.symbol) {
-            exitAddress = (pairData.token0 as Token).id;
+            exitAddress = pairData.token0.id;
         } else if (exitToken === pairData.token1.symbol) {
-            exitAddress = (pairData.token1 as Token).id;
+            exitAddress = pairData.token1.id;
         }
 
         const baseGasPrice = ethers.utils

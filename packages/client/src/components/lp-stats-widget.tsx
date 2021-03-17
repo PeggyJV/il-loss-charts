@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import { Card, Table } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 
 import { LPStats as ILPStats } from '@sommelier/shared-types';
@@ -9,25 +8,21 @@ import { formatUSD } from 'util/formats';
 
 function LPStatsWidget({
     lpStats,
-    title,
-    subtitle,
 }: {
-    lpStats: Partial<ILPStats>;
-    title?: string;
-    subtitle?: string;
+    lpStats: Partial<ILPStats<string>>;
 }): JSX.Element | null {
     if (!lpStats.totalFees) return null;
 
-    const displayValue = (value?: BigNumber) => {
+    const displayValue = (value?: string) => {
         if (!value)
             throw new Error(
                 `Could not display nonexist value in LPStatsWidget`
             );
-        return formatUSD(value.toFixed(3));
+        return formatUSD(new BigNumber(value).toFixed(3));
     };
 
     return (
-        <div className='pair-volume-liquidity-stats '>
+        <div className='pair-volume-liquidity-stats'>
             <table>
                 <tbody>
                     <tr>

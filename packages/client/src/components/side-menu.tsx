@@ -8,11 +8,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faChartArea,
     faSearch,
-    faHandHoldingUsd,
     faSearchDollar,
     faCalculator,
 } from '@fortawesome/free-solid-svg-icons';
-import { faTelegram } from '@fortawesome/free-brands-svg-icons';
 import ConnectWalletButton from 'components/connect-wallet-button';
 
 import 'styles/burger-menu.scss';

@@ -1,8 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Combobox } from 'react-widgets';
 
-import { UniswapPair, Token } from '@sommelier/shared-types';
-import { AllPairsState } from 'types/states';
+import { UniswapPair } from '@sommelier/shared-types';
 
 import { PairWithLogo } from 'components/token-with-logo';
 
@@ -23,13 +22,10 @@ function PairSearch({
     const searchKeys: SearchKeys = useMemo(
         (): SearchKeys =>
             pairs.reduce((acc: SearchKeys, pair: UniswapPair) => {
-                const symbol0 = (pair.token0 as Token).symbol.toLowerCase();
-                const symbol1 = (pair.token1 as Token).symbol.toLowerCase();
-                const symbolCombined = `${symbol0}/${symbol1}`;
                 const address = pair.id.toLowerCase();
 
                 acc[address] = pair;
-                acc[symbolCombined] = pair;
+                acc[pair.pairReadable] = pair;
 
                 return acc;
             }, {}),
@@ -48,16 +44,17 @@ function PairSearch({
         }
 
         if (currentValue?.id) setPair(currentValue.id);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentValue, searchKeys]);
 
     const lookForPair = (pair: UniswapPair, value: string) => {
         const search = value.toLowerCase();
-        const symbol0 = (pair.token0 as Token).symbol.toLowerCase();
-        const symbol1 = (pair.token1 as Token).symbol.toLowerCase();
-        const symbolCombined = `${symbol0}/${symbol1}`;
+        const symbol0 = pair.token0.symbol.toLowerCase();
+        const symbol1 = pair.token1.symbol.toLowerCase();
         const address = pair.id.toLowerCase();
 
-        return [symbol0, symbol1, symbolCombined, address].some(
+        return [symbol0, symbol1, pair.pairReadable, address].some(
             (value) => value.indexOf(search) > -1
         );
     };
@@ -67,9 +64,7 @@ function PairSearch({
             return item;
         }
 
-        const symbol0 = (item.token0 as Token).symbol.toUpperCase();
-        const symbol1 = (item.token1 as Token).symbol.toUpperCase();
-        return `${symbol0}/${symbol1}`;
+        return item.pairReadable;
     };
 
     return (

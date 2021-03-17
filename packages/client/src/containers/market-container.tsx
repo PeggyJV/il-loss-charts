@@ -1,38 +1,28 @@
-import { useEffect, useState, SyntheticEvent } from 'react';
+import { useEffect, SyntheticEvent } from 'react';
 import PropTypes from 'prop-types';
 import { Link, useHistory } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
 import BootstrapTable from 'react-bootstrap-table-next';
 import BigNumber from 'bignumber.js';
 
-import { UniswapPair, MarketStats } from '@sommelier/shared-types';
+import { IUniswapPair, MarketStats } from '@sommelier/shared-types';
 
 import { MarketData } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 import mixpanel from 'util/mixpanel';
 import {ErrorBoundary} from 'react-error-boundary';
-import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { resolveLogo } from 'components/token-with-logo';
-import { PageError, ComponentError } from 'components/page-error';
+import { ComponentError } from 'components/page-error';
 
 function OverviewContainer({
     marketData,
 }: {
     marketData: MarketStats[] | null;
 }): JSX.Element {
-    const [topPairs, setTopPairs] = useState<MarketStats[] | null>(null);
-    const [currentError, setError] = useState<string | null>(null);
-
     useEffect(() => {
         mixpanel.track('pageview:market', {});
     }, []);
 
     (window as any).marketData = marketData;
-    (window as any).topPairs = topPairs;
-
-    if (currentError) {
-        return <PageError errorMsg={currentError} />;
-    }
 
     return (
         <div>
@@ -56,7 +46,7 @@ function OverviewContainer({
 function MarketDataTable({ data }: { data: MarketStats[] }) {
     const history = useHistory();
 
-    const formatPair = ({ id, token0, token1 }: UniswapPair) => {
+    const formatPair = ({ id, token0, token1 }: IUniswapPair) => {
         return (
             <span>
                 {resolveLogo(token0.id)}{' '}
@@ -132,7 +122,7 @@ function MarketDataTable({ data }: { data: MarketStats[] }) {
 
     (window as any).sortedIL = sortedIl;
 
-    const onRowClick = (e: SyntheticEvent, pair: UniswapPair) => {
+    const onRowClick = (e: SyntheticEvent, pair: IUniswapPair) => {
         history.push(`/pair?id=${pair.id}`);
     };
 

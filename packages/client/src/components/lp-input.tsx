@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Form, Card, Col } from 'react-bootstrap';
+import { Form, Col } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
 import { DateTimePicker } from 'react-widgets';
-import { useMediaQuery } from 'react-responsive';
 import dateFnsLocalizer, { defaultFormats } from 'react-widgets-date-fns';
 
 import {
-    UniswapPair,
+    IUniswapPair,
     UniswapDailyData,
-    LiquidityData,
+    ILiquidityData,
 } from '@sommelier/shared-types';
 import { Pair, DailyData, HourlyData } from 'constants/prop-types';
 
@@ -29,20 +28,17 @@ function LPInput({
 }: {
     lpDate: Date;
     setLPDate: (newLPDate: Date) => void;
-    pairData: UniswapPair;
+    pairData: IUniswapPair;
     historicalDailyData: UniswapDailyData[];
     lpShare: number;
     setLPShare: (newLPShare: number) => void;
-    dataAtLPDate: LiquidityData;
+    dataAtLPDate: ILiquidityData;
 }): JSX.Element {
-    const isLargestBreakpoint = useMediaQuery({ query: '(min-width: 1500px)' });
-    const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
-
     const { token0, token1 } = pairData;
 
     const calcAmounts = (
         lpShare: number,
-        dataAtLPDate: LiquidityData
+        dataAtLPDate: ILiquidityData
     ): void => {
         const poolShare = new BigNumber(lpShare).div(dataAtLPDate.reserveUSD);
         const token0Amt = poolShare.times(dataAtLPDate.reserve0).toNumber();

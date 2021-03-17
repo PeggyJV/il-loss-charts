@@ -9,7 +9,7 @@ import {
 import BigNumber from 'bignumber.js';
 
 import {
-    UniswapPair,
+    IUniswapPair,
     UniswapDailyData,
     UniswapHourlyData,
     UniswapSwap,
@@ -61,7 +61,7 @@ export default class UniswapFetcher {
     static async getPairOverview(
         pairId: string,
         blockNumber?: number
-    ): Promise<UniswapPair> {
+    ): Promise<IUniswapPair> {
         let filterStr = `id: "${pairId}"`;
 
         if (blockNumber) {
@@ -69,7 +69,7 @@ export default class UniswapFetcher {
         }
 
         const response: ApolloResponse<{
-            pair: UniswapPair;
+            pair: IUniswapPair;
         }> = await UniswapFetcher.client.query({
             query: gql`
                     {
@@ -140,9 +140,9 @@ export default class UniswapFetcher {
         count = 1000,
         orderBy = 'volumeUSD',
         includeUntracked = false
-    ): Promise<UniswapPair[]> {
+    ): Promise<IUniswapPair[]> {
         const response: ApolloResponse<{
-            pairs: UniswapPair[];
+            pairs: IUniswapPair[];
         }> = await UniswapFetcher.client.query({
             query: gql`
                     {
@@ -162,7 +162,6 @@ export default class UniswapFetcher {
                                 symbol
                                 decimals
                             }
-
                         }
                     }
                 `,
@@ -204,9 +203,9 @@ export default class UniswapFetcher {
 
     static async getCurrentTopPerformingPairs(
         count = 100
-    ): Promise<UniswapPair[]> {
+    ): Promise<IUniswapPair[]> {
         const response: ApolloResponse<{
-            pairs: UniswapPair[];
+            pairs: IUniswapPair[];
         }> = await UniswapFetcher.client.query({
             query: gql`
             {
@@ -267,7 +266,7 @@ export default class UniswapFetcher {
         startBlock?: EthBlock;
         endBlock?: EthBlock;
         fetchPartial?: boolean;
-    }): Promise<UniswapPair[]> {
+    }): Promise<IUniswapPair[]> {
         let blockDatas: EthBlock[];
         if (startBlock) {
             if (!endBlock) {
@@ -292,7 +291,7 @@ export default class UniswapFetcher {
 
         const pairDataP = blockDatas.map(
             (block) =>
-                <Promise<UniswapPair>>UniswapFetcher.cachedGetPairOverview(
+                <Promise<IUniswapPair>>UniswapFetcher.cachedGetPairOverview(
                     pairId,
                     block.number
                 ).catch((err: HTTPError) => {
@@ -301,7 +300,7 @@ export default class UniswapFetcher {
                 })
         );
 
-        let pairDatas: UniswapPair[];
+        let pairDatas: IUniswapPair[];
 
         try {
             pairDatas = await Promise.all(pairDataP);
@@ -311,14 +310,14 @@ export default class UniswapFetcher {
 
             if (e.message.match(blockBehindMsg)) {
                 pairDatas = await Promise.all([
-                    <Promise<UniswapPair>>UniswapFetcher.cachedGetPairOverview(
+                    <Promise<IUniswapPair>>UniswapFetcher.cachedGetPairOverview(
                         pairId,
                         blockDatas[0].number
                     ).catch((err: HTTPError) => {
                         if (err.status === 404) return null;
                         else throw err;
                     }),
-                    <Promise<UniswapPair>>UniswapFetcher.cachedGetPairOverview(
+                    <Promise<IUniswapPair>>UniswapFetcher.cachedGetPairOverview(
                         pairId
                     ).catch((err: HTTPError) => {
                         if (err.status === 404) return null;
@@ -743,13 +742,21 @@ export default class UniswapFetcher {
         return burns;
     }
 
-    static async getEthPrice(): Promise<{ ethPrice: number }> {
+    static async getEthPrice(
+        blockNumber?: number
+    ): Promise<{ ethPrice: number }> {
+        let filterStr = `id: "1"`;
+
+        if (blockNumber) {
+            filterStr = filterStr.concat(`, block: {number: ${blockNumber}}`);
+        }
+
         const response: ApolloResponse<{
             bundle: { ethPrice: number };
         }> = await UniswapFetcher.client.query({
             query: gql`
                 {
-                    bundle(id: "1") {
+                    bundle(${filterStr}) {
                         ethPrice
                     }
                 }
