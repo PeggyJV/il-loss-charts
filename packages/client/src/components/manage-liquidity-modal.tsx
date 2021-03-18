@@ -36,9 +36,6 @@ function ManageLiquidityModal({
     pairId: string | null;
     gasPrices: EthGasPrices | null;
 }): JSX.Element | null {
-    const handleClose = () => {
-        setShow(false);
-    };
     const [mode, setMode] = useState<'add' | 'remove'>('add');
     const [balances, setBalances] = useState<WalletBalances>({});
     const [pairData, setPairData] = useState<UniswapPair | null>(null);
@@ -49,6 +46,10 @@ function ManageLiquidityModal({
 
     let provider: ethers.providers.Web3Provider | null = null;
 
+    const handleClose = () => {
+        setMode('add');
+        setShow(false);
+    };
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }

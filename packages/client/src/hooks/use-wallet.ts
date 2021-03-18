@@ -197,7 +197,9 @@ export default function useWallet(): {
     };
 
     const disconnectWallet = () => {
-        mixpanel.track('wallet:disconnect', { provider: wcProvider });
+        mixpanel.track('wallet:disconnect', {
+            providerName: wallet.providerName,
+        });
         setWallet({ account: null, providerName: null, provider: null });
         cookies.remove('current_wallet');
     };
