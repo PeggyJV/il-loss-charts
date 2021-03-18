@@ -176,6 +176,7 @@ function PairContainer({
         } else {
             void getDefaultLPStats();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pairId]);
 
 

@@ -15,6 +15,8 @@ import { Combobox } from 'react-widgets';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
 
+import mixpanel from 'util/mixpanel';
+
 import erc20Abi from 'constants/abis/erc20.json';
 import exchangeRemoveAbi from 'constants/abis/volumefi_remove_liquidity_uniswap.json';
 
