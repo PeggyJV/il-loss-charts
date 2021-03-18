@@ -199,10 +199,6 @@ function ManageLiquidityModal({
             if (positionData) {
                 setPositionData(positionData);
             }
-
-            // mixpanel.track('positions:query', {
-            //     address: wallet.account,
-            // });
         };
 
         if (wallet.account) {

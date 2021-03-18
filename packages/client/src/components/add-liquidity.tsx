@@ -243,6 +243,7 @@ function AddLiquidity({
 
         try {
             mixpanel.track('transaction:addLiquidity', {
+                distinct_id: pairAddress,
                 amount: entryAmount.toString(),
                 entryToken,
                 pair: pairAddress,
