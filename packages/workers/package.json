@@ -14,8 +14,8 @@
         "lint": "eslint src --ext js,ts",
         "clean": "rimraf dist *.tsbuildinfo",
         "build": "tsc",
-        "worker:alerts": "ts-node src/scripts/il-alerts.ts",
-        "worker:discord": "ts-node src/scripts/il-alerts-discord.ts"
+        "worker:alerts:tg": "ts-node src/scripts/il-alerts.ts",
+        "worker:alrets:discord": "ts-node src/scripts/il-alerts-discord.ts"
     },
     "keywords": [],
     "author": "",
