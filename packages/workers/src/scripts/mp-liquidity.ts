@@ -3,14 +3,16 @@ dotenv.config();
 
 import Mixpanel from 'mixpanel';
 let mixpanel: Mixpanel.Mixpanel;
-
-import * as superagent from 'superagent'
+import fetch from 'node-fetch';
 
 var MS_PER_MINUTE = 60000;
-var key = process.env.ETHPLORER_KEY || 'freekey'
+var key = process.env.ETHPLORER_KEY || 'freekey';
+
+var ADD_TRANSACTION_HASH = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
+var REMOVE_TRANSACTION_HASH = '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
 
 if (key == 'freekey') {
-  console.log('Limited results without official ethplorer key.')
+  console.log('Limited results without official ethplorer key.');
 }
 
 if (process.env.MIXPANEL_TOKEN) {
@@ -19,43 +21,47 @@ if (process.env.MIXPANEL_TOKEN) {
     throw new Error(`Cannot start il alerts mixpanel liquidity bot without mixpanel token.`);
 }
 
-var oneHoursBefore = Date.now() - (MS_PER_MINUTE * 60);
+interface AddressTransaction {
+  timestamp: Date;
+  from: string;
+  to: string;
+  hash: string;
+  value: number;
+  input: string;
+  success: boolean;
+}
 
-superagent.get('https://api.ethplorer.io/getAddressTransactions/0xFd8A61F94604aeD5977B31930b48f1a94ff3a195')
-.query({ apiKey: key, limit: '200', timestamp: oneHoursBefore  })
-.end((err, res) => {
-  if (err) { return console.log(err); }
+async function getTransactionData(transactionType: string, hash: string): Promise<void> {
+  var oneHoursBefore = Date.now() - (MS_PER_MINUTE * 60);
 
-  res.body.forEach(function (item: any) {
+  var addPath ='https://api.ethplorer.io/getAddressTransactions/'
+  var fullPath = `${addPath}${hash}?apiKey=${
+      key
+  }&limit=200&timestamp=${
+    oneHoursBefore
+  }`
 
-    mixpanel.track('UniswapLiquidity:add', {
-      distinct_id: item.from,
-      timestamp: item.timestamp,
-      to: item.to,
-      from: item.from,
-      hash: item.hash,
-      value: item.value,
-      success: item.success
+  const res = await fetch(fullPath);
+  const data = await res.json();
+
+  data.forEach(function (addressTransaction: AddressTransaction) {
+    console.log(addressTransaction.timestamp);
+
+    mixpanel.track(`UniswapLiquidity:${transactionType}`, {
+      distinct_id: addressTransaction.from,
+      timestamp: addressTransaction.timestamp,
+      to: addressTransaction.to,
+      from: addressTransaction.from,
+      hash: addressTransaction.hash,
+      value: addressTransaction.value,
+      success: addressTransaction.success
     });
   });
-});
+}
 
+async function getData() {
+  await getTransactionData('add', ADD_TRANSACTION_HASH);
+  await getTransactionData('remove', REMOVE_TRANSACTION_HASH);
+}
 
-superagent.get('https://api.ethplorer.io/getAddressTransactions/0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92')
-.query({ apiKey: key, limit: '200', timestamp: oneHoursBefore  })
-.end((err, res) => {
-  if (err) { return console.log(err); }
-
-  res.body.forEach(function (item: any) {
-
-    mixpanel.track('UniswapLiquidity:remove', {
-      distinct_id: item.from,
-      timestamp: item.timestamp,
-      to: item.to,
-      from: item.from,
-      hash: item.hash,
-      value: item.value,
-      success: item.success
-    });
-  });
-});
+getData();

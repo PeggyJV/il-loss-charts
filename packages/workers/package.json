@@ -15,7 +15,7 @@
         "clean": "rimraf dist *.tsbuildinfo",
         "build": "tsc",
         "worker:alerts:tg": "ts-node src/scripts/il-alerts.ts",
-        "worker:alrets:discord": "ts-node src/scripts/il-alerts-discord.ts",
+        "worker:alerts:discord": "ts-node src/scripts/il-alerts-discord.ts",
         "worker:mixpanel-liquidity": "ts-node src/scripts/mp-liquidity.ts"
     },
     "keywords": [],
