@@ -227,6 +227,7 @@ p {
     border-bottom: 1px solid var(--borderDeep);
     background: var(--bgDeep);
     font-weight: normal;
+    color: var(--faceDeep);
     cursor: pointer;
     &:focus {
         outline: none;

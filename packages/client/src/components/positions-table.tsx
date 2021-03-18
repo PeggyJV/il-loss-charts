@@ -95,11 +95,11 @@ function PositionsTable({
 
     const formatReturnsUSD = (val: string | number) => {
         if (val === '-') return val;
-
-        if (Math.sign(Number(val)))
+        if (Math.sign(Number(val)) > 0)
             return (
                 <strong style={{ color: 'var(--bgMoon)' }}>{formatUSD(val)}</strong>
             );
+        
 
         return <span style={{ color: 'var(--bgDump)' }}>{formatUSD(val)}</span>;
     };
@@ -142,7 +142,7 @@ function PositionsTable({
             dataField: 'notionalGain',
             text: 'Notional USD Gain',
             sort: true,
-            formatter: formatUSDorNA,
+            formatter: formatReturnsUSD,
         },
         {
             dataField: 'returnsUSD',
