@@ -127,12 +127,12 @@ async function runAlertCheck(): Promise<void> {
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user!.tag}!`);
-  runAlertCheck();
+  void runAlertCheck();
 });
 
 if (require.main === module) {
   if (process.env.DISCORD_BOT_TOKEN) {
-      client.login(process.env.DISCORD_BOT_TOKEN);
+      void client.login(process.env.DISCORD_BOT_TOKEN);
   } else {
       throw new Error(`Cannot start il alerts discord bot without token.`);
   }

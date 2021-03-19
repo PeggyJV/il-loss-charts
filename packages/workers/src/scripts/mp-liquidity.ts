@@ -5,11 +5,11 @@ import Mixpanel from 'mixpanel';
 let mixpanel: Mixpanel.Mixpanel;
 import fetch from 'node-fetch';
 
-var MS_PER_MINUTE = 60000;
-var key = process.env.ETHPLORER_KEY || 'freekey';
+const MS_PER_MINUTE = 60000;
+const key = process.env.ETHPLORER_KEY || 'freekey';
 
-var ADD_TRANSACTION_HASH = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
-var REMOVE_TRANSACTION_HASH = '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
+const ADD_LIQUIDITY_ADDR = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
+const REMOVE_LIQUIDITY_ADDR = '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
 
 if (key == 'freekey') {
   console.log('Limited results without official ethplorer key.');
@@ -32,10 +32,10 @@ interface AddressTransaction {
 }
 
 async function getTransactionData(transactionType: string, hash: string): Promise<void> {
-  var oneHoursBefore = Date.now() - (MS_PER_MINUTE * 60);
+  const oneHoursBefore = Date.now() - (MS_PER_MINUTE * 60);
 
-  var addPath ='https://api.ethplorer.io/getAddressTransactions/'
-  var fullPath = `${addPath}${hash}?apiKey=${
+  const addPath ='https://api.ethplorer.io/getAddressTransactions/'
+  const fullPath = `${addPath}${hash}?apiKey=${
       key
   }&limit=200&timestamp=${
     oneHoursBefore
@@ -60,8 +60,10 @@ async function getTransactionData(transactionType: string, hash: string): Promis
 }
 
 async function getData() {
-  await getTransactionData('add', ADD_TRANSACTION_HASH);
-  await getTransactionData('remove', REMOVE_TRANSACTION_HASH);
+  await getTransactionData('add', ADD_LIQUIDITY_ADDR);
+  await getTransactionData('remove', REMOVE_LIQUIDITY_ADDR);
 }
 
-getData();
+if (require.main === module) {
+    void getData();
+}
