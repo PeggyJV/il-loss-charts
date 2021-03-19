@@ -15,3 +15,6 @@ apps:
     interpreter: "/bin/bash"
     cwd: "/app/il-loss-charts/packages/workers"
     watch: true
+  - name: "wait"
+    script: "tail -f /dev/null"
+    interpreter: "/bin/bash"

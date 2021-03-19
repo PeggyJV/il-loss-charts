@@ -13,3 +13,4 @@ export DISCORD_BOT_TOKEN=$(gcloud secrets versions access latest --secret=DISCOR
 export REDIS_AUTH=$(gcloud secrets versions access latest --secret=REDIS_AUTH)
 
 pm2-runtime workers.ecosystem.yml
+
