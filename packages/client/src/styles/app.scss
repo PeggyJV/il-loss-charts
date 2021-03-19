@@ -84,12 +84,14 @@ p {
     border: 1px solid var(--btnInfoBorder);
     border-radius: 2px;
     background: var(--btnInfo);
-    &:hover,:active,:focus {
-      background: var(--btnInfoHover);
+    &:hover,
+    :active,
+    :focus {
+        background: var(--btnInfoHover);
     }
     &:focus {
-      outline: none;
-      box-shadow: 0;
+        outline: none;
+        box-shadow: 0;
     }
 }
 
@@ -699,7 +701,7 @@ p {
 .input-group-append {
     .input-group-text {
         background: none;
-        border:1px solid var(--borderSecondary);
+        border: 1px solid var(--borderSecondary);
         color: var(--faceSecondary);
     }
 }
@@ -773,7 +775,7 @@ p {
     background: var(--bgMain);
     border: 2px solid var(--bgDeep);
 }
-.modal-backdrop.show{
+.modal-backdrop.show {
     opacity: 0.75;
 }
 .modal-content {
@@ -788,7 +790,7 @@ p {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-gap: 1px;
-    div:nth-child(even){
+    div:nth-child(even) {
         color: var(--faceDeep);
     }
 }
@@ -830,7 +832,6 @@ p {
     border-bottom-right-radius: 0;
 }
 
-
 .pair-text-large {
     display: flex;
     align-items: center;
@@ -866,6 +867,22 @@ p {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    .button-group-h button {
+        color: var(--faceDeep);
+        background: var(--bgInfo);
+        border: 1px solid var(--btnInfoBorder);
+        &:hover,
+        :focus {
+            background: var(--btnInfoHover);
+            border: 1px solid var(--btnInfoBorder);
+            box-shadow: none;
+        }
+    }
+    .button-group-h .active {
+        background: var(--btnInfoHover);
+        border: 1px solid var(--btnInfoBorder);
+        box-shadow: none;
+    }
 }
 
 .rw-popup-container.rw-calendar-popup {

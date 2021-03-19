@@ -17,7 +17,6 @@ import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
 
 import mixpanel from 'util/mixpanel';
-
 import erc20Abi from 'constants/abis/erc20.json';
 import exchangeAddAbi from 'constants/abis/volumefi_add_liquidity_uniswap.json';
 
@@ -38,6 +37,7 @@ import { calculatePoolEntryData } from 'util/uniswap-pricing';
 
 import { resolveLogo } from 'components/token-with-logo';
 import { AddLiquidityActionButton } from 'components/liquidity-action-button';
+import classNames from 'classnames';
 
 function AddLiquidity({
     wallet,
@@ -425,7 +425,7 @@ function AddLiquidity({
                 </Form.Group>
                 <h5>Expected Pool Shares</h5>
                 <Card body>
-                    <div className="modal-pool-shares">
+                    <div className='modal-pool-shares'>
                         <div>
                             {resolveLogo(pairData.token0.id)}{' '}
                             {pairData.token0.symbol}
@@ -469,7 +469,7 @@ function AddLiquidity({
                 <Card body>
                     <Form.Group as={Row}>
                         <Form.Label column sm={6}>
-                            Slippage Tolerance:
+                            Slippage Tolerance
                         </Form.Label>
                         <Col sm={2}></Col>
                         <Col sm={4}>
@@ -493,43 +493,44 @@ function AddLiquidity({
                     </Form.Group>
                     {gasPrices && (
                         <Form.Group className='transaction-speed-input'>
-                            <Form.Label>Transaction Speed:</Form.Label>
-                            <ButtonGroup>
-                                <Button
-                                    variant='outline-dark'
-                                    size='sm'
-                                    active={
-                                        currentGasPrice === gasPrices.standard
-                                    }
+                            <Form.Label>Transaction Speed</Form.Label>
+                            <div className='button-group-h'>
+                                <button
+                                    className={classNames({
+                                        active:
+                                            currentGasPrice ===
+                                            gasPrices.standard,
+                                    })}
                                     onClick={() =>
                                         setCurrentGasPrice(gasPrices.standard)
                                     }
                                 >
                                     Standard <br />({gasPrices.standard} Gwei)
-                                </Button>
-                                <Button
-                                    variant='outline-dark'
-                                    size='sm'
-                                    active={currentGasPrice === gasPrices.fast}
+                                </button>
+                                <button
+                                    className={classNames({
+                                        active:
+                                            currentGasPrice === gasPrices.fast,
+                                    })}
                                     onClick={() =>
                                         setCurrentGasPrice(gasPrices.fast)
                                     }
                                 >
                                     Fast <br />({gasPrices.fast} Gwei)
-                                </Button>
-                                <Button
-                                    variant='outline-dark'
-                                    size='sm'
-                                    active={
-                                        currentGasPrice === gasPrices.fastest
-                                    }
+                                </button>
+                                <button
+                                    className={classNames({
+                                        active:
+                                            currentGasPrice ===
+                                            gasPrices.fastest,
+                                    })}
                                     onClick={() =>
                                         setCurrentGasPrice(gasPrices.fastest)
                                     }
                                 >
                                     Fastest <br />({gasPrices.fastest} Gwei)
-                                </Button>
-                            </ButtonGroup>
+                                </button>
+                            </div>
                         </Form.Group>
                     )}
                 </Card>
