@@ -784,6 +784,14 @@ p {
 .modal-footer {
     border: 0;
 }
+.modal-pool-shares {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 1px;
+    div:nth-child(even){
+        color: var(--faceDeep);
+    }
+}
 .manage-liquidity-modal-header {
     padding: 0;
     background: var(--bgContainer);

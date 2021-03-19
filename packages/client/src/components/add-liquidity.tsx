@@ -380,7 +380,10 @@ function AddLiquidity({
             <Modal.Body className='connect-wallet-modal'>
                 <Form.Group>
                     <Form.Label>
-                        <strong>Available {entryToken}:</strong> {maxBalanceStr}
+                        <h5>
+                            Available <strong>{entryToken}</strong>{' '}
+                            {maxBalanceStr}
+                        </h5>
                     </Form.Label>
                     &nbsp;&nbsp;
                     <button
@@ -420,43 +423,50 @@ function AddLiquidity({
                         </DropdownButton>
                     </InputGroup>
                 </Form.Group>
+                <h5>Expected Pool Shares</h5>
                 <Card body>
-                    <p>
-                        <strong>Expected Pool Shares</strong>
-                    </p>
-                    <p>
-                        {resolveLogo(pairData.token0.id)}{' '}
-                        {expectedPoolToken0 !== 'NaN' ? expectedPoolToken0 : 0}{' '}
-                        {pairData.token0.symbol}
-                    </p>
-                    <p>
-                        {resolveLogo(pairData.token1.id)}{' '}
-                        {expectedPoolToken1 !== 'NaN' ? expectedPoolToken1 : 0}{' '}
-                        {pairData.token1.symbol}
-                    </p>
-                    <p>
-                        {expectedLpTokens !== 'NaN' ? expectedLpTokens : 0} LP
-                        Tokens
-                        {currentLpTokens && (
-                            <span className='current-lp-tokens'>
-                                {' '}
-                                ({currentLpTokens} Current)
-                            </span>
-                        )}
-                    </p>
-                    <p>
-                        <strong>Price Impact:</strong>{' '}
-                        {expectedPriceImpact !== 'NaN'
-                            ? expectedPriceImpact
-                            : 0}
-                        %
-                    </p>
+                    <div className="modal-pool-shares">
+                        <div>
+                            {resolveLogo(pairData.token0.id)}{' '}
+                            {pairData.token0.symbol}
+                        </div>
+                        <div>
+                            {expectedPoolToken0 !== 'NaN'
+                                ? expectedPoolToken0
+                                : 0}{' '}
+                        </div>
+                        <div>
+                            {resolveLogo(pairData.token1.id)}{' '}
+                            {pairData.token1.symbol}
+                        </div>
+                        <div>
+                            {expectedPoolToken1 !== 'NaN'
+                                ? expectedPoolToken1
+                                : 0}{' '}
+                        </div>
+
+                        <div>LP Tokens</div>
+                        <div>
+                            {expectedLpTokens !== 'NaN' ? expectedLpTokens : 0}{' '}
+                            {currentLpTokens && (
+                                <span className='current-lp-tokens'>
+                                    {' '}
+                                    ({currentLpTokens} Current)
+                                </span>
+                            )}
+                        </div>
+                        <div>Price Impact</div>
+                        <div>
+                            {expectedPriceImpact !== 'NaN'
+                                ? expectedPriceImpact
+                                : 0}
+                            %
+                        </div>
+                    </div>
                 </Card>
                 <br />
+                <h5>Transaction Settings</h5>
                 <Card body>
-                    <p>
-                        <strong>Transaction Settings</strong>
-                    </p>
                     <Form.Group as={Row}>
                         <Form.Label column sm={6}>
                             Slippage Tolerance:
