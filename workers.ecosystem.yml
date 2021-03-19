@@ -1,12 +1,12 @@
 apps:
-  - name: tg-alerts
-    script: yarn
+  - name: "tg-alerts"
+    script: "yarn"
     args: "worker:alerts:tg"
     autorestart: false
     cron_restart: "0 * * * *"
     cwd: "/app/il-loss-charts/packages/workers"
-  - name: discord-alerts
-    script: yarn
+  - name: "discord-alerts"
+    script: "yarn"
     args: "worker:alerts:discord"
     autorestart: false
     cron_restart: "0 * * * *"
