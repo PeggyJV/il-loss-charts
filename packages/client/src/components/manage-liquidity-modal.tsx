@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { ButtonGroup, Modal } from 'react-bootstrap';
 import classNames from 'classnames';
-
+import { toastWarn, toastSuccess, toastError } from 'util/toasters';
 import { ethers } from 'ethers';
 
 import erc20Abi from 'constants/abis/erc20.json';
@@ -46,13 +46,28 @@ function ManageLiquidityModal({
 
     let provider: ethers.providers.Web3Provider | null = null;
 
-    const handleClose = () => {
-        setMode('add');
-        setShow(false);
-    };
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
+    const notifyTxStatus = async (txHash: string) => {
+        const txHashCompact = txHash?.substring(0, 8).concat('...');
+        toastWarn(`Pending tx ${txHashCompact}`);
+        if (provider) {
+            const txStatus: ethers.providers.TransactionReceipt = await provider.waitForTransaction(
+                txHash
+            );
+            const { status } = txStatus;
+
+            status === 1
+                ? toastSuccess(`Completed tx ${txHashCompact}`)
+                : toastError(`Rejected tx ${txHashCompact}`);
+        }
+    };
+    const handleClose = (txHash: string) => {
+        setMode('add');
+        setShow(false);
+        if (txHash) void notifyTxStatus(txHash);
+    };
 
     useEffect(() => {
         const fetchPairData = async () => {
@@ -178,7 +193,7 @@ function ManageLiquidityModal({
         };
 
         void getBalances();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet, show, pairData]);
 
     useEffect(() => {

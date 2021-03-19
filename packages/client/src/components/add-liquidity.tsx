@@ -54,7 +54,7 @@ function AddLiquidity({
     positionData: LPPositionData<string> | null;
     gasPrices: EthGasPrices | null;
     balances: WalletBalances;
-    onDone: () => void | null;
+    onDone: (hash: string) => void;
 }): JSX.Element | null {
     const [entryToken, setEntryToken] = useState<string>('ETH');
     const [entryAmount, setEntryAmount] = useState<string>('');
@@ -293,7 +293,7 @@ function AddLiquidity({
             gasEstimate = ethers.BigNumber.from('1000000');
         }
 
-        await addLiquidityContract[
+        const { hash } = await addLiquidityContract[
             'investTokenForEthPair(address,address,uint256,uint256)'
         ](sellToken, pairAddress, baseAmount, baseMinPoolTokens, {
             gasPrice: baseGasPrice,
@@ -307,8 +307,8 @@ function AddLiquidity({
         setTimeout(() => {
             setTxSubmitted(false);
             resetForm();
-            onDone?.();
-        }, 1000);
+            onDone?.(hash);
+        }, 500);
     };
 
     const addLiquidityActionState: ManageLiquidityActionState = useMemo(() => {

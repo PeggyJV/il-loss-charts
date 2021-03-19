@@ -7,7 +7,6 @@ import { TopPairsState, Wallet } from 'types/states';
 import PositionsTable from 'components/positions-table';
 import { ComponentError } from 'components/page-error';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
-
 import mixpanel from 'util/mixpanel';
 import TopPairsWidget from 'components/top-pairs-widget';
 import ConnectWalletButton from 'components/connect-wallet-button';
@@ -37,7 +36,7 @@ function LandingContainer({
 
     (window as any).positionData = positionData;
     (window as any).pairId = pairId;
-
+    
     useEffect(() => {
         const fetchPositionsForWallet = async () => {
             if (!isLoading) setIsLoading(true);
@@ -64,10 +63,10 @@ function LandingContainer({
             if (isInitialLoad) setIsInitialLoad(false);
 
             try {
-              mixpanel.track('positions:query', {
-                  distinct_id: wallet.account,
-                  address: wallet.account
-              });
+                mixpanel.track('positions:query', {
+                    distinct_id: wallet.account,
+                    address: wallet.account,
+                });
             } catch (e) {
                 console.error(`Metrics error on add positions:query.`);
             }
@@ -83,7 +82,7 @@ function LandingContainer({
     const showModal = () => setShowConnectWallet(true);
     useEffect(() => {
         try {
-          mixpanel.track('pageview:landing', {});
+            mixpanel.track('pageview:landing', {});
         } catch (e) {
             console.error(`Metrics error on add positions:landing.`);
         }

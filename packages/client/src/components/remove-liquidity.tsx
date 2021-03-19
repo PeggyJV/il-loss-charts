@@ -52,7 +52,7 @@ function RemoveLiquidity({
     positionData: LPPositionData<string> | null;
     gasPrices: EthGasPrices | null;
     balances: WalletBalances;
-    onDone: () => void | null;
+    onDone: (hash: string) => void;
 }): JSX.Element | null {
     const [exitToken, setExitToken] = useState<string>('ETH');
     const [exitAmount, setExitAmount] = useState<string>('0');
@@ -306,7 +306,7 @@ function RemoveLiquidity({
             gasEstimate = ethers.BigNumber.from('1000000');
         }
 
-        await removeLiquidityContract[
+        const { hash } = await removeLiquidityContract[
             'divestEthPairToToken(address,address,uint256)'
         ](pairData.id, exitAddress, baseLpTokens, {
             gasPrice: baseGasPrice,
@@ -320,8 +320,8 @@ function RemoveLiquidity({
                 pair_id: pairData.id,
                 exitToken: exitToken,
                 gasEstimate: gasEstimate,
-                exitAmount: exitAmount
-            }
+                exitAmount: exitAmount,
+            };
 
             mixpanel.track('transaction:removeLiquidity', metrics);
         } catch (e) {
@@ -334,8 +334,8 @@ function RemoveLiquidity({
         setTimeout(() => {
             setTxSubmitted(false);
             resetForm();
-            onDone?.();
-        }, 1000);
+            onDone?.(hash);
+        }, 500);
     };
 
     if (positionData && pairData) {

@@ -9,6 +9,8 @@ import useWebSocket from 'react-use-websocket';
 import ManageLiquidityModal from 'components/manage-liquidity-modal';
 import config from 'config';
 import { UniswapPair, EthGasPrices, MarketStats } from '@sommelier/shared-types';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import LandingContainer from 'containers/landing-container';
 import MarketContainer from 'containers/market-container';
@@ -201,6 +203,17 @@ function App(): ReactElement {
         <ErrorBoundary
             fallbackRender={({ error }) => <PageError errorMsg={error} />}
         >
+            <ToastContainer
+                position='top-center'
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
             <Router>
                 <div className={classNames('app', 'dark')} id='app-wrap'>
                     <div className='side-menu-wrapper'>
