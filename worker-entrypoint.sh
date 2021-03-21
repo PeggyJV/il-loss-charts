@@ -13,5 +13,5 @@ export ETHPLORER_KEY=$(gcloud secrets versions access latest --secret=ETHPLORER_
 
 export REDIS_AUTH=$(gcloud secrets versions access latest --secret=REDIS_AUTH)
 
-pm2-runtime workers.ecosystem.yml
+cron -f
 
