@@ -162,13 +162,32 @@ function AddLiquidity({
             .parseUnits(currentGasPrice.toString(), 9)
             .toString();
 
+        // Call the contract and sign
+        let gasEstimate: ethers.BigNumber;
+
+        try {
+            gasEstimate = await sellTokenContract.estimateGas.approve(
+                EXCHANGE_ADD_ABI_ADDRESS,
+                baseAmount,
+                { gasPrice: baseGasPrice }
+            );
+
+            // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
+            gasEstimate = gasEstimate.add(gasEstimate.div(3));
+        } catch (err) {
+            // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
+            console.error(`Could not estimate gas: ${err.message as string}`);
+
+            gasEstimate = ethers.BigNumber.from('1000000');
+        }
+
         // Approve the add liquidity contract to spend entry tokens
         const txResponse = await sellTokenContract.approve(
             EXCHANGE_ADD_ABI_ADDRESS,
             baseAmount,
             {
                 gasPrice: baseGasPrice,
-                gasLimit: '200000', // setting a high gas limit because it is hard to predict gas we will use
+                gasLimit: gasEstimate, // setting a high gas limit because it is hard to predict gas we will use
             }
         );
 
