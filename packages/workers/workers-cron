@@ -1,4 +1,5 @@
 HOME=/app/il-loss-charts/packages/workers
+PATH=/bin:/usr/bin:/usr/local/bin
 
 0 * * * * /usr/local/bin/yarn worker:alerts:tg >> /var/log/cron.log 2>&1
 0 * * * * /usr/local/bin/yarn worker:alerts:discord >> /var/log/cron.log 2>&1
