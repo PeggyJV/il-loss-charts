@@ -1,5 +1,5 @@
 HOME=/app/il-loss-charts/packages/workers
 
-0 * * * * yarn worker:alerts:tg >> /var/log/cron.log 2>&1
-0 * * * * yarn worker:alerts:discord >> /var/log/cron.log 2>&1
-0 * * * * yarn worker:mixpanel-liquidity >> /var/log/cron.log 2>&1
+0 * * * * /usr/local/bin/yarn worker:alerts:tg >> /var/log/cron.log 2>&1
+0 * * * * /usr/local/bin/yarn worker:alerts:discord >> /var/log/cron.log 2>&1
+0 * * * * /usr/local/bin/yarn worker:mixpanel-liquidity >> /var/log/cron.log 2>&1
