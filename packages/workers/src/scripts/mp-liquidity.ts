@@ -6,7 +6,7 @@ let mixpanel: Mixpanel.Mixpanel;
 import fetch from 'node-fetch';
 
 const MS_PER_MINUTE = 60000;
-const key = process.env.ETHPLORER_KEY || 'freekey';
+const key = process.env.ETHPLORER_API_KEY || 'freekey';
 
 const ADD_LIQUIDITY_ADDR = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
 const REMOVE_LIQUIDITY_ADDR = '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
