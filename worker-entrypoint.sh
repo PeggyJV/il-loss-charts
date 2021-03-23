@@ -9,9 +9,8 @@ export ETHERSCAN_API_KEY=$(gcloud secrets versions access latest --secret=ETHERS
 export ALCHEMY_API_KEY=$(gcloud secrets versions access latest --secret=ALCHEMY_API_KEY)
 export TELEGRAM_BOT_TOKEN=$(gcloud secrets versions access latest --secret=TELEGRAM_BOT_TOKEN)
 export DISCORD_BOT_TOKEN=$(gcloud secrets versions access latest --secret=DISCORD_BOT_TOKEN)
-export ETHPLORER_API_KEY=$(gcloud secrets versions access latest --secret=ETHPLORER_API_KEY)
+export ETHPLORER_API_KEY=$(gcloud secrets versions access latest --secret=ETHPLORER_KEY)
 
 export REDIS_AUTH=$(gcloud secrets versions access latest --secret=REDIS_AUTH)
 
-cron -f
-
+pm2-runtime packages/workers/dist/scheduler.js

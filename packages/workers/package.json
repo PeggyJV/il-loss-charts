@@ -16,7 +16,8 @@
         "build": "tsc",
         "worker:alerts:tg": "ts-node src/scripts/il-alerts.ts",
         "worker:alerts:discord": "ts-node src/scripts/il-alerts-discord.ts",
-        "worker:mixpanel-liquidity": "ts-node src/scripts/mp-liquidity.ts"
+        "worker:mixpanel-liquidity": "ts-node src/scripts/mp-liquidity.ts",
+        "cron": "node dist/scheduler.js"
     },
     "keywords": [],
     "author": "",
@@ -26,6 +27,11 @@
         "@types/mixpanel": "^2.14.2",
         "@types/superagent": "^4.1.10",
         "discord.js": "^12.5.1",
+        "express": "^4.17.1",
+        "node-cron": "^3.0.0",
         "superagent": "^6.1.0"
+    },
+    "devDependencies": {
+        "@types/node-cron": "^2.0.3"
     }
 }

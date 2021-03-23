@@ -20,7 +20,13 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
 
 const CHAT_ID = '@getsomm_alerts';
 
-async function runAlertCheck(): Promise<void> {
+const handleExit = () => {
+    if (require.main === module) {
+        process.exit(1);
+    }
+}
+
+export default async function runAlertCheck(): Promise<void> {
     // Every hour, fetch latest market data for top pairs - runs locally so using localhost
     // For any pair with a 10% 24h change in impermanent loss, send an alert
 
@@ -35,7 +41,7 @@ async function runAlertCheck(): Promise<void> {
                 e.message as string
             }`
         );
-        process.exit(1);
+        return handleExit();
     }
 
     // Start 24h ago, compare to now
@@ -60,7 +66,7 @@ async function runAlertCheck(): Promise<void> {
         console.error(
             `Aborting: could not fetch historical data: ${e.message as string}`
         );
-        process.exit(1);
+        return handleExit();
     }
 
     try {
@@ -76,7 +82,7 @@ async function runAlertCheck(): Promise<void> {
                 e.message as string
             }`
         );
-        process.exit(1);
+        return handleExit();
     }
 
     const highReturnPairs = [...marketStats]
@@ -134,10 +140,10 @@ async function runAlertCheck(): Promise<void> {
                 e.message as string
             }`
         );
-        process.exit(1);
+        return handleExit();
     }
 
-    process.exit(0);
+    return;
 }
 
 if (require.main === module) {

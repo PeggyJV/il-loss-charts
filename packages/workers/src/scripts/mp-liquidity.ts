@@ -59,11 +59,11 @@ async function getTransactionData(transactionType: string, hash: string): Promis
   });
 }
 
-async function getData() {
+export default async function getTransactionDataForMixpanel(): Promise<void> {
   await getTransactionData('add', ADD_LIQUIDITY_ADDR);
   await getTransactionData('remove', REMOVE_LIQUIDITY_ADDR);
 }
 
 if (require.main === module) {
-    void getData();
+    void getTransactionDataForMixpanel();
 }

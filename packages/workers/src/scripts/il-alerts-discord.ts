@@ -17,11 +17,25 @@ const client = new Discord.Client();
 
 function respond(channel: any, text: string) {
     (channel as Discord.TextChannel).send(text)
-    .then(message => process.exit(0))
     .catch(console.error);
 }
 
-async function runAlertCheck(): Promise<void> {
+const handleExit = () => {
+    if (require.main === module) {
+        process.exit(1);
+    }
+}
+
+export default function loginAndSetupAlerts(): void {
+    void client.login(process.env.DISCORD_BOT_TOKEN);
+
+    client.on('ready', () => {
+        console.log(`Logged in as ${client.user!.tag}!`);
+        void runDiscordAlerts();
+    });
+}
+
+async function runDiscordAlerts(): Promise<void> {
     // Every hour, fetch latest market data for top pairs - runs locally so using localhost
     // For any pair with a 10% 24h change in impermanent loss, send an alert
 
@@ -37,7 +51,7 @@ async function runAlertCheck(): Promise<void> {
                 e.message as string
             }`
         );
-        process.exit(1);
+        return handleExit();
     }
 
     // Start 24h ago, compare to now
@@ -62,7 +76,7 @@ async function runAlertCheck(): Promise<void> {
         console.error(
             `Aborting: could not fetch historical data: ${e.message as string}`
         );
-        process.exit(1);
+        return handleExit();
     }
 
     try {
@@ -78,7 +92,7 @@ async function runAlertCheck(): Promise<void> {
                 e.message as string
             }`
         );
-        process.exit(1);
+        return handleExit();
     }
 
     const highReturnPairs = [...marketStats]
@@ -120,19 +134,13 @@ async function runAlertCheck(): Promise<void> {
                 e.message as string
             }`
         );
-        process.exit(1);
+        return handleExit();
     }
 }
 
-
-client.on('ready', () => {
-  console.log(`Logged in as ${client.user!.tag}!`);
-  void runAlertCheck();
-});
-
 if (require.main === module) {
   if (process.env.DISCORD_BOT_TOKEN) {
-      void client.login(process.env.DISCORD_BOT_TOKEN);
+    loginAndSetupAlerts();
   } else {
       throw new Error(`Cannot start il alerts discord bot without token.`);
   }
