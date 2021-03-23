@@ -6,7 +6,7 @@ import runDiscordAlerts from './scripts/il-alerts-discord';
 import runMixpanelAlerts from './scripts/mp-liquidity';
 
 const PORT = 8080;
-const CRON_EVERY_HOUR = '*/1 * * * *';
+const CRON_EVERY_HOUR = '0 * * * *';
 
 cron.schedule(CRON_EVERY_HOUR, () => {
     void runTgAlerts();
