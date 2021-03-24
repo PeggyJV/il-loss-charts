@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { Container } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { LPPositionData } from '@sommelier/shared-types';
@@ -10,6 +10,7 @@ import { UniswapApiFetcher as Uniswap } from 'services/api';
 import mixpanel from 'util/mixpanel';
 import TopPairsWidget from 'components/top-pairs-widget';
 import ConnectWalletButton from 'components/connect-wallet-button';
+import PendingTx from 'components/pending-tx';
 
 function LandingContainer({
     topPairs,
@@ -36,7 +37,7 @@ function LandingContainer({
 
     (window as any).positionData = positionData;
     (window as any).pairId = pairId;
-    
+
     useEffect(() => {
         const fetchPositionsForWallet = async () => {
             if (!isLoading) setIsLoading(true);
@@ -101,7 +102,8 @@ function LandingContainer({
 
     return (
         <div>
-            <div style={{ textAlign: 'right' }}>
+            <div className='wallet-combo'>
+                <PendingTx />
                 <ConnectWalletButton onClick={showModal} wallet={wallet} />
             </div>
             <div className='alert-well'>

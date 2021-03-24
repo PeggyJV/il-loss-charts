@@ -721,6 +721,7 @@ p {
     color: var(--faceDeep);
     width: 100%;
     max-width: 150px;
+    max-height: 38px;
     font-size: 0.8rem;
     overflow: hidden;
     white-space: nowrap;
@@ -918,6 +919,72 @@ th .caret-4-desc:before {
 
 th .caret-4-desc:after {
     content: '\2193';
+}
+.wallet-combo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    position: relative;
+}
+// SCROLL UI
+.scroll {
+    width: 10rem;
+    height: 2rem;
+    max-height: 2rem;
+    position: absolute;
+    right: 150px;
+    padding: 4px 8px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background: var(--bgDeep);
+    border: 1px solid var(--borderMain);
+    color: var(--faceSecondary);
+    -webkit-transition: max-height 1s;
+    -moz-transition: max-height 1s;
+    -ms-transition: max-height 1s;
+    -o-transition: max-height 1s;
+    transition: max-height 1s;
+    transition: height 1s;
+    overflow: hidden;
+    cursor: pointer;
+    .bullet {
+        padding: 5px 10px;
+        background: var(--bgSecondary);
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+    &:hover {
+        background: var(--bgContainer);
+        -webkit-transition: background 0.1s linear;
+        -moz-transition: background 0.1s linear;
+        -ms-transition: background 0.1s linear;
+        -o-transition: background 0.1s linear;
+        transition: background 0.1s linear;
+        height: 200px;
+        max-height: 200px;
+        overflow: scroll;
+    }
+    ul {
+        margin: 0;
+        padding: 0;
+        li {
+            margin: 0;
+            padding: 0;
+            list-style: none;;
+        }
+    }
+
+    svg {
+        font-size: 0.85rem;
+    }
+    a {
+        color: var(--faceAccentAlt);
+        line-height: 2rem;
+        padding: 8px 0;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
 }
 
 @media (max-width: 1500px) {
