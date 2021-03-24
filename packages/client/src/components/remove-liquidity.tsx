@@ -1,11 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useContext } from 'react';
 import {
     Container,
     Row,
     Col,
     Card,
-    ButtonGroup,
-    Button,
     Form,
     FormControl,
     Modal,
@@ -14,7 +12,8 @@ import {
 import { Combobox } from 'react-widgets';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
-
+import {compactHash} from 'util/formats';
+import { PendingTxContext, PendingTx } from 'app';
 import mixpanel from 'util/mixpanel';
 import classNames from 'classnames';
 import erc20Abi from 'constants/abis/erc20.json';
@@ -36,6 +35,7 @@ import {
 
 import { resolveLogo } from 'components/token-with-logo';
 import { RemoveLiquidityActionButton } from 'components/liquidity-action-button';
+import { toastWarn } from 'util/toasters';
 
 function RemoveLiquidity({
     wallet,
@@ -59,11 +59,11 @@ function RemoveLiquidity({
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
     );
-    const [approvalState, setApprovalState] = useState<
-        'needed' | 'pending' | 'done'
-    >('needed');
+    const [approvalState, setApprovalState] = useState<'needed' | 'done'>(
+        'needed'
+    );
     const [txSubmitted, setTxSubmitted] = useState(false);
-
+    const { setPendingTx } = useContext(PendingTxContext);
     const resetForm = () => {
         setExitToken('ETH');
         setExitAmount('0');
@@ -238,7 +238,7 @@ function RemoveLiquidity({
         }
 
         // // Approve the add liquidity contract to spend entry tokens
-        const txResponse = await pairContract.approve(
+        const { hash } = await pairContract.approve(
             EXCHANGE_REMOVE_ABI_ADDRESS,
             baseAmount,
             {
@@ -247,9 +247,19 @@ function RemoveLiquidity({
             }
         );
 
-        setApprovalState('pending');
-        await provider.waitForTransaction(txResponse.hash);
-        setApprovalState('done');
+        // setApprovalState('pending');
+        toastWarn(`Approving tx ${compactHash(hash)}`);
+        setPendingTx &&
+            setPendingTx(
+                (state: PendingTx) =>
+                    ({
+                        approval: [...state.approval, hash],
+                        confirm: [...state.confirm],
+                    } as PendingTx)
+            );
+        await provider.waitForTransaction(hash);
+        // setApprovalState('done');
+        await doRemoveLiquidity();
     };
 
     const doRemoveLiquidity = async () => {
@@ -364,8 +374,8 @@ function RemoveLiquidity({
             return 'gasPriceNotSelected';
         } else if (approvalState === 'needed') {
             return 'needsApproval';
-        } else if (approvalState === 'pending') {
-            return 'waitingApproval';
+            // } else if (approvalState === 'pending') {
+            //     return 'waitingApproval';
         } else if (
             new BigNumber(exitAmount).lte(currentLpTokens || 0) &&
             new BigNumber(exitAmount).gt(0)
@@ -441,7 +451,7 @@ function RemoveLiquidity({
                 </Form.Label>
                 <Form.Group as={Row}>
                     <Form.Label column sm={6}>
-Tokens to Liquidate
+                        Tokens to Liquidate
                     </Form.Label>
                     <Col sm={6}>
                         <FormControl
@@ -460,7 +470,7 @@ Tokens to Liquidate
                 </Form.Group>
                 <Form.Group as={Row}>
                     <Form.Label column sm={6}>
-Exit Token
+                        Exit Token
                     </Form.Label>
                     <Col sm={6}>
                         <Combobox
@@ -518,7 +528,7 @@ Exit Token
                     </Form.Group> */}
                     {gasPrices && (
                         <Form.Group className='transaction-speed-input'>
-                            <Form.Label>Transaction Speed</Form.Label>
+                            {/* <Form.Label>Transaction Speed</Form.Label> */}
                             <div className='button-group-h'>
                                 <button
                                     className={classNames({

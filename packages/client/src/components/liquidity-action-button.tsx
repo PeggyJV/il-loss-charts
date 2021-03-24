@@ -48,20 +48,20 @@ export function AddLiquidityActionButton({
         case 'needsApproval':  
             return (
                 <Button variant='success' onClick={onApprove}>
-                    Approve
+                    Approve and Confirm
                 </Button>
             );
-        case 'waitingApproval':
-            return (
-                <Button variant='secondary' disabled>
-                    <FontAwesomeIcon icon={faCircleNotch} className='fa-spin' />{' '}
-                    Awaiting approval...
-                </Button>
-            );
+        // case 'waitingApproval':
+        //     return (
+        //         <Button variant='secondary' disabled>
+        //             <FontAwesomeIcon icon={faCircleNotch} className='fa-spin' />{' '}
+        //             Awaiting approval...
+        //         </Button>
+        //     );
         case 'needsSubmit':
             return (
                 <Button variant='success' onClick={onAddLiquidity}>
-                    Confirm
+                    Submit
                 </Button>
             );
         case 'submitted': 
@@ -119,20 +119,20 @@ export function RemoveLiquidityActionButton({
         case 'needsApproval':
             return (
                 <Button variant='success' onClick={onApprove}>
-                    Approve
+                    Approve and Confirm
                 </Button>
             );
-        case 'waitingApproval':
-            return (
-                <Button variant='secondary' disabled>
-                    <FontAwesomeIcon icon={faCircleNotch} className='fa-spin' />{' '}
-                    Awaiting approval...
-                </Button>
-            );
+        // case 'waitingApproval':
+        //     return (
+        //         <Button variant='secondary' disabled>
+        //             <FontAwesomeIcon icon={faCircleNotch} className='fa-spin' />{' '}
+        //             Awaiting approval...
+        //         </Button>
+        //     );
         case 'needsSubmit':
             return (
                 <Button variant='success' onClick={onRemoveLiquidity}>
-                    Confirm
+                    Submit
                 </Button>
             );
         case 'submitted':

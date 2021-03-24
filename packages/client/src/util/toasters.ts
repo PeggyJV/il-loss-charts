@@ -1,37 +1,23 @@
-import { toast } from 'react-toastify';
+import { toast, ToastOptions } from 'react-toastify';
 
-export function toastWarn(msg: string) {
-    return toast.warning(`Pending tx ${msg.substr(0, 5).concat('...')}`, {
-        position: 'top-center',
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-    });
+const options: ToastOptions = {
+    position: 'top-center',
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+};
+
+export function toastWarn(msg: string): void {
+    toast.warning(msg, options);
 }
 
-export function toastSuccess(msg: string) {
-    toast.warning(msg, {
-        position: 'top-center',
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-    });
+export function toastSuccess(msg: string): void{
+    toast.success(msg, options);
 }
 
-export function toastError(msg: string) {
-    toast.error(`Pending tx ${msg.substr(0, 5).concat('...')}`, {
-        position: 'top-center',
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-    });
+export function toastError(msg: string): void{
+    toast.error(msg, options);
 }

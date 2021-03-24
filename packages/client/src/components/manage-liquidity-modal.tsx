@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { ButtonGroup, Modal } from 'react-bootstrap';
 import classNames from 'classnames';
@@ -17,11 +17,13 @@ import {
     UniswapPair,
 } from '@sommelier/shared-types';
 import { Wallet, WalletBalances } from 'types/states';
-
+import { compactHash } from 'util/formats';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import AddLiquidity from 'components/add-liquidity';
 import RemoveLiquidity from 'components/remove-liquidity';
+import { PendingTxContext, PendingTx } from 'app';
 
+// TODO convert add, remove to a hook and separate UI from it
 function ManageLiquidityModal({
     show,
     setShow,
@@ -43,27 +45,49 @@ function ManageLiquidityModal({
         positionData,
         setPositionData,
     ] = useState<LPPositionData<string> | null>(null);
-
+    const { setPendingTx } = useContext(PendingTxContext);
     let provider: ethers.providers.Web3Provider | null = null;
 
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
+    // TODO abstract this cleanly with context and reducer to be a global notification system
     const notifyTxStatus = async (txHash: string) => {
-        const txHashCompact = txHash?.substring(0, 8).concat('...');
-        toastWarn(`Pending tx ${txHashCompact}`);
+        setPendingTx &&
+            setPendingTx(
+                (state: PendingTx) =>
+                    ({
+                        approval: [...state.approval],
+                        confirm: [...state.confirm, txHash],
+                    } as PendingTx)
+            );
+
+        toastWarn(`Confirming tx ${compactHash(txHash)}`);
         if (provider) {
             const txStatus: ethers.providers.TransactionReceipt = await provider.waitForTransaction(
                 txHash
             );
             const { status } = txStatus;
 
-            status === 1
-                ? toastSuccess(`Completed tx ${txHashCompact}`)
-                : toastError(`Rejected tx ${txHashCompact}`);
+            if (status === 1) {
+                toastSuccess(`Confirmed tx ${compactHash(txHash)}`);
+                setPendingTx &&
+                    setPendingTx(
+                        (state: PendingTx) =>
+                            ({
+                                approval: [...state.approval],
+                                confirm: state.approval.filter(
+                                    (hash) => hash !== txHash
+                                ),
+                            } as PendingTx)
+                    );
+            } else {
+                toastError(`Rejected tx ${compactHash(txHash)}`);
+            }
         }
     };
     const handleClose = (txHash: string) => {
+        console.log('handle close');
         setMode('add');
         setShow(false);
         if (txHash) void notifyTxStatus(txHash);
