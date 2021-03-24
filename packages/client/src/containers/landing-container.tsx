@@ -7,10 +7,10 @@ import { TopPairsState, Wallet } from 'types/states';
 import PositionsTable from 'components/positions-table';
 import { ComponentError } from 'components/page-error';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
-
 import mixpanel from 'util/mixpanel';
 import TopPairsWidget from 'components/top-pairs-widget';
 import ConnectWalletButton from 'components/connect-wallet-button';
+import PendingTx from 'components/pending-tx';
 
 function LandingContainer({
     topPairs,
@@ -64,10 +64,10 @@ function LandingContainer({
             if (isInitialLoad) setIsInitialLoad(false);
 
             try {
-              mixpanel.track('positions:query', {
-                  distinct_id: wallet.account,
-                  address: wallet.account
-              });
+                mixpanel.track('positions:query', {
+                    distinct_id: wallet.account,
+                    address: wallet.account,
+                });
             } catch (e) {
                 console.error(`Metrics error on add positions:query.`);
             }
@@ -83,7 +83,7 @@ function LandingContainer({
     const showModal = () => setShowConnectWallet(true);
     useEffect(() => {
         try {
-          mixpanel.track('pageview:landing', {});
+            mixpanel.track('pageview:landing', {});
         } catch (e) {
             console.error(`Metrics error on add positions:landing.`);
         }
@@ -102,7 +102,8 @@ function LandingContainer({
 
     return (
         <div>
-            <div style={{ textAlign: 'right' }}>
+            <div className='wallet-combo'>
+                <PendingTx />
                 <ConnectWalletButton onClick={showModal} wallet={wallet} />
             </div>
             <div className='alert-well'>

@@ -2,11 +2,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
 import { Link } from 'react-router-dom';
-import {
-    IToken,
-    LPPositionData,
-    IUniswapPair,
-} from '@sommelier/shared-types';
+import { IToken, LPPositionData, IUniswapPair } from '@sommelier/shared-types';
 
 import {
     PositionData,
@@ -35,7 +31,23 @@ function PositionsTable({
     setPairId: (pairId: string) => void;
     handleAddLiquidity: (pairId: string) => void;
 }): JSX.Element {
+    // could reduce instead of iterating twice, make a decision after fleshing out positions page
     const tableData: PositionTableRow[] = Object.entries(positions)
+        .filter((tuple) => {
+            const positionSnapshots = tuple[1];
+            const mostRecentPosition =
+                positionSnapshots[positionSnapshots.length - 1];
+            const {
+                liquidityTokenBalance,
+                liquidityTokenTotalSupply,
+                reserveUSD,
+            } = mostRecentPosition;
+            const liquidity = new BigNumber(liquidityTokenBalance)
+                .div(liquidityTokenTotalSupply)
+                .times(reserveUSD)
+                .toFixed(4);
+            return parseInt(liquidity) !== 0;
+        })
         .map(([pairId, positionSnapshots], index) => {
             const mostRecentPosition =
                 positionSnapshots[positionSnapshots.length - 1];
@@ -59,10 +71,12 @@ function PositionsTable({
                     token0: pair.token0,
                     token1: pair.token1,
                 },
-                impermanentLoss: stats[pairId]?.aggregatedStats?.impermanentLoss ?? '-',
+                impermanentLoss:
+                    stats[pairId]?.aggregatedStats?.impermanentLoss ?? '-',
                 liquidity,
-                fees: stats[pairId]?.aggregatedStats?.totalFees ?? '-' ,
-                notionalGain: stats[pairId]?.aggregatedStats?.totalNotionalGain ?? '-' ,
+                fees: stats[pairId]?.aggregatedStats?.totalFees ?? '-',
+                notionalGain:
+                    stats[pairId]?.aggregatedStats?.totalNotionalGain ?? '-',
                 returnsUSD: stats[pairId]?.aggregatedStats?.totalReturn ?? '-',
                 action: { id: pairId },
             };
@@ -97,9 +111,10 @@ function PositionsTable({
         if (val === '-') return val;
         if (Math.sign(Number(val)) > 0)
             return (
-                <strong style={{ color: 'var(--bgMoon)' }}>{formatUSD(val)}</strong>
+                <strong style={{ color: 'var(--bgMoon)' }}>
+                    {formatUSD(val)}
+                </strong>
             );
-        
 
         return <span style={{ color: 'var(--bgDump)' }}>{formatUSD(val)}</span>;
     };
@@ -107,7 +122,7 @@ function PositionsTable({
     const formatUSDorNA = (val: string): string => {
         if (val === '-') return val;
         return formatUSD(val);
-    }
+    };
 
     const columns = [
         {

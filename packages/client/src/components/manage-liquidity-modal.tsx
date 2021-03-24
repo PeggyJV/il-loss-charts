@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { ButtonGroup, Modal } from 'react-bootstrap';
 import classNames from 'classnames';
-
+import { toastWarn, toastSuccess, toastError } from 'util/toasters';
 import { ethers } from 'ethers';
 
 import erc20Abi from 'constants/abis/erc20.json';
@@ -17,11 +17,13 @@ import {
     UniswapPair,
 } from '@sommelier/shared-types';
 import { Wallet, WalletBalances } from 'types/states';
-
+import { compactHash } from 'util/formats';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import AddLiquidity from 'components/add-liquidity';
 import RemoveLiquidity from 'components/remove-liquidity';
+import { PendingTxContext, PendingTx } from 'app';
 
+// TODO convert add, remove to a hook and separate UI from it
 function ManageLiquidityModal({
     show,
     setShow,
@@ -43,16 +45,52 @@ function ManageLiquidityModal({
         positionData,
         setPositionData,
     ] = useState<LPPositionData<string> | null>(null);
-
+    const { setPendingTx } = useContext(PendingTxContext);
     let provider: ethers.providers.Web3Provider | null = null;
 
-    const handleClose = () => {
-        setMode('add');
-        setShow(false);
-    };
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
+    // TODO abstract this cleanly with context and reducer to be a global notification system
+    const notifyTxStatus = async (txHash: string) => {
+        setPendingTx &&
+            setPendingTx(
+                (state: PendingTx): PendingTx =>
+                    ({
+                        approval: [...state.approval],
+                        confirm: [...state.confirm, txHash],
+                    } as PendingTx)
+            );
+
+        toastWarn(`Confirming tx ${compactHash(txHash)}`);
+        if (provider) {
+            const txStatus: ethers.providers.TransactionReceipt = await provider.waitForTransaction(
+                txHash
+            );
+            const { status } = txStatus;
+
+            if (status === 1) {
+                toastSuccess(`Confirmed tx ${compactHash(txHash)}`);
+                setPendingTx &&
+                    setPendingTx(
+                        (state: PendingTx): PendingTx =>
+                            ({
+                                approval: [...state.approval],
+                                confirm: state.approval.filter(
+                                    (hash) => hash !== txHash
+                                ),
+                            } as PendingTx)
+                    );
+            } else {
+                toastError(`Rejected tx ${compactHash(txHash)}`);
+            }
+        }
+    };
+    const handleClose = (txHash: string) => {
+        setMode('add');
+        setShow(false);
+        if (txHash) void notifyTxStatus(txHash);
+    };
 
     useEffect(() => {
         const fetchPairData = async () => {
@@ -178,7 +216,7 @@ function ManageLiquidityModal({
         };
 
         void getBalances();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet, show, pairData]);
 
     useEffect(() => {

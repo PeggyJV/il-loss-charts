@@ -1,8 +1,6 @@
-
 import PropTypes from 'prop-types';
 import { MarketStats } from '@sommelier/shared-types';
 import { Pair, DailyData, LPStats } from 'constants/prop-types';
-
 import { PairCard } from 'components/card/pair-card';
 
 function TopPairsWidget({

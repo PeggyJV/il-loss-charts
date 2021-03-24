@@ -84,12 +84,14 @@ p {
     border: 1px solid var(--btnInfoBorder);
     border-radius: 2px;
     background: var(--btnInfo);
-    &:hover,:active,:focus {
-      background: var(--btnInfoHover);
+    &:hover,
+    :active,
+    :focus {
+        background: var(--btnInfoHover);
     }
     &:focus {
-      outline: none;
-      box-shadow: 0;
+        outline: none;
+        box-shadow: 0;
     }
 }
 
@@ -533,7 +535,7 @@ p {
     // color: var(--facePrimary);
     // min-width: 16rem;
     border-radius: 0;
-    border: 1px solid var(--borderMain);
+    border: 1px solid var(--borderDeep);
     box-shadow: 0 0 5px 1px var(--bgDeep);
     background: var(--bgContainer);
     // display: flex;
@@ -699,7 +701,7 @@ p {
 .input-group-append {
     .input-group-text {
         background: none;
-        border:1px solid var(--borderSecondary);
+        border: 1px solid var(--borderSecondary);
         color: var(--faceSecondary);
     }
 }
@@ -719,6 +721,7 @@ p {
     color: var(--faceDeep);
     width: 100%;
     max-width: 150px;
+    max-height: 38px;
     font-size: 0.8rem;
     overflow: hidden;
     white-space: nowrap;
@@ -745,7 +748,13 @@ p {
     .dropdown {
         outline: none;
         .btn-primary {
-            background: var(--bgAccentAlt);
+            background: var(--bgSecondary);
+            border: 1px solid var(--bgDeep);
+            &:focus {
+                outline: none;
+                box-shadow: none;
+                border: 1px solid var(--borderAccentAlt);
+            }
         }
     }
     .dropdown-menu {
@@ -757,22 +766,34 @@ p {
             &.active,
             &:hover {
                 color: var(--facePrimary);
-                background: var(--bgSecondary);
+                background: var(--bgAccent);
             }
         }
     }
 }
 .manage-liquidity-modal {
     color: var(--faceSecondary);
-    background: var(--bgContainer);
+    background: var(--bgMain);
     border: 2px solid var(--bgDeep);
+}
+.modal-backdrop.show {
+    opacity: 0.75;
 }
 .modal-content {
     border: 0;
+    min-height: 8rem;
 }
 .modal-header,
 .modal-footer {
     border: 0;
+}
+.modal-pool-shares {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 1px;
+    div:nth-child(even) {
+        color: var(--faceDeep);
+    }
 }
 .manage-liquidity-modal-header {
     padding: 0;
@@ -785,9 +806,9 @@ p {
         padding: 0.5rem 1.5rem;
     }
     .active {
-        background: var(--bgSecondary);
-        color: var(--faceAccentAlt);
-        border:1px solid var(--borderAccentAlt);
+        background: var(--bgAccent);
+        color: var(--faceDeep);
+        border: 0;
         border-bottom: 0;
         text-transform: uppercase;
     }
@@ -811,7 +832,6 @@ p {
 .manage-liquidity-modal-header .btn-group .remove-btn {
     border-bottom-right-radius: 0;
 }
-
 
 .pair-text-large {
     display: flex;
@@ -848,6 +868,22 @@ p {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    .button-group-h button {
+        color: var(--faceDeep);
+        background: var(--bgInfo);
+        border: 1px solid var(--btnInfoBorder);
+        &:hover,
+        :focus {
+            background: var(--btnInfoHover);
+            border: 1px solid var(--btnInfoBorder);
+            box-shadow: none;
+        }
+    }
+    .button-group-h .active {
+        background: var(--btnInfoHover);
+        border: 1px solid var(--btnInfoBorder);
+        box-shadow: none;
+    }
 }
 
 .rw-popup-container.rw-calendar-popup {
@@ -883,6 +919,72 @@ th .caret-4-desc:before {
 
 th .caret-4-desc:after {
     content: '\2193';
+}
+.wallet-combo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    position: relative;
+}
+// SCROLL UI
+.scroll {
+    width: 10rem;
+    height: 2rem;
+    max-height: 2rem;
+    position: absolute;
+    right: 150px;
+    padding: 4px 8px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    background: var(--bgDeep);
+    border: 1px solid var(--borderMain);
+    color: var(--faceSecondary);
+    -webkit-transition: max-height 1s;
+    -moz-transition: max-height 1s;
+    -ms-transition: max-height 1s;
+    -o-transition: max-height 1s;
+    transition: max-height 1s;
+    transition: height 1s;
+    overflow: hidden;
+    cursor: pointer;
+    .bullet {
+        padding: 5px 10px;
+        background: var(--bgSecondary);
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+    &:hover {
+        background: var(--bgContainer);
+        -webkit-transition: background 0.1s linear;
+        -moz-transition: background 0.1s linear;
+        -ms-transition: background 0.1s linear;
+        -o-transition: background 0.1s linear;
+        transition: background 0.1s linear;
+        height: 200px;
+        max-height: 200px;
+        overflow: scroll;
+    }
+    ul {
+        margin: 0;
+        padding: 0;
+        li {
+            margin: 0;
+            padding: 0;
+            list-style: none;;
+        }
+    }
+
+    svg {
+        font-size: 0.85rem;
+    }
+    a {
+        color: var(--faceAccentAlt);
+        line-height: 2rem;
+        padding: 8px 0;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
 }
 
 @media (max-width: 1500px) {

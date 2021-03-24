@@ -1,11 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useContext } from 'react';
 import {
     Container,
     Row,
     Col,
     Card,
-    ButtonGroup,
-    Button,
     Form,
     FormControl,
     Modal,
@@ -14,9 +12,10 @@ import {
 import { Combobox } from 'react-widgets';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
-
+import {compactHash} from 'util/formats';
+import { PendingTxContext, PendingTx } from 'app';
 import mixpanel from 'util/mixpanel';
-
+import classNames from 'classnames';
 import erc20Abi from 'constants/abis/erc20.json';
 import exchangeRemoveAbi from 'constants/abis/volumefi_remove_liquidity_uniswap.json';
 
@@ -36,6 +35,7 @@ import {
 
 import { resolveLogo } from 'components/token-with-logo';
 import { RemoveLiquidityActionButton } from 'components/liquidity-action-button';
+import { toastWarn } from 'util/toasters';
 
 function RemoveLiquidity({
     wallet,
@@ -52,18 +52,18 @@ function RemoveLiquidity({
     positionData: LPPositionData<string> | null;
     gasPrices: EthGasPrices | null;
     balances: WalletBalances;
-    onDone: () => void | null;
+    onDone: (hash: string) => void;
 }): JSX.Element | null {
     const [exitToken, setExitToken] = useState<string>('ETH');
     const [exitAmount, setExitAmount] = useState<string>('0');
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
     );
-    const [approvalState, setApprovalState] = useState<
-        'needed' | 'pending' | 'done'
-    >('needed');
+    const [approvalState, setApprovalState] = useState<'needed' | 'done'>(
+        'needed'
+    );
     const [txSubmitted, setTxSubmitted] = useState(false);
-
+    const { setPendingTx } = useContext(PendingTxContext);
     const resetForm = () => {
         setExitToken('ETH');
         setExitAmount('0');
@@ -238,7 +238,7 @@ function RemoveLiquidity({
         }
 
         // // Approve the add liquidity contract to spend entry tokens
-        const txResponse = await pairContract.approve(
+        const { hash } = await pairContract.approve(
             EXCHANGE_REMOVE_ABI_ADDRESS,
             baseAmount,
             {
@@ -247,9 +247,19 @@ function RemoveLiquidity({
             }
         );
 
-        setApprovalState('pending');
-        await provider.waitForTransaction(txResponse.hash);
-        setApprovalState('done');
+        // setApprovalState('pending');
+        toastWarn(`Approving tx ${compactHash(hash)}`);
+        setPendingTx &&
+            setPendingTx(
+                (state: PendingTx): PendingTx =>
+                    ({
+                        approval: [...state.approval, hash],
+                        confirm: [...state.confirm],
+                    } as PendingTx)
+            );
+        await provider.waitForTransaction(hash);
+        // setApprovalState('done');
+        await doRemoveLiquidity();
     };
 
     const doRemoveLiquidity = async () => {
@@ -306,7 +316,7 @@ function RemoveLiquidity({
             gasEstimate = ethers.BigNumber.from('1000000');
         }
 
-        await removeLiquidityContract[
+        const { hash } = await removeLiquidityContract[
             'divestEthPairToToken(address,address,uint256)'
         ](pairData.id, exitAddress, baseLpTokens, {
             gasPrice: baseGasPrice,
@@ -320,8 +330,8 @@ function RemoveLiquidity({
                 pair_id: pairData.id,
                 exitToken: exitToken,
                 gasEstimate: gasEstimate,
-                exitAmount: exitAmount
-            }
+                exitAmount: exitAmount,
+            };
 
             mixpanel.track('transaction:removeLiquidity', metrics);
         } catch (e) {
@@ -334,8 +344,8 @@ function RemoveLiquidity({
         setTimeout(() => {
             setTxSubmitted(false);
             resetForm();
-            onDone?.();
-        }, 1000);
+            onDone?.(hash);
+        }, 500);
     };
 
     if (positionData && pairData) {
@@ -364,8 +374,8 @@ function RemoveLiquidity({
             return 'gasPriceNotSelected';
         } else if (approvalState === 'needed') {
             return 'needsApproval';
-        } else if (approvalState === 'pending') {
-            return 'waitingApproval';
+            // } else if (approvalState === 'pending') {
+            //     return 'waitingApproval';
         } else if (
             new BigNumber(exitAmount).lte(currentLpTokens || 0) &&
             new BigNumber(exitAmount).gt(0)
@@ -427,19 +437,21 @@ function RemoveLiquidity({
     return (
         <>
             <Modal.Body className='connect-wallet-modal'>
-                <Form.Label className='align-right'>
-                    <strong>Available LP Tokens:</strong> {currentLpTokens}
-                    &nbsp;&nbsp;
-                    <button
-                        className='btn-neutral'
-                        onClick={() => setExitAmount(currentLpTokens)}
-                    >
-                        Max
-                    </button>
+                <Form.Label>
+                    <h5>
+                        LP Tokens&nbsp;&nbsp;
+                        {currentLpTokens}&nbsp;&nbsp;
+                        <button
+                            className='btn-neutral'
+                            onClick={() => setExitAmount(currentLpTokens)}
+                        >
+                            Max
+                        </button>
+                    </h5>
                 </Form.Label>
                 <Form.Group as={Row}>
                     <Form.Label column sm={6}>
-                        <strong>Tokens to Liquidate:</strong>
+                        Tokens to Liquidate
                     </Form.Label>
                     <Col sm={6}>
                         <FormControl
@@ -458,7 +470,7 @@ function RemoveLiquidity({
                 </Form.Group>
                 <Form.Group as={Row}>
                     <Form.Label column sm={6}>
-                        <strong>Exit Token</strong>
+                        Exit Token
                     </Form.Label>
                     <Col sm={6}>
                         <Combobox
@@ -477,7 +489,7 @@ function RemoveLiquidity({
                 </Form.Group>
                 <Form.Group as={Row}>
                     <Form.Label column sm={6}>
-                        <strong>Expected Payout:</strong>
+                        Expected Payout
                     </Form.Label>
                     <Col sm={6}>
                         <p>
@@ -490,10 +502,8 @@ function RemoveLiquidity({
                     </Col>
                 </Form.Group>
                 <br />
+                <h5>Transaction Settings</h5>
                 <Card body>
-                    <p>
-                        <strong>Transaction Settings</strong>
-                    </p>
                     {/* <Form.Group as={Row}>
                         <Form.Label column sm={6}>
                             Slippage Tolerance:
@@ -518,43 +528,44 @@ function RemoveLiquidity({
                     </Form.Group> */}
                     {gasPrices && (
                         <Form.Group className='transaction-speed-input'>
-                            <Form.Label>Transaction Speed:</Form.Label>
-                            <ButtonGroup>
-                                <Button
-                                    variant='outline-dark'
-                                    size='sm'
-                                    active={
-                                        currentGasPrice === gasPrices.standard
-                                    }
+                            {/* <Form.Label>Transaction Speed</Form.Label> */}
+                            <div className='button-group-h'>
+                                <button
+                                    className={classNames({
+                                        active:
+                                            currentGasPrice ===
+                                            gasPrices.standard,
+                                    })}
                                     onClick={() =>
                                         setCurrentGasPrice(gasPrices.standard)
                                     }
                                 >
                                     Standard <br />({gasPrices.standard} Gwei)
-                                </Button>
-                                <Button
-                                    variant='outline-dark'
-                                    size='sm'
-                                    active={currentGasPrice === gasPrices.fast}
+                                </button>
+                                <button
+                                    className={classNames({
+                                        active:
+                                            currentGasPrice === gasPrices.fast,
+                                    })}
                                     onClick={() =>
                                         setCurrentGasPrice(gasPrices.fast)
                                     }
                                 >
                                     Fast <br />({gasPrices.fast} Gwei)
-                                </Button>
-                                <Button
-                                    variant='outline-dark'
-                                    size='sm'
-                                    active={
-                                        currentGasPrice === gasPrices.fastest
-                                    }
+                                </button>
+                                <button
+                                    className={classNames({
+                                        active:
+                                            currentGasPrice ===
+                                            gasPrices.fastest,
+                                    })}
                                     onClick={() =>
                                         setCurrentGasPrice(gasPrices.fastest)
                                     }
                                 >
                                     Fastest <br />({gasPrices.fastest} Gwei)
-                                </Button>
-                            </ButtonGroup>
+                                </button>
+                            </div>
                         </Form.Group>
                     )}
                 </Card>
