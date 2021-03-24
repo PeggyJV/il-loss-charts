@@ -47,6 +47,7 @@ function AddLiquidity({
     gasPrices,
     balances,
     onDone,
+    onClose,
 }: {
     wallet: Wallet;
     provider: ethers.providers.Web3Provider | null;
@@ -54,7 +55,8 @@ function AddLiquidity({
     positionData: LPPositionData<string> | null;
     gasPrices: EthGasPrices | null;
     balances: WalletBalances;
-    onDone: (hash: string) => void;
+    onDone: (hash?: string) => void;
+    onClose: () => void;
 }): JSX.Element | null {
     const [entryToken, setEntryToken] = useState<string>('ETH');
     const [entryAmount, setEntryAmount] = useState<string>('');
@@ -202,6 +204,7 @@ function AddLiquidity({
                     } as PendingTx)
             );
         await provider.waitForTransaction(hash);
+        onClose();
         // setApprovalState('done');
         await doAddLiquidity();
     };
@@ -317,6 +320,7 @@ function AddLiquidity({
         setTimeout(() => {
             setTxSubmitted(false);
             resetForm();
+            onClose();
             onDone?.(hash);
         }, 500);
     };

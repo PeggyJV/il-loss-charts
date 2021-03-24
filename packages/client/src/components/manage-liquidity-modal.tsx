@@ -52,7 +52,8 @@ function ManageLiquidityModal({
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
     // TODO abstract this cleanly with context and reducer to be a global notification system
-    const notifyTxStatus = async (txHash: string) => {
+    const onDone = async (txHash?: string) => {
+        if(!txHash) return;
         setPendingTx &&
             setPendingTx(
                 (state: PendingTx): PendingTx =>
@@ -76,9 +77,9 @@ function ManageLiquidityModal({
                         (state: PendingTx): PendingTx =>
                             ({
                                 approval: [...state.approval],
-                                confirm: state.approval.filter(
+                                confirm: [...state.approval.filter(
                                     (hash) => hash !== txHash
-                                ),
+                                )],
                             } as PendingTx)
                     );
             } else {
@@ -86,10 +87,9 @@ function ManageLiquidityModal({
             }
         }
     };
-    const handleClose = (txHash: string) => {
+    const handleClose = () => {
         setMode('add');
         setShow(false);
-        if (txHash) void notifyTxStatus(txHash);
     };
 
     useEffect(() => {
@@ -273,7 +273,7 @@ function ManageLiquidityModal({
             onHide={handleClose}
             dialogClassName='dark manage-liquidity-modal'
         >
-            <Modal.Header className='manage-liquidity-modal-header'>
+            <Modal.Header className='manage-liquidity-modal-header' closeButton>
                 <ButtonGroup>
                     <button
                         className={classNames({
@@ -303,7 +303,8 @@ function ManageLiquidityModal({
                     positionData={positionData}
                     gasPrices={gasPrices}
                     balances={balances}
-                    onDone={handleClose}
+                    onClose={handleClose}
+                    onDone={onDone}
                 />
             ) : (
                 <RemoveLiquidity
@@ -313,7 +314,8 @@ function ManageLiquidityModal({
                     positionData={positionData}
                     gasPrices={gasPrices}
                     balances={balances}
-                    onDone={handleClose}
+                    onClose={handleClose}
+                    onDone={onDone}
                 />
             )}
         </Modal>
