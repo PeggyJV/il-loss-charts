@@ -33,7 +33,8 @@ function PositionsTable({
 }): JSX.Element {
     // could reduce instead of iterating twice, make a decision after fleshing out positions page
     const tableData: PositionTableRow[] = Object.entries(positions)
-        .filter(([pairId, positionSnapshots]) => {
+        .filter((tuple) => {
+            const positionSnapshots = tuple[1];
             const mostRecentPosition =
                 positionSnapshots[positionSnapshots.length - 1];
             const {
