@@ -55,7 +55,7 @@ function ManageLiquidityModal({
     const notifyTxStatus = async (txHash: string) => {
         setPendingTx &&
             setPendingTx(
-                (state: PendingTx) =>
+                (state: PendingTx): PendingTx =>
                     ({
                         approval: [...state.approval],
                         confirm: [...state.confirm, txHash],
@@ -73,7 +73,7 @@ function ManageLiquidityModal({
                 toastSuccess(`Confirmed tx ${compactHash(txHash)}`);
                 setPendingTx &&
                     setPendingTx(
-                        (state: PendingTx) =>
+                        (state: PendingTx): PendingTx =>
                             ({
                                 approval: [...state.approval],
                                 confirm: state.approval.filter(
@@ -87,7 +87,6 @@ function ManageLiquidityModal({
         }
     };
     const handleClose = (txHash: string) => {
-        console.log('handle close');
         setMode('add');
         setShow(false);
         if (txHash) void notifyTxStatus(txHash);

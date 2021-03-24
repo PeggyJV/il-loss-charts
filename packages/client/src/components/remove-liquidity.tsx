@@ -251,7 +251,7 @@ function RemoveLiquidity({
         toastWarn(`Approving tx ${compactHash(hash)}`);
         setPendingTx &&
             setPendingTx(
-                (state: PendingTx) =>
+                (state: PendingTx): PendingTx =>
                     ({
                         approval: [...state.approval, hash],
                         confirm: [...state.confirm],

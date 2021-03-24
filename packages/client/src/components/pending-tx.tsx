@@ -12,9 +12,6 @@ const PendingTx = (): ReactElement => {
 
     const totalPending = awaitingApproval + awaitingConfirm;
 
-    const h =
-        '0xafc5d97d55a69e9608040619a856c4d953a02dc5757076c79550265a5503ceb5';
-
     return (
         <div className='scroll'>
             <div>
