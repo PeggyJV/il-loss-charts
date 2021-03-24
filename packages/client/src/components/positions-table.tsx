@@ -46,7 +46,7 @@ function PositionsTable({
                 .div(liquidityTokenTotalSupply)
                 .times(reserveUSD)
                 .toFixed(4);
-            return parseInt(liquidity) !== 0;
+            return parseFloat(liquidity) !== 0;
         })
         .map(([pairId, positionSnapshots], index) => {
             const mostRecentPosition =
@@ -62,7 +62,6 @@ function PositionsTable({
                 .div(liquidityTokenTotalSupply)
                 .times(reserveUSD)
                 .toFixed(4);
-
             return {
                 pairId,
                 index: index + 1,

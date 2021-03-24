@@ -45,6 +45,7 @@ function RemoveLiquidity({
     gasPrices,
     balances,
     onDone,
+    onClose,
 }: {
     wallet: Wallet;
     provider: ethers.providers.Web3Provider | null;
@@ -52,7 +53,8 @@ function RemoveLiquidity({
     positionData: LPPositionData<string> | null;
     gasPrices: EthGasPrices | null;
     balances: WalletBalances;
-    onDone: (hash: string) => void;
+    onDone: (hash?: string) => void;
+    onClose: () => void;
 }): JSX.Element | null {
     const [exitToken, setExitToken] = useState<string>('ETH');
     const [exitAmount, setExitAmount] = useState<string>('0');
@@ -258,7 +260,16 @@ function RemoveLiquidity({
                     } as PendingTx)
             );
         await provider.waitForTransaction(hash);
+        setPendingTx &&
+            setPendingTx(
+                (state: PendingTx): PendingTx =>
+                    ({
+                        approval: [...state.approval.filter(h => h !== hash )],
+                        confirm: [...state.confirm],
+                    } as PendingTx)
+            );
         // setApprovalState('done');
+        onClose();
         await doRemoveLiquidity();
     };
 
@@ -344,6 +355,7 @@ function RemoveLiquidity({
         setTimeout(() => {
             setTxSubmitted(false);
             resetForm();
+            onClose();
             onDone?.(hash);
         }, 500);
     };
