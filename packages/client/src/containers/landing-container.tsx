@@ -11,6 +11,7 @@ import { UniswapApiFetcher as Uniswap } from 'services/api';
 import mixpanel from 'util/mixpanel';
 import TopPairsWidget from 'components/top-pairs-widget';
 import ConnectWalletButton from 'components/connect-wallet-button';
+import JoinCommunityButton from 'components/join-community-button';
 
 function LandingContainer({
     topPairs,
@@ -93,7 +94,8 @@ function LandingContainer({
 
     return (
         <div>
-            <div style={{ textAlign: 'right' }}>
+            <div className='nav-button-container'>
+                <JoinCommunityButton onClick={() => {window.open('https://t.me/getsomm', '_blank')}} />
                 <ConnectWalletButton onClick={showModal} wallet={wallet} />
             </div>
             <div className='alert-well'>
