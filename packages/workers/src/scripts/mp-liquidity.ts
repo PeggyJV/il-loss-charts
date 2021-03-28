@@ -15,14 +15,15 @@ if (key == 'freekey') {
   console.log('Limited results without official ethplorer key.');
 }
 
+
 if (process.env.MIXPANEL_TOKEN) {
-    mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN);
+    mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN,{ secret: process.env.MIXPANEL_SECRET });
 } else {
     throw new Error(`Cannot start il alerts mixpanel liquidity bot without mixpanel token.`);
 }
 
 interface AddressTransaction {
-  timestamp: Date;
+  timestamp: number;
   from: string;
   to: string;
   hash: string;
@@ -45,23 +46,27 @@ async function getTransactionData(transactionType: string, hash: string): Promis
   const data = await res.json();
 
   data.forEach(function (addressTransaction: AddressTransaction) {
-    console.log(addressTransaction.timestamp);
 
-    mixpanel.track(`UniswapLiquidity:${transactionType}`, {
-      distinct_id: addressTransaction.from,
-      timestamp: addressTransaction.timestamp,
-      to: addressTransaction.to,
-      from: addressTransaction.from,
-      hash: addressTransaction.hash,
-      value: addressTransaction.value,
-      success: addressTransaction.success
-    });
+    if(addressTransaction.timestamp > oneHoursBefore) {
+      var dateTimestamp = new Date(addressTransaction.timestamp * 1000);
+
+      mixpanel.import(`Uniswap:${transactionType}`,addressTransaction.timestamp,  {
+        distinct_id: addressTransaction.from,
+        time: addressTransaction.timestamp,
+        timestamp: dateTimestamp.toISOString(),
+        to: addressTransaction.to,
+        from: addressTransaction.from,
+        hash: addressTransaction.hash,
+        value: addressTransaction.value,
+        success: addressTransaction.success
+      });
+    }
   });
 }
 
 export default async function getTransactionDataForMixpanel(): Promise<void> {
-  await getTransactionData('add', ADD_LIQUIDITY_ADDR);
-  await getTransactionData('remove', REMOVE_LIQUIDITY_ADDR);
+  await getTransactionData('LiquidityAdd', ADD_LIQUIDITY_ADDR);
+  await getTransactionData('LiquidityRemove', REMOVE_LIQUIDITY_ADDR);
 }
 
 if (require.main === module) {
