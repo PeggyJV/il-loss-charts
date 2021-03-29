@@ -1,10 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useContext } from 'react';
 import {
     Row,
     Col,
     Card,
-    ButtonGroup,
-    Button,
     DropdownButton,
     Dropdown,
     Form,
@@ -15,9 +13,9 @@ import {
 
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
-
+import { PendingTxContext, PendingTx } from 'app';
+import {compactHash} from 'util/formats';
 import mixpanel from 'util/mixpanel';
-
 import erc20Abi from 'constants/abis/erc20.json';
 import exchangeAddAbi from 'constants/abis/volumefi_add_liquidity_uniswap.json';
 
@@ -38,6 +36,8 @@ import { calculatePoolEntryData } from 'util/uniswap-pricing';
 
 import { resolveLogo } from 'components/token-with-logo';
 import { AddLiquidityActionButton } from 'components/liquidity-action-button';
+import classNames from 'classnames';
+import { toastWarn } from 'util/toasters';
 
 function AddLiquidity({
     wallet,
@@ -47,6 +47,7 @@ function AddLiquidity({
     gasPrices,
     balances,
     onDone,
+    onClose,
 }: {
     wallet: Wallet;
     provider: ethers.providers.Web3Provider | null;
@@ -54,7 +55,8 @@ function AddLiquidity({
     positionData: LPPositionData<string> | null;
     gasPrices: EthGasPrices | null;
     balances: WalletBalances;
-    onDone: () => void | null;
+    onDone: (hash?: string) => void;
+    onClose: () => void;
 }): JSX.Element | null {
     const [entryToken, setEntryToken] = useState<string>('ETH');
     const [entryAmount, setEntryAmount] = useState<string>('');
@@ -62,15 +64,16 @@ function AddLiquidity({
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
     );
-    const [approvalState, setApprovalState] = useState<
-        'needed' | 'pending' | 'done'
-    >('needed');
+    const [approvalState, setApprovalState] = useState<'needed' | 'done'>(
+        'needed'
+    );
     const [txSubmitted, setTxSubmitted] = useState(false);
     const maxBalance = balances[entryToken]?.balance;
     const maxBalanceStr = ethers.utils.formatUnits(
         maxBalance || 0,
         parseInt(balances[entryToken]?.decimals || '0', 10)
     );
+    const { setPendingTx } = useContext(PendingTxContext);
 
     const resetForm = () => {
         setEntryToken('ETH');
@@ -99,7 +102,6 @@ function AddLiquidity({
             parseInt(balances[entryToken]?.decimals || '0', 10)
         );
         const allowanceNum = new BigNumber(allowanceStr);
-
         // If allowance is less than entry amount, make it needed
         if (entryAmtNum.gt(allowanceNum)) {
             setApprovalState('needed');
@@ -162,19 +164,49 @@ function AddLiquidity({
             .parseUnits(currentGasPrice.toString(), 9)
             .toString();
 
+        // Call the contract and sign
+        let gasEstimate: ethers.BigNumber;
+
+        try {
+            gasEstimate = await sellTokenContract.estimateGas.approve(
+                EXCHANGE_ADD_ABI_ADDRESS,
+                baseAmount,
+                { gasPrice: baseGasPrice }
+            );
+
+            // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
+            gasEstimate = gasEstimate.add(gasEstimate.div(3));
+        } catch (err) {
+            // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
+            console.error(`Could not estimate gas: ${err.message as string}`);
+
+            gasEstimate = ethers.BigNumber.from('1000000');
+        }
+
         // Approve the add liquidity contract to spend entry tokens
-        const txResponse = await sellTokenContract.approve(
+        const { hash } = await sellTokenContract.approve(
             EXCHANGE_ADD_ABI_ADDRESS,
             baseAmount,
             {
                 gasPrice: baseGasPrice,
-                gasLimit: '200000', // setting a high gas limit because it is hard to predict gas we will use
+                gasLimit: gasEstimate, // setting a high gas limit because it is hard to predict gas we will use
             }
         );
 
-        setApprovalState('pending');
-        await provider.waitForTransaction(txResponse.hash);
-        setApprovalState('done');
+        // setApprovalState('pending');
+        toastWarn(`Approving tx ${compactHash(hash)}`);
+        setPendingTx &&
+            setPendingTx(
+                (state: PendingTx): PendingTx =>
+                    ({
+                        approval: [...state.approval, hash],
+                        confirm: [...state.confirm],
+                    } as PendingTx)
+            );
+        await provider.waitForTransaction(hash);
+        onClose();
+        // setApprovalState('done');
+        await doAddLiquidity();
     };
 
     const doAddLiquidity = async () => {
@@ -200,7 +232,7 @@ function AddLiquidity({
         } else if (entryToken === symbol1 && symbol1 !== 'WETH') {
             sellToken = pairData.token1.id;
         } else if (entryToken === 'WETH') {
-            // We have ETH
+            // We have WETH
             sellToken = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
         } else if (entryToken === 'ETH') {
             sellToken = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
@@ -243,6 +275,7 @@ function AddLiquidity({
 
         try {
             mixpanel.track('transaction:addLiquidity', {
+                distinct_id: pairAddress,
                 amount: entryAmount.toString(),
                 entryToken,
                 pair: pairAddress,
@@ -273,7 +306,7 @@ function AddLiquidity({
             gasEstimate = ethers.BigNumber.from('1000000');
         }
 
-        await addLiquidityContract[
+        const { hash } = await addLiquidityContract[
             'investTokenForEthPair(address,address,uint256,uint256)'
         ](sellToken, pairAddress, baseAmount, baseMinPoolTokens, {
             gasPrice: baseGasPrice,
@@ -287,8 +320,9 @@ function AddLiquidity({
         setTimeout(() => {
             setTxSubmitted(false);
             resetForm();
-            onDone?.();
-        }, 1000);
+            onClose();
+            onDone?.(hash);
+        }, 500);
     };
 
     const addLiquidityActionState: ManageLiquidityActionState = useMemo(() => {
@@ -306,8 +340,8 @@ function AddLiquidity({
             return 'gasPriceNotSelected';
         } else if (approvalState === 'needed' && entryToken !== 'ETH') {
             return 'needsApproval';
-        } else if (approvalState === 'pending') {
-            return 'waitingApproval';
+            // } else if (approvalState === 'pending') {
+            //     return 'waitingApproval';
         } else if (
             new BigNumber(entryAmount).lte(maxBalanceStr) &&
             new BigNumber(entryAmount).gt(0)
@@ -360,7 +394,10 @@ function AddLiquidity({
             <Modal.Body className='connect-wallet-modal'>
                 <Form.Group>
                     <Form.Label>
-                        <strong>Available {entryToken}:</strong> {maxBalanceStr}
+                        <h5>
+                            Available <strong>{entryToken}</strong>{' '}
+                            {maxBalanceStr}
+                        </h5>
                     </Form.Label>
                     &nbsp;&nbsp;
                     <button
@@ -400,46 +437,53 @@ function AddLiquidity({
                         </DropdownButton>
                     </InputGroup>
                 </Form.Group>
+                <h5>Expected Pool Shares</h5>
                 <Card body>
-                    <p>
-                        <strong>Expected Pool Shares</strong>
-                    </p>
-                    <p>
-                        {resolveLogo(pairData.token0.id)}{' '}
-                        {expectedPoolToken0 !== 'NaN' ? expectedPoolToken0 : 0}{' '}
-                        {pairData.token0.symbol}
-                    </p>
-                    <p>
-                        {resolveLogo(pairData.token1.id)}{' '}
-                        {expectedPoolToken1 !== 'NaN' ? expectedPoolToken1 : 0}{' '}
-                        {pairData.token1.symbol}
-                    </p>
-                    <p>
-                        {expectedLpTokens !== 'NaN' ? expectedLpTokens : 0} LP
-                        Tokens
-                        {currentLpTokens && (
-                            <span className='current-lp-tokens'>
-                                {' '}
-                                ({currentLpTokens} Current)
-                            </span>
-                        )}
-                    </p>
-                    <p>
-                        <strong>Price Impact:</strong>{' '}
-                        {expectedPriceImpact !== 'NaN'
-                            ? expectedPriceImpact
-                            : 0}
-                        %
-                    </p>
+                    <div className='modal-pool-shares'>
+                        <div>
+                            {resolveLogo(pairData.token0.id)}{' '}
+                            {pairData.token0.symbol}
+                        </div>
+                        <div>
+                            {expectedPoolToken0 !== 'NaN'
+                                ? expectedPoolToken0
+                                : 0}{' '}
+                        </div>
+                        <div>
+                            {resolveLogo(pairData.token1.id)}{' '}
+                            {pairData.token1.symbol}
+                        </div>
+                        <div>
+                            {expectedPoolToken1 !== 'NaN'
+                                ? expectedPoolToken1
+                                : 0}{' '}
+                        </div>
+
+                        <div>LP Tokens</div>
+                        <div>
+                            {expectedLpTokens !== 'NaN' ? expectedLpTokens : 0}{' '}
+                            {currentLpTokens && (
+                                <span className='current-lp-tokens'>
+                                    {' '}
+                                    ({currentLpTokens} Current)
+                                </span>
+                            )}
+                        </div>
+                        <div>Price Impact</div>
+                        <div>
+                            {expectedPriceImpact !== 'NaN'
+                                ? expectedPriceImpact
+                                : 0}
+                            %
+                        </div>
+                    </div>
                 </Card>
                 <br />
+                <h5>Transaction Settings</h5>
                 <Card body>
-                    <p>
-                        <strong>Transaction Settings</strong>
-                    </p>
                     <Form.Group as={Row}>
                         <Form.Label column sm={6}>
-                            Slippage Tolerance:
+                            Slippage Tolerance
                         </Form.Label>
                         <Col sm={2}></Col>
                         <Col sm={4}>
@@ -463,43 +507,44 @@ function AddLiquidity({
                     </Form.Group>
                     {gasPrices && (
                         <Form.Group className='transaction-speed-input'>
-                            <Form.Label>Transaction Speed:</Form.Label>
-                            <ButtonGroup>
-                                <Button
-                                    variant='outline-dark'
-                                    size='sm'
-                                    active={
-                                        currentGasPrice === gasPrices.standard
-                                    }
+                            <Form.Label>Transaction Speed</Form.Label>
+                            <div className='button-group-h'>
+                                <button
+                                    className={classNames({
+                                        active:
+                                            currentGasPrice ===
+                                            gasPrices.standard,
+                                    })}
                                     onClick={() =>
                                         setCurrentGasPrice(gasPrices.standard)
                                     }
                                 >
                                     Standard <br />({gasPrices.standard} Gwei)
-                                </Button>
-                                <Button
-                                    variant='outline-dark'
-                                    size='sm'
-                                    active={currentGasPrice === gasPrices.fast}
+                                </button>
+                                <button
+                                    className={classNames({
+                                        active:
+                                            currentGasPrice === gasPrices.fast,
+                                    })}
                                     onClick={() =>
                                         setCurrentGasPrice(gasPrices.fast)
                                     }
                                 >
                                     Fast <br />({gasPrices.fast} Gwei)
-                                </Button>
-                                <Button
-                                    variant='outline-dark'
-                                    size='sm'
-                                    active={
-                                        currentGasPrice === gasPrices.fastest
-                                    }
+                                </button>
+                                <button
+                                    className={classNames({
+                                        active:
+                                            currentGasPrice ===
+                                            gasPrices.fastest,
+                                    })}
                                     onClick={() =>
                                         setCurrentGasPrice(gasPrices.fastest)
                                     }
                                 >
                                     Fastest <br />({gasPrices.fastest} Gwei)
-                                </Button>
-                            </ButtonGroup>
+                                </button>
+                            </div>
                         </Form.Group>
                     )}
                 </Card>

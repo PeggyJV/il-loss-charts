@@ -7,11 +7,11 @@ import { TopPairsState, Wallet } from 'types/states';
 import PositionsTable from 'components/positions-table';
 import { ComponentError } from 'components/page-error';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
-
 import mixpanel from 'util/mixpanel';
 import TopPairsWidget from 'components/top-pairs-widget';
 import ConnectWalletButton from 'components/connect-wallet-button';
 import JoinCommunityButton from 'components/join-community-button';
+import PendingTx from 'components/pending-tx';
 
 function LandingContainer({
     topPairs,
@@ -64,9 +64,14 @@ function LandingContainer({
             setIsLoading(false);
             if (isInitialLoad) setIsInitialLoad(false);
 
-            mixpanel.track('positions:query', {
-                address: wallet.account,
-            });
+            try {
+                mixpanel.track('positions:query', {
+                    distinct_id: wallet.account,
+                    address: wallet.account,
+                });
+            } catch (e) {
+                console.error(`Metrics error on add positions:query.`);
+            }
         };
 
         if (wallet.account) {
@@ -78,7 +83,11 @@ function LandingContainer({
 
     const showModal = () => setShowConnectWallet(true);
     useEffect(() => {
-        mixpanel.track('pageview:landing', {});
+        try {
+            mixpanel.track('pageview:landing', {});
+        } catch (e) {
+            console.error(`Metrics error on add positions:landing.`);
+        }
     }, []);
 
     // (window as any).marketData = marketData;
@@ -96,6 +105,8 @@ function LandingContainer({
         <div>
             <div className='nav-button-container'>
                 <JoinCommunityButton onClick={() => {window.open('https://t.me/getsomm', '_blank')}} />
+            <div className='wallet-combo'>
+                <PendingTx />
                 <ConnectWalletButton onClick={showModal} wallet={wallet} />
             </div>
             <div className='alert-well'>

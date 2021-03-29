@@ -10,7 +10,15 @@ class MixpanelWrapper {
         if (token) {
             this.isActive = true;
             mixpanel.init(token, { debug: true });
+
+
             mixpanel.track('page_load');
+
+            try {
+              mixpanel.track('page_load', { distinct_id: Date.now() });
+            } catch (e) {
+                console.error(`Metrics error on page_load.`);
+            }
         } else {
             console.warn('No analytics token received.');
         }

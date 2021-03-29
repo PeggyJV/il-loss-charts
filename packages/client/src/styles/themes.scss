@@ -1,7 +1,7 @@
 @import './colors.scss';
 
 .dark {
-  //backgrounds
+    //backgrounds
     --bgDeep: var(--purple100);
     --bgMain: var(--purple80);
     --bgSecondary: var(--purple70);
@@ -10,7 +10,7 @@
     --bgMoon: var(--green60);
     --bgDump: var(--red70);
     --bgAccent: var(--jam70);
-
+    --bgAccentAlt: var(--bubble50);
 
     --borderDeep: var(--purple100);
     --borderMain: var(--purple60);
@@ -18,7 +18,7 @@
     --borderOffset: var(--bubble10);
     --borderAccent: var(--jam40);
     --borderAccentAlt: var(--bubble40);
-  
+
     //fonts & svgs
     --faceDeep: var(--mono10);
     --facePrimary: var(--mono20);
@@ -49,7 +49,6 @@
     --btnAction: var(--faceDeep);
     --btnActionHover: var(--jam50);
 
-
     // info
     --bgInfo: var(--purple50);
     --bgInfoBorder: var(--purple60);
@@ -61,24 +60,23 @@
     --bgWarn: var(--mono80);
     --bgWarnBorder: var(--mono100);
 
-    // alert
-    --bgAlert: var(--red90);
-    --bgAlertBorder: var(--red100);
-
     // moon
     --btnMoon: var(--green80);
     --btnMoonHover: var(--green70);
     --btnMoonBorder: var(--green70);
 
     // dump
-
-    // fixeMe
+    --bgDump: var(--red90);
+    --bgDumpBorder: var(--red100);
+    --btnDump: var(--red80);
+    --btnDumpHover: var(--red70);
+    --btnDumpBorder: var(--red70); // fixeMe
+    
     background: black;
-
 }
 
 .light {
-   //backgrounds
+    //backgrounds
     --bgDeep: var(--purple20);
     --bgMain: var(--purple10);
     --bgSecondary: var(--purple10);
@@ -87,13 +85,12 @@
     --bgDump: var(--red70);
     --bgAccent: var(--jam60);
 
-
     --borderMain: var(--purple30);
     --borderSecondary: var(--purple20);
     --borderOffset: var(--blue10);
     --borderAccent: var(--jam50);
     --borderAccentAlt: var(--bubble50);
-  
+
     //fonts
     --facePrimary: var(--mono100);
     --faceSecondary: var(--mono90);
@@ -102,7 +99,5 @@
     --faceAccent: var(--jam50);
     --faceAccentAlt: var(--bubble50);
     --faceMoon: var(--green50);
-    --faceDump: var(--red50)
+    --faceDump: var(--red50);
 }
-
-

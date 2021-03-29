@@ -83,8 +83,20 @@ export default function useWallet(): {
                     providerName: 'metamask',
                     provider: (window as any).ethereum,
                 };
-                mixpanel.track('wallet', walletObj);
+
                 setWallet(walletObj);
+
+                try {
+                  const mixpanelData = {
+                    distinct_id: account,
+                    account,
+                    providerName: 'metamask'
+                  }
+
+                  mixpanel.track('wallet', mixpanelData);
+                } catch (e) {
+                    console.error(`Metrics error on wallet.`);
+                }
             } else {
                 disconnectWallet();
             }
@@ -99,8 +111,20 @@ export default function useWallet(): {
                 providerName: 'walletconnect',
                 provider: wcProvider,
             };
-            mixpanel.track('wallet', walletObj);
+
             setWallet(walletObj);
+
+            try {
+              const mixpanelData = {
+                distinct_id: account,
+                account,
+                providerName: 'walletconnect'
+              }
+
+              mixpanel.track('wallet', mixpanelData);
+            } catch (e) {
+                console.error(`Metrics error on wallet.`);
+            }
         }
     });
 
@@ -130,24 +154,52 @@ export default function useWallet(): {
             providerName: 'metamask',
             provider: (window as any).ethereum,
         };
-        mixpanel.track('wallet', walletObj);
+
         setWallet(walletObj);
+
+        try {
+          const mixpanelData = {
+            distinct_id: account,
+            account,
+            providerName: 'metamask'
+          }
+
+          mixpanel.track('wallet', mixpanelData);
+        } catch (e) {
+            console.error(`Metrics error on wallet.`);
+        }
     };
 
     const connectWalletConnect = async () => {
         await wcProvider.enable();
+        const walletObj: Wallet = {
+            account: wcProvider.accounts[0],
+            providerName: 'walletconnect',
+            provider: wcProvider,
+        };
 
         // If provider is different, sest to the WC wallet
         if (wallet.provider !== 'walletconnect') {
-            setWallet({
+            setWallet(walletObj);
+
+            try {
+              const mixpanelData = {
+                distinct_id: wcProvider.accounts[0],
                 account: wcProvider.accounts[0],
-                providerName: 'walletconnect',
-                provider: wcProvider,
-            });
+                providerName: 'walletconnect'
+              }
+
+              mixpanel.track('wallet:connect', mixpanelData);
+            } catch (e) {
+                console.error(`Metrics error on wallet.`);
+            }
         }
     };
 
     const disconnectWallet = () => {
+        mixpanel.track('wallet:disconnect', {
+            providerName: wallet.providerName,
+        });
         setWallet({ account: null, providerName: null, provider: null });
         cookies.remove('current_wallet');
     };

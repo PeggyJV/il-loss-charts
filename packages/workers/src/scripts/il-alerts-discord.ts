@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import TelegramBot from 'node-telegram-bot-api';
 import BigNumber from 'bignumber.js';
+import Discord from "discord.js";
 
 import { UniswapFetcher, calculateMarketStats } from '@sommelier/data-service';
 import {
@@ -11,14 +11,14 @@ import {
     MarketStats,
 } from '@sommelier/shared-types';
 
-let sommBot: TelegramBot | undefined;
-if (process.env.TELEGRAM_BOT_TOKEN) {
-    sommBot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
-} else {
-    throw new Error(`Cannot start il alerts telegram bot without token.`);
-}
 
-const CHAT_ID = '@getsomm_alerts';
+const CHAT_ID = '814279129247514635';
+const client = new Discord.Client();
+
+function respond(channel: any, text: string) {
+    (channel as Discord.TextChannel).send(text)
+    .catch(console.error);
+}
 
 const handleExit = () => {
     if (require.main === module) {
@@ -26,12 +26,22 @@ const handleExit = () => {
     }
 }
 
-export default async function runAlertCheck(): Promise<void> {
+export default function loginAndSetupAlerts(): void {
+    void client.login(process.env.DISCORD_BOT_TOKEN);
+
+    client.on('ready', () => {
+        console.log(`Logged in as ${client.user!.tag}!`);
+        void runDiscordAlerts();
+    });
+}
+
+async function runDiscordAlerts(): Promise<void> {
     // Every hour, fetch latest market data for top pairs - runs locally so using localhost
     // For any pair with a 10% 24h change in impermanent loss, send an alert
 
     // Get 100 top pairs
     let topPairs: IUniswapPair[];
+
 
     try {
         topPairs = await UniswapFetcher.getCurrentTopPerformingPairs(100);
@@ -103,37 +113,21 @@ export default async function runAlertCheck(): Promise<void> {
         );
         const msg = `${'🍷'.repeat(
             numGlasses
-        )} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${
+        )} Pair ${
             pair.market
-        }</a> saw a ${returnStr}% return in the last 24 hours!`;
+        } saw a ${returnStr}% return in the last 24 hours!`;
         // sommBot.sendMessage(CHAT_ID, msg, { parse_mode: 'HTML' });
         msgs.push(msg);
-        console.log('Sent msg to channel for pair', pair.market);
-    });
+        msgs.push('https://app.sommelier.finance/pair?id=' + pair.id);
+        msgs.push('');
 
-    highIlPairs.forEach((pair) => {
-        // Send message to channel
-        const ilStr = new BigNumber(pair.impermanentLoss)
-            .times(-100)
-            .toFixed(2);
-        const numFaces = Math.min(
-            Math.abs(Math.ceil(pair.impermanentLoss / -0.01)),
-            10
-        );
-        const msg = `${'😢'.repeat(
-            numFaces
-        )} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${
-            pair.market
-        }</a> saw a ${ilStr}% impermanent loss in the last 24 hours!`;
-        // sommBot.sendMessage(CHAT_ID, msg, { parse_mode: 'HTML' });
-        msgs.push(msg);
         console.log('Sent msg to channel for pair', pair.market);
     });
 
     try {
-        await sommBot?.sendMessage(CHAT_ID, msgs.join('\n'), {
-            parse_mode: 'HTML',
-        });
+        client.channels.fetch(CHAT_ID)
+        .then(channel => respond(channel, msgs.join('\n')))
+        .catch(console.error);
     } catch (e) {
         console.error(
             `Aborting: error sending a message to Telegram: ${
@@ -142,10 +136,12 @@ export default async function runAlertCheck(): Promise<void> {
         );
         return handleExit();
     }
-
-    return;
 }
 
 if (require.main === module) {
-    void runAlertCheck();
+  if (process.env.DISCORD_BOT_TOKEN) {
+    loginAndSetupAlerts();
+  } else {
+      throw new Error(`Cannot start il alerts discord bot without token.`);
+  }
 }
