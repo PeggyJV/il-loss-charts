@@ -17,7 +17,7 @@ if (key == 'freekey') {
 
 
 if (process.env.MIXPANEL_TOKEN) {
-    mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN,{ secret: process.env.MIXPANEL_SECRET });
+    mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN, { secret: process.env.MIXPANEL_SECRET });
 } else {
     throw new Error(`Cannot start il alerts mixpanel liquidity bot without mixpanel token.`);
 }
