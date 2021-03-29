@@ -105,6 +105,7 @@ function LandingContainer({
         <div>
             <div className='nav-button-container'>
                 <JoinCommunityButton onClick={() => {window.open('https://t.me/getsomm', '_blank')}} />
+            </div>
             <div className='wallet-combo'>
                 <PendingTx />
                 <ConnectWalletButton onClick={showModal} wallet={wallet} />
