@@ -838,9 +838,18 @@ p {
     background: var(--bgDump);
     padding: 8px 12px;
 }
+
+.sub-heading {
+    font-size: 1rem;
+    color: var(--faceSecondary);
+    border-bottom: 1px solid var(--borderMain);
+}
 .modal-pool-shares {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    // border: 1px solid var(--borderMain);
+    // background: var(--bgContainer);
+    font-size: 1rem;
     grid-gap: 1px;
     div:nth-child(even) {
         color: var(--faceDeep);
@@ -884,6 +893,34 @@ p {
     border-bottom-right-radius: 0;
 }
 
+.balances-container {
+    // border: 1px solid var(--borderMain);
+    margin: 0;
+    padding: 0;
+    font-size: 0.8rem;
+    color: var(--faceDeep);
+    display: flex;
+    flex-direction: column;
+}
+.balances-and-pool-stats {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.max-balance-link {
+    height: calc(1.75rem + 0.5rem + 2px);
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--borderDeep);
+    background: var(--bgSecondary);
+    border-right: 0;
+    color: var(--facePrimary);
+    padding: 0 10px;
+    &:hover {
+        color: var(--faceAccentAlt);
+        text-decoration: underline;
+    }
+}
 .pair-text-large {
     display: flex;
     align-items: center;
