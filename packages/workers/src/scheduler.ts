@@ -4,9 +4,12 @@ import express from 'express';
 import runTgAlerts from './scripts/il-alerts';
 import runDiscordAlerts from './scripts/il-alerts-discord';
 import runMixpanelAlerts from './scripts/mp-liquidity';
+import runTelegramMixpanel from './scripts/telegram-mixpanel';
 
 const PORT = 8080;
 const CRON_EVERY_HOUR = '0 * * * *';
+
+void runTelegramMixpanel();
 
 cron.schedule(CRON_EVERY_HOUR, () => {
     void runTgAlerts();
