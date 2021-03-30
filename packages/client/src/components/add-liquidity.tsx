@@ -58,7 +58,7 @@ function AddLiquidity({
     onClose: () => void;
 }): JSX.Element | null {
     const [tokenOne, setTokenOne] = useState<string>('ETH');
-    const [tokenTwo, setTokenTwo] = useState<string>('ETH');
+    const [tokenTwo, setTokenTwo] = useState<string>('');
     const [tokenOneAmount, setTokenOneAmount] = useState<string>('');
     const [tokenTwoAmount, setTokenTwoAmount] = useState<string>('');
     const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
@@ -77,7 +77,7 @@ function AddLiquidity({
     */
     const [tokenData, setTokenData] = useState<Record<
         string,
-        { id: string; balance: string; allowance: string }
+        { id: string; balance: string; allowance: string; reserve: string }
     > | null>(null);
     const [approvalList, setApprovalList] = useState<Set<string>>(new Set());
     const [twoSide, setTwoSide] = useState<boolean>(false);
@@ -169,8 +169,20 @@ function AddLiquidity({
     ]);
 
     useEffect(() => {
+        const reserveLookup: Record<string, string> = {
+            [pairData?.token0.symbol as string]: pairData?.reserve0 || '',
+            [pairData?.token1.symbol as string]: pairData?.reserve1 || '',
+        };
         const tokenDataMap = Object.keys(balances).reduce<
-            Record<string, { id: string; balance: string; allowance: string }>
+            Record<
+                string,
+                {
+                    id: string;
+                    balance: string;
+                    allowance: string;
+                    reserve: string;
+                }
+            >
         >((acc, token) => {
             if (token === 'currentPair') return acc;
             const balance = ethers.utils.formatUnits(
@@ -185,12 +197,15 @@ function AddLiquidity({
 
             const id = balances?.[token].id;
 
-            acc[token] = { id, balance, allowance };
+            const reserve =
+                token === 'ETH' ? reserveLookup['WETH'] : reserveLookup[token];
+
+            acc[token] = { id, balance, allowance, reserve };
             return acc;
         }, {});
 
         setTokenData(tokenDataMap);
-    }, [balances]);
+    }, [balances, pairData]);
 
     // useEffect(() => {
     //     setTokenOneAmount('');
@@ -410,6 +425,8 @@ function AddLiquidity({
             value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
         });
 
+        (window as any).contract = addLiquidityContract;
+
         setTxSubmitted(true);
 
         // Close the modal after one second
@@ -496,9 +513,47 @@ function AddLiquidity({
         }
     }
 
-    const dropdownOptions = Object.values(balances).filter(
-        (balance) => balance.id !== pairData.id
-    );
+    const dropdownOptions = (tokenData && Object.keys(tokenData)) || [];
+
+    /* 
+    tokenData = { [symbol]: {id, balance, allowance, reserve}}
+    */
+
+    const handleTokenRatio = (token: string, amount: string) => {
+        if (!twoSide) return;
+
+        let price: BigNumber;
+        let priceStr: string;
+
+        /*
+        W = (Wr * I) / Ir
+        Wr: Ir = W : I
+
+        [symbol]: {id, allowance, balance, reserve}
+        */
+        switch (token) {
+            case tokenOne:
+                price = new BigNumber(tokenData?.[tokenTwo]?.reserve as string)
+                    .times(new BigNumber(amount))
+                    .div(
+                        new BigNumber(tokenData?.[tokenOne].reserve as string)
+                    );
+                priceStr = price.isNaN() ? '' : price.toFixed();
+                setTokenTwoAmount(priceStr);
+                break;
+            case tokenTwo:
+                price = new BigNumber(tokenData?.[tokenOne]?.reserve as string)
+                    .times(new BigNumber(amount))
+                    .div(
+                        new BigNumber(tokenData?.[tokenTwo].reserve as string)
+                    );
+                priceStr = price.isNaN() ? '' : price.toFixed();
+                setTokenOneAmount(priceStr);
+                break;
+            default:
+                console.warn('No matching token. Cannot update ratio');
+        }
+    };
 
     const showTwoSide = (): JSX.Element | null => {
         const tkn1 = pairData?.token0?.symbol;
@@ -515,7 +570,10 @@ function AddLiquidity({
                     <input
                         type='checkbox'
                         checked={twoSide}
-                        onChange={() => setTwoSide(!twoSide)}
+                        onChange={() => {
+                            setTokenTwo(tokenOne === tkn1 ? tkn2 : tkn1);
+                            setTwoSide(!twoSide);
+                        }}
                         id='two-side'
                     />
                     &nbsp;
@@ -563,13 +621,18 @@ function AddLiquidity({
         token: string,
         amount: string,
         updateAmount: React.Dispatch<React.SetStateAction<string>>,
-        updateToken: React.Dispatch<React.SetStateAction<string>>
+        updateToken: React.Dispatch<React.SetStateAction<string>>,
+        handleTokenRatio: (token: string, amount: string) => void,
+        options: string[] = []
     ): JSX.Element => (
         <Form.Group>
             <InputGroup>
                 <button
                     className='max-balance-link'
-                    onClick={() => updateAmount(toBalanceStr(token))}
+                    onClick={() => {
+                        updateAmount(toBalanceStr(token));
+                        handleTokenRatio(token, toBalanceStr(token));
+                    }}
                 >
                     Max
                 </button>
@@ -582,17 +645,18 @@ function AddLiquidity({
 
                         if (!val || !new BigNumber(val).isNaN()) {
                             updateAmount(val);
+                            twoSide && handleTokenRatio(token, val);
                         }
                     }}
                 />
                 <DropdownButton as={InputGroup.Append} title={token}>
-                    {dropdownOptions.map((t) => (
+                    {options.map((t) => (
                         <Dropdown.Item
-                            key={t.symbol}
-                            active={t.symbol === token}
-                            onClick={() => updateToken(t.symbol as string)}
+                            key={t}
+                            active={t === token}
+                            onClick={() => updateToken(t)}
                         >
-                            {t.symbol}
+                            {t}
                         </Dropdown.Item>
                     ))}
                 </DropdownButton>
@@ -736,7 +800,9 @@ function AddLiquidity({
                     tokenOne,
                     tokenOneAmount,
                     setTokenOneAmount,
-                    setTokenOne
+                    setTokenOne,
+                    handleTokenRatio,
+                    twoSide ? ['ETH', 'WETH'] : dropdownOptions
                 )}
                 {showTwoSide()}
                 {twoSide &&
@@ -744,7 +810,15 @@ function AddLiquidity({
                         tokenTwo,
                         tokenTwoAmount,
                         setTokenTwoAmount,
-                        setTokenTwo
+                        setTokenTwo,
+                        handleTokenRatio,
+                        twoSide
+                            ? (tokenData &&
+                                  Object.keys(tokenData).filter(
+                                      (a) => a !== 'ETH' && a !== 'WETH'
+                                  )) ||
+                                  []
+                            : dropdownOptions
                     )}
                 <TransactionSettings />
                 <PoolShare />
