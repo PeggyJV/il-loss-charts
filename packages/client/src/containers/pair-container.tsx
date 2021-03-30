@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Container } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 // import useWebSocket from 'react-use-websocket';
 import PropTypes from 'prop-types';
 
@@ -355,10 +356,13 @@ function PairContainer({
     }
 
     const shouldShowAddl = lpInfo.pairData?.token0.symbol === 'WETH' || lpInfo.pairData?.token1?.symbol === 'WETH';
-
+    const pairStr = lpInfo.pairData?.token0.symbol + '/' + lpInfo.pairData?.token1.symbol;
     return (
         <div>
-            <h4 className='heading-main'>Impermanent Loss Calculator</h4>
+            <Helmet>
+                <title>Sommelier Finance Impermanent Loss Calculator for Uniswap Pool {pairStr}</title>
+            </Helmet>
+            <h4 className='heading-main'>Impermanent Loss for Uniswap Pair {pairStr}</h4>
             <div className='alert-well'>
                 <p>
                     This is not financial advice. This is an alpha project.
