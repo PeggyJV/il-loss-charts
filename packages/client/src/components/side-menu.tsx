@@ -3,7 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
 import classNames from 'classnames';
 import { Wallet } from 'types/states';
-import TelegramCTA from 'components/telegram-cta';
+import { TelegramCTA } from 'components/telegram-cta';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faChartArea,

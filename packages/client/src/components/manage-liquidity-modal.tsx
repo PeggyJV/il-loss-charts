@@ -10,7 +10,8 @@ import erc20Abi from 'constants/abis/erc20.json';
 const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
 const EXCHANGE_REMOVE_ABI_ADDRESS =
     '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
-
+const EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS =
+    '0xA522AA47C40F2BAC847cbe4D37455c521E69DEa7';
 import {
     EthGasPrices,
     LPPositionData,
@@ -53,12 +54,14 @@ function ManageLiquidityModal({
     }
     // TODO abstract this cleanly with context and reducer to be a global notification system
     const onDone = async (txHash?: string) => {
-        if(!txHash) return;
+        if (!txHash) return;
         setPendingTx &&
             setPendingTx(
                 (state: PendingTx): PendingTx =>
                     ({
-                        approval: [...state.approval],
+                        approval: [
+                            ...state.approval.filter((hash) => hash !== txHash),
+                        ],
                         confirm: [...state.confirm, txHash],
                     } as PendingTx)
             );
@@ -77,13 +80,27 @@ function ManageLiquidityModal({
                         (state: PendingTx): PendingTx =>
                             ({
                                 approval: [...state.approval],
-                                confirm: [...state.approval.filter(
-                                    (hash) => hash !== txHash
-                                )],
+                                confirm: [
+                                    ...state.approval.filter(
+                                        (hash) => hash !== txHash
+                                    ),
+                                ],
                             } as PendingTx)
                     );
             } else {
                 toastError(`Rejected tx ${compactHash(txHash)}`);
+                setPendingTx &&
+                    setPendingTx(
+                        (state: PendingTx): PendingTx =>
+                            ({
+                                approval: [...state.approval],
+                                confirm: [
+                                    ...state.approval.filter(
+                                        (hash) => hash !== txHash
+                                    ),
+                                ],
+                            } as PendingTx)
+                    );
             }
         }
     };
@@ -167,6 +184,30 @@ function ManageLiquidityModal({
                 return allowance;
             });
 
+            const getTwoSideAllowances = [
+                pairData.token0.id,
+                pairData.token1.id,
+                pairData.id,
+            ].map(async (tokenAddress) => {
+                if (!tokenAddress) {
+                    throw new Error(
+                        'Could not get balance for pair without token address'
+                    );
+                }
+                const token = new ethers.Contract(
+                    tokenAddress,
+                    erc20Abi
+                ).connect(provider as ethers.providers.Web3Provider);
+                const allowance: ethers.BigNumber = await token.allowance(
+                    wallet.account,
+                    tokenAddress === pairData.id
+                        ? EXCHANGE_REMOVE_ABI_ADDRESS
+                        : EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS
+                );
+
+                return allowance;
+            });
+
             const getEthBalance = provider.getBalance(wallet.account);
             const [
                 ethBalance,
@@ -182,6 +223,12 @@ function ManageLiquidityModal({
                 ...getAllowances,
             ]);
 
+            const [
+                addTwoToken0Allowance,
+                addTwoToken1Allowance,
+                addTwoPairAllowance,
+            ] = await Promise.all([...getTwoSideAllowances]);
+
             // Get balance for other two tokens
             setBalances({
                 ETH: {
@@ -189,28 +236,42 @@ function ManageLiquidityModal({
                     symbol: 'ETH',
                     balance: ethBalance,
                     decimals: '18',
-                    allowance: ethers.BigNumber.from(0),
+                    allowance: {
+                        [EXCHANGE_ADD_ABI_ADDRESS]: ethers.BigNumber.from(0),
+                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: ethers.BigNumber.from(
+                            0
+                        ),
+                    },
                 },
                 [pairData.token0.symbol]: {
                     id: pairData.token0.id,
                     symbol: pairData.token0.symbol,
                     balance: token0Balance,
                     decimals: pairData.token0.decimals,
-                    allowance: token0Allowance,
+                    allowance: {
+                        [EXCHANGE_ADD_ABI_ADDRESS]: token0Allowance,
+                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: addTwoToken0Allowance,
+                    },
                 },
                 [pairData.token1.symbol]: {
                     id: pairData.token1.id,
                     symbol: pairData.token1.symbol,
                     balance: token1Balance,
                     decimals: pairData.token0.decimals,
-                    allowance: token1Allowance,
+                    allowance: {
+                        [EXCHANGE_ADD_ABI_ADDRESS]: token1Allowance,
+                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: addTwoToken1Allowance,
+                    },
                 },
                 currentPair: {
                     id: pairData.id,
                     symbol: pairData.pairReadable,
                     balance: pairBalance,
                     decimals: '18',
-                    allowance: pairAllowance,
+                    allowance: {
+                        [EXCHANGE_ADD_ABI_ADDRESS]: pairAllowance,
+                        [EXCHANGE_REMOVE_ABI_ADDRESS]: addTwoPairAllowance,
+                    },
                 },
             });
         };

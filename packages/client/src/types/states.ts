@@ -95,6 +95,8 @@ export interface WalletBalances {
         balance: ethers.BigNumber;
         symbol?: string;
         decimals?: string;
-        allowance: ethers.BigNumber;
+        allowance: {
+            [address: string]:ethers.BigNumber
+        };
     }
 }

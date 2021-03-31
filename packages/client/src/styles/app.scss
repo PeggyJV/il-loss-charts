@@ -220,10 +220,14 @@ p {
     text-align: center;
 }
 
+.main-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .telegram-cta {
-    font-size: 0.85rem;
-    padding: 0 0.5rem;
-    text-align: center;
+    font-size: 1rem;
     a {
         color: var(--faceAccentAlt);
         &:hover {
@@ -552,8 +556,9 @@ p {
 .card {
     // background: var(--bgContainer);
     // border: 1px solid var(--borderMain);
-    // color: var(--facePrimary);
+    color: var(--facePrimary);
     // min-width: 16rem;
+    padding: 0.5rem 1rem;
     border-radius: 0;
     border: 1px solid var(--borderDeep);
     box-shadow: 0 0 5px 1px var(--bgDeep);
@@ -713,7 +718,7 @@ p {
 }
 .connect-wallet-modal {
     background: var(--bgSecondary);
-    color: var(--faceSecondary);
+    color: var(--facePrimary);
 }
 
 // nasty override dude, get rid of this
@@ -838,9 +843,19 @@ p {
     background: var(--bgDump);
     padding: 8px 12px;
 }
+
+.sub-heading {
+    font-size: 1rem;
+    color: var(--faceSecondary);
+    border-bottom: 1px solid var(--borderMain);
+    margin-bottom: 1rem;
+}
 .modal-pool-shares {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    // border: 1px solid var(--borderMain);
+    // background: var(--bgContainer);
+    font-size: 1rem;
     grid-gap: 1px;
     div:nth-child(even) {
         color: var(--faceDeep);
@@ -884,6 +899,34 @@ p {
     border-bottom-right-radius: 0;
 }
 
+.balances-container {
+    // border: 1px solid var(--borderMain);
+    margin: 0;
+    padding: 0;
+    font-size: 0.8rem;
+    color: var(--faceDeep);
+    display: flex;
+    flex-direction: column;
+}
+.balances-and-pool-stats {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.max-balance-link {
+    height: calc(1.75rem + 0.5rem + 2px);
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--borderDeep);
+    background: var(--bgSecondary);
+    border-right: 0;
+    color: var(--facePrimary);
+    padding: 0 10px;
+    &:hover {
+        color: var(--faceAccentAlt);
+        text-decoration: underline;
+    }
+}
 .pair-text-large {
     display: flex;
     align-items: center;
@@ -985,11 +1028,11 @@ th .caret-4-desc:after {
     position: absolute;
     margin-top: 0.25rem;
     right: 150px;
-    padding: 4px 8px;
+    padding: 4px 10px;
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
     background: var(--bgDeep);
-    border: 1px solid var(--borderMain);
+    // border: 1px solid var(--borderMain);
     color: var(--faceSecondary);
     -webkit-transition: max-height 1s;
     -moz-transition: max-height 1s;
@@ -1001,9 +1044,11 @@ th .caret-4-desc:after {
     cursor: pointer;
     .bullet {
         padding: 5px 10px;
-        background: var(--bgSecondary);
-        border-radius: 20px;
+        background: var(--bgWarn);
+        border-radius: 5px;
         font-size: 0.85rem;
+        color: var(--faceDeep);
+        font-weight: 600;
     }
     &:hover {
         background: var(--bgContainer);
@@ -1081,7 +1126,7 @@ th .caret-4-desc:after {
 @media (max-width: 500px) {
     .app-body {
         width: 100%;
-        margin-top: 2rem;
+        margin-top: 5rem;
     }
     .pool-stats-container {
         grid-template-columns: 1fr;

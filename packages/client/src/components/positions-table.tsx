@@ -110,12 +110,12 @@ function PositionsTable({
         if (val === '-') return val;
         if (Math.sign(Number(val)) > 0)
             return (
-                <strong style={{ color: 'var(--bgMoon)' }}>
+                <strong style={{ color: 'var(--faceMoon)' }}>
                     {formatUSD(val)}
                 </strong>
             );
 
-        return <span style={{ color: 'var(--bgDump)' }}>{formatUSD(val)}</span>;
+        return <span style={{ color: 'var(--faceDump)' }}>{formatUSD(val)}</span>;
     };
 
     const formatUSDorNA = (val: string): string => {

@@ -52,6 +52,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
     flex-direction: column;
     justify-content: space-between;
     width: 100%;
+    text-align:center;
 }
 
 /* Morph shape necessary with bubble or elastic */
@@ -75,6 +76,7 @@ Note: Beware of modifying this element as it can break the animations - you shou
     padding: 0.4rem 1.4rem;
     margin: 0;
     outline: none;
+    text-align: left;
     > p {
       border-bottom: 1px solid var(--bgDeep);
     }

@@ -3,7 +3,7 @@ import {
     Container,
     Row,
     Col,
-    Card,
+    InputGroup,
     Form,
     FormControl,
     Modal,
@@ -12,7 +12,7 @@ import {
 import { Combobox } from 'react-widgets';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
-import {compactHash} from 'util/formats';
+import { compactHash } from 'util/formats';
 import { PendingTxContext, PendingTx } from 'app';
 import mixpanel from 'util/mixpanel';
 import classNames from 'classnames';
@@ -166,7 +166,9 @@ function RemoveLiquidity({
 
     useEffect(() => {
         // No need to check allowances for ETH
-        const allowance = balances?.currentPair?.allowance;
+
+        const allowance =
+            balances?.currentPair?.allowance?.[EXCHANGE_REMOVE_ABI_ADDRESS];
 
         if (!allowance) return;
 
@@ -264,7 +266,7 @@ function RemoveLiquidity({
             setPendingTx(
                 (state: PendingTx): PendingTx =>
                     ({
-                        approval: [...state.approval.filter(h => h !== hash )],
+                        approval: [...state.approval.filter((h) => h !== hash)],
                         confirm: [...state.confirm],
                     } as PendingTx)
             );
@@ -449,23 +451,39 @@ function RemoveLiquidity({
     return (
         <>
             <Modal.Body className='connect-wallet-modal'>
-                <Form.Label>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <div className='balances-container'>
+                        <p className='sub-heading'>
+                            <strong>Wallet Balance</strong>
+                        </p>
+                        <table>
+                            <tr>
+                                <td>
+                                    <strong>LP Token</strong>
+                                </td>
+                                <td>{currentLpTokens}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <br />
+                {/* <Form.Label>
                     <h5>
                         LP Tokens&nbsp;&nbsp;
                         {currentLpTokens}&nbsp;&nbsp;
+                    </h5>
+                </Form.Label> */}
+                <Form.Group as={Row}>
+                    <InputGroup>
+                        <Form.Label column sm={6}>
+                            Tokens to Liquidate
+                        </Form.Label>
                         <button
-                            className='btn-neutral'
+                            className='max-balance-link'
                             onClick={() => setExitAmount(currentLpTokens)}
                         >
                             Max
                         </button>
-                    </h5>
-                </Form.Label>
-                <Form.Group as={Row}>
-                    <Form.Label column sm={6}>
-                        Tokens to Liquidate
-                    </Form.Label>
-                    <Col sm={6}>
                         <FormControl
                             min='0'
                             placeholder='Tokens To Liquidate'
@@ -478,7 +496,7 @@ function RemoveLiquidity({
                                 }
                             }}
                         />
-                    </Col>
+                    </InputGroup>
                 </Form.Group>
                 <Form.Group as={Row}>
                     <Form.Label column sm={6}>
@@ -514,9 +532,11 @@ function RemoveLiquidity({
                     </Col>
                 </Form.Group>
                 <br />
-                <h5>Transaction Settings</h5>
-                <Card body>
-                    {/* <Form.Group as={Row}>
+                <p className='sub-heading'>
+                    <strong>Transaction Settings</strong>
+                </p>
+                {/* <Card body> */}
+                {/* <Form.Group as={Row}>
                         <Form.Label column sm={6}>
                             Slippage Tolerance:
                         </Form.Label>
@@ -538,49 +558,46 @@ function RemoveLiquidity({
                             </InputGroup>
                         </Col>
                     </Form.Group> */}
-                    {gasPrices && (
-                        <Form.Group className='transaction-speed-input'>
-                            {/* <Form.Label>Transaction Speed</Form.Label> */}
-                            <div className='button-group-h'>
-                                <button
-                                    className={classNames({
-                                        active:
-                                            currentGasPrice ===
-                                            gasPrices.standard,
-                                    })}
-                                    onClick={() =>
-                                        setCurrentGasPrice(gasPrices.standard)
-                                    }
-                                >
-                                    Standard <br />({gasPrices.standard} Gwei)
-                                </button>
-                                <button
-                                    className={classNames({
-                                        active:
-                                            currentGasPrice === gasPrices.fast,
-                                    })}
-                                    onClick={() =>
-                                        setCurrentGasPrice(gasPrices.fast)
-                                    }
-                                >
-                                    Fast <br />({gasPrices.fast} Gwei)
-                                </button>
-                                <button
-                                    className={classNames({
-                                        active:
-                                            currentGasPrice ===
-                                            gasPrices.fastest,
-                                    })}
-                                    onClick={() =>
-                                        setCurrentGasPrice(gasPrices.fastest)
-                                    }
-                                >
-                                    Fastest <br />({gasPrices.fastest} Gwei)
-                                </button>
-                            </div>
-                        </Form.Group>
-                    )}
-                </Card>
+                {gasPrices && (
+                    <Form.Group className='transaction-speed-input'>
+                        <Form.Label>Transaction Speed</Form.Label>
+                        <div className='button-group-h'>
+                            <button
+                                className={classNames({
+                                    active:
+                                        currentGasPrice === gasPrices.standard,
+                                })}
+                                onClick={() =>
+                                    setCurrentGasPrice(gasPrices.standard)
+                                }
+                            >
+                                Standard <br />({gasPrices.standard} Gwei)
+                            </button>
+                            <button
+                                className={classNames({
+                                    active: currentGasPrice === gasPrices.fast,
+                                })}
+                                onClick={() =>
+                                    setCurrentGasPrice(gasPrices.fast)
+                                }
+                            >
+                                Fast <br />({gasPrices.fast} Gwei)
+                            </button>
+                            <button
+                                className={classNames({
+                                    active:
+                                        currentGasPrice === gasPrices.fastest,
+                                })}
+                                onClick={() =>
+                                    setCurrentGasPrice(gasPrices.fastest)
+                                }
+                            >
+                                Fastest <br />({gasPrices.fastest} Gwei)
+                            </button>
+                        </div>
+                    </Form.Group>
+                )}
+                {/* </Card> */}
                 {new BigNumber(pairData.reserveUSD).lt(2000000) && (
                     <div className='warn-well'>
                         <p>
