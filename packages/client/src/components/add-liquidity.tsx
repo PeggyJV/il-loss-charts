@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import {
     Row,
     Col,
@@ -17,8 +17,11 @@ import { compactHash } from 'util/formats';
 import mixpanel from 'util/mixpanel';
 import erc20Abi from 'constants/abis/erc20.json';
 import exchangeAddAbi from 'constants/abis/volumefi_add_liquidity_uniswap.json';
+import exchangeTwoSideAddAbi from 'constants/abis/volumefi_two_side_add_liquidity_uniswap.json';
 
 const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
+const EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS =
+    '0xA522AA47C40F2BAC847cbe4D37455c521E69DEa7';
 
 import {
     EthGasPrices,
@@ -77,7 +80,12 @@ function AddLiquidity({
     */
     const [tokenData, setTokenData] = useState<Record<
         string,
-        { id: string; balance: string; allowance: string; reserve: string }
+        {
+            id: string;
+            balance: string;
+            allowance: { [a: string]: string };
+            reserve: string;
+        }
     > | null>(null);
     const [approvalList, setApprovalList] = useState<Set<string>>(new Set());
     const [twoSide, setTwoSide] = useState<boolean>(false);
@@ -99,7 +107,9 @@ function AddLiquidity({
 
     const resetForm = () => {
         setTokenOne('ETH');
-        setTokenOneAmount('0');
+        setTokenOneAmount('');
+        setTokenTwo('');
+        setTokenTwoAmount('');
         setSlippageTolerance(3.0);
         setTwoSide(false);
     };
@@ -118,7 +128,10 @@ function AddLiquidity({
         if (!twoSide) {
             if (tokenOne === 'ETH' || !tokenOneAmount) return;
 
-            const allowance = balances[tokenOne]?.allowance;
+            const allowance =
+                balances[tokenOne]?.allowance?.[
+                    EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS
+                ];
 
             if (!allowance) return;
 
@@ -143,15 +156,35 @@ function AddLiquidity({
 
             const tokenOneAmountBig = new BigNumber(tokenOneAmount);
             const tokenTwoAmountBig = new BigNumber(tokenTwoAmount);
-            const allowanceOne = tokenData?.[tokenOne]?.allowance || '0';
-            const allowanceTwo = tokenData?.[tokenTwo]?.allowance || '0';
+            const allowanceOne =
+                tokenData?.[tokenOne]?.allowance?.[
+                    EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS
+                ] || '0';
+            const allowanceTwo =
+                tokenData?.[tokenTwo]?.allowance?.[
+                    EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS
+                ] || '0';
             const allowanceOneBig = new BigNumber(allowanceOne);
             const allowanceTwoBig = new BigNumber(allowanceTwo);
             const cond1 =
                 tokenOne !== 'ETH' && tokenOneAmountBig.gt(allowanceOneBig);
             const cond2 =
                 tokenTwo !== 'ETH' && tokenTwoAmountBig.gt(allowanceTwoBig);
+
             if (cond1 || cond2) {
+                cond1 &&
+                    setApprovalList((list) => {
+                        const newList = new Set(list);
+                        newList.add(tokenOne);
+                        return newList;
+                    });
+                cond2 &&
+                    setApprovalList((list) => {
+                        const newList = new Set(list);
+                        newList.add(tokenTwo);
+                        return newList;
+                    });
+
                 setApprovalState('needed');
                 return;
             }
@@ -173,13 +206,19 @@ function AddLiquidity({
             [pairData?.token0.symbol as string]: pairData?.reserve0 || '',
             [pairData?.token1.symbol as string]: pairData?.reserve1 || '',
         };
+        const CONTRACT_ADDRESS = twoSide
+            ? EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS
+            : EXCHANGE_ADD_ABI_ADDRESS;
+
         const tokenDataMap = Object.keys(balances).reduce<
             Record<
                 string,
                 {
                     id: string;
                     balance: string;
-                    allowance: string;
+                    allowance: {
+                        [address: string]: string;
+                    };
                     reserve: string;
                 }
             >
@@ -191,7 +230,7 @@ function AddLiquidity({
             );
 
             const allowance = ethers.utils.formatUnits(
-                balances?.[token].allowance || 0,
+                balances?.[token].allowance?.[CONTRACT_ADDRESS] || 0,
                 parseInt(balances[token]?.decimals || '0', 10)
             );
 
@@ -200,16 +239,77 @@ function AddLiquidity({
             const reserve =
                 token === 'ETH' ? reserveLookup['WETH'] : reserveLookup[token];
 
-            acc[token] = { id, balance, allowance, reserve };
+            acc[token] = {
+                id,
+                balance,
+                allowance: {
+                    [CONTRACT_ADDRESS]: allowance,
+                },
+                reserve,
+            };
             return acc;
         }, {});
 
         setTokenData(tokenDataMap);
-    }, [balances, pairData]);
+    }, [balances, pairData, twoSide]);
 
     // useEffect(() => {
     //     setTokenOneAmount('');
     // }, [tokenOne]);
+
+    /* 
+    tokenData = { [symbol]: {id, balance, allowance, reserve}}
+    */
+
+    const handleTokenRatio = useCallback(
+        (token: string, amount: string) => {
+            if (!twoSide) return;
+
+            let price: BigNumber;
+            let priceStr: string;
+
+            /*
+        W = (Wr * I) / Ir
+        Wr: Ir = W : I
+
+        [symbol]: {id, allowance, balance, reserve}
+        */
+            switch (token) {
+                case tokenOne:
+                    price = new BigNumber(
+                        tokenData?.[tokenTwo]?.reserve as string
+                    )
+                        .times(new BigNumber(amount))
+                        .div(
+                            new BigNumber(
+                                tokenData?.[tokenOne].reserve as string
+                            )
+                        );
+                    priceStr = price.isNaN() ? '' : price.toFixed(7);
+                    setTokenTwoAmount(priceStr);
+                    break;
+                case tokenTwo:
+                    price = new BigNumber(
+                        tokenData?.[tokenOne]?.reserve as string
+                    )
+                        .times(new BigNumber(amount))
+                        .div(
+                            new BigNumber(
+                                tokenData?.[tokenTwo].reserve as string
+                            )
+                        );
+                    priceStr = price.isNaN() ? '' : price.toFixed(7);
+                    setTokenOneAmount(priceStr);
+                    break;
+                default:
+                    console.warn('No matching token. Cannot update ratio');
+            }
+        },
+        [tokenData, tokenOne, tokenTwo, twoSide]
+    );
+    // useEffect(() => {
+    //     twoSide && handleTokenRatio(tokenOne, tokenOneAmount);
+    // }, [handleTokenRatio, tokenOne, tokenOneAmount, twoSide]);
 
     const doApprove = async () => {
         if (!pairData || !provider || !approvalList.size) return;
@@ -221,103 +321,89 @@ function AddLiquidity({
         // Create signer
         const signer = provider.getSigner();
 
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        await Promise.all(
-            Array.from(approvalList).map(async (token) => {
-                const sellToken = tokenData?.[token].id;
-                if (token !== tokenOne && token !== tokenTwo) return;
-                if (!sellToken) return;
-                // Create read-write contract instance
+        // can use ts config option to allow iterating over iterables
+        for (const token of Array.from(approvalList)) {
+            const sellToken = tokenData?.[token].id;
+            if (token !== tokenOne && token !== tokenTwo) return;
+            if (!sellToken) return;
 
-                // let sellToken = tokenOne;
-                // const symbol0 = pairData.token0.symbol; // WETH
-                // const symbol1 = pairData.token1.symbol; // SAKE
+            const sellTokenContract = new ethers.Contract(
+                sellToken,
+                erc20Abi,
+                signer
+            );
 
-                // if (tokenOne === symbol0 && symbol0 !== 'WETH') {
-                //     sellToken = pairData.token0.id;
-                // } else if (tokenOne === symbol1 && symbol1 !== 'WETH') {
-                //     sellToken = pairData.token1.id;
-                // } else if (tokenOne === 'WETH') {
-                //     // We have WETH
-                //     sellToken = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
-                // } else {
-                //     throw new Error(`Could not sell from this token: ${sellToken}`);
-                // }
-
-                const sellTokenContract = new ethers.Contract(
-                    sellToken,
-                    erc20Abi,
-                    signer
+            const decimals = parseInt(balances[token]?.decimals || '0', 10);
+            if (decimals === 0) {
+                throw new Error(
+                    `Do not have decimal units for ${decimals} - unsafe, cannot proceed`
                 );
+            }
 
-                const decimals = parseInt(balances[token]?.decimals || '0', 10);
-                if (decimals === 0) {
-                    throw new Error(
-                        `Do not have decimal units for ${decimals} - unsafe, cannot proceed`
-                    );
-                }
+            let tokenAmount: string;
+            if (token === tokenOne) tokenAmount = tokenOneAmount;
+            else tokenAmount = tokenTwoAmount;
 
-                let tokenAmount: string;
-                if (token === tokenOne) tokenAmount = tokenOneAmount;
-                else tokenAmount = tokenTwoAmount;
+            const baseAmount = ethers.utils
+                .parseUnits(
+                    new BigNumber(tokenAmount).times(100).toString(),
+                    decimals
+                )
+                .toString();
+            const baseGasPrice = ethers.utils
+                .parseUnits(currentGasPrice.toString(), 9)
+                .toString();
 
-                const baseAmount = ethers.utils
-                    .parseUnits(
-                        new BigNumber(tokenAmount).times(100).toString(),
-                        decimals
-                    )
-                    .toString();
-                const baseGasPrice = ethers.utils
-                    .parseUnits(currentGasPrice.toString(), 9)
-                    .toString();
+            // Call the contract and sign
+            let gasEstimate: ethers.BigNumber;
 
-                // Call the contract and sign
-                let gasEstimate: ethers.BigNumber;
-
-                try {
-                    gasEstimate = await sellTokenContract.estimateGas.approve(
-                        EXCHANGE_ADD_ABI_ADDRESS,
-                        baseAmount,
-                        { gasPrice: baseGasPrice }
-                    );
-
-                    // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
-                    gasEstimate = gasEstimate.add(gasEstimate.div(3));
-                } catch (err) {
-                    // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
-                    console.error(
-                        `Could not estimate gas fees: ${err.message as string}`
-                    );
-
-                    gasEstimate = ethers.BigNumber.from('1000000');
-                }
-
-                // Approve the add liquidity contract to spend entry tokens
-                const { hash } = await sellTokenContract.approve(
-                    EXCHANGE_ADD_ABI_ADDRESS,
+            try {
+                gasEstimate = await sellTokenContract.estimateGas.approve(
+                    twoSide
+                        ? EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS
+                        : EXCHANGE_ADD_ABI_ADDRESS,
                     baseAmount,
-                    {
-                        gasPrice: baseGasPrice,
-                        gasLimit: gasEstimate, // setting a high gas limit because it is hard to predict gas we will use
-                    }
+                    { gasPrice: baseGasPrice }
                 );
 
-                // setApprovalState('pending');
-                toastWarn(`Approving tx ${compactHash(hash)}`);
-                setPendingTx &&
-                    setPendingTx(
-                        (state: PendingTx): PendingTx =>
-                            ({
-                                approval: [...state.approval, hash],
-                                confirm: [...state.confirm],
-                            } as PendingTx)
-                    );
-                await provider.waitForTransaction(hash);
-            })
-        );
-        onClose();
+                // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
+                gasEstimate = gasEstimate.add(gasEstimate.div(3));
+            } catch (err) {
+                // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
+                console.error(
+                    `Could not estimate gas fees: ${err.message as string}`
+                );
+
+                gasEstimate = ethers.BigNumber.from('1000000');
+            }
+
+            // Approve the add liquidity contract to spend entry tokens
+            const { hash } = await sellTokenContract.approve(
+                twoSide
+                    ? EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS
+                    : EXCHANGE_ADD_ABI_ADDRESS,
+                baseAmount,
+                {
+                    gasPrice: baseGasPrice,
+                    gasLimit: gasEstimate, // setting a high gas limit because it is hard to predict gas we will use
+                }
+            );
+
+            // setApprovalState('pending');
+            toastWarn(`Approving tx ${compactHash(hash)}`);
+            setPendingTx &&
+                setPendingTx(
+                    (state: PendingTx): PendingTx =>
+                        ({
+                            approval: [...state.approval, hash],
+                            confirm: [...state.confirm],
+                        } as PendingTx)
+                );
+                onClose();
+            await provider.waitForTransaction(hash);
+        }
         // setApprovalState('done');
-        // await doAddLiquidity();
+        twoSide ? await doTwoSideAddLiquidity() : await doAddLiquidity();
     };
 
     const doAddLiquidity = async () => {
@@ -425,7 +511,128 @@ function AddLiquidity({
             value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
         });
 
-        (window as any).contract = addLiquidityContract;
+        setTxSubmitted(true);
+
+        // Close the modal after one second
+        setTimeout(() => {
+            setTxSubmitted(false);
+            resetForm();
+            onClose();
+            onDone?.(hash);
+        }, 500);
+    };
+
+    const doTwoSideAddLiquidity = async () => {
+        if (!pairData || !provider || !tokenData) return;
+
+        if (!currentGasPrice) throw new Error('Gas price not selected.');
+
+        const pairAddress = pairData.id;
+        const tokenAAddress = tokenData?.[tokenOne].id;
+        const tokenBAddress = tokenData?.[tokenTwo].id;
+       
+        const slippageRatio = 0.5;
+        const amountAMin = new BigNumber(tokenOneAmount).times(
+            new BigNumber(1).minus(slippageRatio)
+        );
+
+        const amountBMin = new BigNumber(tokenTwoAmount).times(
+            new BigNumber(1).minus(slippageRatio)
+        );
+
+        const amountAMinStr = ethers.utils
+            .parseUnits(amountAMin.toString(), 18)
+            .toString();
+        const amountBMinStr = ethers.utils
+            .parseUnits(amountBMin.toString(), 18)
+            .toString();
+
+        const signer = provider.getSigner();
+        const addTwoSideLiquidityContract = new ethers.Contract(
+            EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS,
+            exchangeTwoSideAddAbi as ethers.ContractInterface,
+            signer
+        );
+
+        const decimalsOne = parseInt(balances[tokenOne]?.decimals || '0', 10);
+
+        const decimalsTwo = parseInt(balances[tokenOne]?.decimals || '0', 10);
+
+        if (decimalsOne === 0 || decimalsTwo === 0) {
+            throw new Error(
+                `Do not have decimal units for tokens - unsafe, cannot proceed`
+            );
+        }
+
+        const amountADesired = ethers.utils
+            .parseUnits(tokenOneAmount.toString(), decimalsOne)
+            .toString();
+
+        const amountBDesired = ethers.utils
+            .parseUnits(tokenTwoAmount.toString(), decimalsTwo)
+            .toString();
+
+        const baseGasPrice = ethers.utils
+            .parseUnits(currentGasPrice.toString(), 9)
+            .toString();
+
+        try {
+            mixpanel.track('transaction:addTwoSideLiquidity', {
+                distinct_id: pairAddress,
+                amountA: tokenOneAmount.toString(),
+                amountB: tokenTwoAmount.toString(),
+                tokenOne,
+                tokenTwo,
+                pair: pairAddress,
+                slippageTolerance,
+                wallet: wallet.account,
+            });
+        } catch (e) {
+            console.error(`Metrics error on add liquidity.`);
+        }
+
+        // Call the contract and sign
+        let gasEstimate: ethers.BigNumber;
+        try {
+            gasEstimate = await addTwoSideLiquidityContract.estimateGas[
+                'addLiquidity(address,address,uint256,uint256,uint256,uint256,address)'
+            ](
+                tokenAAddress,
+                tokenBAddress,
+                amountADesired,
+                amountBDesired,
+                amountAMinStr,
+                amountBMinStr,
+                wallet.account,
+                {
+                    gasPrice: baseGasPrice,
+                }
+            );
+
+            // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
+            gasEstimate = gasEstimate.add(gasEstimate.div(3));
+        } catch (err) {
+            // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
+            console.error(`Could not estimate gas: ${err.message as string}`);
+
+            gasEstimate = ethers.BigNumber.from('1000000');
+        }
+
+        const { hash } = await addTwoSideLiquidityContract[
+            'addLiquidity(address,address,uint256,uint256,uint256,uint256,address)'
+        ](
+            tokenAAddress,
+            tokenBAddress,
+            amountADesired,
+            amountBDesired,
+            amountAMinStr,
+            amountBMinStr,
+            wallet.account,
+            {
+                gasPrice: baseGasPrice,
+                gasLimit: gasEstimate,
+            }
+        );
 
         setTxSubmitted(true);
 
@@ -515,46 +722,6 @@ function AddLiquidity({
 
     const dropdownOptions = (tokenData && Object.keys(tokenData)) || [];
 
-    /* 
-    tokenData = { [symbol]: {id, balance, allowance, reserve}}
-    */
-
-    const handleTokenRatio = (token: string, amount: string) => {
-        if (!twoSide) return;
-
-        let price: BigNumber;
-        let priceStr: string;
-
-        /*
-        W = (Wr * I) / Ir
-        Wr: Ir = W : I
-
-        [symbol]: {id, allowance, balance, reserve}
-        */
-        switch (token) {
-            case tokenOne:
-                price = new BigNumber(tokenData?.[tokenTwo]?.reserve as string)
-                    .times(new BigNumber(amount))
-                    .div(
-                        new BigNumber(tokenData?.[tokenOne].reserve as string)
-                    );
-                priceStr = price.isNaN() ? '' : price.toFixed();
-                setTokenTwoAmount(priceStr);
-                break;
-            case tokenTwo:
-                price = new BigNumber(tokenData?.[tokenOne]?.reserve as string)
-                    .times(new BigNumber(amount))
-                    .div(
-                        new BigNumber(tokenData?.[tokenTwo].reserve as string)
-                    );
-                priceStr = price.isNaN() ? '' : price.toFixed();
-                setTokenOneAmount(priceStr);
-                break;
-            default:
-                console.warn('No matching token. Cannot update ratio');
-        }
-    };
-
     const showTwoSide = (): JSX.Element | null => {
         const tkn1 = pairData?.token0?.symbol;
         const tkn2 = pairData?.token1?.symbol;
@@ -571,8 +738,9 @@ function AddLiquidity({
                         type='checkbox'
                         checked={twoSide}
                         onChange={() => {
+                            setTwoSide((twoSide) => !twoSide);
                             setTokenTwo(tokenOne === tkn1 ? tkn2 : tkn1);
-                            setTwoSide(!twoSide);
+                            handleTokenRatio(tokenOne, tokenOneAmount);
                         }}
                         id='two-side'
                     />
@@ -714,30 +882,33 @@ function AddLiquidity({
             <p className='sub-heading'>
                 <strong>Transaction Settings</strong>
             </p>
-            <Form.Group as={Row}>
-                <Form.Label column sm={6}>
-                    Slippage Tolerance
-                </Form.Label>
-                <Col sm={2}></Col>
-                <Col sm={4}>
-                    <InputGroup>
-                        <FormControl
-                            min='0'
-                            className='slippage-tolerance-input'
-                            value={slippageTolerance}
-                            type='number'
-                            onChange={(e) => {
-                                setSlippageTolerance(
-                                    parseFloat(e.target.value)
-                                );
-                            }}
-                        />
-                        <InputGroup.Append>
-                            <InputGroup.Text>%</InputGroup.Text>
-                        </InputGroup.Append>
-                    </InputGroup>
-                </Col>
-            </Form.Group>
+            <br />
+            {!twoSide && (
+                <Form.Group as={Row}>
+                    <Form.Label column sm={6}>
+                        Slippage Tolerance
+                    </Form.Label>
+                    <Col sm={2}></Col>
+                    <Col sm={4}>
+                        <InputGroup>
+                            <FormControl
+                                min='0'
+                                className='slippage-tolerance-input'
+                                value={slippageTolerance}
+                                type='number'
+                                onChange={(e) => {
+                                    setSlippageTolerance(
+                                        parseFloat(e.target.value)
+                                    );
+                                }}
+                            />
+                            <InputGroup.Append>
+                                <InputGroup.Text>%</InputGroup.Text>
+                            </InputGroup.Append>
+                        </InputGroup>
+                    </Col>
+                </Form.Group>
+            )}
             {gasPrices && (
                 <Form.Group className='transaction-speed-input'>
                     <Form.Label>Transaction Speed</Form.Label>
@@ -836,7 +1007,9 @@ function AddLiquidity({
                 <AddLiquidityActionButton
                     state={addLiquidityActionState()}
                     onApprove={doApprove}
-                    onAddLiquidity={doAddLiquidity}
+                    onAddLiquidity={
+                        twoSide ? doTwoSideAddLiquidity : doAddLiquidity
+                    }
                 />
             </Modal.Footer>
         </>

@@ -166,7 +166,8 @@ function RemoveLiquidity({
 
     useEffect(() => {
         // No need to check allowances for ETH
-        const allowance = balances?.currentPair?.allowance;
+        
+        const allowance = balances?.currentPair?.allowance?.[EXCHANGE_REMOVE_ABI_ADDRESS];
 
         if (!allowance) return;
 
