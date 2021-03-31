@@ -556,8 +556,9 @@ p {
 .card {
     // background: var(--bgContainer);
     // border: 1px solid var(--borderMain);
-    // color: var(--facePrimary);
+    color: var(--facePrimary);
     // min-width: 16rem;
+    padding: 0.5rem 1rem;
     border-radius: 0;
     border: 1px solid var(--borderDeep);
     box-shadow: 0 0 5px 1px var(--bgDeep);
@@ -717,7 +718,7 @@ p {
 }
 .connect-wallet-modal {
     background: var(--bgSecondary);
-    color: var(--faceSecondary);
+    color: var(--facePrimary);
 }
 
 // nasty override dude, get rid of this
@@ -847,6 +848,7 @@ p {
     font-size: 1rem;
     color: var(--faceSecondary);
     border-bottom: 1px solid var(--borderMain);
+    margin-bottom: 1rem;
 }
 .modal-pool-shares {
     display: grid;

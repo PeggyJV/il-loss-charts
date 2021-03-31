@@ -759,7 +759,6 @@ function AddLiquidity({
             style={{
                 display: 'flex',
                 flexDirection: 'column',
-                padding: '1rem',
             }}
         >
             <div>
@@ -767,7 +766,7 @@ function AddLiquidity({
                     <strong>Pool Share</strong>
                 </p>
             </div>
-            <div className='modal-pool-shares'>
+            <div className='card modal-pool-shares'>
                 <div>
                     {resolveLogo(pairData.token0.id)} {pairData.token0.symbol}
                 </div>
@@ -804,7 +803,6 @@ function AddLiquidity({
             <p className='sub-heading'>
                 <strong>Transaction Settings</strong>
             </p>
-            <br />
             {!twoSide && (
                 <Form.Group as={Row}>
                     <Form.Label column sm={6}>
