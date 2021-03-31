@@ -588,11 +588,16 @@ function AddLiquidity({
             console.error(`Metrics error on add liquidity.`);
         }
 
+        const contractInterface =
+            tokenOne === 'ETH' || tokenTwo === 'ETH'
+                ? 'addLiquidityETH(address,address,uint256,uint256,uint256,uint256,address)'
+                : 'addLiquidity(address,address,uint256,uint256,uint256,uint256,address)';
+
         // Call the contract and sign
         let gasEstimate: ethers.BigNumber;
         try {
             gasEstimate = await addTwoSideLiquidityContract.estimateGas[
-                'addLiquidity(address,address,uint256,uint256,uint256,uint256,address)'
+                contractInterface
             ](
                 tokenAAddress,
                 tokenBAddress,
@@ -615,9 +620,7 @@ function AddLiquidity({
             gasEstimate = ethers.BigNumber.from('1000000');
         }
 
-        const { hash } = await addTwoSideLiquidityContract[
-            'addLiquidity(address,address,uint256,uint256,uint256,uint256,address)'
-        ](
+        const { hash } = await addTwoSideLiquidityContract[contractInterface](
             tokenAAddress,
             tokenBAddress,
             amountADesired,
