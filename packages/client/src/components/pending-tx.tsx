@@ -16,7 +16,7 @@ const PendingTx = (): ReactElement => {
         <div className='scroll'>
             <div>
                 <span>
-                    Pending tx &nbsp;&nbsp;
+                    Pending &nbsp;&nbsp;
                     <span className='bullet'>{totalPending}</span>
                 </span>
             </div>
