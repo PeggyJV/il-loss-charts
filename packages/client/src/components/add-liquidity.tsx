@@ -588,28 +588,49 @@ function AddLiquidity({
             console.error(`Metrics error on add liquidity.`);
         }
 
-        const contractInterface =
-            tokenOne === 'ETH' || tokenTwo === 'ETH'
-                ? 'addLiquidityETH(address,address,uint256,uint256,uint256,uint256,address)'
-                : 'addLiquidity(address,address,uint256,uint256,uint256,uint256,address)';
+        const ERC20_PAIR =
+            'addLiquidity(address,address,uint256,uint256,uint256,uint256,address)';
+        const ERC20_PAIR_ARGS = [
+            tokenAAddress,
+            tokenBAddress,
+            amountADesired,
+            amountBDesired,
+            amountAMinStr,
+            amountBMinStr,
+            wallet.account,
+        ];
 
+        const ETH_PAIR =
+            'addLiquidityETH(address,uint256,uint256,uint256,address)';
+        const ETH_PAIR_ARGS = [
+            tokenBAddress,
+            amountBDesired,
+            amountAMinStr,
+            amountBMinStr,
+            wallet.account,
+        ];
+
+        let fnInterface, fnArgs;
+
+        if (tokenOne === 'ETH') {
+            fnInterface = ETH_PAIR;
+            fnArgs = ETH_PAIR_ARGS;
+        } else {
+            fnInterface = ERC20_PAIR;
+            fnArgs = ERC20_PAIR_ARGS;
+        }
+
+        if(!fnInterface || !fnArgs){
+            throw Error('Unknown contract interface');
+        }
         // Call the contract and sign
         let gasEstimate: ethers.BigNumber;
         try {
             gasEstimate = await addTwoSideLiquidityContract.estimateGas[
-                contractInterface
-            ](
-                tokenAAddress,
-                tokenBAddress,
-                amountADesired,
-                amountBDesired,
-                amountAMinStr,
-                amountBMinStr,
-                wallet.account,
-                {
-                    gasPrice: baseGasPrice,
-                }
-            );
+                fnInterface
+            ](...fnArgs, {
+                gasPrice: baseGasPrice,
+            });
 
             // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
             gasEstimate = gasEstimate.add(gasEstimate.div(3));
@@ -620,14 +641,8 @@ function AddLiquidity({
             gasEstimate = ethers.BigNumber.from('1000000');
         }
 
-        const { hash } = await addTwoSideLiquidityContract[contractInterface](
-            tokenAAddress,
-            tokenBAddress,
-            amountADesired,
-            amountBDesired,
-            amountAMinStr,
-            amountBMinStr,
-            wallet.account,
+        const { hash } = await addTwoSideLiquidityContract[fnInterface](
+            ...fnArgs,
             {
                 gasPrice: baseGasPrice,
                 gasLimit: gasEstimate,
