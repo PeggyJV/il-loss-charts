@@ -11,11 +11,14 @@ import BigNumber from 'bignumber.js';
 
 const toBalanceStr = (token: string, balances: WalletBalances): string => {
     const balance = balances[token]?.balance;
+    console.log(balance.toString());
 
-    return ethers.utils.formatUnits(
-        balance || 0,
-        parseInt(balances[token]?.decimals || '0', 10)
-    );
+    return new BigNumber(
+        ethers.utils.formatUnits(
+            balance || 0,
+            parseInt(balances[token]?.decimals || '0', 10)
+        )
+    ).toFixed(7);
 };
 
 type TokenInputProps = {

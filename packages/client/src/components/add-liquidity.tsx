@@ -95,7 +95,7 @@ function AddLiquidity({
     //     maxBalance || 0,
     //     parseInt(balances[entryToken]?.decimals || '0', 10)
     // );
-    
+
     const { setPendingTx } = useContext(PendingTxContext);
 
     const resetForm = () => {
@@ -245,10 +245,14 @@ function AddLiquidity({
 
         setTokenData(tokenDataMap);
     }, [balances, pairData, twoSide]);
+    useEffect(() => {
+        twoSide && setTokenOne('ETH');
+    }, [twoSide]);
 
-    // useEffect(() => {
-    //     setTokenOneAmount('');
-    // }, [tokenOne]);
+    useEffect(() => {
+        setTokenOneAmount('');
+        setTokenTwoAmount('');
+    }, [tokenOne, tokenTwo]);
 
     /* 
     tokenData = { [symbol]: {id, balance, allowance, reserve}}
@@ -714,6 +718,11 @@ function AddLiquidity({
     }
 
     const dropdownOptions = (tokenData && Object.keys(tokenData)) || [];
+    const dropdownOptionsPairTwo =
+        tokenData &&
+        Object.keys(tokenData).filter(
+            (symbol) => symbol !== 'ETH' && symbol !== 'WETH'
+        );
 
     const showTwoSide = (): JSX.Element | null => {
         const tkn1 = pairData?.token0?.symbol;
@@ -732,7 +741,7 @@ function AddLiquidity({
                         checked={twoSide}
                         onChange={() => {
                             setTwoSide((twoSide) => !twoSide);
-                            setTokenTwo(tokenOne === tkn1 ? tkn2 : tkn1);
+                            setTokenTwo(dropdownOptionsPairTwo?.[0] || '');
                             handleTokenRatio(tokenOne, tokenOneAmount);
                         }}
                         id='two-side'
@@ -886,7 +895,7 @@ function AddLiquidity({
                     updateAmount={setTokenOneAmount}
                     updateToken={setTokenOne}
                     handleTokenRatio={handleTokenRatio}
-                    options={dropdownOptions}
+                    options={twoSide ? ['ETH', 'WETH'] : dropdownOptions}
                     balances={balances}
                     twoSide={twoSide}
                 />
@@ -898,7 +907,7 @@ function AddLiquidity({
                         updateAmount={setTokenTwoAmount}
                         updateToken={setTokenTwo}
                         handleTokenRatio={handleTokenRatio}
-                        options={dropdownOptions}
+                        options={dropdownOptionsPairTwo || []}
                         balances={balances}
                         twoSide={twoSide}
                     />
