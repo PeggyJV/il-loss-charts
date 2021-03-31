@@ -1022,11 +1022,11 @@ th .caret-4-desc:after {
     position: absolute;
     margin-top: 0.25rem;
     right: 150px;
-    padding: 4px 8px;
+    padding: 4px 10px;
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
     background: var(--bgDeep);
-    border: 1px solid var(--borderMain);
+    // border: 1px solid var(--borderMain);
     color: var(--faceSecondary);
     -webkit-transition: max-height 1s;
     -moz-transition: max-height 1s;
@@ -1038,9 +1038,14 @@ th .caret-4-desc:after {
     cursor: pointer;
     .bullet {
         padding: 5px 10px;
-        background: var(--bgSecondary);
-        border-radius: 20px;
+        background: var(--bgWarn);
+        border-radius: 5px;
         font-size: 0.85rem;
+        color: var(--faceDeep);
+        font-weight: 600;
+        .active {
+
+        }
     }
     &:hover {
         background: var(--bgContainer);
