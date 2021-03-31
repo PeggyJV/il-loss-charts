@@ -605,22 +605,29 @@ function AddLiquidity({
         const ETH_PAIR_ARGS = [
             tokenBAddress,
             amountBDesired,
-            amountAMinStr,
             amountBMinStr,
+            amountAMinStr,
             wallet.account,
         ];
 
-        let fnInterface, fnArgs;
+        let fnInterface, fnArgs, overrides;
 
         if (tokenOne === 'ETH') {
             fnInterface = ETH_PAIR;
             fnArgs = ETH_PAIR_ARGS;
+            overrides = {
+                gasPrice: baseGasPrice,
+                value: amountADesired,
+            };
         } else {
             fnInterface = ERC20_PAIR;
             fnArgs = ERC20_PAIR_ARGS;
+            overrides = {
+                gasPrice: baseGasPrice,
+            };
         }
 
-        if(!fnInterface || !fnArgs){
+        if (!fnInterface || !fnArgs) {
             throw Error('Unknown contract interface');
         }
         // Call the contract and sign
@@ -628,9 +635,7 @@ function AddLiquidity({
         try {
             gasEstimate = await addTwoSideLiquidityContract.estimateGas[
                 fnInterface
-            ](...fnArgs, {
-                gasPrice: baseGasPrice,
-            });
+            ](...fnArgs, overrides);
 
             // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
             gasEstimate = gasEstimate.add(gasEstimate.div(3));
@@ -644,7 +649,7 @@ function AddLiquidity({
         const { hash } = await addTwoSideLiquidityContract[fnInterface](
             ...fnArgs,
             {
-                gasPrice: baseGasPrice,
+                ...overrides,
                 gasLimit: gasEstimate,
             }
         );
