@@ -2,8 +2,6 @@ import { useState, useEffect, useContext, useCallback } from 'react';
 import {
     Row,
     Col,
-    DropdownButton,
-    Dropdown,
     Form,
     FormControl,
     InputGroup,
@@ -14,6 +12,8 @@ import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
 import { PendingTxContext, PendingTx } from 'app';
 import { compactHash } from 'util/formats';
+import { TokenInput } from 'components/token-input';
+import { WalletBalance } from 'components/wallet-balance';
 import mixpanel from 'util/mixpanel';
 import erc20Abi from 'constants/abis/erc20.json';
 import exchangeAddAbi from 'constants/abis/volumefi_add_liquidity_uniswap.json';
@@ -95,14 +95,7 @@ function AddLiquidity({
     //     maxBalance || 0,
     //     parseInt(balances[entryToken]?.decimals || '0', 10)
     // );
-    const toBalanceStr = (token: string): string => {
-        const balance = balances[token]?.balance;
-
-        return ethers.utils.formatUnits(
-            balance || 0,
-            parseInt(balances[token]?.decimals || '0', 10)
-        );
-    };
+    
     const { setPendingTx } = useContext(PendingTxContext);
 
     const resetForm = () => {
@@ -399,7 +392,7 @@ function AddLiquidity({
                             confirm: [...state.confirm],
                         } as PendingTx)
                 );
-                onClose();
+            onClose();
             await provider.waitForTransaction(hash);
         }
         // setApprovalState('done');
@@ -530,7 +523,7 @@ function AddLiquidity({
         const pairAddress = pairData.id;
         const tokenAAddress = tokenData?.[tokenOne].id;
         const tokenBAddress = tokenData?.[tokenTwo].id;
-       
+
         const slippageRatio = 0.5;
         const amountAMin = new BigNumber(tokenOneAmount).times(
             new BigNumber(1).minus(slippageRatio)
@@ -752,86 +745,6 @@ function AddLiquidity({
         return null;
     };
 
-    const Balances = (): JSX.Element => {
-        return (
-            <div className='balances-container'>
-                <p className='sub-heading'>
-                    <strong>Wallet Balance</strong>
-                </p>
-                <table>
-                    {Object.keys(balances).map((token) => {
-                        if (token === 'currentPair') return null;
-                        const b = balances?.[token].balance;
-
-                        return (
-                            <tr key={token}>
-                                <td>
-                                    <strong>{token}</strong>
-                                </td>
-                                <td>
-                                    {ethers.utils.formatUnits(
-                                        b || 0,
-                                        parseInt(
-                                            balances[token]?.decimals || '0',
-                                            10
-                                        )
-                                    )}
-                                </td>
-                            </tr>
-                        );
-                    })}
-                </table>
-            </div>
-        );
-    };
-
-    const renderTokenInput = (
-        token: string,
-        amount: string,
-        updateAmount: React.Dispatch<React.SetStateAction<string>>,
-        updateToken: React.Dispatch<React.SetStateAction<string>>,
-        handleTokenRatio: (token: string, amount: string) => void,
-        options: string[] = []
-    ): JSX.Element => (
-        <Form.Group>
-            <InputGroup>
-                <button
-                    className='max-balance-link'
-                    onClick={() => {
-                        updateAmount(toBalanceStr(token));
-                        handleTokenRatio(token, toBalanceStr(token));
-                    }}
-                >
-                    Max
-                </button>
-                <FormControl
-                    min='0'
-                    placeholder='Amount'
-                    value={amount}
-                    onChange={(e) => {
-                        const val = e.target.value;
-
-                        if (!val || !new BigNumber(val).isNaN()) {
-                            updateAmount(val);
-                            twoSide && handleTokenRatio(token, val);
-                        }
-                    }}
-                />
-                <DropdownButton as={InputGroup.Append} title={token}>
-                    {options.map((t) => (
-                        <Dropdown.Item
-                            key={t}
-                            active={t === token}
-                            onClick={() => updateToken(t)}
-                        >
-                            {t}
-                        </Dropdown.Item>
-                    ))}
-                </DropdownButton>
-            </InputGroup>
-        </Form.Group>
-    );
-
     const PoolShare = (): JSX.Element => (
         <div
             style={{
@@ -951,7 +864,7 @@ function AddLiquidity({
         <>
             <Modal.Body className='connect-wallet-modal'>
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Balances />
+                    <WalletBalance balances={balances} />
                 </div>
                 <br />
                 {/* <Form.Label>
@@ -967,30 +880,29 @@ function AddLiquidity({
                     >
                         Max
                     </button> */}
-                {renderTokenInput(
-                    tokenOne,
-                    tokenOneAmount,
-                    setTokenOneAmount,
-                    setTokenOne,
-                    handleTokenRatio,
-                    twoSide ? ['ETH', 'WETH'] : dropdownOptions
-                )}
+                <TokenInput
+                    token={tokenOne}
+                    amount={tokenOneAmount}
+                    updateAmount={setTokenOneAmount}
+                    updateToken={setTokenOne}
+                    handleTokenRatio={handleTokenRatio}
+                    options={dropdownOptions}
+                    balances={balances}
+                    twoSide={twoSide}
+                />
                 {showTwoSide()}
-                {twoSide &&
-                    renderTokenInput(
-                        tokenTwo,
-                        tokenTwoAmount,
-                        setTokenTwoAmount,
-                        setTokenTwo,
-                        handleTokenRatio,
-                        twoSide
-                            ? (tokenData &&
-                                  Object.keys(tokenData).filter(
-                                      (a) => a !== 'ETH' && a !== 'WETH'
-                                  )) ||
-                                  []
-                            : dropdownOptions
-                    )}
+                {twoSide && (
+                    <TokenInput
+                        token={tokenTwo}
+                        amount={tokenTwoAmount}
+                        updateAmount={setTokenTwoAmount}
+                        updateToken={setTokenTwo}
+                        handleTokenRatio={handleTokenRatio}
+                        options={dropdownOptions}
+                        balances={balances}
+                        twoSide={twoSide}
+                    />
+                )}
                 <TransactionSettings />
                 <PoolShare />
                 {new BigNumber(pairData.reserveUSD).lt(2000000) && (

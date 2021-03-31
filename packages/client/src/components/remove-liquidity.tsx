@@ -541,7 +541,7 @@ function RemoveLiquidity({
                     </Form.Group> */}
                     {gasPrices && (
                         <Form.Group className='transaction-speed-input'>
-                            {/* <Form.Label>Transaction Speed</Form.Label> */}
+                            <Form.Label>Transaction Speed</Form.Label>
                             <div className='button-group-h'>
                                 <button
                                     className={classNames({
