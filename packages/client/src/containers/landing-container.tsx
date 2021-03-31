@@ -2,15 +2,16 @@ import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { LPPositionData } from '@sommelier/shared-types';
+import { useMediaQuery } from 'react-responsive';
 import { ErrorBoundary } from 'react-error-boundary';
 import { TopPairsState, Wallet } from 'types/states';
 import PositionsTable from 'components/positions-table';
+import { TelegramCTA } from 'components/telegram-cta';
 import { ComponentError } from 'components/page-error';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import mixpanel from 'util/mixpanel';
 import TopPairsWidget from 'components/top-pairs-widget';
 import ConnectWalletButton from 'components/connect-wallet-button';
-import JoinCommunityButton from 'components/join-community-button';
 import PendingTx from 'components/pending-tx';
 
 function LandingContainer({
@@ -38,7 +39,7 @@ function LandingContainer({
 
     (window as any).positionData = positionData;
     (window as any).pairId = pairId;
-
+    const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
     useEffect(() => {
         const fetchPositionsForWallet = async () => {
             if (!isLoading) setIsLoading(true);
@@ -103,12 +104,14 @@ function LandingContainer({
 
     return (
         <div>
-            <div className='nav-button-container'>
-                <JoinCommunityButton onClick={() => {window.open('https://t.me/getsomm', '_blank')}} />
-            </div>
-            <div className='wallet-combo'>
-                <PendingTx />
-                <ConnectWalletButton onClick={showModal} wallet={wallet} />
+            <div className='main-header-container'>
+                <div className='nav-button-container'>
+                    {!isMobile && <TelegramCTA />}
+                </div>
+                <div className='wallet-combo'>
+                    <PendingTx />
+                    <ConnectWalletButton onClick={showModal} wallet={wallet} />
+                </div>
             </div>
             <div className='alert-well'>
                 <p>

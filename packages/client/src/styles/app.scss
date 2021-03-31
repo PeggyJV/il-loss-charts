@@ -220,10 +220,14 @@ p {
     text-align: center;
 }
 
+.main-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .telegram-cta {
-    font-size: 0.85rem;
-    padding: 0 0.5rem;
-    text-align: center;
+    font-size: 1rem;
     a {
         color: var(--faceAccentAlt);
         &:hover {
@@ -1120,7 +1124,7 @@ th .caret-4-desc:after {
 @media (max-width: 500px) {
     .app-body {
         width: 100%;
-        margin-top: 2rem;
+        margin-top: 5rem;
     }
     .pool-stats-container {
         grid-template-columns: 1fr;
