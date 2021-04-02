@@ -6,7 +6,7 @@ export const TelegramCTA = (): JSX.Element => {
             <hr />
             <p>
                 <a href='https://t.me/getsomm' target='_blank' rel='noreferrer'>
-                    🍷 Join the Community!
+                    🍷 JOIN OUR COMMUNITY
                 </a>
             </p>
             <hr />

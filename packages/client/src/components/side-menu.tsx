@@ -3,7 +3,6 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
 import classNames from 'classnames';
 import { Wallet } from 'types/states';
-import { TelegramCTA } from 'components/telegram-cta';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faChartArea,
@@ -88,12 +87,6 @@ function SideMenu({
                     </NavLink>
                 </p>
             </div>
-            {/* <h6>
-                <a href='https://t.me/getsomm'>
-                    <FontAwesomeIcon icon={faTelegram} /> Join the Community
-                </a> */}
-            <TelegramCTA />
-            {/* </h6> */}
         </Menu>
     );
 }
