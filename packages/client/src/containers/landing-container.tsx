@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { LPPositionData } from '@sommelier/shared-types';
-import { useMediaQuery } from 'react-responsive';
 import { ErrorBoundary } from 'react-error-boundary';
 import { TopPairsState, Wallet } from 'types/states';
 import PositionsTable from 'components/positions-table';
@@ -39,7 +38,7 @@ function LandingContainer({
 
     (window as any).positionData = positionData;
     (window as any).pairId = pairId;
-    const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
+    
     useEffect(() => {
         const fetchPositionsForWallet = async () => {
             if (!isLoading) setIsLoading(true);
@@ -106,7 +105,7 @@ function LandingContainer({
         <div>
             <div className='main-header-container'>
                 <div className='nav-button-container'>
-                    {!isMobile && <TelegramCTA />}
+                    <TelegramCTA />
                 </div>
                 <div className='wallet-combo'>
                     <PendingTx />

@@ -222,14 +222,16 @@ p {
 
 .main-header-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
 }
 
 .telegram-cta {
     font-size: 1rem;
+    margin-right: 200px;
     a {
         color: var(--faceAccentAlt);
+        font-weight: bold;
         &:hover {
             text-decoration: underline;
         }
@@ -1019,15 +1021,16 @@ th .caret-4-desc:after {
     align-items: flex-start;
     justify-content: flex-end;
     position: relative;
+    margin-left: 1rem;
 }
 // SCROLL UI
 .scroll {
     width: 10rem;
     height: 2rem;
     max-height: 2rem;
-    position: absolute;
     margin-top: 0.25rem;
-    right: 150px;
+    position: absolute;
+    right: 140px;
     padding: 4px 10px;
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
@@ -1126,9 +1129,16 @@ th .caret-4-desc:after {
 @media (max-width: 500px) {
     .app-body {
         width: 100%;
-        margin-top: 5rem;
     }
     .pool-stats-container {
         grid-template-columns: 1fr;
+    }
+    .main-header-container {
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-end;
+        .telegram-cta {
+            margin: 0;
+        }
     }
 }
