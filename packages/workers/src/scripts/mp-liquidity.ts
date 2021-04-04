@@ -35,7 +35,7 @@ interface AddressTransaction {
 async function getTransactionData(transactionType: string, hash: string): Promise<void> {
   const oneHoursBefore = Date.now() - (MS_PER_MINUTE * 60);
 
-  const addPath ='https://api.ethplorer.io/getAddressTransactions/'
+  const addPath ='https://api.ethplorer.io/getAddressTransactions/';
   const fullPath = `${addPath}${hash}?apiKey=${
       key
   }&limit=200&timestamp=${
@@ -45,15 +45,14 @@ async function getTransactionData(transactionType: string, hash: string): Promis
   const res = await fetch(fullPath);
   const data = await res.json();
 
-  data.forEach(function (addressTransaction: AddressTransaction) {
-
-    if(addressTransaction.timestamp > oneHoursBefore) {
-      var dateTimestamp = new Date(addressTransaction.timestamp * 1000);
-
+  data.forEach((addressTransaction: AddressTransaction) => {
+    const txTimestamp = new Date(addressTransaction.timestamp * 1000);
+    
+    if(txTimestamp.getTime() > oneHoursBefore) {
       mixpanel.import(`Uniswap:${transactionType}`,addressTransaction.timestamp,  {
         distinct_id: addressTransaction.from,
         time: addressTransaction.timestamp,
-        timestamp: dateTimestamp.toISOString(),
+        timestamp: txTimestamp.toISOString(),
         to: addressTransaction.to,
         from: addressTransaction.from,
         hash: addressTransaction.hash,
