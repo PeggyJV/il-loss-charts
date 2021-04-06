@@ -26,6 +26,8 @@ This repo houses the web application for [Sommelier.finance](https://app.sommeli
 
 Sommelier has a standard monorepo setup using [Yarn Workspaces](https://classic.yarnpkg.com/blog/2017/08/02/introducing-workspaces/) and [Lerna](https://github.com/lerna/lerna). This allows one to run commands at the project root and apply that command to all packages.
 
+In order to run this locally, you will need an Infura Project ID, to get your infura project ID, please go to https://infura.io/ and create an account. It is free to create an account.
+
 To set up the app for local development:
 
 ```
@@ -36,6 +38,12 @@ yarn config set workspaces-experimental true # Use to enable yarn workspaces
 yarn # Running 'yarn' once at workspace roots installs all dependencies for each package
 
 ### Local Development
+
+# Getting environment variables set
+# Run following command inside packages/server and packages/client individually
+cp .env.sample .env
+# After seeing your .env file, make sure to replace placeholders with your Infura Project ID
+
 
 # Requires a local redis server at port 6379
 yarn dev # starts both express server and CRA webpack server in same shell, with re-compile on save for both server and client
