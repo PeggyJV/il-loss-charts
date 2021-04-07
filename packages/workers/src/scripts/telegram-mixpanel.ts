@@ -20,6 +20,13 @@ export default async function getTelegramDataForMixpanel(): Promise<void> {
       throw new Error(`Cannot start telegram mixpanel stat bot without mixpanel token.`);
   }
 
+  sommBot.on('message', (msg: TelegramBot.Message) => {
+    mixpanel.track('telegram:message', {
+        distinct_id: msg?.from?.id,
+        user: msg?.from?.username
+    });
+  });
+
   sommBot.on('channel_post', (msg: TelegramBot.Message) => {
     mixpanel.track('telegram:message', {
         distinct_id: msg.message_id
@@ -28,13 +35,15 @@ export default async function getTelegramDataForMixpanel(): Promise<void> {
 
   sommBot.on('new_chat_members', (msg: TelegramBot.Message) => {
     mixpanel.track('telegram:user:join', {
-        distinct_id: msg.message_id
+      distinct_id: msg?.from?.id,
+      user: msg?.from?.username
     });
   });
 
   sommBot.on('left_chat_member', (msg: TelegramBot.Message) => {
     mixpanel.track('telegram:user:leave', {
-        distinct_id: msg.message_id
+      distinct_id: msg?.from?.id,
+      user: msg?.from?.username
     });
   });
 }
