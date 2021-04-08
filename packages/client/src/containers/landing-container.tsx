@@ -12,6 +12,7 @@ import mixpanel from 'util/mixpanel';
 import TopPairsWidget from 'components/top-pairs-widget';
 import ConnectWalletButton from 'components/connect-wallet-button';
 import PendingTx from 'components/pending-tx';
+import {AddLiquidityV3} from 'components/add-liquidity/add-liquidity-v3';
 
 function LandingContainer({
     topPairs,
@@ -119,6 +120,7 @@ function LandingContainer({
                     Impermanent Loss.
                 </p>
             </div>
+            <AddLiquidityV3 balances={balances}/>
             {wallet.account && positionData && (
                 <>
                     <h4 className='heading-main'>Open Positions</h4>

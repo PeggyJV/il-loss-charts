@@ -15,7 +15,6 @@ import {
 } from '@sommelier/shared-types';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 import LandingContainer from 'containers/landing-container';
 import MarketContainer from 'containers/market-container';
 import PairContainer from 'containers/pair-container';
@@ -242,12 +241,12 @@ function App(): ReactElement {
                     <PendingTxContext.Provider
                         value={{ pendingTx, setPendingTx }}
                     >
-                        <div className='side-menu-wrapper'>
+                        {/* <div className='side-menu-wrapper'>
                             <SideMenu
                                 wallet={wallet}
                                 setShowConnectWallet={setShowConnectWallet}
                             />
-                        </div>
+                        </div> */}
                         <div className='app-body' id='app-body'>
                             {currentError ? (
                                 <PageError errorMsg={currentError} />
