@@ -4,25 +4,18 @@ import { ButtonGroup, Modal } from 'react-bootstrap';
 import classNames from 'classnames';
 import { toastWarn, toastSuccess, toastError } from 'util/toasters';
 import { ethers } from 'ethers';
-
-import erc20Abi from 'constants/abis/erc20.json';
-
-const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
-const EXCHANGE_REMOVE_ABI_ADDRESS =
-    '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
-const EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS =
-    '0xA522AA47C40F2BAC847cbe4D37455c521E69DEa7';
 import {
     EthGasPrices,
     LPPositionData,
     UniswapPair,
 } from '@sommelier/shared-types';
-import { Wallet, WalletBalances } from 'types/states';
+import { Wallet } from 'types/states';
 import { compactHash } from 'util/formats';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import AddLiquidity from 'components/add-liquidity';
 import RemoveLiquidity from 'components/remove-liquidity';
 import { PendingTxContext, PendingTx } from 'app';
+import { useBalance } from 'hooks/use-balance';
 
 // TODO convert add, remove to a hook and separate UI from it
 function ManageLiquidityModal({
@@ -40,7 +33,7 @@ function ManageLiquidityModal({
     gasPrices: EthGasPrices | null;
 }): JSX.Element | null {
     const [mode, setMode] = useState<'add' | 'remove'>('add');
-    const [balances, setBalances] = useState<WalletBalances>({});
+    
     const [pairData, setPairData] = useState<UniswapPair | null>(null);
     const [
         positionData,
@@ -52,6 +45,7 @@ function ManageLiquidityModal({
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
+    const balances = useBalance({ pairData, provider, wallet });
     // TODO abstract this cleanly with context and reducer to be a global notification system
     const onDone = async (txHash?: string) => {
         if (!txHash) return;

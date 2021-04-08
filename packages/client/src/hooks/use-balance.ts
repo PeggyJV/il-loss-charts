@@ -1,8 +1,21 @@
-import {useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
+import erc20Abi from 'constants/abis/erc20.json';
+import { Wallet, WalletBalances } from 'types/states';
+import { UniswapPair } from '@sommelier/shared-types';
+const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
+const EXCHANGE_REMOVE_ABI_ADDRESS =
+    '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
+const EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS =
+    '0xA522AA47C40F2BAC847cbe4D37455c521E69DEa7';
 
-export const useBalance = () => {
-
-  const [balance, setBalance] = useState();
+type Props = {
+    wallet: Wallet;
+    pairData: UniswapPair | null;
+    provider: ethers.providers.Web3Provider | null;
+};
+export const useBalance = ({ pairData, wallet, provider = null }: Props): WalletBalances => {
+    const [balances, setBalances] = useState<WalletBalances>({});
     useEffect(() => {
         // get balances of both tokens
         const getBalances = async () => {
@@ -21,7 +34,7 @@ export const useBalance = () => {
                 const token = new ethers.Contract(
                     tokenAddress,
                     erc20Abi
-                ).connect(provider as ethers.providers.Web3Provider);
+                ).connect(provider );
                 const balance: ethers.BigNumber = await token.balanceOf(
                     wallet.account
                 );
@@ -41,7 +54,7 @@ export const useBalance = () => {
                 const token = new ethers.Contract(
                     tokenAddress,
                     erc20Abi
-                ).connect(provider as ethers.providers.Web3Provider);
+                ).connect(provider );
                 const allowance: ethers.BigNumber = await token.allowance(
                     wallet.account,
                     tokenAddress === pairData.id
@@ -65,7 +78,7 @@ export const useBalance = () => {
                 const token = new ethers.Contract(
                     tokenAddress,
                     erc20Abi
-                ).connect(provider as ethers.providers.Web3Provider);
+                ).connect(provider );
                 const allowance: ethers.BigNumber = await token.allowance(
                     wallet.account,
                     tokenAddress === pairData.id
@@ -146,5 +159,7 @@ export const useBalance = () => {
 
         void getBalances();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [wallet, show, pairData]);
+    }, [wallet, pairData]);
+
+    return balances;
 };
