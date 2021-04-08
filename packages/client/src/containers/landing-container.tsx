@@ -12,7 +12,11 @@ import mixpanel from 'util/mixpanel';
 import TopPairsWidget from 'components/top-pairs-widget';
 import ConnectWalletButton from 'components/connect-wallet-button';
 import PendingTx from 'components/pending-tx';
+<<<<<<< HEAD
 import SearchContainer from 'containers/search-container';
+=======
+import {AddLiquidityV3} from 'components/add-liquidity/add-liquidity-v3';
+>>>>>>> f83416b... WIP: add-liquidity-v3 component
 
 function LandingContainer({
     allPairs,
@@ -124,6 +128,7 @@ function LandingContainer({
                 </p>
             </div> */}
             <SearchContainer allPairs={allPairs} />
+            <AddLiquidityV3 balances={balances}/>
             {wallet.account && positionData && (
                 <>
                     <h4 className='heading-main'>Open Positions</h4>

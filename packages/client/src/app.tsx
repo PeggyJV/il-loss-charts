@@ -15,7 +15,6 @@ import {
 } from '@sommelier/shared-types';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 import LandingContainer from 'containers/landing-container';
 import MarketContainer from 'containers/market-container';
 import PairContainer from 'containers/pair-container';
