@@ -227,11 +227,11 @@ function App(): ReactElement {
         setCurrentPairId(pairId);
 
         // Check if wallet exists, if not show wallet modal
-        if (wallet && wallet.account) {
-            setShowAddLiquidity(true);
-        } else {
-            setShowConnectWallet(true);
-        }
+        // if (wallet && wallet.account) {
+        //     setShowAddLiquidity(true);
+        // } else {
+        //     setShowConnectWallet(true);
+        // }
     };
 
     return (
@@ -321,6 +321,7 @@ function App(): ReactElement {
                                                         handleAddLiquidity={
                                                             handleAddLiquidity
                                                         }
+                                                        currentPairId={currentPairId}
                                                     />
                                                 </Route>
                                             </Switch>

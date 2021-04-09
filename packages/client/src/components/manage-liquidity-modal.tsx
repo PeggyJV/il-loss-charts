@@ -48,7 +48,8 @@ function ManageLiquidityModal({
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
-    const balances = useBalance({ pairData, provider, wallet });
+    const balances = useBalance({ pairData, wallet });
+
     // TODO abstract this cleanly with context and reducer to be a global notification system
     const onDone = async (txHash?: string) => {
         if (!txHash) return;
