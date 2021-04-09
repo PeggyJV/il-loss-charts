@@ -12,9 +12,11 @@ const EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS =
 type Props = {
     wallet: Wallet;
     pairData: UniswapPair | null;
-    provider: ethers.providers.Web3Provider | null;
 };
-export const useBalance = ({ pairData, wallet, provider = null }: Props): WalletBalances => {
+export const useBalance = ({ pairData, wallet }: Props): WalletBalances => {
+    let provider: ethers.providers.Web3Provider;
+    if(wallet.provider)
+    provider = new ethers.providers.Web3Provider(wallet?.provider);
     const [balances, setBalances] = useState<WalletBalances>({});
     useEffect(() => {
         // get balances of both tokens

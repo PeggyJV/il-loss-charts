@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import { LPPositionData } from '@sommelier/shared-types';
 import { ErrorBoundary } from 'react-error-boundary';
 import { TopPairsState, Wallet } from 'types/states';
+import { useBalance } from 'hooks/use-balance';
+import { usePairDataOverview } from 'hooks/use-pair-data-overview';
 import PositionsTable from 'components/positions-table';
 import { TelegramCTA } from 'components/telegram-cta';
 import { ComponentError } from 'components/page-error';
@@ -12,18 +14,20 @@ import mixpanel from 'util/mixpanel';
 import TopPairsWidget from 'components/top-pairs-widget';
 import ConnectWalletButton from 'components/connect-wallet-button';
 import PendingTx from 'components/pending-tx';
-import {AddLiquidityV3} from 'components/add-liquidity/add-liquidity-v3';
+import { AddLiquidityV3 } from 'components/add-liquidity/add-liquidity-v3';
 
 function LandingContainer({
     topPairs,
     wallet,
     setShowConnectWallet,
     handleAddLiquidity,
+    currentPairId,
 }: {
     topPairs: TopPairsState | null;
     wallet: Wallet;
     setShowConnectWallet: (wallet: boolean) => void;
     handleAddLiquidity: (paidId: string) => void;
+    currentPairId: string | null;
 }): JSX.Element {
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -32,14 +36,16 @@ function LandingContainer({
         positionData,
         setPositionData,
     ] = useState<LPPositionData<string> | null>(null);
-
-    const [pairId, setPairId] = useState(
-        positionData?.positions ? Object.keys(positionData.positions)[0] : null
-    );
+    const [pairId, setPairId] = useState(currentPairId || null);
+    const pairData = usePairDataOverview(currentPairId || null);
+    const balances = useBalance({
+        pairData,
+        wallet,
+    });
 
     (window as any).positionData = positionData;
     (window as any).pairId = pairId;
-    
+
     useEffect(() => {
         const fetchPositionsForWallet = async () => {
             if (!isLoading) setIsLoading(true);
@@ -120,7 +126,7 @@ function LandingContainer({
                     Impermanent Loss.
                 </p>
             </div>
-            <AddLiquidityV3 balances={balances}/>
+            <AddLiquidityV3 pairId={pairId} balances={balances} />
             {wallet.account && positionData && (
                 <>
                     <h4 className='heading-main'>Open Positions</h4>
