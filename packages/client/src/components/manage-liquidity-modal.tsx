@@ -7,11 +7,11 @@ import { ethers } from 'ethers';
 import {
     EthGasPrices,
     LPPositionData,
-    UniswapPair,
 } from '@sommelier/shared-types';
 import { Wallet } from 'types/states';
 import { compactHash } from 'util/formats';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
+import { usePairDataOverview } from 'hooks/use-pair-data-overview';
 import AddLiquidity from 'components/add-liquidity';
 import RemoveLiquidity from 'components/remove-liquidity';
 import { PendingTxContext, PendingTx } from 'app';
@@ -34,7 +34,10 @@ function ManageLiquidityModal({
 }): JSX.Element | null {
     const [mode, setMode] = useState<'add' | 'remove'>('add');
     
-    const [pairData, setPairData] = useState<UniswapPair | null>(null);
+    const pairData = usePairDataOverview(
+        pairId
+        );
+      
     const [
         positionData,
         setPositionData,
@@ -102,32 +105,6 @@ function ManageLiquidityModal({
         setMode('add');
         setShow(false);
     };
-
-    useEffect(() => {
-        const fetchPairData = async () => {
-            if (!pairId) return;
-
-            // Fetch pair overview when pair ID changes
-            // Default to createdAt date if LP date not set
-            const { data: newPair, error } = await Uniswap.getPairOverview(
-                pairId
-            );
-
-            if (error) {
-                // we could not get data for this new pair
-                console.warn(
-                    `Could not fetch pair data for ${pairId}: ${error}`
-                );
-                return;
-            }
-
-            if (newPair) {
-                setPairData(new UniswapPair(newPair));
-            }
-        };
-
-        void fetchPairData();
-    }, [pairId]);
 
     useEffect(() => {
         const fetchPositionsForWallet = async () => {
