@@ -3,8 +3,16 @@ import 'react-widgets/dist/css/react-widgets.css';
 import 'styles/app.scss';
 import classNames from 'classnames';
 import { ErrorBoundary, useErrorHandler } from 'react-error-boundary';
-import { useState, useEffect, ReactElement, createContext, Dispatch, SetStateAction } from 'react';
+import {
+    useState,
+    useEffect,
+    ReactElement,
+    createContext,
+    Dispatch,
+    SetStateAction,
+} from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import useWebSocket from 'react-use-websocket';
 import ManageLiquidityModal from 'components/manage-liquidity-modal';
 import config from 'config';
@@ -37,7 +45,7 @@ export type PendingTx = {
 };
 type PendingTxContext = {
     pendingTx: PendingTx;
-    setPendingTx: Dispatch<SetStateAction<PendingTx>>,
+    setPendingTx: Dispatch<SetStateAction<PendingTx>>;
 };
 
 const defaultPendingContext = {
@@ -45,8 +53,10 @@ const defaultPendingContext = {
         approval: [],
         confirm: [],
     },
-}
-export const PendingTxContext = createContext<Partial<PendingTxContext>>(defaultPendingContext);
+};
+export const PendingTxContext = createContext<Partial<PendingTxContext>>(
+    defaultPendingContext
+);
 
 function App(): ReactElement {
     // ------------------ Initial Mount - API calls for first render ------------------
@@ -69,10 +79,11 @@ function App(): ReactElement {
         approval: [],
         confirm: [],
     });
+    const queryClient = new QueryClient();
     useErrorHandler(error);
     useEffect(() => {
         document.body.classList.add('dark');
-    },[])
+    }, []);
     useEffect(() => {
         const fetchAllPairs = async () => {
             // Fetch all pairs
@@ -227,98 +238,100 @@ function App(): ReactElement {
         <ErrorBoundary
             fallbackRender={({ error }) => <PageError errorMsg={error} />}
         >
-            <ToastContainer
-                position='top-center'
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-            />
-            <Router>
-                <div className={classNames('app', 'dark')} id='app-wrap'>
-                    <PendingTxContext.Provider
-                        value={{ pendingTx, setPendingTx }}
-                    >
-                        <div className='app-body' id='app-body'>
-                            {currentError ? (
-                                <PageError errorMsg={currentError} />
-                            ) : (
-                                <>
-                                    <ErrorBoundary
-                                        FallbackComponent={ModalError}
-                                    >
-                                        <ConnectWalletModal
-                                            show={showConnectWallet}
-                                            setShow={setShowConnectWallet}
-                                            wallet={wallet}
-                                            error={error}
-                                            {...restWalletProps}
-                                        />
-                                        <ManageLiquidityModal
-                                            show={showAddLiquidity}
-                                            setShow={setShowAddLiquidity}
-                                            wallet={wallet}
-                                            pairId={currentPairId}
-                                            gasPrices={gasPrices}
-                                        />
-                                    </ErrorBoundary>
-                                    <ErrorBoundary
-                                        fallbackRender={({ error }) => (
-                                            <PageError errorMsg={error} />
-                                        )}
-                                    >
-                                        <Switch>
-                                            <Route path='/positions'>
-                                                <PositionContainer
-                                                    wallet={wallet}
-                                                />
-                                            </Route>
-                                            <Route path='/market'>
-                                                <MarketContainer
-                                                    marketData={marketData}
-                                                />
-                                            </Route>
-                                            <Route path='/pair'>
-                                                <PairContainer
-                                                    allPairs={allPairs}
-                                                    prefetchedPairs={
-                                                        prefetchedPairs
-                                                    }
-                                                    handleAddLiquidity={
-                                                        handleAddLiquidity
-                                                    }
-                                                />
-                                            </Route>
-                                            <Route path='/search'>
-                                                <SearchContainer
-                                                    allPairs={allPairs}
-                                                />
-                                            </Route>
-                                            <Route path='/'>
-                                                <LandingContainer
-                                                    allPairs={allPairs}
-                                                    topPairs={topPairs}
-                                                    wallet={wallet}
-                                                    setShowConnectWallet={
-                                                        setShowConnectWallet
-                                                    }
-                                                    handleAddLiquidity={
-                                                        handleAddLiquidity
-                                                    }
-                                                />
-                                            </Route>
-                                        </Switch>
-                                    </ErrorBoundary>
-                                </>
-                            )}
-                        </div>
-                    </PendingTxContext.Provider>
-                </div>
-            </Router>
+            <QueryClientProvider client={queryClient}>
+                <ToastContainer
+                    position='top-center'
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
+                <Router>
+                    <div className={classNames('app', 'dark')} id='app-wrap'>
+                        <PendingTxContext.Provider
+                            value={{ pendingTx, setPendingTx }}
+                        >
+                            <div className='app-body' id='app-body'>
+                                {currentError ? (
+                                    <PageError errorMsg={currentError} />
+                                ) : (
+                                    <>
+                                        <ErrorBoundary
+                                            FallbackComponent={ModalError}
+                                        >
+                                            <ConnectWalletModal
+                                                show={showConnectWallet}
+                                                setShow={setShowConnectWallet}
+                                                wallet={wallet}
+                                                error={error}
+                                                {...restWalletProps}
+                                            />
+                                            <ManageLiquidityModal
+                                                show={showAddLiquidity}
+                                                setShow={setShowAddLiquidity}
+                                                wallet={wallet}
+                                                pairId={currentPairId}
+                                                gasPrices={gasPrices}
+                                            />
+                                        </ErrorBoundary>
+                                        <ErrorBoundary
+                                            fallbackRender={({ error }) => (
+                                                <PageError errorMsg={error} />
+                                            )}
+                                        >
+                                            <Switch>
+                                                <Route path='/positions'>
+                                                    <PositionContainer
+                                                        wallet={wallet}
+                                                    />
+                                                </Route>
+                                                <Route path='/market'>
+                                                    <MarketContainer
+                                                        marketData={marketData}
+                                                    />
+                                                </Route>
+                                                <Route path='/pair'>
+                                                    <PairContainer
+                                                        allPairs={allPairs}
+                                                        prefetchedPairs={
+                                                            prefetchedPairs
+                                                        }
+                                                        handleAddLiquidity={
+                                                            handleAddLiquidity
+                                                        }
+                                                    />
+                                                </Route>
+                                                <Route path='/search'>
+                                                    <SearchContainer
+                                                        allPairs={allPairs}
+                                                    />
+                                                </Route>
+                                                <Route path='/'>
+                                                    <LandingContainer
+                                                        allPairs={allPairs}
+                                                        topPairs={topPairs}
+                                                        wallet={wallet}
+                                                        setShowConnectWallet={
+                                                            setShowConnectWallet
+                                                        }
+                                                        handleAddLiquidity={
+                                                            handleAddLiquidity
+                                                        }
+                                                    />
+                                                </Route>
+                                            </Switch>
+                                        </ErrorBoundary>
+                                    </>
+                                )}
+                            </div>
+                        </PendingTxContext.Provider>
+                    </div>
+                </Router>
+            </QueryClientProvider>
         </ErrorBoundary>
     );
 }
