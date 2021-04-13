@@ -1,170 +1,342 @@
 [
     {
-        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor",
         "inputs": [],
+        "outputs": []
+    },
+    {
+        "stateMutability": "payable",
+        "type": "function",
+        "name": "divestUniPairToToken",
+        "inputs": [
+            {
+                "name": "pair",
+                "type": "address"
+            },
+            {
+                "name": "token",
+                "type": "address"
+            },
+            {
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "name": "minTokenAmount",
+                "type": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256"
+            }
+        ]
+    },
+    {
+        "stateMutability": "payable",
+        "type": "function",
+        "name": "divestUniPairToToken",
+        "inputs": [
+            {
+                "name": "pair",
+                "type": "address"
+            },
+            {
+                "name": "token",
+                "type": "address"
+            },
+            {
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "name": "minTokenAmount",
+                "type": "uint256"
+            },
+            {
+                "name": "deadline",
+                "type": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256"
+            }
+        ]
+    },
+    {
         "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
-    {
-        "name": "divestEthPairToToken",
-        "outputs": [
-            {
-                "type": "uint256",
-                "name": ""
-            }
-        ],
+        "type": "function",
+        "name": "removeLiquidity",
         "inputs": [
             {
-                "type": "address",
-                "name": "pair"
+                "name": "tokenA",
+                "type": "address"
             },
             {
-                "type": "address",
-                "name": "token"
+                "name": "tokenB",
+                "type": "address"
             },
             {
-                "type": "uint256",
-                "name": "amount"
+                "name": "liquidity",
+                "type": "uint256"
+            },
+            {
+                "name": "amountAMin",
+                "type": "uint256"
+            },
+            {
+                "name": "amountBMin",
+                "type": "uint256"
+            },
+            {
+                "name": "to",
+                "type": "address"
             }
         ],
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "name": "divestEthPairToToken",
         "outputs": [
             {
-                "type": "uint256",
-                "name": ""
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "name": "",
+                "type": "uint256"
             }
-        ],
-        "inputs": [
-            {
-                "type": "address",
-                "name": "pair"
-            },
-            {
-                "type": "address",
-                "name": "token"
-            },
-            {
-                "type": "uint256",
-                "name": "amount"
-            },
-            {
-                "type": "uint256",
-                "name": "deadline"
-            }
-        ],
-        "stateMutability": "payable",
-        "type": "function"
+        ]
     },
     {
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "name": "removeLiquidity",
+        "inputs": [
+            {
+                "name": "tokenA",
+                "type": "address"
+            },
+            {
+                "name": "tokenB",
+                "type": "address"
+            },
+            {
+                "name": "liquidity",
+                "type": "uint256"
+            },
+            {
+                "name": "amountAMin",
+                "type": "uint256"
+            },
+            {
+                "name": "amountBMin",
+                "type": "uint256"
+            },
+            {
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "name": "deadline",
+                "type": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "name": "",
+                "type": "uint256"
+            }
+        ]
+    },
+    {
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "name": "removeLiquidityETH",
+        "inputs": [
+            {
+                "name": "token",
+                "type": "address"
+            },
+            {
+                "name": "liquidity",
+                "type": "uint256"
+            },
+            {
+                "name": "amountTokenMin",
+                "type": "uint256"
+            },
+            {
+                "name": "amountETHMin",
+                "type": "uint256"
+            },
+            {
+                "name": "to",
+                "type": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "name": "",
+                "type": "uint256"
+            }
+        ]
+    },
+    {
+        "stateMutability": "nonpayable",
+        "type": "function",
+        "name": "removeLiquidityETH",
+        "inputs": [
+            {
+                "name": "token",
+                "type": "address"
+            },
+            {
+                "name": "liquidity",
+                "type": "uint256"
+            },
+            {
+                "name": "amountTokenMin",
+                "type": "uint256"
+            },
+            {
+                "name": "amountETHMin",
+                "type": "uint256"
+            },
+            {
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "name": "deadline",
+                "type": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "name": "",
+                "type": "uint256"
+            }
+        ]
+    },
+    {
+        "stateMutability": "nonpayable",
+        "type": "function",
         "name": "pause",
-        "outputs": [],
         "inputs": [
             {
-                "type": "bool",
-                "name": "_paused"
+                "name": "_paused",
+                "type": "bool"
             }
         ],
-        "stateMutability": "nonpayable",
-        "type": "function",
-        "gas": "36397"
+        "outputs": [],
+        "gas": "36454"
     },
     {
+        "stateMutability": "nonpayable",
+        "type": "function",
         "name": "newAdmin",
-        "outputs": [],
         "inputs": [
             {
-                "type": "address",
-                "name": "_admin"
+                "name": "_admin",
+                "type": "address"
             }
         ],
-        "stateMutability": "nonpayable",
-        "type": "function",
-        "gas": "36427"
+        "outputs": [],
+        "gas": "36484"
     },
     {
+        "stateMutability": "nonpayable",
+        "type": "function",
         "name": "newFeeAmount",
-        "outputs": [],
         "inputs": [
             {
-                "type": "uint256",
-                "name": "_feeAmount"
+                "name": "_feeAmount",
+                "type": "uint256"
             }
         ],
-        "stateMutability": "nonpayable",
-        "type": "function",
-        "gas": "36357"
+        "outputs": [],
+        "gas": "36414"
     },
     {
-        "name": "newFeeAddress",
-        "outputs": [],
-        "inputs": [
-            {
-                "type": "address",
-                "name": "_feeAddress"
-            }
-        ],
         "stateMutability": "nonpayable",
         "type": "function",
-        "gas": "36487"
+        "name": "newFeeAddress",
+        "inputs": [
+            {
+                "name": "_feeAddress",
+                "type": "address"
+            }
+        ],
+        "outputs": [],
+        "gas": "36544"
     },
     {
         "stateMutability": "payable",
         "type": "fallback"
     },
     {
+        "stateMutability": "view",
+        "type": "function",
         "name": "paused",
+        "inputs": [],
         "outputs": [
             {
-                "type": "bool",
-                "name": ""
+                "name": "",
+                "type": "bool"
             }
         ],
-        "inputs": [],
-        "stateMutability": "view",
-        "type": "function",
-        "gas": "1331"
+        "gas": "1388"
     },
     {
+        "stateMutability": "view",
+        "type": "function",
         "name": "admin",
+        "inputs": [],
         "outputs": [
             {
-                "type": "address",
-                "name": ""
+                "name": "",
+                "type": "address"
             }
         ],
-        "inputs": [],
-        "stateMutability": "view",
-        "type": "function",
-        "gas": "1361"
+        "gas": "1418"
     },
     {
+        "stateMutability": "view",
+        "type": "function",
         "name": "feeAmount",
+        "inputs": [],
         "outputs": [
             {
-                "type": "uint256",
-                "name": ""
+                "name": "",
+                "type": "uint256"
             }
         ],
-        "inputs": [],
-        "stateMutability": "view",
-        "type": "function",
-        "gas": "1391"
+        "gas": "1448"
     },
     {
-        "name": "feeAddress",
-        "outputs": [
-            {
-                "type": "address",
-                "name": ""
-            }
-        ],
-        "inputs": [],
         "stateMutability": "view",
         "type": "function",
-        "gas": "1421"
+        "name": "feeAddress",
+        "inputs": [],
+        "outputs": [
+            {
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "gas": "1478"
     }
 ]

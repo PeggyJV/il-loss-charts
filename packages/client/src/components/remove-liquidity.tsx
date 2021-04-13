@@ -20,7 +20,7 @@ import erc20Abi from 'constants/abis/erc20.json';
 import exchangeRemoveAbi from 'constants/abis/volumefi_remove_liquidity_uniswap.json';
 
 const EXCHANGE_REMOVE_ABI_ADDRESS =
-    '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
+    '0x430f33353490b256D2fD7bBD9DaDF3BB7f905E78';
 
 import {
     EthGasPrices,
@@ -58,6 +58,7 @@ function RemoveLiquidity({
 }): JSX.Element | null {
     const [exitToken, setExitToken] = useState<string>('ETH');
     const [exitAmount, setExitAmount] = useState<string>('0');
+    const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
     );
@@ -68,6 +69,7 @@ function RemoveLiquidity({
     const { setPendingTx } = useContext(PendingTxContext);
     const resetForm = () => {
         setExitToken('ETH');
+        setSlippageTolerance(3.0);
         setExitAmount('0');
     };
 
@@ -166,7 +168,6 @@ function RemoveLiquidity({
 
     useEffect(() => {
         // No need to check allowances for ETH
-
         const allowance =
             balances?.currentPair?.allowance?.[EXCHANGE_REMOVE_ABI_ADDRESS];
 
@@ -309,13 +310,22 @@ function RemoveLiquidity({
             .parseUnits(exitAmount.toString(), 18)
             .toString();
 
+        const expectedExitTokensNum = new BigNumber(expectedExitToken);
+        const slippageRatio = new BigNumber(slippageTolerance).div(100);
+        const minExitTokens = expectedExitTokensNum.times(
+            new BigNumber(1).minus(slippageRatio)
+        );
+        const baseMinExitTokens = ethers.utils
+            .parseUnits(minExitTokens.toString(), balances[exitToken]?.decimals || 18)
+            .toString();
+
         // Call the contract and sign
         let gasEstimate: ethers.BigNumber;
 
         try {
             gasEstimate = await removeLiquidityContract.estimateGas[
-                'divestEthPairToToken(address,address,uint256)'
-            ](pairData.id, exitAddress, baseLpTokens, {
+                'divestUniPairToToken(address,address,uint256,uint256)'
+            ](pairData.id, exitAddress, baseLpTokens, baseMinExitTokens, {
                 gasPrice: baseGasPrice,
                 value: baseMsgValue, // flat fee sent to contract - 0.001 ETH
             });
@@ -330,8 +340,8 @@ function RemoveLiquidity({
         }
 
         const { hash } = await removeLiquidityContract[
-            'divestEthPairToToken(address,address,uint256)'
-        ](pairData.id, exitAddress, baseLpTokens, {
+            'divestUniPairToToken(address,address,uint256,uint256)'
+        ](pairData.id, exitAddress, baseLpTokens, baseMinExitTokens, {
             gasPrice: baseGasPrice,
             gasLimit: gasEstimate,
             value: baseMsgValue, // flat fee sent to contract - 0.0005 ETH
@@ -341,9 +351,10 @@ function RemoveLiquidity({
             const metrics = {
                 distinct_id: pairData.id,
                 pair_id: pairData.id,
-                exitToken: exitToken,
-                gasEstimate: gasEstimate,
-                exitAmount: exitAmount,
+                exitToken,
+                gasEstimate,
+                exitAmount,
+                slippageTolerance
             };
 
             mixpanel.track('transaction:removeLiquidity', metrics);
@@ -536,28 +547,28 @@ function RemoveLiquidity({
                     <strong>Transaction Settings</strong>
                 </p>
                 {/* <Card body> */}
-                {/* <Form.Group as={Row}>
-                        <Form.Label column sm={6}>
-                            Slippage Tolerance:
-                        </Form.Label>
-                        <Col sm={2}></Col>
-                        <Col sm={4}>
-                            <InputGroup>
-                                <FormControl
-                                    min='0'
-                                    className='slippage-tolerance-input'
-                                    value={slippageTolerance}
-                                    type='number'
-                                    onChange={(e) => {
-                                        setSlippageTolerance(e.target.value)
-                                    }}
-                                />
-                                <InputGroup.Append>
-                                    <InputGroup.Text>%</InputGroup.Text>
-                                </InputGroup.Append>
-                            </InputGroup>
-                        </Col>
-                    </Form.Group> */}
+                <Form.Group as={Row}>
+                    <Form.Label column sm={6}>
+                        Slippage Tolerance:
+                    </Form.Label>
+                    <Col sm={2}></Col>
+                    <Col sm={4}>
+                        <InputGroup>
+                            <FormControl
+                                min='0'
+                                className='slippage-tolerance-input'
+                                value={slippageTolerance}
+                                type='number'
+                                onChange={(e) => {
+                                    setSlippageTolerance(parseFloat(e.target.value))
+                                }}
+                            />
+                            <InputGroup.Append>
+                                <InputGroup.Text>%</InputGroup.Text>
+                            </InputGroup.Append>
+                        </InputGroup>
+                    </Col>
+                </Form.Group>
                 {gasPrices && (
                     <Form.Group className='transaction-speed-input'>
                         <Form.Label>Transaction Speed</Form.Label>
