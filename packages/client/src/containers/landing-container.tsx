@@ -68,7 +68,6 @@ function LandingContainer({
 
             if (positionData) {
                 setPositionData(positionData);
-                console.log('setting position data');
             }
 
             setIsLoading(false);

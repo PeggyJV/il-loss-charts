@@ -1,5 +1,4 @@
 import { useState, useEffect, useContext } from 'react';
-import Select from 'react-select';
 import './add-liquidity-v3.scss';
 import { TokenInput } from 'components/token-input';
 import { WalletBalance } from 'components/wallet-balance';

@@ -821,7 +821,7 @@ p {
     .dropdown-menu {
         // border: 1px solid red;
         border-radius: 0;
-        background: var(--bgContainer);
+        background: var(--bgSecondary);
         .dropdown-item {
             color: var(--faceSecondary);
             &.active,
@@ -862,7 +862,7 @@ p {
     font-size: 1rem;
     color: var(--faceSecondary);
     border-bottom: 1px solid var(--borderMain);
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 .modal-pool-shares {
     display: grid;
@@ -921,6 +921,8 @@ p {
     color: var(--faceDeep);
     display: flex;
     flex-direction: column;
+    position: absolute;
+    right: 0.5rem;
 }
 .balances-and-pool-stats {
     display: flex;
@@ -928,7 +930,6 @@ p {
     justify-content: space-between;
 }
 .max-balance-link {
-    height: calc(1.75rem + 0.5rem + 2px);
     display: flex;
     align-items: center;
     border: 1px solid var(--borderDeep);
@@ -1042,7 +1043,7 @@ th .caret-4-desc:after {
     max-height: 2rem;
     margin-top: 0.25rem;
     position: absolute;
-    right: 140px;
+    right: 150px;
     padding: 4px 10px;
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
