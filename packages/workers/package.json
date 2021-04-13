@@ -17,6 +17,7 @@
         "worker:alerts:tg": "ts-node src/scripts/il-alerts.ts",
         "worker:alerts:discord": "ts-node src/scripts/il-alerts-discord.ts",
         "worker:mixpanel-liquidity": "ts-node src/scripts/mp-liquidity.ts",
+        "worker:telegram-mixpanel": "ts-node src/scripts/telegram-mixpanel.ts",
         "cron": "node dist/scheduler.js"
     },
     "keywords": [],
