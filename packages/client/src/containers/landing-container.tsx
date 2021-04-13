@@ -65,7 +65,6 @@ function LandingContainer({
 
             if (positionData) {
                 setPositionData(positionData);
-                console.log('setting position data');
             }
 
             setIsLoading(false);
@@ -119,15 +118,15 @@ function LandingContainer({
                     <ConnectWalletButton onClick={showModal} wallet={wallet} />
                 </div>
             </div>
-            <div className='alert-well'>
+            {/* <div className='alert-well'>
                 <p>
                     This is not financial advice. This is an alpha project.
                     Trade at your own risk. All calculated returns include
                     Impermanent Loss.
                 </p>
-            </div>
+            </div> */}
             <AddLiquidityV3 pairId={pairId} balances={balances} />
-            {wallet.account && positionData && (
+            {/* {wallet.account && positionData && (
                 <>
                     <h4 className='heading-main'>Open Positions</h4>
                     <ErrorBoundary FallbackComponent={ComponentError}>
@@ -139,7 +138,7 @@ function LandingContainer({
                         />
                     </ErrorBoundary>
                 </>
-            )}
+            )}  */}
             <div className='header-with-filter'>
                 <h4 className='heading-main'>
                     TOP LIQUIDITY POOLS :: 24 Hours
