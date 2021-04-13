@@ -1,5 +1,83 @@
 .container {
-  border: 1px solid var(--borderMain);
-  width: 400px;
-  height: 200px;
+    width: 600px;
+    position: relative;
+    background: var(--bgMain);
+    padding: 1rem;
+    border: 1px solid var(--borderMain);
+    box-shadow: 0 0 5px 1px var(--bgDeep);
+    display: inline-flex;
+    flex-direction: column;
+    // justify-content: space-between;
+    // font-family: 'Barlow Condensed';
+    .form-group {
+        margin: 0;
+    }
+    .token-pair-selector {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        > div {
+            // border: 1px solid yellow;
+            margin: 1rem;
+        }
+    }
+
+    .dropdown {
+        outline: none;
+        .btn-primary {
+            background: var(--bgSecondary);
+            border: 1px solid var(--bgDeep);
+            &:focus {
+                outline: none;
+                box-shadow: none;
+                border: 1px solid var(--borderAccentAlt);
+            }
+        }
+    }
+    .dropdown-menu {
+        // border: 1px solid red;
+        border-radius: 0;
+        background: var(--bgSecondary);
+        .dropdown-item {
+            color: var(--faceSecondary);
+            &.active,
+            &:hover {
+                color: var(--facePrimary);
+                background: var(--bgAccent);
+            }
+        }
+    }
+
+    .token-and-wallet {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .balances-container {
+        // border: 1px solid var(--borderMain);
+        font-size: 0.8rem;
+        color: var(--faceDeep);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        right: 0;
+    }
+
+    .wallet-fees {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: stretch;
+    }
+
+    .template-container {
+      display: flex;
+      justify-content: space-between;
+      button {
+        font-size: 1.2rem;
+        padding: 0.5rem 2rem;
+        border-radius: 5px;
+      }
+    }
 }
