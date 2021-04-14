@@ -42,11 +42,9 @@ async function getTransactionData(transactionType: string, hash: string): Promis
 
   const res = await fetch(fullPath);
 
-  console.log('*************');
+  console.log('** START TIME FOR COLLECTING TRANSACTIONS **');
   console.log(oneHoursBefore);
-  console.log('*************');
-  console.log(res);
-  console.log('*************');
+  console.log('** TRANSACTION TIMES **');
 
   const data = await res.json();
 
@@ -68,7 +66,7 @@ async function getTransactionData(transactionType: string, hash: string): Promis
       });
     }
   });
-  console.log('*************');
+  console.log('^^ TRANSACTION TIMES ^^');
 }
 
 export default async function getTransactionDataForMixpanel(): Promise<void> {
