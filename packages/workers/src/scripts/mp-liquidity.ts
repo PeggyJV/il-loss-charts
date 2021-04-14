@@ -54,7 +54,7 @@ if (res.ok) {
     data.forEach((addressTransaction: AddressTransaction) => {
       const txTimestamp = new Date(addressTransaction.timestamp * 1000);
 
-      console.log(txTimestamp.getTime());
+      console.log(txTimestamp.getTime(), addressTransaction.hash);
 
       if(txTimestamp.getTime() > oneHoursBefore) {
         mixpanel.import(`Uniswap:${transactionType}`,addressTransaction.timestamp,  {
