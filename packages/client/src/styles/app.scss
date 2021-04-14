@@ -10,7 +10,6 @@ html {
 
 body {
     font-family: 'Source Sans Pro', sans-serif;
-    background: #141229;
 }
 a,
 a:hover,
@@ -207,6 +206,7 @@ p {
     width: calc(100% - 250px);
     padding: 2rem;
     // border: 1px solid var(--bgDeep);
+    min-height: 100vh;
     background: var(--bgSecondary);
     // margin: 0 auto;
 }
