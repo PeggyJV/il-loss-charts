@@ -125,7 +125,7 @@ function LandingContainer({
                     Impermanent Loss.
                 </p>
             </div> */}
-            <AddLiquidityV3 pairId={pairId} balances={balances} />
+            <AddLiquidityV3 pairId={pairId} pairData={pairData} balances={balances} />
             {/* {wallet.account && positionData && (
                 <>
                     <h4 className='heading-main'>Open Positions</h4>
