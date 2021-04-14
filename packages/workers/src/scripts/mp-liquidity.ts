@@ -40,33 +40,42 @@ async function getTransactionData(transactionType: string, hash: string): Promis
       key
   }&limit=200`
 
+  console.log('** ETHPLORER PATH **');
+  console.log(fullPath);
   const res = await fetch(fullPath);
 
-  console.log('** START TIME FOR COLLECTING TRANSACTIONS **');
-  console.log(oneHoursBefore);
-  console.log('** TRANSACTION TIMES **');
+if (res.ok) {
+    console.log('** START TIME FOR COLLECTING TRANSACTIONS **');
+    console.log(oneHoursBefore);
 
-  const data = await res.json();
+    const data = await res.json();
 
-  data.forEach((addressTransaction: AddressTransaction) => {
-    const txTimestamp = new Date(addressTransaction.timestamp * 1000);
+    console.log('** TRANSACTION TIMES **');
+    data.forEach((addressTransaction: AddressTransaction) => {
+      const txTimestamp = new Date(addressTransaction.timestamp * 1000);
 
-    console.log(txTimestamp.getTime());
+      console.log(txTimestamp.getTime());
 
-    if(txTimestamp.getTime() > oneHoursBefore) {
-      mixpanel.import(`Uniswap:${transactionType}`,addressTransaction.timestamp,  {
-        distinct_id: addressTransaction.from,
-        time: addressTransaction.timestamp,
-        timestamp: txTimestamp.toISOString(),
-        to: addressTransaction.to,
-        from: addressTransaction.from,
-        hash: addressTransaction.hash,
-        value: addressTransaction.value,
-        success: addressTransaction.success
-      });
-    }
-  });
-  console.log('^^ TRANSACTION TIMES ^^');
+      if(txTimestamp.getTime() > oneHoursBefore) {
+        mixpanel.import(`Uniswap:${transactionType}`,addressTransaction.timestamp,  {
+          distinct_id: addressTransaction.from,
+          time: addressTransaction.timestamp,
+          timestamp: txTimestamp.toISOString(),
+          to: addressTransaction.to,
+          from: addressTransaction.from,
+          hash: addressTransaction.hash,
+          value: addressTransaction.value,
+          success: addressTransaction.success
+        });
+      }
+    });
+    console.log('^^ TRANSACTION TIMES ^^');
+  }
+  else {
+    console.log('** ERROR RESPONSE **');
+    console.log(res.statusText);
+    console.log('^^ ERROR RESPONSE ^^');
+  }
 }
 
 export default async function getTransactionDataForMixpanel(): Promise<void> {
