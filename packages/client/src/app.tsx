@@ -21,7 +21,6 @@ import MarketContainer from 'containers/market-container';
 import PairContainer from 'containers/pair-container';
 import SearchContainer from 'containers/search-container';
 import PositionContainer from 'containers/position-container';
-import SideMenu from 'components/side-menu';
 import ConnectWalletModal from 'components/connect-wallet-modal';
 import { PageError, ModalError } from 'components/page-error';
 
@@ -72,6 +71,9 @@ function App(): ReactElement {
         confirm: [],
     });
     useErrorHandler(error);
+    useEffect(() => {
+        document.body.classList.add('dark');
+    },[])
     useEffect(() => {
         const fetchAllPairs = async () => {
             // Fetch all pairs
@@ -242,12 +244,6 @@ function App(): ReactElement {
                     <PendingTxContext.Provider
                         value={{ pendingTx, setPendingTx }}
                     >
-                        <div className='side-menu-wrapper'>
-                            <SideMenu
-                                wallet={wallet}
-                                setShowConnectWallet={setShowConnectWallet}
-                            />
-                        </div>
                         <div className='app-body' id='app-body'>
                             {currentError ? (
                                 <PageError errorMsg={currentError} />
@@ -305,6 +301,7 @@ function App(): ReactElement {
                                             </Route>
                                             <Route path='/'>
                                                 <LandingContainer
+                                                    allPairs={allPairs}
                                                     topPairs={topPairs}
                                                     wallet={wallet}
                                                     setShowConnectWallet={

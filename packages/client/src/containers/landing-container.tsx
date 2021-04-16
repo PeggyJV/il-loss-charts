@@ -3,7 +3,7 @@ import { Container } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { LPPositionData } from '@sommelier/shared-types';
 import { ErrorBoundary } from 'react-error-boundary';
-import { TopPairsState, Wallet } from 'types/states';
+import { AllPairsState, TopPairsState, Wallet } from 'types/states';
 import PositionsTable from 'components/positions-table';
 import { TelegramCTA } from 'components/telegram-cta';
 import { ComponentError } from 'components/page-error';
@@ -12,13 +12,16 @@ import mixpanel from 'util/mixpanel';
 import TopPairsWidget from 'components/top-pairs-widget';
 import ConnectWalletButton from 'components/connect-wallet-button';
 import PendingTx from 'components/pending-tx';
+import SearchContainer from 'containers/search-container';
 
 function LandingContainer({
+    allPairs,
     topPairs,
     wallet,
     setShowConnectWallet,
     handleAddLiquidity,
 }: {
+    allPairs: AllPairsState;
     topPairs: TopPairsState | null;
     wallet: Wallet;
     setShowConnectWallet: (wallet: boolean) => void;
@@ -38,7 +41,7 @@ function LandingContainer({
 
     (window as any).positionData = positionData;
     (window as any).pairId = pairId;
-    
+
     useEffect(() => {
         const fetchPositionsForWallet = async () => {
             if (!isLoading) setIsLoading(true);
@@ -105,20 +108,22 @@ function LandingContainer({
         <div>
             <div className='main-header-container'>
                 <div className='nav-button-container'>
+                <h5 className='logo-title'>SOMMELIER FINANCE</h5>
                     <TelegramCTA />
                 </div>
                 <div className='wallet-combo'>
-                    <PendingTx />
+                    {wallet?.account && <PendingTx />}
                     <ConnectWalletButton onClick={showModal} wallet={wallet} />
                 </div>
             </div>
-            <div className='alert-well'>
+            {/* <div className='alert-well'>
                 <p>
                     This is not financial advice. This is an alpha project.
                     Trade at your own risk. All calculated returns include
                     Impermanent Loss.
                 </p>
-            </div>
+            </div> */}
+            <SearchContainer allPairs={allPairs} />
             {wallet.account && positionData && (
                 <>
                     <h4 className='heading-main'>Open Positions</h4>
@@ -132,18 +137,18 @@ function LandingContainer({
                     </ErrorBoundary>
                 </>
             )}
-            <div className='header-with-filter'>
+            {/* <div className='header-with-filter'>
                 <h4 className='heading-main'>
                     TOP LIQUIDITY POOLS :: 24 Hours
                 </h4>
-            </div>
+            </div> */}
             {/* <p>
                 <em>
                     * These are the highest return pairs on Uniswap over the past 24 hours.
                 </em>
             </p> */}
 
-            {topPairs?.daily && (
+            {/* {topPairs?.daily && (
                 <ErrorBoundary FallbackComponent={ComponentError}>
                     <TopPairsWidget
                         topPairs={topPairs.daily}
@@ -163,7 +168,7 @@ function LandingContainer({
                         handleAddLiquidity={handleAddLiquidity}
                     />
                 </ErrorBoundary>
-            )}
+            )} */}
 
             {/* <h5>Highest Impermanent Loss Pairs on Uniswap since December 1</h5>
             <p>

@@ -29,7 +29,7 @@ function SearchContainer({
 
     return (
         <Container className='pair-search-container' fluid>
-            <h4 className='heading-main'>Search :: Uniswap Pairs</h4>
+            <h4 className='heading-main'>SEARCH UNISWAP V3 PAIRS</h4>
             <PairSearch pairs={allPairs.pairs} setPair={setPairId} />
         </Container>
     );

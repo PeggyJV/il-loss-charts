@@ -10,7 +10,7 @@ html {
 
 body {
     font-family: 'Source Sans Pro', sans-serif;
-    background: #141229;
+    background: #050211;
 }
 a,
 a:hover,
@@ -199,36 +199,44 @@ p {
 
 .app {
     display: flex;
-    background: var(--bgMain);
+    background: #191835;
     color: var(--facePrimary);
 }
 
 .app-body {
-    width: calc(100% - 250px);
+    width: calc(100% - 200px);
     padding: 2rem;
-    // border: 1px solid var(--bgDeep);
+    min-height: 100vh;
+    border-right: 1px solid var(--bgDeep);
+    border-left: 1px solid var(--bgDeep);
     background: var(--bgMain);
-    // margin: 0 auto;
+    margin: 0 auto;
+    box-shadow: 0 0 10px 1px var(--bgDeep);
 }
 
 .page-title {
     text-align: center;
     margin-top: 1rem;
 }
-
+.logo-title {
+    font-family: 'Barlow Condensed';
+    font-weight: 800;
+    color: var(--facePrimary);
+    font-size: 2rem;
+}
 .centered {
     text-align: center;
 }
 
 .main-header-container {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
+    margin-bottom: 3rem;
 }
 
 .telegram-cta {
     font-size: 1rem;
-    margin-right: 200px;
     a {
         color: var(--faceAccentAlt);
         font-weight: bold;
@@ -243,7 +251,11 @@ p {
 }
 
 .pair-search-container {
-    height: 20rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    height: 10rem;
 }
 
 .card.no-border {
@@ -745,8 +757,8 @@ p {
 
 .nav-button-container {
     display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: center;
 }
 
 .join-community-button {
