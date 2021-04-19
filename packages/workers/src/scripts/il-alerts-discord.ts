@@ -44,7 +44,7 @@ async function runDiscordAlerts(): Promise<void> {
 
 
     try {
-        topPairs = await UniswapFetcher.getCurrentTopPerformingPairs(100);
+        topPairs = await UniswapFetcher.getCurrentTopPerformingPools(100);
     } catch (e) {
         console.error(
             `Aborting: could not fetch pairs for IL alerts: ${

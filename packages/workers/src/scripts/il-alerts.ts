@@ -34,7 +34,7 @@ export default async function runAlertCheck(): Promise<void> {
     let topPairs: IUniswapPair[];
 
     try {
-        topPairs = await UniswapFetcher.getCurrentTopPerformingPairs(100);
+        topPairs = await UniswapFetcher.getCurrentTopPerformingPools(100);
     } catch (e) {
         console.error(
             `Aborting: could not fetch pairs for IL alerts: ${

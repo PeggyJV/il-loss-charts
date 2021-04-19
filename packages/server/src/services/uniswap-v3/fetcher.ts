@@ -33,7 +33,7 @@ class UniswapV3Fetcher {
   async getPoolOverview(
     poolId: string,
     blockNumber?: number
-  ): Promise<IUniswapPair> {
+  ): Promise<GetPoolOverviewResult> {
     let options: GetPoolOverviewQueryVariables = { id: poolId };
     if (typeof blockNumber === 'number') {
       options = {
