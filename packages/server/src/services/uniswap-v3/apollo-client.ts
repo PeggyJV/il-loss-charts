@@ -57,7 +57,7 @@ export default function getSdkApollo<C>(client: ApolloClient<C>) {
       }
       case 'mutation': {
         throw new Error(
-          'Subscription requests through SDK interface are not supported',
+          'Mutation requests through SDK interface are not supported',
         );
       }
       case 'subscription': {
