@@ -432,10 +432,26 @@ input PoolWhere {
   reserveUSD_gt: BigDecimal
 }
 
+input PoolDayDatasWhere {
+  id: ID,
+  date_gt: Int,
+  date_lt: Int,
+}
+
+input PoolHourDatasWhere {
+  id: ID,
+  periodStartUnix_gt: Int,
+  periodStartUnix_lt: Int,
+}
+
 type Query {
   token(id: ID!): Token
   pool(id: ID!, blockNumber: Int): Pool
   pools(first: Int, orderBy: String, orderDirection: String, where: PoolWhere): [Pool]
+  poolDayData(id: ID!): PoolDayData
+  poolDayDatas(orderBy: String, orderDirection: String, where: PoolDayDatasWhere): [PoolDayData]
+  poolHourData(id: ID!): PoolDayData
+  poolHourDatas(orderBy: String, orderDirection: String, where: PoolHourDatasWhere): [PoolHourData]
 }
 
 schema {

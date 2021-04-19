@@ -151,6 +151,12 @@ export type PoolDayData = {
   periodTxCount: Scalars['BigInt'];
 };
 
+export type PoolDayDatasWhere = {
+  id?: Maybe<Scalars['ID']>;
+  date_gt?: Maybe<Scalars['Int']>;
+  date_lt?: Maybe<Scalars['Int']>;
+};
+
 export type PoolHourData = {
   __typename?: 'PoolHourData';
   id: Scalars['ID'];
@@ -169,6 +175,12 @@ export type PoolHourData = {
   periodTxCount: Scalars['BigInt'];
 };
 
+export type PoolHourDatasWhere = {
+  id?: Maybe<Scalars['ID']>;
+  periodStartUnix_gt?: Maybe<Scalars['Int']>;
+  periodStartUnix_lt?: Maybe<Scalars['Int']>;
+};
+
 export type PoolWhere = {
   volumeUSD_lt?: Maybe<Scalars['BigDecimal']>;
   reserveUSD_gt?: Maybe<Scalars['BigDecimal']>;
@@ -179,6 +191,10 @@ export type Query = {
   token?: Maybe<Token>;
   pool?: Maybe<Pool>;
   pools?: Maybe<Array<Maybe<Pool>>>;
+  poolDayData?: Maybe<PoolDayData>;
+  poolDayDatas?: Maybe<Array<Maybe<PoolDayData>>>;
+  poolHourData?: Maybe<PoolDayData>;
+  poolHourDatas?: Maybe<Array<Maybe<PoolHourData>>>;
 };
 
 
@@ -198,6 +214,30 @@ export type QueryPoolsArgs = {
   orderBy?: Maybe<Scalars['String']>;
   orderDirection?: Maybe<Scalars['String']>;
   where?: Maybe<PoolWhere>;
+};
+
+
+export type QueryPoolDayDataArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryPoolDayDatasArgs = {
+  orderBy?: Maybe<Scalars['String']>;
+  orderDirection?: Maybe<Scalars['String']>;
+  where?: Maybe<PoolDayDatasWhere>;
+};
+
+
+export type QueryPoolHourDataArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryPoolHourDatasArgs = {
+  orderBy?: Maybe<Scalars['String']>;
+  orderDirection?: Maybe<Scalars['String']>;
+  where?: Maybe<PoolHourDatasWhere>;
 };
 
 export type Swap = {
@@ -348,6 +388,44 @@ export type UniswapDayData = {
   txCount: Scalars['BigInt'];
 };
 
+export type GetPoolDataDailyQueryVariables = Exact<{
+  id: Scalars['ID'];
+  orderBy: Scalars['String'];
+  orderDirection: Scalars['String'];
+  startDate: Scalars['Int'];
+  endDate: Scalars['Int'];
+}>;
+
+
+export type GetPoolDataDailyQuery = (
+  { __typename?: 'Query' }
+  & { poolDayDatas?: Maybe<Array<Maybe<(
+    { __typename?: 'PoolDayData' }
+    & Pick<PoolDayData, 'date' | 'id' | 'periodVolumeToken0' | 'periodVolumeToken1' | 'periodVolumeUSD' | 'reserveUSD' | 'reserve0' | 'reserve1'>
+  )>>> }
+);
+
+export type GetPoolDataHourlyQueryVariables = Exact<{
+  id: Scalars['ID'];
+  orderBy: Scalars['String'];
+  orderDirection: Scalars['String'];
+  startTime: Scalars['Int'];
+  endTime: Scalars['Int'];
+}>;
+
+
+export type GetPoolDataHourlyQuery = (
+  { __typename?: 'Query' }
+  & { poolHourDatas?: Maybe<Array<Maybe<(
+    { __typename?: 'PoolHourData' }
+    & Pick<PoolHourData, 'periodStartUnix' | 'periodVolumeToken0' | 'periodVolumeToken1' | 'periodVolumeUSD' | 'reserveUSD' | 'reserve0' | 'reserve1'>
+    & { pool: (
+      { __typename?: 'Pool' }
+      & Pick<Pool, 'id'>
+    ) }
+  )>>> }
+);
+
 export type GetPoolOverviewQueryVariables = Exact<{
   id: Scalars['ID'];
   blockNumber?: Maybe<Scalars['Int']>;
@@ -414,6 +492,44 @@ export type GetTopPoolsQuery = (
 );
 
 
+export const GetPoolDataDailyDocument = gql`
+    query getPoolDataDaily($id: ID!, $orderBy: String!, $orderDirection: String!, $startDate: Int!, $endDate: Int!) {
+  poolDayDatas(
+    orderBy: $orderBy
+    orderDirection: $orderDirection
+    where: {id: $id, date_gt: $startDate, date_lt: $endDate}
+  ) {
+    date
+    id
+    periodVolumeToken0
+    periodVolumeToken1
+    periodVolumeUSD
+    reserveUSD
+    reserve0
+    reserve1
+  }
+}
+    `;
+export const GetPoolDataHourlyDocument = gql`
+    query getPoolDataHourly($id: ID!, $orderBy: String!, $orderDirection: String!, $startTime: Int!, $endTime: Int!) {
+  poolHourDatas(
+    orderBy: $orderBy
+    orderDirection: $orderDirection
+    where: {id: $id, periodStartUnix_gt: $startTime, periodStartUnix_lt: $endTime}
+  ) {
+    pool {
+      id
+    }
+    periodStartUnix
+    periodVolumeToken0
+    periodVolumeToken1
+    periodVolumeUSD
+    reserveUSD
+    reserve0
+    reserve1
+  }
+}
+    `;
 export const GetPoolOverviewDocument = gql`
     query getPoolOverview($id: ID!, $blockNumber: Int) {
   pool(id: $id, blockNumber: $blockNumber) {
@@ -500,6 +616,12 @@ export const GetTopPoolsDocument = gql`
 export type Requester<C= {}> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R>
 export function getSdk<C>(requester: Requester<C>) {
   return {
+    getPoolDataDaily(variables: GetPoolDataDailyQueryVariables, options?: C): Promise<GetPoolDataDailyQuery> {
+      return requester<GetPoolDataDailyQuery, GetPoolDataDailyQueryVariables>(GetPoolDataDailyDocument, variables, options);
+    },
+    getPoolDataHourly(variables: GetPoolDataHourlyQueryVariables, options?: C): Promise<GetPoolDataHourlyQuery> {
+      return requester<GetPoolDataHourlyQuery, GetPoolDataHourlyQueryVariables>(GetPoolDataHourlyDocument, variables, options);
+    },
     getPoolOverview(variables: GetPoolOverviewQueryVariables, options?: C): Promise<GetPoolOverviewQuery> {
       return requester<GetPoolOverviewQuery, GetPoolOverviewQueryVariables>(GetPoolOverviewDocument, variables, options);
     },

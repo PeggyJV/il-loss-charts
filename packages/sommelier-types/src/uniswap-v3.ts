@@ -149,6 +149,12 @@ export type PoolDayData = {
   periodTxCount: Scalars['BigInt'];
 };
 
+export type PoolDayDatasWhere = {
+  id?: Maybe<Scalars['ID']>;
+  date_gt?: Maybe<Scalars['Int']>;
+  date_lt?: Maybe<Scalars['Int']>;
+};
+
 export type PoolHourData = {
   __typename?: 'PoolHourData';
   id: Scalars['ID'];
@@ -167,6 +173,12 @@ export type PoolHourData = {
   periodTxCount: Scalars['BigInt'];
 };
 
+export type PoolHourDatasWhere = {
+  id?: Maybe<Scalars['ID']>;
+  periodStartUnix_gt?: Maybe<Scalars['Int']>;
+  periodStartUnix_lt?: Maybe<Scalars['Int']>;
+};
+
 export type PoolWhere = {
   volumeUSD_lt?: Maybe<Scalars['BigDecimal']>;
   reserveUSD_gt?: Maybe<Scalars['BigDecimal']>;
@@ -177,6 +189,10 @@ export type Query = {
   token?: Maybe<Token>;
   pool?: Maybe<Pool>;
   pools?: Maybe<Array<Maybe<Pool>>>;
+  poolDayData?: Maybe<PoolDayData>;
+  poolDayDatas?: Maybe<Array<Maybe<PoolDayData>>>;
+  poolHourData?: Maybe<PoolDayData>;
+  poolHourDatas?: Maybe<Array<Maybe<PoolHourData>>>;
 };
 
 
@@ -196,6 +212,30 @@ export type QueryPoolsArgs = {
   orderBy?: Maybe<Scalars['String']>;
   orderDirection?: Maybe<Scalars['String']>;
   where?: Maybe<PoolWhere>;
+};
+
+
+export type QueryPoolDayDataArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryPoolDayDatasArgs = {
+  orderBy?: Maybe<Scalars['String']>;
+  orderDirection?: Maybe<Scalars['String']>;
+  where?: Maybe<PoolDayDatasWhere>;
+};
+
+
+export type QueryPoolHourDataArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryPoolHourDatasArgs = {
+  orderBy?: Maybe<Scalars['String']>;
+  orderDirection?: Maybe<Scalars['String']>;
+  where?: Maybe<PoolHourDatasWhere>;
 };
 
 export type Swap = {

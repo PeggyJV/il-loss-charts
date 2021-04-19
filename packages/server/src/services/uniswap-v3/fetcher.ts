@@ -5,6 +5,7 @@ import {
   Pool
 } from 'services/uniswap-v3/generated-types';
 import { HTTPError } from 'api/util/errors';
+import { toDateInt } from 'util/gql'
 import { wrapWithCache } from 'util/redis-data-cache';
 import BigNumber from 'bignumber.js';
 import getSdkApollo, { Sdk } from 'services/uniswap-v3/apollo-client';
@@ -18,7 +19,7 @@ const UNTRACKED_POOLS: Array<string> = [];
 // The reverse of the Maybe type defined by graphql codegen
 type UnMaybe<T> = Exclude<T, undefined>;
 
-// { ...pool, volumeUSD: string, feesUSD: string }
+// Type = { ...pool, volumeUSD: string, feesUSD: string }
 type GetPoolOverviewResult = Omit<UnMaybe<GetPoolOverviewQuery['pool']>, 'volumeUSD'> & { volumeUSD: string, feesUSD: string };
 type GetTopPoolsResult = UnMaybe<GetPoolsOverviewQuery['pools']>;
 
@@ -29,7 +30,6 @@ class UniswapV3Fetcher {
     this.sdk = sdk;
   }
 
-  // @kkennis should we rename this to getPoolOverview or must we be 100% 1:1 with the v2 fetcher?
   async getPoolOverview(
     poolId: string,
     blockNumber?: number
@@ -46,11 +46,8 @@ class UniswapV3Fetcher {
     try {
       data  = await this.sdk.getPoolOverview(options)
     } catch (error) {
-      const responseError = error?.toString() ?? '';
-      const message = `Could not find pool with ID ${poolId}. ${responseError}`;
-
       // TODO: Clients should throw coded errors, let the route handler deal with HTTP status codes
-      throw new HTTPError(400, message);
+      throw makeSdkError(`Could not find pool with ID ${poolID}.`, error);
     }
 
     if (data.pool  == null) {
@@ -70,7 +67,6 @@ class UniswapV3Fetcher {
     return pool;
   }
 
-  // This fn should be renamed to getPoolsOverview
   async getTopPools(
     count: number = 1000,
     orderBy: keyof Pool,
@@ -83,10 +79,7 @@ class UniswapV3Fetcher {
 
       return pools;
     } catch (error) {
-      const responseError = error?.toString() ?? '';
-      const message = `Could not fetch top pools. ${responseError}`;
-
-      throw new HTTPError(400, message);
+      throw makeSdkError(`Could not fetch top pool.`, error);
     }
   }
 
@@ -102,10 +95,62 @@ class UniswapV3Fetcher {
         throw new Error('No pools returned.');
       }
     } catch (error) {
-      const responseError = error?.toString() ?? '';
-      const message = `Could not fetch top performing pools. ${responseError}`;
-
-      throw new HTTPError(400, message);
+      throw makeSdkError(`Could not fetch top performing pools.`, error);
     }
   }
+
+  async getPoolDailyData(
+    poolId: string,
+    start: Date,
+    end: Date,
+  ): Promise<any> { // TODO
+    const startDate = toDateInt(start);
+    const endDate = toDateInt(end);
+    
+    try {
+      const { poolDayDatas } = await this.sdk.getPoolDataDaily({
+        id: poolId,
+        orderBy: 'date',
+        orderDirection: 'asc',
+        startDate,
+        endDate,
+      });
+
+      if (poolDayDatas == null) {
+        throw new Error('No pools returned.')
+      }
+    } catch (error) {
+      throw makeSdkError(`Could not fetch daily data for pool ${poolId}.`, error);
+    }
+  }
+
+  async getHourlyData(
+    poolId: string,
+    start: Date,
+    end: Date,
+  ): Promise<any> { // TODO
+    const startTime = toDateInt(start) - 1;
+    const endTime = toDateInt(end);
+
+    try {
+      const { poolHourDatas } = await this.sdk.getPoolDataHourly({
+        id: poolId,
+        orderBy: 'periodStartUnix',
+        orderDirection: 'asc',
+        startTime,
+        endTime,
+      });
+
+      if (poolHourDatas == null) {
+        throw new Error('No pools returned.')
+      }
+    } catch (error) {
+      throw makeSdkError(`Could not fetch hourly data for pool ${poolId}.`, error);
+    }
+  }
+}
+
+function makeSdkError(message: String, error: Error, code = 400) {
+  const sdkError = error?.toString() ?? '';
+  return new HTTPError(code, `${message} ${sdkError}`);
 }
