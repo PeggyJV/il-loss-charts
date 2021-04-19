@@ -1,0 +1,19 @@
+query getPoolsOverview ($first: Int!, $orderBy: String!, $orderDirection: String!) {
+  pools(first: $first, orderBy: $orderBy, orderDirection: $orderDirection) {
+      id
+      volumeUSD
+      reserveUSD
+      token0 {
+          id
+          name
+          symbol
+          decimals
+      }
+      token1 {
+          id
+          name
+          symbol
+          decimals
+      }
+  }
+}

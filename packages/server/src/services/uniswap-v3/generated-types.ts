@@ -169,10 +169,16 @@ export type PoolHourData = {
   periodTxCount: Scalars['BigInt'];
 };
 
+export type PoolWhere = {
+  volumeUSD_lt?: Maybe<Scalars['BigDecimal']>;
+  reserveUSD_gt?: Maybe<Scalars['BigDecimal']>;
+};
+
 export type Query = {
   __typename?: 'Query';
   token?: Maybe<Token>;
   pool?: Maybe<Pool>;
+  pools?: Maybe<Array<Maybe<Pool>>>;
 };
 
 
@@ -183,6 +189,15 @@ export type QueryTokenArgs = {
 
 export type QueryPoolArgs = {
   id: Scalars['ID'];
+  blockNumber?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryPoolsArgs = {
+  first?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Scalars['String']>;
+  orderDirection?: Maybe<Scalars['String']>;
+  where?: Maybe<PoolWhere>;
 };
 
 export type Swap = {
@@ -333,16 +348,17 @@ export type UniswapDayData = {
   txCount: Scalars['BigInt'];
 };
 
-export type GetPairOverviewQueryVariables = Exact<{
+export type GetPoolOverviewQueryVariables = Exact<{
   id: Scalars['ID'];
+  blockNumber?: Maybe<Scalars['Int']>;
 }>;
 
 
-export type GetPairOverviewQuery = (
+export type GetPoolOverviewQuery = (
   { __typename?: 'Query' }
   & { pool?: Maybe<(
     { __typename?: 'Pool' }
-    & Pick<Pool, 'id' | 'reserve0' | 'reserve1' | 'reserveUSD' | 'trackedReserveETH' | 'token0Price' | 'token1Price' | 'volumeUSD' | 'untrackedVolumeUSD' | 'liquidity' | 'txCount' | 'createdAtTimestamp'>
+    & Pick<Pool, 'id' | 'reserve0' | 'reserve1' | 'reserveUSD' | 'trackedReserveETH' | 'token0Price' | 'token1Price' | 'volumeUSD' | 'untrackedVolumeUSD' | 'liquidity' | 'txCount' | 'feeTier' | 'createdAtTimestamp'>
     & { token0: (
       { __typename?: 'Token' }
       & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH' | 'tradeVolumeUSD' | 'totalLiquidity'>
@@ -353,10 +369,54 @@ export type GetPairOverviewQuery = (
   )> }
 );
 
+export type GetPoolsOverviewQueryVariables = Exact<{
+  first: Scalars['Int'];
+  orderBy: Scalars['String'];
+  orderDirection: Scalars['String'];
+}>;
 
-export const GetPairOverviewDocument = gql`
-    query GetPairOverview($id: ID!) {
-  pool(id: $id) {
+
+export type GetPoolsOverviewQuery = (
+  { __typename?: 'Query' }
+  & { pools?: Maybe<Array<Maybe<(
+    { __typename?: 'Pool' }
+    & Pick<Pool, 'id' | 'volumeUSD' | 'reserveUSD'>
+    & { token0: (
+      { __typename?: 'Token' }
+      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+    ), token1: (
+      { __typename?: 'Token' }
+      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+    ) }
+  )>>> }
+);
+
+export type GetTopPoolsQueryVariables = Exact<{
+  first: Scalars['Int'];
+  orderDirection: Scalars['String'];
+  orderBy: Scalars['String'];
+}>;
+
+
+export type GetTopPoolsQuery = (
+  { __typename?: 'Query' }
+  & { pools?: Maybe<Array<Maybe<(
+    { __typename?: 'Pool' }
+    & Pick<Pool, 'id' | 'volumeUSD' | 'reserveUSD'>
+    & { token0: (
+      { __typename?: 'Token' }
+      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+    ), token1: (
+      { __typename?: 'Token' }
+      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+    ) }
+  )>>> }
+);
+
+
+export const GetPoolOverviewDocument = gql`
+    query getPoolOverview($id: ID!, $blockNumber: Int) {
+  pool(id: $id, blockNumber: $blockNumber) {
     id
     token0 {
       id
@@ -386,15 +446,69 @@ export const GetPairOverviewDocument = gql`
     untrackedVolumeUSD
     liquidity
     txCount
+    feeTier
     createdAtTimestamp
+  }
+}
+    `;
+export const GetPoolsOverviewDocument = gql`
+    query getPoolsOverview($first: Int!, $orderBy: String!, $orderDirection: String!) {
+  pools(first: $first, orderBy: $orderBy, orderDirection: $orderDirection) {
+    id
+    volumeUSD
+    reserveUSD
+    token0 {
+      id
+      name
+      symbol
+      decimals
+    }
+    token1 {
+      id
+      name
+      symbol
+      decimals
+    }
+  }
+}
+    `;
+export const GetTopPoolsDocument = gql`
+    query getTopPools($first: Int!, $orderDirection: String!, $orderBy: String!) {
+  pools(
+    first: $first
+    orderDirection: $orderDirection
+    orderBy: $orderBy
+    where: {volumeUSD_lt: 100000000, reserveUSD_gt: 500000}
+  ) {
+    id
+    volumeUSD
+    reserveUSD
+    token0 {
+      id
+      name
+      symbol
+      decimals
+    }
+    token1 {
+      id
+      name
+      symbol
+      decimals
+    }
   }
 }
     `;
 export type Requester<C= {}> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R>
 export function getSdk<C>(requester: Requester<C>) {
   return {
-    GetPairOverview(variables: GetPairOverviewQueryVariables, options?: C): Promise<GetPairOverviewQuery> {
-      return requester<GetPairOverviewQuery, GetPairOverviewQueryVariables>(GetPairOverviewDocument, variables, options);
+    getPoolOverview(variables: GetPoolOverviewQueryVariables, options?: C): Promise<GetPoolOverviewQuery> {
+      return requester<GetPoolOverviewQuery, GetPoolOverviewQueryVariables>(GetPoolOverviewDocument, variables, options);
+    },
+    getPoolsOverview(variables: GetPoolsOverviewQueryVariables, options?: C): Promise<GetPoolsOverviewQuery> {
+      return requester<GetPoolsOverviewQuery, GetPoolsOverviewQueryVariables>(GetPoolsOverviewDocument, variables, options);
+    },
+    getTopPools(variables: GetTopPoolsQueryVariables, options?: C): Promise<GetTopPoolsQuery> {
+      return requester<GetTopPoolsQuery, GetTopPoolsQueryVariables>(GetTopPoolsDocument, variables, options);
     }
   };
 }

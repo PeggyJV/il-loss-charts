@@ -1,5 +1,5 @@
-query GetPairOverview($id: ID!) {
-    pool(id: $id){
+query getPoolOverview ($id: ID!, $blockNumber: Int) {
+    pool(id: $id, blockNumber: $blockNumber){
         id
         token0 {
             id
@@ -29,6 +29,7 @@ query GetPairOverview($id: ID!) {
         untrackedVolumeUSD
         liquidity
         txCount
+        feeTier
         createdAtTimestamp
     }
 }

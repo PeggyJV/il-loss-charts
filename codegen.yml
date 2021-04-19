@@ -7,7 +7,7 @@ generates:
       - "typescript"
   packages/server/src/services/uniswap-v3/generated-types.ts:
     schema: packages/sommelier-types/src/schemas/uniswap-v3.graphql
-    documents: packages/server/src/services/uniswap-v3/graphql/get-pair-overview.graphql
+    documents: packages/server/src/services/uniswap-v3/graphql/*.graphql
     plugins:
       - "typescript"
       - "typescript-operations"

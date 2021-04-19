@@ -167,10 +167,16 @@ export type PoolHourData = {
   periodTxCount: Scalars['BigInt'];
 };
 
+export type PoolWhere = {
+  volumeUSD_lt?: Maybe<Scalars['BigDecimal']>;
+  reserveUSD_gt?: Maybe<Scalars['BigDecimal']>;
+};
+
 export type Query = {
   __typename?: 'Query';
   token?: Maybe<Token>;
   pool?: Maybe<Pool>;
+  pools?: Maybe<Array<Maybe<Pool>>>;
 };
 
 
@@ -181,6 +187,15 @@ export type QueryTokenArgs = {
 
 export type QueryPoolArgs = {
   id: Scalars['ID'];
+  blockNumber?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryPoolsArgs = {
+  first?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<Scalars['String']>;
+  orderDirection?: Maybe<Scalars['String']>;
+  where?: Maybe<PoolWhere>;
 };
 
 export type Swap = {
