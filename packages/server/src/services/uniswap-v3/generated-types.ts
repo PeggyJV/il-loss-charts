@@ -358,7 +358,7 @@ export type GetPoolOverviewQuery = (
   { __typename?: 'Query' }
   & { pool?: Maybe<(
     { __typename?: 'Pool' }
-    & Pick<Pool, 'id' | 'reserve0' | 'reserve1' | 'reserveUSD' | 'trackedReserveETH' | 'token0Price' | 'token1Price' | 'volumeUSD' | 'untrackedVolumeUSD' | 'liquidity' | 'txCount' | 'feeTier' | 'createdAtTimestamp'>
+    & Pick<Pool, 'id' | 'reserve0' | 'reserve1' | 'reserveUSD' | 'trackedReserveETH' | 'token0Price' | 'token1Price' | 'volumeUSD' | 'untrackedVolumeUSD' | 'txCount' | 'feeTier' | 'createdAtTimestamp'>
     & { token0: (
       { __typename?: 'Token' }
       & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH' | 'tradeVolumeUSD' | 'totalLiquidity'>
@@ -444,7 +444,6 @@ export const GetPoolOverviewDocument = gql`
     token1Price
     volumeUSD
     untrackedVolumeUSD
-    liquidity
     txCount
     feeTier
     createdAtTimestamp

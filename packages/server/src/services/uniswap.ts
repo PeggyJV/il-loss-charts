@@ -101,7 +101,6 @@ export default class UniswapFetcher {
                             token1Price
                             volumeUSD
                             untrackedVolumeUSD
-                            totalSupply
                             txCount
                             createdAtTimestamp
                         }

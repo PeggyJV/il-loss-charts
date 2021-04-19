@@ -1,9 +1,14 @@
 import {
-  GetPoolOverviewQueryVariables
+  GetPoolOverviewQueryVariables,
+  Pool
 } from 'services/uniswap-v3/generated-types';
 import { HTTPError } from 'api/util/errors';
+import { wrapWithCache } from 'util/redis-data-cache';
 import BigNumber from 'bignumber.js';
 import getSdkApollo, { Sdk } from 'services/uniswap-v3/apollo-client';
+import redis from 'util/redis';
+
+const FEE_TIER_DENOMINATOR = 1000000;
 
 class UniswapV3Fetcher {
   sdk: Sdk;
@@ -16,7 +21,7 @@ class UniswapV3Fetcher {
   async getPairOverview(
     poolId: string,
     blockNumber?: number
-  ) {
+  ): Promise<any> {
     let options: GetPoolOverviewQueryVariables = { id: poolId };
     if (typeof blockNumber === 'number') {
       options = {
@@ -46,10 +51,30 @@ class UniswapV3Fetcher {
       ...data.pool,
       volumeUSD: new BigNumber(data.pool.volumeUSD).toString(),
       feesUSD: new BigNumber(data.pool.volumeUSD, 10)
-      .times(pool.feeTier)
+      .times(data.pool.feeTier / FEE_TIER_DENOMINATOR)
       .toString()
     };
 
     return pool;
+  }
+
+  cachedGetPairOverview = wrapWithCache(
+    redis,
+    this.getPairOverview,
+    10000,
+    false
+  );
+
+  async getTopPairs(
+    count: number = 1000,
+    orderBy: keyof Pool,
+    includedUntracked: boolean = false
+  ): Promise<any> { // TODO
+    let data;
+    try {
+      data = await this.sdk.getTopPools({ first: count, orderDirection: 'desc', orderBy });
+    } catch (error) {
+
+    }
   }
 }

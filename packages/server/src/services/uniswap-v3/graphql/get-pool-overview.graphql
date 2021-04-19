@@ -27,7 +27,6 @@ query getPoolOverview ($id: ID!, $blockNumber: Int) {
         token1Price
         volumeUSD
         untrackedVolumeUSD
-        liquidity
         txCount
         feeTier
         createdAtTimestamp
