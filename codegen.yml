@@ -1,0 +1,14 @@
+eoverwrite: true
+documents: null
+generates:
+  packages/sommelier-types/src/uniswap-v3.ts:
+    schema: packages/sommelier-types/src/schemas/uniswap-v3.graphql
+    plugins:
+      - "typescript"
+  packages/server/src/services/uniswap-v3/generated-types.ts:
+    schema: packages/sommelier-types/src/schemas/uniswap-v3.graphql
+    documents: packages/server/src/services/uniswap-v3/graphql/get-pair-overview.graphql
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-generic-sdk"

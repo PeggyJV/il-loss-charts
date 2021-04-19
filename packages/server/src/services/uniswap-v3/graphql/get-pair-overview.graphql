@@ -1,0 +1,34 @@
+query GetPairOverview($id: ID!) {
+    pool(id: $id){
+        id
+        token0 {
+            id
+            name
+            symbol
+            decimals
+            derivedETH
+            tradeVolumeUSD
+            totalLiquidity
+        }
+        token1 {
+            id
+            symbol
+            name
+            decimals
+            derivedETH
+            tradeVolumeUSD
+            totalLiquidity
+        }
+        reserve0
+        reserve1
+        reserveUSD
+        trackedReserveETH
+        token0Price
+        token1Price
+        volumeUSD
+        untrackedVolumeUSD
+        liquidity
+        txCount
+        createdAtTimestamp
+    }
+}

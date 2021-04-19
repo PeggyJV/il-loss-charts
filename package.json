@@ -15,7 +15,9 @@
         "build": "lerna run clean && lerna run build",
         "lint": "lerna run lint --stream --concurrency 1",
         "dev-live": "PORT=4000 cd packages/server && yarn start",
-        "prod": "cd packages/server && yarn start"
+        "prod": "cd packages/server && yarn start",
+        "generate-gql": "graphql-codegen --config codegen.yml",
+        "generate-gql-watch": "graphql-codegen --config codegen.yml --watch"
     },
     "volta": {
         "node": "14.15.4",
@@ -30,6 +32,10 @@
     },
     "devDependencies": {
         "@babel/core": "^7.12.10",
+        "@graphql-codegen/cli": "1.21.3",
+        "@graphql-codegen/typescript": "1.21.1",
+        "@graphql-codegen/typescript-generic-sdk": "^1.17.9",
+        "@graphql-codegen/typescript-operations": "^1.17.15",
         "@typescript-eslint/eslint-plugin": "^4.12.0",
         "@typescript-eslint/parser": "^4.12.0",
         "@zerollup/ts-transform-paths": "^1.7.18",
