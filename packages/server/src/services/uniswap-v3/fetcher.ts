@@ -18,7 +18,7 @@ class UniswapV3Fetcher {
   }
 
   // @kkennis should we rename this to getPoolOverview or must we be 100% 1:1 with the v2 fetcher?
-  async getPairOverview(
+  async getPoolOverview(
     poolId: string,
     blockNumber?: number
   ): Promise<any> {
@@ -58,14 +58,14 @@ class UniswapV3Fetcher {
     return pool;
   }
 
-  cachedGetPairOverview = wrapWithCache(
+  cachedGetPoolOverview = wrapWithCache(
     redis,
-    this.getPairOverview,
+    this.getPoolOverview,
     10000,
     false
   );
 
-  async getTopPairs(
+  async getTopPools(
     count: number = 1000,
     orderBy: keyof Pool,
     includedUntracked: boolean = false

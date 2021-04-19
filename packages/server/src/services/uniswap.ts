@@ -58,7 +58,7 @@ export default class UniswapFetcher {
         },
     });
 
-    static async getPairOverview(
+    static async getPoolOverview(
         pairId: string,
         blockNumber?: number
     ): Promise<IUniswapPair> {
@@ -128,14 +128,14 @@ export default class UniswapFetcher {
         return { ...pair, feesUSD };
     }
 
-    static cachedGetPairOverview = wrapWithCache(
+    static cachedGetPoolOverview = wrapWithCache(
         redis,
-        UniswapFetcher.getPairOverview,
+        UniswapFetcher.getPoolOverview,
         10000,
         false
     );
 
-    static async getTopPairs(
+    static async getTopPools(
         count = 1000,
         orderBy = 'volumeUSD',
         includeUntracked = false
@@ -184,7 +184,7 @@ export default class UniswapFetcher {
         // move untrackedVolumeUSD to volumeUSD field
         // add to end of list and re-sort
         const untrackedPairRequests = UNTRACKED_PAIRS.map(async (pairId) => {
-            const pairData = await UniswapFetcher.getPairOverview(pairId);
+            const pairData = await UniswapFetcher.getPoolOverview(pairId);
 
             if (pairData.untrackedVolumeUSD) {
                 pairData.volumeUSD = pairData.untrackedVolumeUSD;
@@ -200,7 +200,7 @@ export default class UniswapFetcher {
         );
     }
 
-    static async getCurrentTopPerformingPairs(
+    static async getCurrentTopPerformingPools(
         count = 100
     ): Promise<IUniswapPair[]> {
         const response: ApolloResponse<{
@@ -251,7 +251,7 @@ export default class UniswapFetcher {
         return pairs;
     }
 
-    static async getPairDeltasByTime({
+    static async getPoolDeltasByTime({
         pairId,
         startDate,
         endDate,
@@ -290,7 +290,7 @@ export default class UniswapFetcher {
 
         const pairDataP = blockDatas.map(
             (block) =>
-                <Promise<IUniswapPair>>UniswapFetcher.cachedGetPairOverview(
+                <Promise<IUniswapPair>>UniswapFetcher.cachedGetPoolOverview(
                     pairId,
                     block.number
                 ).catch((err: HTTPError) => {
@@ -309,14 +309,14 @@ export default class UniswapFetcher {
 
             if (e.message.match(blockBehindMsg)) {
                 pairDatas = await Promise.all([
-                    <Promise<IUniswapPair>>UniswapFetcher.cachedGetPairOverview(
+                    <Promise<IUniswapPair>>UniswapFetcher.cachedGetPoolOverview(
                         pairId,
                         blockDatas[0].number
                     ).catch((err: HTTPError) => {
                         if (err.status === 404) return null;
                         else throw err;
                     }),
-                    <Promise<IUniswapPair>>UniswapFetcher.cachedGetPairOverview(
+                    <Promise<IUniswapPair>>UniswapFetcher.cachedGetPoolOverview(
                         pairId
                     ).catch((err: HTTPError) => {
                         if (err.status === 404) return null;
@@ -345,7 +345,7 @@ export default class UniswapFetcher {
 
             // Make sure pairStartBlock is actually after our first block
             if (pairStartBlock.number > blockDatas[0].number) {
-                pairDatas[0] = await UniswapFetcher.cachedGetPairOverview(
+                pairDatas[0] = await UniswapFetcher.cachedGetPoolOverview(
                     pairId,
                     pairStartBlock.number
                 );
@@ -356,7 +356,7 @@ export default class UniswapFetcher {
                 );
 
                 // Try to re-fetch
-                pairDatas[0] = await UniswapFetcher.cachedGetPairOverview(
+                pairDatas[0] = await UniswapFetcher.cachedGetPoolOverview(
                     pairId,
                     blockDatas[0].number
                 );
@@ -608,7 +608,7 @@ export default class UniswapFetcher {
         return hourlyData;
     }
 
-    static async getSwapsForPair(pairId: string): Promise<UniswapSwap[]> {
+    static async getSwapsForPool(pairId: string): Promise<UniswapSwap[]> {
         const response: ApolloResponse<{
             swaps: UniswapSwap[];
         }> = await UniswapFetcher.client.query({
@@ -653,7 +653,7 @@ export default class UniswapFetcher {
         return swaps;
     }
 
-    static async getMintsForPair(pairId: string): Promise<UniswapMintOrBurn[]> {
+    static async getMintsForPool(pairId: string): Promise<UniswapMintOrBurn[]> {
         const response: ApolloResponse<{
             mints: UniswapMintOrBurn[];
         }> = await UniswapFetcher.client.query({
@@ -696,7 +696,7 @@ export default class UniswapFetcher {
         return mints;
     }
 
-    static async getBurnsForPair(pairId: string): Promise<UniswapMintOrBurn[]> {
+    static async getBurnsForPool(pairId: string): Promise<UniswapMintOrBurn[]> {
         const response: ApolloResponse<{
             burns: UniswapMintOrBurn[];
         }> = await UniswapFetcher.client.query({
