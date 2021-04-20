@@ -25,7 +25,7 @@ type UnMaybe<T> = Exclude<T, null | undefined>;
 
 // Fn return types derived from generated types
 // Type = { ...pool, volumeUSD: string, feesUSD: string }
-type GetPoolOverviewResult = Omit<UnMaybe<GetPoolOverviewQuery['pool']>, 'volumeUSD'> & { volumeUSD: string, feesUSD: string };
+type GetPoolOverviewResult = UnMaybe<GetPoolOverviewQuery['pool']>;
 type GetTopPoolsResult = UnMaybe<GetPoolsOverviewQuery['pools']>;
 type GetPoolDataDailyResult = UnMaybe<GetPoolDailyDataQuery['poolDayDatas']>;
 type GetPoolDataHourlyResult = UnMaybe<GetPoolHourlyDataQuery['poolHourDatas']>;
@@ -85,17 +85,7 @@ class UniswapV3Fetcher {
       throw new HTTPError(404);
     }
 
-    // TODO: type the return value
-    // @kkennis, should this return the same shape as the v2 fetcher, IUniswapPair?
-    const pool = {
-      ...data.pool,
-      volumeUSD: new BigNumber(data.pool.volumeUSD).toString(),
-      feesUSD: new BigNumber(data.pool.volumeUSD, 10)
-      .times(data.pool.feeTier / FEE_TIER_DENOMINATOR)
-      .toString()
-    };
-
-    return pool;
+    return data.pool;
   }
 
   async getTopPools(
