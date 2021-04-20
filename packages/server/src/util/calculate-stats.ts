@@ -509,7 +509,7 @@ export async function calculateStatsForPositions(
                 // So try to get hourlies - if within the same hour, we can't get data
                 const hourlyStartDate = new Date(prevSnapshot.timestamp * 1000);
                 const hourlyEndDate = new Date(snapshot.timestamp * 1000);
-                historicalDataBetween = await UniswapFetcher.getHourlyData(
+                historicalDataBetween = await UniswapFetcher.getPoolHourlyData(
                     pairId,
                     hourlyStartDate,
                     hourlyEndDate
@@ -571,7 +571,7 @@ export async function calculateStatsForPositions(
                 const endDateHourEnd = new Date(
                     Math.ceil(endDate.getTime() / oneHourMs) * oneHourMs
                 );
-                historicalDataBetween = await UniswapFetcher.getHourlyData(
+                historicalDataBetween = await UniswapFetcher.getPoolHourlyData(
                     pairId,
                     startDateHourStart,
                     endDateHourEnd

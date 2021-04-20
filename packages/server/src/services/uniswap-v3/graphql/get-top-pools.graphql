@@ -1,0 +1,27 @@
+query getTopPools ($first: Int!, $orderDirection: String!, $orderBy: String!) {
+  pools (
+    first: $first, 
+    orderDirection: $orderDirection, 
+    orderBy: $orderBy,
+    where: {
+      volumeUSD_lt: 100000000,
+      reserveUSD_gt: 500000
+    }
+  ) {
+    id
+    volumeUSD
+    reserveUSD
+    token0 {
+      id
+      name
+      symbol
+      decimals
+    }
+    token1 {
+      id
+      name
+      symbol
+      decimals
+    }
+  }
+}

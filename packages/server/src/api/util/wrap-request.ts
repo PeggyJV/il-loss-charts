@@ -1,7 +1,7 @@
 import { Request, Response, RequestHandler } from 'express';
 
 export default function wrapRequest(
-    controllerFn: (req: Request, res: Response) => Promise<unknown>
+    controllerFn: (req: Request<any, any, any, any>, res: Response) => Promise<unknown>
 ): RequestHandler {
     return async (req: Request, res: Response) => {
         try {

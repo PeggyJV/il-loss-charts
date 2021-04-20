@@ -1,0 +1,20 @@
+query getPoolHourlyData ($id: ID!, $orderBy: String!, $orderDirection: String!, $startTime: Int!, $endTime: Int!) {
+  poolHourDatas(orderBy: $orderBy, orderDirection: $orderDirection,
+      where: {
+        id: $id,
+        periodStartUnix_gt: $startTime,
+        periodStartUnix_lt: $endTime,
+      }
+  ) {
+      pool {
+          id
+      }
+      periodStartUnix
+      periodVolumeToken0
+      periodVolumeToken1
+      periodVolumeUSD
+      reserveUSD
+      reserve0
+      reserve1
+  }
+}

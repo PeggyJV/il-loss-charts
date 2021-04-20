@@ -26,10 +26,10 @@ import { wrapWithCache, keepCachePopulated } from 'util/redis-data-cache';
 
 // Controllers should parse query/body, validate params, and pass to service to do the work.
 
-const getTopPairs = wrapWithCache(redis, UniswapFetcher.getTopPairs, 300, true);
+const getTopPairs = wrapWithCache(redis, UniswapFetcher.getTopPools, 300, true);
 const getCurrentTopPerformingPairs = wrapWithCache(
     redis,
-    UniswapFetcher.getCurrentTopPerformingPairs,
+    UniswapFetcher.getCurrentTopPerformingPools,
     300,
     true
 );
@@ -54,7 +54,7 @@ const getFirstBlockAfter = wrapWithCache(
 );
 
 // Start off keeping cache populated
-void keepCachePopulated(redis, UniswapFetcher.getTopPairs, [
+void keepCachePopulated(redis, UniswapFetcher.getTopPools, [
     undefined,
     'volumeUSD',
     true,
@@ -113,7 +113,7 @@ class UniswapController {
 
         const historicalFetches = topPairs.map(
             (pair: IUniswapPair): Promise<IUniswapPair[]> =>
-                UniswapFetcher.getPairDeltasByTime({
+                UniswapFetcher.getPoolDeltasByTime({
                     pairId: pair.id,
                     startBlock,
                     endBlock,
@@ -149,7 +149,7 @@ class UniswapController {
             // - daily data (up to current day)
             // - hourly data (up to current hour)
 
-            void keepCachePopulated(redis, UniswapFetcher.getPairOverview, [
+            void keepCachePopulated(redis, UniswapFetcher.getPoolOverview, [
                 pair.id,
             ]);
             // void keepCachePopulated(redis, UniswapFetcher.getHistoricalDailyData, [pair.id]);
@@ -227,7 +227,7 @@ class UniswapController {
 
         const historicalFetches = topPairs.map(
             (pair: IUniswapPair): Promise<IUniswapPair[]> =>
-                UniswapFetcher.getPairDeltasByTime({
+                UniswapFetcher.getPoolDeltasByTime({
                     pairId: pair.id,
                     startBlock,
                     endBlock,
@@ -258,7 +258,7 @@ class UniswapController {
 
         // Pre-cache stats for the daily top 10
         statsByReturn.slice(0, 10).forEach((pair) => {
-            void keepCachePopulated(redis, UniswapFetcher.getPairOverview, [
+            void keepCachePopulated(redis, UniswapFetcher.getPoolOverview, [
                 pair.id,
             ]);
         });
@@ -273,7 +273,7 @@ class UniswapController {
         if (!validId)
             throw new HTTPError(400, `'id' must be a valid ETH address.`);
 
-        const pairData = await UniswapFetcher.getPairOverview(pairId);
+        const pairData = await UniswapFetcher.getPoolOverview(pairId);
         return pairData;
     }
 
@@ -284,7 +284,7 @@ class UniswapController {
         if (!validId)
             throw new HTTPError(400, `'id' must be a valid ETH address.`);
 
-        const swaps = await UniswapFetcher.getSwapsForPair(pairId);
+        const swaps = await UniswapFetcher.getSwapsForPool(pairId);
         return swaps;
     }
 
@@ -296,8 +296,8 @@ class UniswapController {
             throw new HTTPError(400, `'id' must be a valid ETH address.`);
 
         const [mints, burns] = await Promise.all([
-            UniswapFetcher.getMintsForPair(pairId),
-            UniswapFetcher.getBurnsForPair(pairId),
+            UniswapFetcher.getMintsForPool(pairId),
+            UniswapFetcher.getBurnsForPool(pairId),
         ]);
 
         const combined = [...mints, ...burns].sort(
@@ -412,7 +412,7 @@ class UniswapController {
 
         const historicalFetches = topPairs.map(
             (pair: IUniswapPair): Promise<IUniswapPair[]> =>
-                UniswapFetcher.getPairDeltasByTime({
+                UniswapFetcher.getPoolDeltasByTime({
                     pairId: pair.id,
                     startBlock,
                     endBlock,
@@ -473,7 +473,7 @@ class UniswapController {
             throw new HTTPError(400, `Invalid 'lpLiquidityUSD' value.`);
 
         const [pairData, historicalDailyData] = await Promise.all([
-            UniswapFetcher.getPairOverview(pairId),
+            UniswapFetcher.getPoolOverview(pairId),
             UniswapFetcher.getHistoricalDailyData(pairId, startDate, endDate),
         ]);
 
