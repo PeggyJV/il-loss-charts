@@ -64,7 +64,7 @@ async function runDiscordAlerts(): Promise<void> {
     // TODO: Save requests by only fetching first and last hour
     const historicalFetches = topPairs.map(
         (pair: IUniswapPair): Promise<UniswapHourlyData[]> =>
-            UniswapFetcher.getHourlyData(pair.id, startDate, endDate)
+            UniswapFetcher.getPoolHourlyData(pair.id, startDate, endDate)
     );
 
     let historicalData: UniswapHourlyData[][];
