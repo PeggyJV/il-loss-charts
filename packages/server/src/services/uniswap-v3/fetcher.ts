@@ -1,3 +1,4 @@
+import { dayMs } from 'util/date';
 import {
   GetEthPriceQueryVariables,
   GetPoolDailyDataQuery,
@@ -15,7 +16,6 @@ import getSdkApollo, { Sdk } from 'services/uniswap-v3/apollo-client';
 import redis from 'util/redis';
 
 const FEE_TIER_DENOMINATOR = 1000000;
-const DAY_MS = 1000 * 60 * 60 * 24;
 
 // The reverse of the Maybe type defined by graphql codegen
 type UnMaybe<T> = Exclude<T, null | undefined>;
@@ -199,7 +199,7 @@ export default class UniswapV3Fetcher {
       const oldLength = dailyData.length;
 
       // skip ahead 24 hours, cache for next query
-      lastStartDate = new Date(cursorEndDate * 1000 + DAY_MS);
+      lastStartDate = new Date(cursorEndDate * 1000 + dayMs);
       const moreDailyData = await this.getPoolDailyData(poolId, lastStartDate, end);
       dailyData = [...dailyData, ...moreDailyData];
       cursorEndDate = dailyData[dailyData.length - 1]?.date; // set new cursor
@@ -242,7 +242,7 @@ export default class UniswapV3Fetcher {
       const oldLength = hourlyData.length;
 
       // skip ahead 24 hours, cache for next query
-      lastStartTime =  new Date(cursorEndTime * 1000 + DAY_MS);
+      lastStartTime =  new Date(cursorEndTime * 1000 + dayMs);
       const moreHourlyData = await this.getPoolHourlyData(poolId, lastStartTime, end);
       hourlyData = [...hourlyData, ...moreHourlyData];
       cursorEndTime = hourlyData[hourlyData.length - 1]?.periodStartUnix; // set new cursor
