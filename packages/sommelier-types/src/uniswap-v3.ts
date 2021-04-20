@@ -186,24 +186,26 @@ export type PoolWhere = {
 
 export type Query = {
   __typename?: 'Query';
-  token?: Maybe<Token>;
+  bundle?: Maybe<Bundle>;
   pool?: Maybe<Pool>;
   pools?: Maybe<Array<Maybe<Pool>>>;
   poolDayData?: Maybe<PoolDayData>;
   poolDayDatas?: Maybe<Array<Maybe<PoolDayData>>>;
   poolHourData?: Maybe<PoolDayData>;
   poolHourDatas?: Maybe<Array<Maybe<PoolHourData>>>;
+  token?: Maybe<Token>;
 };
 
 
-export type QueryTokenArgs = {
+export type QueryBundleArgs = {
   id: Scalars['ID'];
+  block?: Maybe<Scalars['Int']>;
 };
 
 
 export type QueryPoolArgs = {
   id: Scalars['ID'];
-  blockNumber?: Maybe<Scalars['Int']>;
+  block?: Maybe<Scalars['Int']>;
 };
 
 
@@ -236,6 +238,11 @@ export type QueryPoolHourDatasArgs = {
   orderBy?: Maybe<Scalars['String']>;
   orderDirection?: Maybe<Scalars['String']>;
   where?: Maybe<PoolHourDatasWhere>;
+};
+
+
+export type QueryTokenArgs = {
+  id: Scalars['ID'];
 };
 
 export type Swap = {

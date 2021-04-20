@@ -1,10 +1,10 @@
 import {
+  GetEthPriceQueryVariables,
   GetPoolDailyDataQuery,
   GetPoolHourlyDataQuery,
   GetPoolOverviewQuery,
   GetPoolOverviewQueryVariables,
   GetPoolsOverviewQuery,
-  Maybe,
   Pool
 } from 'services/uniswap-v3/generated-types';
 import { HTTPError } from 'api/util/errors';
@@ -35,6 +35,30 @@ class UniswapV3Fetcher {
 
   constructor(sdk: Sdk) {
     this.sdk = sdk;
+  }
+
+  async getEthPrice(
+    blockNumber?: number
+  ): Promise<{ ethPrice: number }> { // Todo
+    let options: GetEthPriceQueryVariables = { id: '1' };
+    if (typeof blockNumber === 'number') {
+      options = {
+        ...options,
+        blockNumber,
+      }
+    }
+
+    try {
+      const { bundle } = await this.sdk.getEthPrice(options);
+
+      if (bundle?.ethPrice == null) {
+        throw new Error('ethPrice not returned.');
+      }
+
+      return { ethPrice: bundle.ethPrice };
+    } catch (error) {
+      throw makeSdkError(`Could not fetch ethPrice.`, error);
+    }
   }
 
   async getPoolOverview(

@@ -188,24 +188,26 @@ export type PoolWhere = {
 
 export type Query = {
   __typename?: 'Query';
-  token?: Maybe<Token>;
+  bundle?: Maybe<Bundle>;
   pool?: Maybe<Pool>;
   pools?: Maybe<Array<Maybe<Pool>>>;
   poolDayData?: Maybe<PoolDayData>;
   poolDayDatas?: Maybe<Array<Maybe<PoolDayData>>>;
   poolHourData?: Maybe<PoolDayData>;
   poolHourDatas?: Maybe<Array<Maybe<PoolHourData>>>;
+  token?: Maybe<Token>;
 };
 
 
-export type QueryTokenArgs = {
+export type QueryBundleArgs = {
   id: Scalars['ID'];
+  block?: Maybe<Scalars['Int']>;
 };
 
 
 export type QueryPoolArgs = {
   id: Scalars['ID'];
-  blockNumber?: Maybe<Scalars['Int']>;
+  block?: Maybe<Scalars['Int']>;
 };
 
 
@@ -238,6 +240,11 @@ export type QueryPoolHourDatasArgs = {
   orderBy?: Maybe<Scalars['String']>;
   orderDirection?: Maybe<Scalars['String']>;
   where?: Maybe<PoolHourDatasWhere>;
+};
+
+
+export type QueryTokenArgs = {
+  id: Scalars['ID'];
 };
 
 export type Swap = {
@@ -388,6 +395,20 @@ export type UniswapDayData = {
   txCount: Scalars['BigInt'];
 };
 
+export type GetEthPriceQueryVariables = Exact<{
+  id: Scalars['ID'];
+  blockNumber?: Maybe<Scalars['Int']>;
+}>;
+
+
+export type GetEthPriceQuery = (
+  { __typename?: 'Query' }
+  & { bundle?: Maybe<(
+    { __typename?: 'Bundle' }
+    & Pick<Bundle, 'ethPrice'>
+  )> }
+);
+
 export type GetPoolDailyDataQueryVariables = Exact<{
   id: Scalars['ID'];
   orderBy: Scalars['String'];
@@ -492,6 +513,13 @@ export type GetTopPoolsQuery = (
 );
 
 
+export const GetEthPriceDocument = gql`
+    query getEthPrice($id: ID!, $blockNumber: Int) {
+  bundle(id: $id, block: $blockNumber) {
+    ethPrice
+  }
+}
+    `;
 export const GetPoolDailyDataDocument = gql`
     query getPoolDailyData($id: ID!, $orderBy: String!, $orderDirection: String!, $startDate: Int!, $endDate: Int!) {
   poolDayDatas(
@@ -532,7 +560,7 @@ export const GetPoolHourlyDataDocument = gql`
     `;
 export const GetPoolOverviewDocument = gql`
     query getPoolOverview($id: ID!, $blockNumber: Int) {
-  pool(id: $id, blockNumber: $blockNumber) {
+  pool(id: $id, block: $blockNumber) {
     id
     token0 {
       id
@@ -616,6 +644,9 @@ export const GetTopPoolsDocument = gql`
 export type Requester<C= {}> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R>
 export function getSdk<C>(requester: Requester<C>) {
   return {
+    getEthPrice(variables: GetEthPriceQueryVariables, options?: C): Promise<GetEthPriceQuery> {
+      return requester<GetEthPriceQuery, GetEthPriceQueryVariables>(GetEthPriceDocument, variables, options);
+    },
     getPoolDailyData(variables: GetPoolDailyDataQueryVariables, options?: C): Promise<GetPoolDailyDataQuery> {
       return requester<GetPoolDailyDataQuery, GetPoolDailyDataQueryVariables>(GetPoolDailyDataDocument, variables, options);
     },

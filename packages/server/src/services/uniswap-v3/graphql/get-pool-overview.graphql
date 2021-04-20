@@ -1,5 +1,5 @@
 query getPoolOverview ($id: ID!, $blockNumber: Int) {
-    pool(id: $id, blockNumber: $blockNumber){
+    pool(id: $id, block: $blockNumber){
         id
         token0 {
             id
