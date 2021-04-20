@@ -305,11 +305,11 @@ function App(): ReactElement {
                                                         }
                                                     />
                                                 </Route>
-                                                <Route path='/search'>
+                                                {/* <Route path='/search'>
                                                     <SearchContainer
                                                         allPairs={allPairs}
                                                     />
-                                                </Route>
+                                                </Route> */}
                                                 <Route path='/'>
                                                     <LandingContainer
                                                         allPairs={allPairs}

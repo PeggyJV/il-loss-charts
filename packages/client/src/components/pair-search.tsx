@@ -1,4 +1,11 @@
-import { useEffect, useState, useMemo, useRef } from 'react';
+import {
+    useEffect,
+    useState,
+    useMemo,
+    useRef,
+    Dispatch,
+    SetStateAction,
+} from 'react';
 import { Combobox } from 'react-widgets';
 
 import { UniswapPair } from '@sommelier/shared-types';
@@ -56,13 +63,13 @@ const CssTextField = withStyles({
 })(TextField);
 function PairSearch({
     pairs,
-    setPair,
+    setPairId,
 }: {
     pairs: UniswapPair[];
-    setPair: (pairId: string) => void;
+    setPairId: Dispatch<SetStateAction<string | null>>;
 }): JSX.Element {
-    const searchRef = useRef(null);
-    const [currentValue, setCurrentValue] = useState<UniswapPair | null>(null);
+    // const searchRef = useRef(null);
+    // const [currentValue, setCurrentValue] = useState<UniswapPair | null>(null);
 
     const classes = useStyles();
 
@@ -81,19 +88,19 @@ function PairSearch({
 
     // TODO: allow searching by token name or address
     // Update actual pair if current value matches a given ID
-    useEffect(() => {
-        if (typeof currentValue === 'string') {
-            if (searchKeys[currentValue]) {
-                setPair(searchKeys[currentValue].id);
-            }
+    // useEffect(() => {
+    //     if (typeof currentValue === 'string') {
+    //         if (searchKeys[currentValue]) {
+    //             setPair(searchKeys[currentValue].id);
+    //         }
 
-            return;
-        }
+    //         return;
+    //     }
 
-        if (currentValue?.id) setPair(currentValue.id);
+    //     if (currentValue?.id) setPair(currentValue.id);
 
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentValue, searchKeys]);
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [currentValue, searchKeys]);
 
     const lookForPair = (pair: UniswapPair, value: string) => {
         const search = value.toLowerCase();
@@ -159,6 +166,10 @@ function PairSearch({
             debug={true}
             noOptionsText={'Invalid Pair'}
             loadingText={'...loading'}
+            onChange={(ev, pair, reason) => {
+                console.log(pair?.id);
+                pair && setPairId(pair?.id);
+            }}
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             getOptionLabel={(option) => option.pairReadable}
             style={{ width: 500 }}

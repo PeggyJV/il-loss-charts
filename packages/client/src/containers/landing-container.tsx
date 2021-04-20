@@ -15,7 +15,8 @@ import TopPairsWidget from 'components/top-pairs-widget';
 import ConnectWalletButton from 'components/connect-wallet-button';
 import PendingTx from 'components/pending-tx';
 import SearchContainer from 'containers/search-container';
-import {AddLiquidityV3} from 'components/add-liquidity/add-liquidity-v3';
+import { AddLiquidityV3 } from 'components/add-liquidity/add-liquidity-v3';
+import { Box } from '@material-ui/core';
 
 function LandingContainer({
     allPairs,
@@ -40,7 +41,7 @@ function LandingContainer({
         setPositionData,
     ] = useState<LPPositionData<string> | null>(null);
     const [pairId, setPairId] = useState(currentPairId || null);
-    const pairData = usePairDataOverview(currentPairId || null);
+    const pairData = usePairDataOverview(pairId || null);
     const balances = useBalance({
         pairData,
         wallet,
@@ -114,7 +115,7 @@ function LandingContainer({
         <div>
             <div className='main-header-container'>
                 <div className='nav-button-container'>
-                <h5 className='logo-title'>SOMMELIER FINANCE</h5>
+                    <h5 className='logo-title'>SOMMELIER FINANCE</h5>
                     <TelegramCTA />
                 </div>
                 <div className='wallet-combo'>
@@ -129,9 +130,15 @@ function LandingContainer({
                     Impermanent Loss.
                 </p>
             </div> */}
-            <SearchContainer allPairs={allPairs} />
-            <AddLiquidityV3 pairId={pairId} pairData={pairData} balances={balances}/>
-            {wallet.account && positionData && (
+            <SearchContainer allPairs={allPairs} setPairId={setPairId} />
+            <Box display='flex' justifyContent='space-around'>
+                <AddLiquidityV3
+                    pairId={pairId}
+                    pairData={pairData}
+                    balances={balances}
+                />
+            </Box>
+            {/* {wallet.account && positionData && (
                 <>
                     <h4 className='heading-main'>Open Positions</h4>
                     <ErrorBoundary FallbackComponent={ComponentError}>
@@ -143,7 +150,7 @@ function LandingContainer({
                         />
                     </ErrorBoundary>
                 </>
-            )}
+            )} */}
             {/* <div className='header-with-filter'>
                 <h4 className='heading-main'>
                     TOP LIQUIDITY POOLS :: 24 Hours

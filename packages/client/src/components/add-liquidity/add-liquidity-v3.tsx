@@ -28,18 +28,14 @@ export const AddLiquidityV3 = ({
     pairId,
     pairData,
 }: Props): JSX.Element => {
-    const selectStyles = {
-        valueContainer: (provided: { [key: string]: string }) => ({
-            ...provided,
-            background: 'var(--bgDeep)',
-            color: 'var(--facePrimary)',
-        }),
-    };
+    
+    const [token0Amount, setToken0Amount] = useState('0');
+    const [token1Amount, setToken1Amount] = useState('0');
 
     const token0Logo = resolveLogo(pairData?.token0.id);
     const token1Logo = resolveLogo(pairData?.token1.id);
-    const token0 = pairData?.token0.symbol;
-    const token1 = pairData?.token1.symbol;
+    const token0 = pairData?.token0.symbol ?? '';
+    const token1 = pairData?.token1.symbol ?? '';
 
     return (
         <>
@@ -47,36 +43,32 @@ export const AddLiquidityV3 = ({
                 <div className='token-and-wallet'>
                     <div className='token-pair-selector'>
                         <TokenInput
-                            token={'ETH'}
-                            amount={'0'}
-                            updateAmount={() => {
-                                return '';
-                            }}
+                            token={token0}
+                            amount={token0Amount}
+                            updateAmount={setToken0Amount}
                             updateToken={() => {
                                 return '';
                             }}
                             handleTokenRatio={() => {
                                 return '';
                             }}
-                            options={['ETH', 'WETH']}
+                            options={['ETH', token0]}
                             balances={balances}
                             twoSide={false}
                         />
                         <FontAwesomeIcon icon={faRetweet} />
 
                         <TokenInput
-                            token={'ETH'}
-                            amount={'0'}
-                            updateAmount={() => {
-                                return '';
-                            }}
+                            token={token1}
+                            amount={token1Amount}
+                            updateAmount={setToken1Amount}
                             updateToken={() => {
                                 return '';
                             }}
                             handleTokenRatio={() => {
                                 return '';
                             }}
-                            options={['ETH', 'WETH']}
+                            options={['ETH', token1]}
                             balances={balances}
                             twoSide={true}
                         />
@@ -86,7 +78,7 @@ export const AddLiquidityV3 = ({
                     </div>
                 </div>
                 <br />
-                <div className='tab-container'>
+                {/* <div className='tab-container'>
                     <div className='tab'>
                         <h3>MAKE</h3>
                         <p className='returns'>2.9ETH</p>
@@ -102,9 +94,9 @@ export const AddLiquidityV3 = ({
                         <p className='returns'>3.1ETH</p>
                         <p className='fees'>13.2% fees 24hrs</p>
                     </div>
-                </div>
+                </div> */}
                 <div className='preview-container'>
-                    <div className='header'>
+                    {/* <div className='header'>
                         <h4>Position Preview</h4>
                         <div className='total-and-pool'>
                             <p className='total'>$5231.45</p>
@@ -125,8 +117,8 @@ export const AddLiquidityV3 = ({
                         </p>
                     </div>
                     <div className='range-container'>
-                        <Range defaultValue={[0,100]} value={[20,80]} />
-                    </div>
+                        <Range defaultValue={[0, 100]} value={[20, 80]} />
+                    </div> */}
                     <div className='btn-container'>
                         <button className='btn-addl'>ADD LIQUIDITY</button>
                     </div>
