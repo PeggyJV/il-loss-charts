@@ -121,7 +121,7 @@ export default class UniswapV3Fetcher {
     poolId: string,
     start: Date,
     end: Date,
-  ): Promise<GetPoolDataDailyResult> {
+  ): Promise<GetPoolDailyDataResult> {
     const startDate = toDateInt(start);
     const endDate = toDateInt(end);
     
@@ -148,7 +148,7 @@ export default class UniswapV3Fetcher {
     poolId: string,
     start: Date,
     end: Date,
-  ): Promise<GetPoolDataHourlyResult> {
+  ): Promise<GetPoolHourlyDataResult> {
     const startTime = toDateInt(start) - 1;
     const endTime = toDateInt(end);
 
