@@ -30,6 +30,14 @@ const cached = {
 
 }
 
+// TODO: move this to utils
+const poolIdParamsSchema = Joi.object().keys({
+  poolId: Joi.string().custom(validateEthAddress, 'Validate Pool Id'),
+});
+const poolIdValidator = celebrate({
+  [Segments.PARAMS]: poolIdParamsSchema,
+});
+
 // GET /ethPrice
 async function getEthPrice() {
   const ethPrice = await cached.getEthPrice();
@@ -51,11 +59,9 @@ async function getTopPools(req: Request<unknown, unknown, unknown, GetTopPoolsQu
 }
 
 // GET /pools/:id
-async function getPoolOverview(req: Request) {
-  const { id } = req.params;
-  validateEthAddress(id);
-
-  return fetcher.getPoolOverview(id);
+async function getPoolOverview(req: Request<{ poolId: string}, unknown, unknown, unknown>) {
+  const { poolId } = req.params;
+  return fetcher.getPoolOverview(poolId);
 }
 
 // GET /pools/:id/historical/daily
@@ -64,27 +70,26 @@ type GetHistoricalDataQuery = {
   endDate?: Date,
 }
 const getHistoricalDataValidator = celebrate({
+  [Segments.PARAMS]: poolIdParamsSchema,
   [Segments.QUERY]: Joi.object().keys({
     startDate: Joi.date().required(),
     endDate: Joi.date().greater(Joi.ref('startDate')),
   })
 });
 
-async function getHistoricalDailyData(req: Request<{ id: string }, unknown, unknown, GetHistoricalDataQuery>) {
-  const { id } = req.params;
-  validateEthAddress(id);
+async function getHistoricalDailyData(req: Request<{ poolId: string }, unknown, unknown, GetHistoricalDataQuery>) {
+  const { poolId } = req.params;
 
   const { startDate, endDate } = req.query;
   const start = startOfDay(startDate);
   const end = endOfDay(endDate ?? new Date());
 
-  return cached.getHistoricalDailyData(id, start, end);
+  return cached.getHistoricalDailyData(poolId, start, end);
 }
 
 // GET /pools/:id/historical/hourly
-async function getHistoricalHourlyData(req: Request<{ id: string }, unknown, unknown, GetHistoricalDataQuery>) {
-  const { id } = req.params;
-  validateEthAddress(id);
+async function getHistoricalHourlyData(req: Request<{ poolId: string }, unknown, unknown, GetHistoricalDataQuery>) {
+  const { poolId } = req.params;
 
   const { startDate, endDate } = req.query;
   if (startDate < subWeeks(startDate, 1)) {
@@ -93,7 +98,7 @@ async function getHistoricalHourlyData(req: Request<{ id: string }, unknown, unk
   const start = startOfHour(startDate);
   const end = endOfHour(endDate ?? new Date());
 
-  return cached.getHistoricalHourlyData(id, start, end);
+  return cached.getHistoricalHourlyData(poolId, start, end);
 }
 
 const route = Router();
@@ -102,15 +107,17 @@ export default (app: Router, baseUrl: string) => {
 
   route.get('/ethPrice', wrapRequest(getEthPrice));
   route.get('/pools', getTopPoolsValidator, wrapRequest(getTopPools));
-  route.get('/pools/:id', wrapRequest(getPoolOverview));
-  route.get('/pools/:id/historical/daily', getHistoricalDataValidator, wrapRequest(getHistoricalDailyData));
-  route.get('/pools/:id/historical/hourly', getHistoricalDataValidator, wrapRequest(getHistoricalHourlyData));
+  route.get('/pools/:poolId', poolIdValidator, wrapRequest(getPoolOverview));
+  route.get('/pools/:poolId/historical/daily', getHistoricalDataValidator, wrapRequest(getHistoricalDailyData));
+  route.get('/pools/:poolId/historical/hourly', getHistoricalDataValidator, wrapRequest(getHistoricalHourlyData));
 }
 
 // TODO: put this somewhere else
 function validateEthAddress(id: any) {
   const isValidId = isValidEthAddress(id);
   if (!isValidId) {
-    throw new HTTPError(400, `'id' must be a valid ETH address.`);
+    throw new Error(`'id' must be a valid ETH address.`);
   }
+
+  return id;
 }
