@@ -86,8 +86,8 @@ export default class UniswapV3Fetcher {
   }
 
   async getTopPools(
-    count = 1000,
-    orderBy: keyof Pool,
+    count: number = 1000,
+    orderBy: keyof Pool = 'volumeUSD',
   ): Promise<GetTopPoolsResult> {
     try {
       const { pools } = await this.sdk.getPoolsOverview({ first: count, orderDirection: 'desc', orderBy });
