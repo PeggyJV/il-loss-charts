@@ -199,7 +199,7 @@ p {
 
 .app {
     display: flex;
-    background: #191835;
+    background: var(--bgMain);
     color: var(--facePrimary);
 }
 
@@ -211,7 +211,7 @@ p {
     border-left: 1px solid var(--bgDeep);
     background: var(--bgMain);
     margin: 0 auto;
-    box-shadow: 0 0 10px 1px var(--bgDeep);
+    // box-shadow: 0 0 10px 1px var(--bgDeep);
 }
 
 .page-title {

@@ -3,12 +3,17 @@ import { Combobox } from 'react-widgets';
 
 import { UniswapPair } from '@sommelier/shared-types';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { matchSorter } from 'match-sorter';
+import { matchSorter, MatchSorterOptions } from 'match-sorter';
 import { PairWithLogo } from 'components/token-with-logo';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import {
+    faSearch,
+    faLink,
+    faRetweet,
+    faWineGlassAlt,
+} from '@fortawesome/free-solid-svg-icons';
 import './pair-search.scss';
 import { resolveLogo } from 'components/token-with-logo';
 import NavbarCollapse from 'react-bootstrap/esm/NavbarCollapse';
@@ -101,6 +106,17 @@ function PairSearch({
         );
     };
 
+    function sorter(a: UniswapPair, b: UniswapPair) {
+        const pairAReserve = parseInt(a?.volumeUSD);
+        const pairBReserve = parseInt(b?.volumeUSD);
+
+        if (pairAReserve > pairBReserve) return -1;
+
+        if (pairBReserve > pairAReserve) return 1;
+
+        return 0;
+    }
+
     const renderTextField = (item: string | UniswapPair) => {
         if (typeof item === 'string' || !item) {
             return item;
@@ -112,15 +128,22 @@ function PairSearch({
     const pairFilter = (options: UniswapPair[], { inputValue }: any) =>
         matchSorter(options, inputValue, {
             keys: ['token0.symbol', 'token1.symbol', 'token.pairReadable'],
-        });
+        }).slice(0, 50);
 
     const renderPairWithLogo = (pair: UniswapPair) => (
         <div className='pair-option-with-logo'>
-            {/* {resolveLogo(pair?.token0?.id)}&nbsp;&nbsp;&nbsp; */}
-            {pair?.token0?.symbol}
-            {' / '}
-            {pair?.token1?.symbol}
-            {/* {resolveLogo(pair?.token1?.id)} */}
+            <div className='pair'>
+                {resolveLogo(pair?.token0?.id)}&nbsp;&nbsp;
+                {pair?.token0?.symbol}
+            </div>
+            &nbsp;
+            {<FontAwesomeIcon icon={faRetweet} />}
+            &nbsp;
+            <div className='pair'>
+                {pair?.token1?.symbol}
+                &nbsp;&nbsp;
+                {resolveLogo(pair?.token1?.id)}
+            </div>
         </div>
     );
     return (
@@ -129,11 +152,11 @@ function PairSearch({
             options={pairs}
             classes={classes}
             className='mui-pair-search'
-            autoHighlight={true}
+            autoHighlight={false}
             autoComplete={false}
-            autoSelect={true}
+            autoSelect={false}
             loading={false}
-            debug={false}
+            debug={true}
             noOptionsText={'Invalid Pair'}
             loadingText={'...loading'}
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -144,13 +167,12 @@ function PairSearch({
             renderInput={(params) => (
                 <CssTextField
                     {...params}
+                    className='pair-search-text'
                     style={{
-                        border: '1px solid var(--bgOffset)',
-                        color: 'red',
+                        border: '1px solid var(--borderAccentAlt)',
                         fontWeight: 400,
                         textTransform: 'uppercase',
                         background: 'var(--bgContainer)',
-                        padding: '1rem 0.5rem',
                     }}
                 />
             )}
