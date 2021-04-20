@@ -1,4 +1,4 @@
-query getPoolDataHourly ($id: ID!, $orderBy: String!, $orderDirection: String!, $startTime: Int!, $endTime: Int!) {
+query getPoolHourlyData ($id: ID!, $orderBy: String!, $orderDirection: String!, $startTime: Int!, $endTime: Int!) {
   poolHourDatas(orderBy: $orderBy, orderDirection: $orderDirection,
       where: {
         id: $id,

@@ -366,7 +366,7 @@ export default class UniswapFetcher {
         return pairDatas;
     }
 
-    static async _get100DaysHistoricalDailyData(
+    static async getPoolDailyData(
         pairId: string,
         startDate: Date,
         endDate: Date
@@ -411,7 +411,7 @@ export default class UniswapFetcher {
         return pairDayDatas;
     }
 
-    static async getHourlyData(
+    static async getPoolHourlyData(
         pairId: string,
         startDate: Date,
         endDate: Date
@@ -465,7 +465,7 @@ export default class UniswapFetcher {
         startDate: Date,
         endDate: Date
     ): Promise<UniswapDailyData> {
-        const pairHourDatas = await UniswapFetcher.getHourlyData(
+        const pairHourDatas = await UniswapFetcher.getPoolHourlyData(
             pairId,
             startDate,
             endDate
@@ -517,7 +517,7 @@ export default class UniswapFetcher {
         endDate = new Date()
     ): Promise<UniswapDailyData[]> {
         let lastStartDate = startDate;
-        let dailyData = await UniswapFetcher._get100DaysHistoricalDailyData(
+        let dailyData = await UniswapFetcher.getPoolDailyData(
             pairId,
             startDate,
             endDate
@@ -543,7 +543,7 @@ export default class UniswapFetcher {
             const oldLength = dailyData.length;
             dailyData = [
                 ...dailyData,
-                ...(await UniswapFetcher._get100DaysHistoricalDailyData(
+                ...(await UniswapFetcher.getPoolDailyData(
                     pairId,
                     lastStartDate,
                     endDate
@@ -565,7 +565,7 @@ export default class UniswapFetcher {
         endDate = new Date()
     ): Promise<UniswapHourlyData[]> {
         let lastStartDate = startDate;
-        let hourlyData = await UniswapFetcher.getHourlyData(
+        let hourlyData = await UniswapFetcher.getPoolHourlyData(
             pairId,
             startDate,
             endDate
@@ -592,7 +592,7 @@ export default class UniswapFetcher {
             const oldLength = hourlyData.length;
             hourlyData = [
                 ...hourlyData,
-                ...(await UniswapFetcher.getHourlyData(
+                ...(await UniswapFetcher.getPoolHourlyData(
                     pairId,
                     lastStartDate,
                     endDate

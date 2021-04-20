@@ -388,7 +388,7 @@ export type UniswapDayData = {
   txCount: Scalars['BigInt'];
 };
 
-export type GetPoolDataDailyQueryVariables = Exact<{
+export type GetPoolDailyDataQueryVariables = Exact<{
   id: Scalars['ID'];
   orderBy: Scalars['String'];
   orderDirection: Scalars['String'];
@@ -397,7 +397,7 @@ export type GetPoolDataDailyQueryVariables = Exact<{
 }>;
 
 
-export type GetPoolDataDailyQuery = (
+export type GetPoolDailyDataQuery = (
   { __typename?: 'Query' }
   & { poolDayDatas?: Maybe<Array<Maybe<(
     { __typename?: 'PoolDayData' }
@@ -405,7 +405,7 @@ export type GetPoolDataDailyQuery = (
   )>>> }
 );
 
-export type GetPoolDataHourlyQueryVariables = Exact<{
+export type GetPoolHourlyDataQueryVariables = Exact<{
   id: Scalars['ID'];
   orderBy: Scalars['String'];
   orderDirection: Scalars['String'];
@@ -414,7 +414,7 @@ export type GetPoolDataHourlyQueryVariables = Exact<{
 }>;
 
 
-export type GetPoolDataHourlyQuery = (
+export type GetPoolHourlyDataQuery = (
   { __typename?: 'Query' }
   & { poolHourDatas?: Maybe<Array<Maybe<(
     { __typename?: 'PoolHourData' }
@@ -492,8 +492,8 @@ export type GetTopPoolsQuery = (
 );
 
 
-export const GetPoolDataDailyDocument = gql`
-    query getPoolDataDaily($id: ID!, $orderBy: String!, $orderDirection: String!, $startDate: Int!, $endDate: Int!) {
+export const GetPoolDailyDataDocument = gql`
+    query getPoolDailyData($id: ID!, $orderBy: String!, $orderDirection: String!, $startDate: Int!, $endDate: Int!) {
   poolDayDatas(
     orderBy: $orderBy
     orderDirection: $orderDirection
@@ -510,8 +510,8 @@ export const GetPoolDataDailyDocument = gql`
   }
 }
     `;
-export const GetPoolDataHourlyDocument = gql`
-    query getPoolDataHourly($id: ID!, $orderBy: String!, $orderDirection: String!, $startTime: Int!, $endTime: Int!) {
+export const GetPoolHourlyDataDocument = gql`
+    query getPoolHourlyData($id: ID!, $orderBy: String!, $orderDirection: String!, $startTime: Int!, $endTime: Int!) {
   poolHourDatas(
     orderBy: $orderBy
     orderDirection: $orderDirection
@@ -616,11 +616,11 @@ export const GetTopPoolsDocument = gql`
 export type Requester<C= {}> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R>
 export function getSdk<C>(requester: Requester<C>) {
   return {
-    getPoolDataDaily(variables: GetPoolDataDailyQueryVariables, options?: C): Promise<GetPoolDataDailyQuery> {
-      return requester<GetPoolDataDailyQuery, GetPoolDataDailyQueryVariables>(GetPoolDataDailyDocument, variables, options);
+    getPoolDailyData(variables: GetPoolDailyDataQueryVariables, options?: C): Promise<GetPoolDailyDataQuery> {
+      return requester<GetPoolDailyDataQuery, GetPoolDailyDataQueryVariables>(GetPoolDailyDataDocument, variables, options);
     },
-    getPoolDataHourly(variables: GetPoolDataHourlyQueryVariables, options?: C): Promise<GetPoolDataHourlyQuery> {
-      return requester<GetPoolDataHourlyQuery, GetPoolDataHourlyQueryVariables>(GetPoolDataHourlyDocument, variables, options);
+    getPoolHourlyData(variables: GetPoolHourlyDataQueryVariables, options?: C): Promise<GetPoolHourlyDataQuery> {
+      return requester<GetPoolHourlyDataQuery, GetPoolHourlyDataQueryVariables>(GetPoolHourlyDataDocument, variables, options);
     },
     getPoolOverview(variables: GetPoolOverviewQueryVariables, options?: C): Promise<GetPoolOverviewQuery> {
       return requester<GetPoolOverviewQuery, GetPoolOverviewQueryVariables>(GetPoolOverviewDocument, variables, options);
