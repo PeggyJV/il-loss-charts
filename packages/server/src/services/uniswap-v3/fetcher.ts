@@ -24,10 +24,10 @@ type UnMaybe<T> = Exclude<T, null | undefined>;
 // Type = { ...pool, volumeUSD: string, feesUSD: string }
 type GetPoolOverviewResult = UnMaybe<GetPoolOverviewQuery['pool']>;
 type GetTopPoolsResult = UnMaybe<GetPoolsOverviewQuery['pools']>;
-type GetPoolDataDailyResult = UnMaybe<GetPoolDailyDataQuery['poolDayDatas']>;
-type GetPoolDataHourlyResult = UnMaybe<GetPoolHourlyDataQuery['poolHourDatas']>;
+type GetPoolDailyDataResult = UnMaybe<GetPoolDailyDataQuery['poolDayDatas']>;
+type GetPoolHourlyDataResult = UnMaybe<GetPoolHourlyDataQuery['poolHourDatas']>;
 
-class UniswapV3Fetcher {
+export default class UniswapV3Fetcher {
   sdk: Sdk;
 
   constructor(sdk: Sdk) {
@@ -36,7 +36,7 @@ class UniswapV3Fetcher {
 
   async getEthPrice(
     blockNumber?: number
-  ): Promise<{ ethPrice: number }> { // Todo
+  ): Promise<{ ethPrice: number }> {
     let options: GetEthPriceQueryVariables = { id: '1' };
     if (typeof blockNumber === 'number') {
       options = {
@@ -88,7 +88,7 @@ class UniswapV3Fetcher {
   async getTopPools(
     count = 1000,
     orderBy: keyof Pool,
-  ): Promise<GetTopPoolsResult> { // TODO
+  ): Promise<GetTopPoolsResult> {
     try {
       const { pools } = await this.sdk.getPoolsOverview({ first: count, orderDirection: 'desc', orderBy });
       if (pools == null || pools.length === 0) {
@@ -175,7 +175,7 @@ class UniswapV3Fetcher {
     poolId: string,
     start: Date,
     end: Date = new Date(),
-  ): Promise<any> { //todo
+  ): Promise<GetPoolDailyDataResult> {
     const startData = await this.getPoolDailyData(poolId, start, end);
     if (startData.length === 0) {
       throw new HTTPError(
@@ -219,7 +219,7 @@ class UniswapV3Fetcher {
     poolId: string,
     start: Date,
     end: Date,
-  ): Promise<any> { // todo
+  ): Promise<GetPoolHourlyDataResult> {
     const startData = await this.getPoolHourlyData(poolId, start, end);
     if (startData.length === 0) {
       throw new HTTPError(
