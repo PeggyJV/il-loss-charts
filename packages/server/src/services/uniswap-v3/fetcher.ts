@@ -17,9 +17,6 @@ import redis from 'util/redis';
 const FEE_TIER_DENOMINATOR = 1000000;
 const DAY_MS = 1000 * 60 * 60 * 24;
 
-// should this be loaded from config?
-const UNTRACKED_POOLS: Array<string> = [];
-
 // The reverse of the Maybe type defined by graphql codegen
 type UnMaybe<T> = Exclude<T, null | undefined>;
 
@@ -89,7 +86,7 @@ class UniswapV3Fetcher {
   }
 
   async getTopPools(
-    count: number = 1000,
+    count = 1000,
     orderBy: keyof Pool,
   ): Promise<GetTopPoolsResult> { // TODO
     try {
@@ -104,7 +101,7 @@ class UniswapV3Fetcher {
     }
   }
 
-  async getCurrentTopPerformingPools(count: number = 100) {
+  async getCurrentTopPerformingPools(count = 100) {
     try {
       const { pools } = await this.sdk.getTopPools({
         first: count,
@@ -259,7 +256,7 @@ class UniswapV3Fetcher {
   }
 }
 
-function makeSdkError(message: String, error: Error, code = 400) {
+function makeSdkError(message: string, error: Error, code = 400) {
   const sdkError = error?.toString() ?? '';
   return new HTTPError(code, `${message} ${sdkError}`);
 }
