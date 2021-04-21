@@ -1,4 +1,5 @@
 import express, { Application } from 'express';
+import routes from 'routes';
 import path from 'path';
 import bodyParser from 'body-parser';
 import http from 'http';
@@ -20,8 +21,8 @@ if (process.env.MIXPANEL_TOKEN) {
     mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN);
 }
 
-const app = express();
-export default class ExpressServer {
+export const app = express();
+class ExpressServer {
     public httpServer?: http.Server;
 
     constructor() {
@@ -47,22 +48,6 @@ export default class ExpressServer {
         app.use(express.static(`${root}/public`));
         app.use(express.static(`${clientRoot}/build`));
 
-        const apiSpec = path.join(__dirname, '../docs/api.yml');
-        const validateResponses = config.enableResponseValidation;
-        const apiDoc = YAML.load(apiSpec);
-
-        app.use('/api/explorer', swaggerUi.serve, swaggerUi.setup(apiDoc));
-        app.use(config.openApiSpec, express.static(apiSpec));
-
-        app.use(
-            OpenApiValidator.middleware({
-                apiSpec,
-                validateRequests: true,
-                validateResponses,
-                ignorePaths: /.*\/spec(\/|$)/,
-            })
-        );
-
         // Catch all
         app.use(function (req, res, next) {
             if (req.url.includes('api')) return next();
@@ -79,6 +64,31 @@ export default class ExpressServer {
         return this;
     }
 
+    mountExplorer(): void {
+        const apiSpec = path.join(__dirname, '../docs/api.yml');
+        let apiDoc;
+        try {
+            apiDoc = YAML.load(apiSpec);
+        } catch (error) {
+            console.log('Error: Could not load and configure API Explorer');
+        }
+
+        if (apiDoc) {
+            app.use('/api/explorer', swaggerUi.serve, swaggerUi.setup(apiDoc));
+            app.use(config.openApiSpec, express.static(apiSpec));
+
+             const validateResponses = config.enableResponseValidation;
+            app.use(
+                OpenApiValidator.middleware({
+                    apiSpec,
+                    validateRequests: true,
+                    validateResponses,
+                    ignorePaths: /.*\/spec(\/|$)/,
+                })
+            );
+        }
+    }
+
     listen(port: number): Application {
         const welcome = (p: number) => (): void =>
             console.info(
@@ -92,3 +102,7 @@ export default class ExpressServer {
         return app;
     }
 }
+
+const server = new ExpressServer();
+server.router(routes);
+export default server;

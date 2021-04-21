@@ -1,6 +1,7 @@
 import { Request, Response, RequestHandler } from 'express';
 
 export default function wrapRequest(
+    // eslint-ignore-next-line no-unused-vars
     controllerFn: (req: Request<any, any, any, any>, res: Response) => Promise<unknown>
 ): RequestHandler {
     return async (req: Request, res: Response) => {
