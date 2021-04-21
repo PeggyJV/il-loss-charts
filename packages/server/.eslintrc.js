@@ -2,11 +2,13 @@ const path = require('path');
 
 module.exports = {
     root: true,
+    plugins: ['unicorn'],
     parserOptions: {
         project: path.join(__dirname, './tsconfig.json'),
         sourceType: 'module',
     },
-    extends: [
-        '../../.eslintrc.json',
-    ]
+    rules: {
+        'unicorn/expiring-todo-comments': 'error',
+    },
+    extends: ['../../.eslintrc.json'],
 };

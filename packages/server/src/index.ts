@@ -1,14 +1,13 @@
 import 'common/env';
-import Server from 'common/server';
+import server from 'common/server';
 import WebsocketServer from 'ws/server';
-import routes from 'routes';
-
 import config from 'config';
+
 
 function startServer() {
     const port = parseInt(config.port);
 
-    const server = new Server().router(routes);
+    server.mountExplorer();
     server.listen(port);
 
     if (!server.httpServer) {
@@ -17,15 +16,14 @@ function startServer() {
         );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const wsServer = new WebsocketServer(server.httpServer);
+    new WebsocketServer(server.httpServer);
 }
 
 if (require.main === module) {
     startServer();
 }
 
-export default Server;
+export default server;
 
 // Other exports for other packages
 

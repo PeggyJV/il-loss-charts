@@ -10,12 +10,7 @@ import {
 } from 'services/uniswap-v3/generated-types';
 import { HTTPError } from 'api/util/errors';
 import { toDateInt } from 'util/gql'
-import { wrapWithCache } from 'util/redis-data-cache';
-import BigNumber from 'bignumber.js';
-import getSdkApollo, { Sdk } from 'services/uniswap-v3/apollo-client';
-import redis from 'util/redis';
-
-const FEE_TIER_DENOMINATOR = 1000000;
+import { Sdk } from 'services/uniswap-v3/apollo-client';
 
 // The reverse of the Maybe type defined by graphql codegen
 type UnMaybe<T> = Exclude<T, null | undefined>;
@@ -86,7 +81,7 @@ export default class UniswapV3Fetcher {
   }
 
   async getTopPools(
-    count: number = 1000,
+    count = 1000,
     orderBy: keyof Pool = 'volumeUSD',
   ): Promise<GetTopPoolsResult> {
     try {
@@ -112,6 +107,8 @@ export default class UniswapV3Fetcher {
       if (pools == null || pools.length === 0) {
         throw new Error('No pools returned.');
       }
+
+      return pools;
     } catch (error) {
       throw makeSdkError(`Could not fetch top performing pools.`, error);
     }
