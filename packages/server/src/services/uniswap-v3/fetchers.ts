@@ -7,7 +7,7 @@ import fetch from 'cross-fetch';
 
 import { UniswapV3Fetcher, UniswapV3FetcherMemoized } from 'services/uniswap-v3';
 import appConfig from 'config';
-import getSdkApollo from 'services/uniswap-v3/apollo-client';
+import getSdkApollo from 'services/util/apollo-client';
 
 const config: Record<string, string> = appConfig.uniswap.v3.networks;
 

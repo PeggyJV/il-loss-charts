@@ -7,7 +7,16 @@ generates:
       - "typescript"
   packages/server/src/services/uniswap-v3/generated-types.ts:
     schema: packages/sommelier-types/src/schemas/uniswap-v3.graphql
-    documents: packages/server/src/services/uniswap-v3/graphql/*.graphql
+    documents: 
+      - packages/server/src/services/uniswap-v3/graphql/*.graphql
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-generic-sdk"
+  packages/server/src/services/bitquery/generated-types.ts:
+    schema: packages/sommelier-types/src/schemas/bitquery.graphql
+    documents: 
+      - packages/server/src/services/bitquery/graphql/*.graphql
     plugins:
       - "typescript"
       - "typescript-operations"

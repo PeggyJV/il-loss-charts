@@ -23,6 +23,9 @@ type PoolPath = Path & {
 };
 
 const networks = Object.keys(config.uniswap.v3.networks);
+// TODO: move this somewhere else, mpaybe to the fetchers manager.
+// Will also need to namespace by network
+const fetcher = UV3Fetchers.get('mainnet');
 
 // TODO: move this to utils
 const poolIdParamsSchema = Joi.object().keys({

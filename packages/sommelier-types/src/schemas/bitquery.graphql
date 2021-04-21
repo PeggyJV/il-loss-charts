@@ -1,0 +1,25 @@
+type ethereum {
+    network: String!;
+    dexTrades: {
+        timeInterval: {
+            day: String;
+        }
+    }
+    date: String!;
+    exchangeName: String!;
+    baseCurrency: Token!;
+    quoteCurrency: Token!;
+    baseAmount: Int!;
+    quoteAmount: String!;
+    trades: Int!;
+    quotePrice: Int!;
+    maximum_price: Int!;
+    minimum_price: Int!;
+    open_price: String!;
+    close_price: String!;
+}
+
+type Token {
+    symbol: String!;
+    address: String!;
+}

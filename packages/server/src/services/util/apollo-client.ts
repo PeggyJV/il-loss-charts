@@ -1,7 +1,7 @@
 import { ApolloClient, QueryOptions, MutationOptions } from '@apollo/client/core';
 import { DocumentNode } from 'graphql';
 
-import { getSdk, Requester } from './generated-types';
+import { getSdk, Requester } from '../uniswap-v3/generated-types';
 
 export type ApolloRequesterOptions<V, R> =
   | Omit<QueryOptions<V>, 'variables' | 'query'>

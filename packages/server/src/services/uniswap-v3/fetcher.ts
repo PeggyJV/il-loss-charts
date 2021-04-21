@@ -10,7 +10,12 @@ import {
 } from 'services/uniswap-v3/generated-types';
 import { HTTPError } from 'api/util/errors';
 import { toDateInt } from 'util/gql'
-import { Sdk } from 'services/uniswap-v3/apollo-client';
+import { wrapWithCache } from 'util/redis-data-cache';
+import BigNumber from 'bignumber.js';
+import getSdkApollo, { Sdk } from 'services/util/apollo-client';
+import redis from 'util/redis';
+
+const FEE_TIER_DENOMINATOR = 1000000;
 
 // The reverse of the Maybe type defined by graphql codegen
 type UnMaybe<T> = Exclude<T, null | undefined>;
