@@ -1,11 +1,23 @@
-import { useState } from 'react';
+
+import { useState, useEffect, useContext } from 'react';
 import './add-liquidity-v3.scss';
+import { resolveLogo } from 'components/token-with-logo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLink } from '@fortawesome/free-solid-svg-icons';
 import { TokenInput } from 'components/token-input';
 import { WalletBalance } from 'components/wallet-balance';
 import { IUniswapPair } from '@sommelier/shared-types';
+import { Range } from 'rc-slider';
 import { WalletBalances } from 'types/states';
 import 'rc-slider/assets/index.css';
+import {
+    Form,
+    Row,
+    FormControl,
+    InputGroup,
+    Dropdown,
+    DropdownButton,
+} from 'react-bootstrap';
 import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 type Props = {
     balances: WalletBalances;
@@ -14,12 +26,15 @@ type Props = {
 };
 export const AddLiquidityV3 = ({
     balances,
+    pairId,
     pairData,
 }: Props): JSX.Element => {
     
     const [token0Amount, setToken0Amount] = useState('0');
     const [token1Amount, setToken1Amount] = useState('0');
 
+    const token0Logo = resolveLogo(pairData?.token0.id);
+    const token1Logo = resolveLogo(pairData?.token1.id);
     const token0 = pairData?.token0.symbol ?? '';
     const token1 = pairData?.token1.symbol ?? '';
 
