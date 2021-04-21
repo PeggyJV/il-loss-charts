@@ -4,25 +4,18 @@ import { ButtonGroup, Modal } from 'react-bootstrap';
 import classNames from 'classnames';
 import { toastWarn, toastSuccess, toastError } from 'util/toasters';
 import { ethers } from 'ethers';
-
-import erc20Abi from 'constants/abis/erc20.json';
-
-const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
-const EXCHANGE_REMOVE_ABI_ADDRESS =
-    '0x430f33353490b256D2fD7bBD9DaDF3BB7f905E78';
-const EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS =
-    '0xA522AA47C40F2BAC847cbe4D37455c521E69DEa7';
 import {
     EthGasPrices,
     LPPositionData,
-    UniswapPair,
 } from '@sommelier/shared-types';
-import { Wallet, WalletBalances } from 'types/states';
+import { Wallet } from 'types/states';
 import { compactHash } from 'util/formats';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
+import { usePairDataOverview } from 'hooks/use-pair-data-overview';
 import AddLiquidity from 'components/add-liquidity';
 import RemoveLiquidity from 'components/remove-liquidity';
 import { PendingTxContext, PendingTx } from 'app';
+import { useBalance } from 'hooks/use-balance';
 
 // TODO convert add, remove to a hook and separate UI from it
 function ManageLiquidityModal({
@@ -40,8 +33,11 @@ function ManageLiquidityModal({
     gasPrices: EthGasPrices | null;
 }): JSX.Element | null {
     const [mode, setMode] = useState<'add' | 'remove'>('add');
-    const [balances, setBalances] = useState<WalletBalances>({});
-    const [pairData, setPairData] = useState<UniswapPair | null>(null);
+    
+    const pairData = usePairDataOverview(
+        pairId
+        );
+      
     const [
         positionData,
         setPositionData,
@@ -52,6 +48,8 @@ function ManageLiquidityModal({
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
+    const balances = useBalance({ pairData, wallet });
+
     // TODO abstract this cleanly with context and reducer to be a global notification system
     const onDone = async (txHash?: string) => {
         if (!txHash) return;
@@ -108,177 +106,6 @@ function ManageLiquidityModal({
         setMode('add');
         setShow(false);
     };
-
-    useEffect(() => {
-        const fetchPairData = async () => {
-            if (!pairId) return;
-
-            // Fetch pair overview when pair ID changes
-            // Default to createdAt date if LP date not set
-            const { data: newPair, error } = await Uniswap.getPairOverview(
-                pairId
-            );
-
-            if (error) {
-                // we could not get data for this new pair
-                console.warn(
-                    `Could not fetch pair data for ${pairId}: ${error}`
-                );
-                return;
-            }
-
-            if (newPair) {
-                setPairData(new UniswapPair(newPair));
-            }
-        };
-
-        void fetchPairData();
-    }, [pairId]);
-
-    useEffect(() => {
-        // get balances of both tokens
-        const getBalances = async () => {
-            if (!provider || !wallet.account || !pairData) return;
-
-            const getTokenBalances = [
-                pairData.token0.id,
-                pairData.token1.id,
-                pairData.id,
-            ].map(async (tokenAddress) => {
-                if (!tokenAddress) {
-                    throw new Error(
-                        'Could not get balance for pair without token address'
-                    );
-                }
-                const token = new ethers.Contract(
-                    tokenAddress,
-                    erc20Abi
-                ).connect(provider as ethers.providers.Web3Provider);
-                const balance: ethers.BigNumber = await token.balanceOf(
-                    wallet.account
-                );
-                return balance;
-            });
-
-            const getAllowances = [
-                pairData.token0.id,
-                pairData.token1.id,
-                pairData.id,
-            ].map(async (tokenAddress) => {
-                if (!tokenAddress) {
-                    throw new Error(
-                        'Could not get balance for pair without token address'
-                    );
-                }
-                const token = new ethers.Contract(
-                    tokenAddress,
-                    erc20Abi
-                ).connect(provider as ethers.providers.Web3Provider);
-                const allowance: ethers.BigNumber = await token.allowance(
-                    wallet.account,
-                    tokenAddress === pairData.id
-                        ? EXCHANGE_REMOVE_ABI_ADDRESS
-                        : EXCHANGE_ADD_ABI_ADDRESS
-                );
-
-                return allowance;
-            });
-
-            const getTwoSideAllowances = [
-                pairData.token0.id,
-                pairData.token1.id,
-                pairData.id,
-            ].map(async (tokenAddress) => {
-                if (!tokenAddress) {
-                    throw new Error(
-                        'Could not get balance for pair without token address'
-                    );
-                }
-                const token = new ethers.Contract(
-                    tokenAddress,
-                    erc20Abi
-                ).connect(provider as ethers.providers.Web3Provider);
-                const allowance: ethers.BigNumber = await token.allowance(
-                    wallet.account,
-                    tokenAddress === pairData.id
-                        ? EXCHANGE_REMOVE_ABI_ADDRESS
-                        : EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS
-                );
-
-                return allowance;
-            });
-
-            const getEthBalance = provider.getBalance(wallet.account);
-            const [
-                ethBalance,
-                token0Balance,
-                token1Balance,
-                pairBalance,
-                token0Allowance,
-                token1Allowance,
-                pairAllowance,
-            ] = await Promise.all([
-                getEthBalance,
-                ...getTokenBalances,
-                ...getAllowances,
-            ]);
-
-            const [
-                addTwoToken0Allowance,
-                addTwoToken1Allowance,
-                addTwoPairAllowance,
-            ] = await Promise.all([...getTwoSideAllowances]);
-
-            // Get balance for other two tokens
-            setBalances({
-                ETH: {
-                    id: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-                    symbol: 'ETH',
-                    balance: ethBalance,
-                    decimals: '18',
-                    allowance: {
-                        [EXCHANGE_ADD_ABI_ADDRESS]: ethers.BigNumber.from(0),
-                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: ethers.BigNumber.from(
-                            0
-                        ),
-                    },
-                },
-                [pairData.token0.symbol]: {
-                    id: pairData.token0.id,
-                    symbol: pairData.token0.symbol,
-                    balance: token0Balance,
-                    decimals: pairData.token0.decimals,
-                    allowance: {
-                        [EXCHANGE_ADD_ABI_ADDRESS]: token0Allowance,
-                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: addTwoToken0Allowance,
-                    },
-                },
-                [pairData.token1.symbol]: {
-                    id: pairData.token1.id,
-                    symbol: pairData.token1.symbol,
-                    balance: token1Balance,
-                    decimals: pairData.token0.decimals,
-                    allowance: {
-                        [EXCHANGE_ADD_ABI_ADDRESS]: token1Allowance,
-                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: addTwoToken1Allowance,
-                    },
-                },
-                currentPair: {
-                    id: pairData.id,
-                    symbol: pairData.pairReadable,
-                    balance: pairBalance,
-                    decimals: '18',
-                    allowance: {
-                        [EXCHANGE_ADD_ABI_ADDRESS]: pairAllowance,
-                        [EXCHANGE_REMOVE_ABI_ADDRESS]: addTwoPairAllowance,
-                    },
-                },
-            });
-        };
-
-        void getBalances();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [wallet, show, pairData]);
 
     useEffect(() => {
         const fetchPositionsForWallet = async () => {

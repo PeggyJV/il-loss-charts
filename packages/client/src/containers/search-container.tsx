@@ -4,11 +4,14 @@ import { Container } from 'react-bootstrap';
 import { AllPairsState } from 'types/states';
 
 import PairSearch from 'components/pair-search';
+import { Dispatch, SetStateAction } from 'react';
 
 function SearchContainer({
     allPairs,
+    setPairId,
 }: {
     allPairs: AllPairsState;
+    setPairId: Dispatch<SetStateAction<string | null>>;
 }): JSX.Element {
     const history = useHistory();
 
@@ -22,15 +25,15 @@ function SearchContainer({
 
     (window as any).allPairs = allPairs;
 
-    const setPairId = (pairId: string) => {
-        // Update URL to go to the pair container
-        history.push(`/pair?id=${pairId}`);
-    };
+    // const setPairId = (pairId: string) => {
+    //     // Update URL to go to the pair container
+    //     history.push(`/pair?id=${pairId}`);
+    // };
 
     return (
         <Container className='pair-search-container' fluid>
-            <h4 className='heading-main'>Search :: Uniswap Pairs</h4>
-            <PairSearch pairs={allPairs.pairs} setPair={setPairId} />
+            <h4 className='heading-main'>SEARCH UNISWAP V3 PAIRS</h4>
+            <PairSearch pairs={allPairs.pairs} setPairId={setPairId} />
         </Container>
     );
 }

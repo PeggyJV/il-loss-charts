@@ -54,6 +54,7 @@ export const TokenInput = ({
             </button>
             <FormControl
                 min='0'
+                size='lg'
                 placeholder='Amount'
                 value={amount}
                 onChange={(e) => {

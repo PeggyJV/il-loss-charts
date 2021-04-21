@@ -44,12 +44,12 @@ export function resolveLogo(addressLower?: string): JSX.Element {
         address = logoMappings[addressLower as keyof typeof logoMappings];
     }
 
-    if (!address) return <span>🍇</span>;
+    if (!address) return <span className='no-image'></span>;
 
     const imgUrl = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`;
     return (
         <span>
-            <img style={{ height: '1rem' }} src={imgUrl} alt='🍇' />
+            <img src={imgUrl} alt='🍇' />
         </span>
     );
 }

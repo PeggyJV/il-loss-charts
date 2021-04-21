@@ -10,7 +10,7 @@ html {
 
 body {
     font-family: 'Source Sans Pro', sans-serif;
-    background: #141229;
+    background: #050211;
 }
 a,
 a:hover,
@@ -204,31 +204,39 @@ p {
 }
 
 .app-body {
-    width: calc(100% - 250px);
+    width: calc(100% - 200px);
     padding: 2rem;
-    // border: 1px solid var(--bgDeep);
+    min-height: 100vh;
+    border-right: 1px solid var(--bgDeep);
+    border-left: 1px solid var(--bgDeep);
     background: var(--bgMain);
-    // margin: 0 auto;
+    margin: 0 auto;
+    // box-shadow: 0 0 10px 1px var(--bgDeep);
 }
 
 .page-title {
     text-align: center;
     margin-top: 1rem;
 }
-
+.logo-title {
+    font-family: 'Barlow Condensed';
+    font-weight: 800;
+    color: var(--facePrimary);
+    font-size: 2rem;
+}
 .centered {
     text-align: center;
 }
 
 .main-header-container {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
+    margin-bottom: 3rem;
 }
 
 .telegram-cta {
     font-size: 1rem;
-    margin-right: 200px;
     a {
         color: var(--faceAccentAlt);
         font-weight: bold;
@@ -243,7 +251,11 @@ p {
 }
 
 .pair-search-container {
-    height: 20rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    height: 10rem;
 }
 
 .card.no-border {
@@ -745,8 +757,8 @@ p {
 
 .nav-button-container {
     display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: center;
 }
 
 .join-community-button {
@@ -809,7 +821,7 @@ p {
     .dropdown-menu {
         // border: 1px solid red;
         border-radius: 0;
-        background: var(--bgContainer);
+        background: var(--bgSecondary);
         .dropdown-item {
             color: var(--faceSecondary);
             &.active,
@@ -850,7 +862,7 @@ p {
     font-size: 1rem;
     color: var(--faceSecondary);
     border-bottom: 1px solid var(--borderMain);
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 .modal-pool-shares {
     display: grid;
@@ -909,6 +921,8 @@ p {
     color: var(--faceDeep);
     display: flex;
     flex-direction: column;
+    position: absolute;
+    right: 0.5rem;
 }
 .balances-and-pool-stats {
     display: flex;
@@ -916,7 +930,6 @@ p {
     justify-content: space-between;
 }
 .max-balance-link {
-    height: calc(1.75rem + 0.5rem + 2px);
     display: flex;
     align-items: center;
     border: 1px solid var(--borderDeep);
@@ -1030,7 +1043,7 @@ th .caret-4-desc:after {
     max-height: 2rem;
     margin-top: 0.25rem;
     position: absolute;
-    right: 140px;
+    right: 150px;
     padding: 4px 10px;
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;

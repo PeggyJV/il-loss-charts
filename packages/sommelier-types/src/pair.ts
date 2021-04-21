@@ -68,6 +68,7 @@ export class UniswapPair implements IUniswapPair {
     untrackedVolumeUSD: string;
     totalSupply: string;
     feesUSD?: string;
+    pairReadable: string;
     
     constructor(pairData: IUniswapPair) {
         this.__typename = pairData.__typename;
@@ -86,6 +87,7 @@ export class UniswapPair implements IUniswapPair {
         this.untrackedVolumeUSD = pairData.untrackedVolumeUSD;
         this.totalSupply = pairData.totalSupply;
         this.feesUSD = pairData.feesUSD;
+        this.pairReadable = pairData.token0.symbol + '-' + pairData.token1.symbol
     }
 
     get symbols(): string[] {
@@ -96,9 +98,9 @@ export class UniswapPair implements IUniswapPair {
         return [this.token0.symbol, this.token1.symbol];
     }
 
-    get pairReadable(): string {
-        return this.symbols.join('/');
-    }
+    // get pairReadable(): string {
+    //     return this.symbols.join('/');
+    // }
 
     get isStablecoinPair(): boolean {
         return this.symbols.some((symbol) => UniswapPair.STABLECOIN_SYMBOLS.includes(symbol));

@@ -3,7 +3,9 @@ import { Container } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { LPPositionData } from '@sommelier/shared-types';
 import { ErrorBoundary } from 'react-error-boundary';
-import { TopPairsState, Wallet } from 'types/states';
+import { AllPairsState, TopPairsState, Wallet } from 'types/states';
+import { useBalance } from 'hooks/use-balance';
+import { usePairDataOverview } from 'hooks/use-pair-data-overview';
 import PositionsTable from 'components/positions-table';
 import { TelegramCTA } from 'components/telegram-cta';
 import { ComponentError } from 'components/page-error';
@@ -12,17 +14,24 @@ import mixpanel from 'util/mixpanel';
 import TopPairsWidget from 'components/top-pairs-widget';
 import ConnectWalletButton from 'components/connect-wallet-button';
 import PendingTx from 'components/pending-tx';
+import SearchContainer from 'containers/search-container';
+import { AddLiquidityV3 } from 'components/add-liquidity/add-liquidity-v3';
+import { Box } from '@material-ui/core';
 
 function LandingContainer({
+    allPairs,
     topPairs,
     wallet,
     setShowConnectWallet,
     handleAddLiquidity,
+    currentPairId,
 }: {
+    allPairs: AllPairsState;
     topPairs: TopPairsState | null;
     wallet: Wallet;
     setShowConnectWallet: (wallet: boolean) => void;
     handleAddLiquidity: (paidId: string) => void;
+    currentPairId: string | null;
 }): JSX.Element {
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -31,14 +40,16 @@ function LandingContainer({
         positionData,
         setPositionData,
     ] = useState<LPPositionData<string> | null>(null);
-
-    const [pairId, setPairId] = useState(
-        positionData?.positions ? Object.keys(positionData.positions)[0] : null
-    );
+    const [pairId, setPairId] = useState(currentPairId || null);
+    const pairData = usePairDataOverview(pairId || null);
+    const balances = useBalance({
+        pairData,
+        wallet,
+    });
 
     (window as any).positionData = positionData;
     (window as any).pairId = pairId;
-    
+
     useEffect(() => {
         const fetchPositionsForWallet = async () => {
             if (!isLoading) setIsLoading(true);
@@ -58,7 +69,6 @@ function LandingContainer({
 
             if (positionData) {
                 setPositionData(positionData);
-                console.log('setting position data');
             }
 
             setIsLoading(false);
@@ -105,21 +115,30 @@ function LandingContainer({
         <div>
             <div className='main-header-container'>
                 <div className='nav-button-container'>
+                    <h5 className='logo-title'>SOMMELIER FINANCE</h5>
                     <TelegramCTA />
                 </div>
                 <div className='wallet-combo'>
-                    <PendingTx />
+                    {wallet?.account && <PendingTx />}
                     <ConnectWalletButton onClick={showModal} wallet={wallet} />
                 </div>
             </div>
-            <div className='alert-well'>
+            {/* <div className='alert-well'>
                 <p>
                     This is not financial advice. This is an alpha project.
                     Trade at your own risk. All calculated returns include
                     Impermanent Loss.
                 </p>
-            </div>
-            {wallet.account && positionData && (
+            </div> */}
+            <SearchContainer allPairs={allPairs} setPairId={setPairId} />
+            <Box display='flex' justifyContent='space-around'>
+                <AddLiquidityV3
+                    pairId={pairId}
+                    pairData={pairData}
+                    balances={balances}
+                />
+            </Box>
+            {/* {wallet.account && positionData && (
                 <>
                     <h4 className='heading-main'>Open Positions</h4>
                     <ErrorBoundary FallbackComponent={ComponentError}>
@@ -131,19 +150,19 @@ function LandingContainer({
                         />
                     </ErrorBoundary>
                 </>
-            )}
-            <div className='header-with-filter'>
+            )} */}
+            {/* <div className='header-with-filter'>
                 <h4 className='heading-main'>
                     TOP LIQUIDITY POOLS :: 24 Hours
                 </h4>
-            </div>
+            </div> */}
             {/* <p>
                 <em>
                     * These are the highest return pairs on Uniswap over the past 24 hours.
                 </em>
             </p> */}
 
-            {topPairs?.daily && (
+            {/* {topPairs?.daily && (
                 <ErrorBoundary FallbackComponent={ComponentError}>
                     <TopPairsWidget
                         topPairs={topPairs.daily}
@@ -163,7 +182,7 @@ function LandingContainer({
                         handleAddLiquidity={handleAddLiquidity}
                     />
                 </ErrorBoundary>
-            )}
+            )} */}
 
             {/* <h5>Highest Impermanent Loss Pairs on Uniswap since December 1</h5>
             <p>
