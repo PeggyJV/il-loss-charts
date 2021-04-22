@@ -1,12 +1,15 @@
 import { endOfDay, endOfHour, subDays, subHours, startOfDay, startOfHour } from 'date-fns';
 import supertest from 'supertest';
 
+// TODO: Fix module resolutions for Jest, it works tho....
 import { app } from 'common/server';
 import { UniswapV3Fetchers } from 'services/uniswap-v3/fetchers';
+import config from 'config';
 
 const request = supertest(app);
 const fetcher = UniswapV3Fetchers.get('mainnet');
 
+const networks = Object.keys(config.uniswap.v3.networks);
 const validId = '0x1581d1a4f79885255e1993765ddee80c5e715181';
 
 describe('pools HTTP tests', () => {
@@ -21,15 +24,27 @@ describe('pools HTTP tests', () => {
       getEthPrice = jest.spyOn(fetcher, 'getEthPrice');
     });
 
-    test('calls the subgraph', async () => {
-      const expected = { ethPrice: 1 };
-      getEthPrice.mockResolvedValue(expected);
+    test('calls the subgraph for every network', async () => {
+      for (const network of networks) {
+        const fetcher = UniswapV3Fetchers.get(network);
+        const getEthPrice = jest.spyOn(fetcher, 'getEthPrice');
 
-      const res = await request.get(url);
-      expect(res.status).toBe(200);
-      expect(res.body).toMatchObject(expected);
+        const expected = { ethPrice: 1 };
+        getEthPrice.mockResolvedValue(expected);
 
-      expect(getEthPrice).toBeCalledTimes(1);
+        const res = await request.get(url.replace('mainnet', network));
+        expect(res.status).toBe(200);
+        expect(res.body).toMatchObject(expected);
+
+        expect(getEthPrice).toBeCalledTimes(1);
+        getEthPrice.mockRestore();
+      }
+    });
+
+    test('400s with invalid network', async () => {
+        const res = await request.get(url.replace('mainnet', 'yamaha'));
+        expect(res.status).toBe(400);
+        expect(res.body.error).toMatch(`Validation Error: "network"`);
     });
   });
 
@@ -40,16 +55,23 @@ describe('pools HTTP tests', () => {
       getTopPools = jest.spyOn(fetcher, 'getTopPools');
     })
 
-    test('calls the subgraph', async () => {
-      const expected = [{ id: '123' }, { id: '345' }];
-      getTopPools.mockResolvedValue(expected);
+    test('calls the subgraph for every network', async () => {
+      for (const network of networks) {
+        const fetcher = UniswapV3Fetchers.get(network);
+        const getTopPools = jest.spyOn(fetcher, 'getTopPools');
 
-      const res = await request.get(url);
-      expect(res.status).toBe(200);
-      expect(res.body).toMatchObject(expected);
+        const expected = [{ id: '123' }, { id: '345' }];
+        getTopPools.mockResolvedValue(expected);
 
-      expect(getTopPools).toBeCalledTimes(1);
-      expect(getTopPools).toBeCalledWith(undefined);
+        const res = await request.get(url.replace('mainnet', network));
+        expect(res.status).toBe(200);
+        expect(res.body).toMatchObject(expected);
+
+        expect(getTopPools).toBeCalledTimes(1);
+        expect(getTopPools).toBeCalledWith(undefined);
+
+        getTopPools.mockRestore();
+      }
     });
 
     test('calls the subgraph with count', async () => {
@@ -70,6 +92,12 @@ describe('pools HTTP tests', () => {
       const res = await request.get(url).query({ count: 'abcd' });
       expect(res.status).toBe(400);
       expect(res.body.error).toBe('Validation Error: "count" must be a number')
+    });
+
+    test('400s with invalid network', async () => {
+        const res = await request.get(url.replace('mainnet', 'yamaha'));
+        expect(res.status).toBe(400);
+        expect(res.body.error).toMatch(`Validation Error: "network"`);
     });
   });
 
@@ -97,6 +125,12 @@ describe('pools HTTP tests', () => {
       expect(res.status).toBe(400);
       expect(res.body.error).toMatch('"id" must be a valid ETH address.');
     });
+
+    test('400s with invalid network', async () => {
+        const res = await request.get(url.replace('mainnet', 'yamaha'));
+        expect(res.status).toBe(400);
+        expect(res.body.error).toMatch(`Validation Error: "network"`);
+    });
   })
 
   describe('GET /pools/:poolId/historical/daily', () => {
@@ -107,22 +141,30 @@ describe('pools HTTP tests', () => {
 
     const getUrl = (id: string) => `/api/v1/mainnet/pools/${id}/historical/daily`;
 
-    test('calls the subgraph', async () => {
-      const expected = [{ id: validId }, { id: validId }];
-      fetch.mockResolvedValue(expected);
+    test('calls the subgraph for every network', async () => {
+      for (const network of networks) {
+        const fetcher = UniswapV3Fetchers.get(network);
+        const fetch = jest.spyOn(fetcher, 'getHistoricalDailyData');
 
-      const endDate = new Date().getTime();
-      const startDate = subDays(new Date(endDate), 1).getTime();
-      const query = { startDate, endDate };
-      const res = await request.get(getUrl(validId)).query(query);
+        const expected = [{ id: validId }, { id: validId }];
+        fetch.mockResolvedValue(expected);
 
-      expect(res.status).toBe(200);
-      expect(res.body).toMatchObject(expected);
+        const endDate = new Date().getTime();
+        const startDate = subDays(new Date(endDate), 1).getTime();
+        const query = { startDate, endDate };
+        const res = await request.get(getUrl(validId).replace('mainnet', network))
+          .query(query);
 
-      const start = startOfDay(new Date(startDate));
-      const end = endOfDay(new Date(endDate));
-      expect(fetch).toBeCalledTimes(1);
-      expect(fetch).toBeCalledWith(validId, start, end);
+        expect(res.status).toBe(200);
+        expect(res.body).toMatchObject(expected);
+
+        const start = startOfDay(new Date(startDate));
+        const end = endOfDay(new Date(endDate));
+        expect(fetch).toBeCalledTimes(1);
+        expect(fetch).toBeCalledWith(validId, start, end);
+
+        fetch.mockRestore();
+      }
     });
 
     test('calls the subgraph with default endDate', async () => {
@@ -186,6 +228,16 @@ describe('pools HTTP tests', () => {
       expect(res.status).toBe(400);
       expect(res.body.error).toMatch('"endDate" must be a valid date');
     })
+
+    test('400s with invalid network', async () => {
+        const endDate = new Date().getTime();
+        const startDate = subDays(new Date(endDate), 1).getTime();
+        const query = { startDate, endDate };
+        const res = await request.get(getUrl(validId).replace('mainnet', 'yamaha'))
+          .query(query);
+        expect(res.status).toBe(400);
+        expect(res.body.error).toMatch(`Validation Error: "network"`);
+    });
   });
 
   describe('GET /pools/:poolId/historical/hourly', () => {
@@ -197,21 +249,29 @@ describe('pools HTTP tests', () => {
     const getUrl = (id: string) => `/api/v1/mainnet/pools/${id}/historical/hourly`;
 
     test('calls the subgraph', async () => {
-      const expected = [{ id: validId }, { id: validId }];
-      fetch.mockResolvedValue(expected);
+      for (const network of networks) {
+        const fetcher = UniswapV3Fetchers.get(network);
+        const fetch = jest.spyOn(fetcher, 'getHistoricalHourlyData');
 
-      const endDate = new Date().getTime();
-      const startDate = subHours(new Date(endDate), 1).getTime();
-      const query = { startDate, endDate };
-      const res = await request.get(getUrl(validId)).query(query);
+        const expected = [{ id: validId }, { id: validId }];
+        fetch.mockResolvedValue(expected);
 
-      expect(res.status).toBe(200);
-      expect(res.body).toMatchObject(expected);
+        const endDate = new Date().getTime();
+        const startDate = subHours(new Date(endDate), 1).getTime();
+        const query = { startDate, endDate };
+        const res = await request.get(getUrl(validId).replace('mainnet', network))
+          .query(query);
 
-      const start = startOfHour(new Date(startDate));
-      const end = endOfHour(new Date(endDate));
-      expect(fetch).toBeCalledTimes(1);
-      expect(fetch).toBeCalledWith(validId, start, end);
+        expect(res.status).toBe(200);
+        expect(res.body).toMatchObject(expected);
+
+        const start = startOfHour(new Date(startDate));
+        const end = endOfHour(new Date(endDate));
+        expect(fetch).toBeCalledTimes(1);
+        expect(fetch).toBeCalledWith(validId, start, end);
+
+        fetch.mockRestore();
+      }
     });
 
     test('calls the subgraph with default endDate', async () => {
@@ -285,5 +345,15 @@ describe('pools HTTP tests', () => {
       expect(res.status).toBe(400);
       expect(res.body.error).toMatch('"endDate" must be a valid date');
     })
+
+    test('400s with invalid network', async () => {
+        const endDate = new Date().getTime();
+        const startDate = subDays(new Date(endDate), 1).getTime();
+        const query = { startDate, endDate };
+        const res = await request.get(getUrl(validId).replace('mainnet', 'yamaha'))
+          .query(query);
+        expect(res.status).toBe(400);
+        expect(res.body.error).toMatch(`Validation Error: "network"`);
+    });
   });
 });

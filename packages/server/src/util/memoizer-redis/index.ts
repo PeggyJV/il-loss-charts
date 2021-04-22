@@ -2,10 +2,12 @@ import Redis from 'ioredis';
 import crypto from 'crypto';
 
 import { hourMs, secondMs } from 'util/date';
+import config from 'config';
 import lockFactory from 'util/memoizer-redis/lock';
 
 // https://github.com/microsoft/TypeScript/issues/27711
 // Fixes issue with Promise<Promise<T>>
+// TODO: Put this in util once we have to utilize it again
 export type Promise<A extends any> =
     globalThis.Promise<
         A extends globalThis.Promise<infer X>
@@ -26,6 +28,8 @@ interface MemoizerFactoryOptions extends MemoizerOptions {
   lockTimeout: number, // how long to attempt to get a lock
   lockRetry: number, // how long to wait before trying to aquire a lock again
 }
+
+const memoConfig = config.memoizerRedis;
 
 export const defaultOptions: MemoizerFactoryOptions = {
   lookupTimeout: secondMs * 4,
@@ -55,6 +59,12 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
     if (typeof fn !== 'function') {
       throw new Error('Only functions can be memoized');
     }
+
+    // noop if the memoizer is disabled (for tests)
+    if (!memoConfig.enabled) {
+      return fn;
+    }
+
     // fn.bind(this) name becomes "bound fn"
     // split on the space and get the last part to find correct name
     const fnParts = fn.name.split(' ');

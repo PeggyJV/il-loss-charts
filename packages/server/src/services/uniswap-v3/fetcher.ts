@@ -28,6 +28,8 @@ export interface UniswapFetcher {
   getTopPools(count: number, orderBy: keyof Pool): Promise<GetTopPoolsResult>;
   getPoolDailyData(poolId: string, start: Date, end: Date): Promise<GetPoolDailyDataResult>;
   getPoolHourlyData(poolId: string, start: Date, end: Date): Promise<GetPoolHourlyDataResult>;
+  getHistoricalDailyData(poolId: string, start: Date, end: Date): Promise<GetPoolDailyDataResult>;
+  getHistoricalHourlyData(poolId: string, start: Date, end: Date): Promise<GetPoolDailyHourlyResult>;
 }
 
 export class UniswapV3Fetcher {

@@ -10,23 +10,41 @@ import { Request, Router } from 'express';
 
 import { HTTPError } from 'api/util/errors';
 import { isValidEthAddress } from 'util/eth';
-import catchAsyncRoute from 'api/util/catch-async-route';
 import { UniswapV3Fetchers } from 'services/uniswap-v3/fetchers';
+import catchAsyncRoute from 'api/util/catch-async-route';
+import config from 'config';
 
-// TODO: move this somewhere else, maybe to the fetchers manager.
-// Will also need to namespace by network
-const fetcher = UniswapV3Fetchers.get('mainnet');
+type Path = {
+  network: string
+};
+
+type PoolPath = Path & {
+  poolId: string,
+};
+
+const networks = Object.keys(config.uniswap.v3.networks);
 
 // TODO: move this to utils
 const poolIdParamsSchema = Joi.object().keys({
-  poolId: Joi.string().custom(validateEthAddress, 'Validate Pool Id'),
+  poolId: Joi.string().custom(validateEthAddress, 'Validate Pool Id').required(),
+  network: Joi.string().valid(...networks).required(),
 });
 const poolIdValidator = celebrate({
   [Segments.PARAMS]: poolIdParamsSchema,
 });
 
+const networkSchema = Joi.object().keys({
+  network: Joi.string().valid(...networks).required(),
+})
+const networkValidator = celebrate({
+  [Segments.PARAMS]: networkSchema,
+});
+
 // GET /ethPrice
-async function getEthPrice() {
+async function getEthPrice(req: Request<Path, unknown, unknown, unknown>) {
+  const { network } = req.params;
+  const fetcher = UniswapV3Fetchers.get(network);
+
   return fetcher.getEthPrice();
 }
 
@@ -36,10 +54,14 @@ type GetTopPoolsQuery = { count: number };
 const getTopPoolsValidator = celebrate({
   [Segments.QUERY]: Joi.object().keys({
     count: Joi.number()
-  })
+  }),
+  [Segments.PARAMS]: networkSchema,
 });
 
-async function getTopPools(req: Request) {
+async function getTopPools(req: Request<Path, unknown, unknown, GetTopPoolsQuery>) {
+  const { network } = req.params;
+  const fetcher = UniswapV3Fetchers.get(network);
+
   // TODO: add override for route.get()
   // Request<any, any, any, ParsedQs> query must be a ParsedQs
   // We should add a union type for all validated queries
@@ -49,8 +71,10 @@ async function getTopPools(req: Request) {
 }
 
 // GET /pools/:id
-async function getPoolOverview(req: Request<{ poolId: string}, unknown, unknown, unknown>) {
-  const { poolId } = req.params;
+async function getPoolOverview(req: Request<PoolPath, unknown, unknown, unknown>) {
+  const { poolId, network } = req.params;
+  const fetcher = UniswapV3Fetchers.get(network);
+
   return fetcher.getPoolOverview(poolId);
 }
 
@@ -67,8 +91,9 @@ const getHistoricalDataValidator = celebrate({
   })
 });
 
-async function getHistoricalDailyData(req: Request<{ poolId: string }, unknown, unknown, GetHistoricalDataQuery>) {
-  const { poolId } = req.params;
+async function getHistoricalDailyData(req: Request<PoolPath, unknown, unknown, GetHistoricalDataQuery>) {
+  const { poolId, network } = req.params;
+  const fetcher = UniswapV3Fetchers.get(network);
 
   // TODO: Fix type
   const { startDate, endDate } = req.query;
@@ -80,7 +105,8 @@ async function getHistoricalDailyData(req: Request<{ poolId: string }, unknown, 
 
 // GET /pools/:id/historical/hourly
 async function getHistoricalHourlyData(req: Request) {
-  const { poolId } = req.params;
+  const { poolId, network } = req.params;
+  const fetcher = UniswapV3Fetchers.get(network);
 
   const { startDate, endDate }: GetHistoricalDataQuery = <any> req.query;
   if (startDate < subWeeks(new Date(), 1)) {
@@ -96,11 +122,11 @@ const route = Router();
 export default (app: Router, baseUrl: string): void => {
   app.use(baseUrl, route);
 
-  route.get('/ethPrice', catchAsyncRoute(getEthPrice));
-  route.get('/pools', getTopPoolsValidator, catchAsyncRoute(getTopPools));
-  route.get('/pools/:poolId', poolIdValidator, catchAsyncRoute(getPoolOverview));
-  route.get('/pools/:poolId/historical/daily', getHistoricalDataValidator, catchAsyncRoute(getHistoricalDailyData));
-  route.get('/pools/:poolId/historical/hourly', getHistoricalDataValidator, catchAsyncRoute(getHistoricalHourlyData));
+  route.get('/:network/ethPrice', networkValidator, catchAsyncRoute(getEthPrice));
+  route.get('/:network/pools', getTopPoolsValidator, catchAsyncRoute(getTopPools));
+  route.get('/:network/pools/:poolId', poolIdValidator, catchAsyncRoute(getPoolOverview));
+  route.get('/:network/pools/:poolId/historical/daily', getHistoricalDataValidator, catchAsyncRoute(getHistoricalDailyData));
+  route.get('/:network/pools/:poolId/historical/hourly', getHistoricalDataValidator, catchAsyncRoute(getHistoricalHourlyData));
 }
 
 // TODO: put this somewhere else
