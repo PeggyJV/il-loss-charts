@@ -47,6 +47,7 @@ function LandingContainer({
 
     (window as any).positionData = positionData;
     (window as any).pairId = pairId;
+    (window as any).balances = balances;
 
     useEffect(() => {
         const fetchPositionsForWallet = async () => {
