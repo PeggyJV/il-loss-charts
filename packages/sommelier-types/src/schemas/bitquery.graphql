@@ -6,7 +6,7 @@ type ethereum {
         exchangeName: Exchange,
         baseCurrency: BaseCurrency,
         quoteCurrency: QuoteCurrency
-    ): DexTradeConfig!
+    ): DexTrades!
     date: String!
     exchangeName: String!
 }
@@ -38,7 +38,7 @@ type Token {
     address: String!
 }
 
-type DexTradeConfig {
+type DexTrades {
     baseCurrency: Token!
     quoteCurrency: Token!
     timeInterval: TimeInterval

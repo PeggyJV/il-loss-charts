@@ -12,7 +12,7 @@ import { HTTPError } from 'api/util/errors';
 import { toDateInt } from 'util/gql'
 import { wrapWithCache } from 'util/redis-data-cache';
 import BigNumber from 'bignumber.js';
-import getSdkApollo, { Sdk } from 'services/util/apollo-client';
+import { getUniswapV3Sdk, UniswapV3Sdk } from 'services/util/apollo-client';
 import redis from 'util/redis';
 
 const FEE_TIER_DENOMINATOR = 1000000;
@@ -37,10 +37,10 @@ export interface UniswapFetcher {
   getHistoricalHourlyData(poolId: string, start: Date, end: Date): Promise<GetPoolHourlyDataResult>;
 }
 
-export class UniswapV3Fetcher implements UniswapFetcher {
-  sdk: Sdk;
+export class UniswapV3Fetcher {
+  sdk: UniswapV3Sdk;
 
-  constructor(sdk: Sdk) {
+  constructor(sdk: UniswapV3Sdk) {
     this.sdk = sdk;
   }
 

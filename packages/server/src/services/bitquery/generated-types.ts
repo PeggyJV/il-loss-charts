@@ -17,8 +17,8 @@ export type BaseCurrency = {
   is: Scalars['String'];
 };
 
-export type DexTradeConfig = {
-  __typename?: 'DexTradeConfig';
+export type DexTrades = {
+  __typename?: 'DexTrades';
   baseCurrency: Token;
   quoteCurrency: Token;
   timeInterval?: Maybe<TimeInterval>;
@@ -33,7 +33,7 @@ export type DexTradeConfig = {
 };
 
 
-export type DexTradeConfigQuotePriceArgs = {
+export type DexTradesQuotePriceArgs = {
   calculate?: Maybe<Scalars['String']>;
 };
 
@@ -84,7 +84,7 @@ export type Token = {
 export type Ethereum = {
   __typename?: 'ethereum';
   network: Scalars['String'];
-  dexTrades: DexTradeConfig;
+  dexTrades: DexTrades;
   date: Scalars['String'];
   exchangeName: Scalars['String'];
 };
@@ -111,9 +111,9 @@ export type GetPoolDailyOhlcQuery = (
   & { ethereum?: Maybe<(
     { __typename?: 'ethereum' }
     & { dexTrades: (
-      { __typename?: 'DexTradeConfig' }
-      & Pick<DexTradeConfig, 'baseAmount' | 'quoteAmount' | 'quotePrice'>
-      & { trades: DexTradeConfig['count'], maximum_price: DexTradeConfig['quotePrice'], minimum_price: DexTradeConfig['quotePrice'] }
+      { __typename?: 'DexTrades' }
+      & Pick<DexTrades, 'baseAmount' | 'quoteAmount' | 'quotePrice'>
+      & { trades: DexTrades['count'], maximum_price: DexTrades['quotePrice'], minimum_price: DexTrades['quotePrice'] }
       & { timeInterval?: Maybe<(
         { __typename?: 'TimeInterval' }
         & Pick<TimeInterval, 'day'>

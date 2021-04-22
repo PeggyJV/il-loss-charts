@@ -1,7 +1,10 @@
 import { ApolloClient, QueryOptions, MutationOptions } from '@apollo/client/core';
 import { DocumentNode } from 'graphql';
 
-import { getSdk, Requester } from '../uniswap-v3/generated-types';
+import * as UniswapV3Types from '../uniswap-v3/generated-types';
+import * as BitqueryTypes from '../bitquery/generated-types';
+
+type Requester<C= {}> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R>
 
 export type ApolloRequesterOptions<V, R> =
   | Omit<QueryOptions<V>, 'variables' | 'query'>
@@ -9,8 +12,7 @@ export type ApolloRequesterOptions<V, R> =
 
 const validDocDefOps = ['mutation', 'query', 'subscription'];
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export default function getSdkApollo<C>(client: ApolloClient<C>) {
+export function generateRequester<C>(client: ApolloClient<C>) {
   const requester: Requester = async <R, V>(
     doc: DocumentNode,
     variables: V,
@@ -69,7 +71,18 @@ export default function getSdkApollo<C>(client: ApolloClient<C>) {
     }
   };
 
-  return getSdk(requester);
+  return requester;
 }
 
-export type Sdk = ReturnType<typeof getSdkApollo>;
+export function getUniswapV3Sdk<C>(client: ApolloClient<C>) {
+  const requester = generateRequester(client);
+  return UniswapV3Types.getSdk(requester);
+}
+
+export function getBitquerySdk<C>(client: ApolloClient<C>) {
+  const requester = generateRequester(client);
+  return BitqueryTypes.getSdk(requester);
+}
+
+export type UniswapV3Sdk = ReturnType<typeof getUniswapV3Sdk>;
+export type BitquerySdk = ReturnType<typeof getBitquerySdk>;

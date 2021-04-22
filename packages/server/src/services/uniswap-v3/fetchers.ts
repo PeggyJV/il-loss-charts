@@ -7,7 +7,8 @@ import fetch from 'cross-fetch';
 
 import { UniswapV3Fetcher, UniswapV3FetcherMemoized } from 'services/uniswap-v3';
 import appConfig from 'config';
-import getSdkApollo from 'services/util/apollo-client';
+import Fetcher from 'services/uniswap-v3/fetcher';
+import { getUniswapV3Sdk } from 'services/util/apollo-client';
 
 const config: Record<string, string> = appConfig.uniswap.v3.networks;
 
@@ -44,12 +45,12 @@ export class UniswapV3Fetchers {
     const link = new HttpLink({ uri, fetch });
     const cache = new InMemoryCache();
     const client = new ApolloClient({ link, cache });
-    const sdk = getSdkApollo(client);
+    const sdk = getUniswapV3Sdk(client);
 
     return new UniswapV3FetcherMemoized(new UniswapV3Fetcher(sdk), network);
   }
 }
-
+p
 export function getUri(network: string): string | void {
   return config[network];
 }
