@@ -11,6 +11,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  ISO8601DateTime: any;
 };
 
 export type BaseCurrency = {
@@ -56,6 +57,7 @@ export type Exchange = {
   is: Scalars['String'];
 };
 
+
 export type Options = {
   asc?: Maybe<Scalars['String']>;
   desc?: Maybe<Scalars['String']>;
@@ -76,8 +78,8 @@ export type QuoteCurrency = {
 };
 
 export type SearchDate = {
-  between?: Maybe<Array<Maybe<Scalars['String']>>>;
-  since?: Maybe<Scalars['String']>;
+  between?: Maybe<Array<Maybe<Scalars['ISO8601DateTime']>>>;
+  since?: Maybe<Scalars['ISO8601DateTime']>;
 };
 
 export type TimeInterval = {
@@ -132,8 +134,8 @@ export enum OfFilter {
 export type GetPoolDailyOhlcQueryVariables = Exact<{
   baseTokenId: Scalars['String'];
   quoteTokenId: Scalars['String'];
-  startDate?: Maybe<Scalars['String']>;
-  endDate?: Maybe<Scalars['String']>;
+  startDate: Scalars['ISO8601DateTime'];
+  endDate: Scalars['ISO8601DateTime'];
 }>;
 
 
@@ -161,7 +163,7 @@ export type GetPoolDailyOhlcQuery = (
 
 
 export const GetPoolDailyOhlcDocument = gql`
-    query getPoolDailyOHLC($baseTokenId: String!, $quoteTokenId: String!, $startDate: String, $endDate: String) {
+    query getPoolDailyOHLC($baseTokenId: String!, $quoteTokenId: String!, $startDate: ISO8601DateTime!, $endDate: ISO8601DateTime!) {
   ethereum(network: ethereum) {
     dexTrades(
       options: {asc: "timeInterval.day"}

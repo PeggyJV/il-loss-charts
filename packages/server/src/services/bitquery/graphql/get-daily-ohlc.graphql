@@ -1,4 +1,4 @@
-query getPoolDailyOHLC($baseTokenId: String!, $quoteTokenId: String!, $startDate: String, $endDate: String) {
+query getPoolDailyOHLC($baseTokenId: String!, $quoteTokenId: String!, $startDate: ISO8601DateTime!, $endDate: ISO8601DateTime!) {
   ethereum(network: ethereum) {
     dexTrades(
       options: {asc: "timeInterval.day"}

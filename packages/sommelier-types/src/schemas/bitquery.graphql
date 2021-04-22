@@ -1,3 +1,5 @@
+scalar ISO8601DateTime
+
 enum network {
     ethereum
 }
@@ -33,8 +35,8 @@ input Options {
 }
 
 input SearchDate {
-    between: [String]
-    since: String
+    between: [ISO8601DateTime]
+    since: ISO8601DateTime
 }
 
 input Exchange {
