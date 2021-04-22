@@ -1,3 +1,4 @@
+
 import {
     MarketStats,
     IUniswapPair,
@@ -8,6 +9,8 @@ import {
     UniswapMintOrBurn,
     LPStats
 } from '@sommelier/shared-types';
+
+import {NetworkIds} from 'types/app-config';
 
 import { ethers } from 'ethers';
 
@@ -29,6 +32,7 @@ export interface Wallet {
     account: string | null;
     providerName: Provider | null;
     provider: any | null;
+    network: NetworkIds | null;
 }
 
 export interface PairPricesState {
