@@ -26,7 +26,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import LandingContainer from 'containers/landing-container';
 import MarketContainer from 'containers/market-container';
 import PairContainer from 'containers/pair-container';
-import SearchContainer from 'containers/search-container';
 import PositionContainer from 'containers/position-container';
 import ConnectWalletModal from 'components/connect-wallet-modal';
 import { PageError, ModalError } from 'components/page-error';

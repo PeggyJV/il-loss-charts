@@ -1,4 +1,3 @@
-import { useHistory } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 
 import { AllPairsState } from 'types/states';
@@ -13,8 +12,6 @@ function SearchContainer({
     allPairs: AllPairsState;
     setPairId: Dispatch<SetStateAction<string | null>>;
 }): JSX.Element {
-    const history = useHistory();
-
     if (!allPairs.pairs) {
         return (
             <Container className='loading-container'>
