@@ -31,6 +31,5 @@ export default function errorHandler(
     res.status(500).json({ error: internalError });
 
     // let us know about these 500s
-    // TODO: log stack trace
-    console.error(err.message);
+    console.warn(`Internal Server Error: ${err.stack ?? err.message}`);
 }
