@@ -19,6 +19,7 @@ import {
     DropdownButton,
 } from 'react-bootstrap';
 import { faRetweet } from '@fortawesome/free-solid-svg-icons';
+import { ethers } from 'ethers';
 type Props = {
     balances: WalletBalances;
     pairId: string | null;
@@ -32,11 +33,73 @@ export const AddLiquidityV3 = ({
     
     const [token0Amount, setToken0Amount] = useState('0');
     const [token1Amount, setToken1Amount] = useState('0');
-
+    const [tokenData, setTokenData] = useState<Record<
+        string,
+        {
+            id: string;
+            balance: string;
+            allowance: { [a: string]: string };
+            reserve: string;
+        }
+    > | null>(null);
     const token0Logo = resolveLogo(pairData?.token0.id);
     const token1Logo = resolveLogo(pairData?.token1.id);
     const token0 = pairData?.token0.symbol ?? '';
     const token1 = pairData?.token1.symbol ?? '';
+    (window as any).tokenData = tokenData;
+    useEffect(() => {
+        const reserveLookup: Record<string, string> = {
+            [pairData?.token0.symbol as string]: pairData?.reserve0 || '',
+            [pairData?.token1.symbol as string]: pairData?.reserve1 || '',
+        };
+        // const CONTRACT_ADDRESS = twoSide
+        //     ? EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS
+        //     : EXCHANGE_ADD_ABI_ADDRESS;
+
+        const CONTRACT_ADDRESS = '0xA522AA47C40F2BAC847cbe4D37455c521E69DEa7';
+
+        const tokenDataMap = Object.keys(balances).reduce<
+            Record<
+                string,
+                {
+                    id: string;
+                    balance: string;
+                    allowance: {
+                        [address: string]: string;
+                    };
+                    reserve: string;
+                }
+            >
+        >((acc, token) => {
+            if (token === 'currentPair') return acc;
+            const balance = ethers.utils.formatUnits(
+                balances?.[token].balance || 0,
+                parseInt(balances[token]?.decimals || '0', 10)
+            );
+
+            const allowance = ethers.utils.formatUnits(
+                balances?.[token].allowance?.[CONTRACT_ADDRESS] || 0,
+                parseInt(balances[token]?.decimals || '0', 10)
+            );
+
+            const id = balances?.[token].id;
+
+            const reserve =
+                token === 'ETH' ? reserveLookup['WETH'] : reserveLookup[token];
+
+            acc[token] = {
+                id,
+                balance,
+                allowance: {
+                    [CONTRACT_ADDRESS]: allowance,
+                },
+                reserve,
+            };
+            return acc;
+        }, {});
+
+        setTokenData(tokenDataMap);
+    }, [balances, pairData]);
 
     return (
         <>
