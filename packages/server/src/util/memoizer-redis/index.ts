@@ -20,7 +20,7 @@ interface MemoizerOptions {
   lookupTimeout: number, // how long to wait on redis.get
   ttl: number, // how long the value should be cached for in ms
   hashArgs: (args: Array<any>) => string, // function to hash args
-};
+}
 
 // Set keyPrefix when creating the memoizer factory
 interface MemoizerFactoryOptions extends MemoizerOptions {
@@ -55,7 +55,7 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
   const lock = lockFactory(client, memoizerFactoryOptions);
 
   // memoizes a fn
-  return function memoizer<T>(fn: (...args: Array<any>) => T, opts: Partial<MemoizerOptions> = {}) {
+  return function memoizer<T>(fn: (...args: Array<any>) => Promise<T>, opts: Partial<MemoizerOptions> = {}) {
     if (typeof fn !== 'function') {
       throw new Error('Only functions can be memoized');
     }
@@ -83,6 +83,7 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
     const fnNamespace = getFnNamespace(keyPrefix, fnKey);
     let memoized = memoizedFns.get(fnNamespace);
     if (typeof memoized === 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return memoized;
     }
 
@@ -94,6 +95,7 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
       const firstLookup = await lookup(client, cacheKey, lookupTimeout);
       if (firstLookup != null) {
         // cache hit, return result
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return firstLookup;
       }
 
@@ -111,12 +113,15 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
       }
 
       // dont wait for the unlock
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       unlock();
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return finalResult;
     }
 
     memoizedFns.set(fnNamespace, memoized);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return memoized;
   }
 }
@@ -140,6 +145,7 @@ export async function lookup(client: Redis.Redis, cacheKey: string, lookupTimeou
   // try to fetch from redis until timeout is exceeded
   const result = await Promise.race([getPromise, timeout]);
   if (result != null) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return deserialize(result);
   }
 }
@@ -153,8 +159,10 @@ export async function writeKey(client: Redis.Redis, cacheKey: string, data: any,
 export function serialize(data: any): string {
   return JSON.stringify(data);
 }
+
 export function deserialize(data: any): any {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return JSON.parse(data);
   } catch (error) {
     const msg = 'Could not deserialize data from Redis.'

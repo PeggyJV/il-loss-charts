@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 interface LockOptions {
   lockTimeout: number,
   lockRetry: number,
-};
+}
 
 type Locker = (lockKey: string, timeout: number, retry: number) => Promise<Unlocker>;
 type Unlocker = () => Promise<void>;
