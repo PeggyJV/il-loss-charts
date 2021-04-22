@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-unsafe-return  */
 import Redis from 'ioredis';
 import crypto from 'crypto';
 
@@ -83,7 +84,6 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
     const fnNamespace = getFnNamespace(keyPrefix, fnKey);
     let memoized = memoizedFns.get(fnNamespace);
     if (typeof memoized === 'function') {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return memoized;
     }
 
@@ -95,7 +95,6 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
       const firstLookup = await lookup(client, cacheKey, lookupTimeout);
       if (firstLookup != null) {
         // cache hit, return result
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return firstLookup;
       }
 
@@ -116,12 +115,10 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       unlock();
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return finalResult;
     }
 
     memoizedFns.set(fnNamespace, memoized);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return memoized;
   }
 }
@@ -145,7 +142,6 @@ export async function lookup(client: Redis.Redis, cacheKey: string, lookupTimeou
   // try to fetch from redis until timeout is exceeded
   const result = await Promise.race([getPromise, timeout]);
   if (result != null) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return deserialize(result);
   }
 }
@@ -162,7 +158,6 @@ export function serialize(data: any): string {
 
 export function deserialize(data: any): any {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return JSON.parse(data);
   } catch (error) {
     const msg = 'Could not deserialize data from Redis.'

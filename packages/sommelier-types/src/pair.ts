@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+export type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export interface ILiquidityData {
     reserve0: string;
     reserve1: string;

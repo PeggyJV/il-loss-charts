@@ -7,7 +7,7 @@ let mixpanel: Mixpanel.Mixpanel;
 import TelegramBot from 'node-telegram-bot-api';
 let sommBot: TelegramBot | undefined;
 
-export default async function getTelegramDataForMixpanel(): Promise<void> {
+export default function getTelegramDataForMixpanel(): void {
   if(process.env.SOMM_STATS_BOT_TOKEN){
     sommBot = new TelegramBot(process.env.SOMM_STATS_BOT_TOKEN, {polling: true});
   } else {
