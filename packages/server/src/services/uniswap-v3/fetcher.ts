@@ -10,10 +10,7 @@ import {
 } from 'services/uniswap-v3/generated-types';
 import { HTTPError } from 'api/util/errors';
 import { toDateInt } from 'util/gql'
-import { wrapWithCache } from 'util/redis-data-cache';
-import BigNumber from 'bignumber.js';
-import { getUniswapV3Sdk, UniswapV3Sdk } from 'services/util/apollo-client';
-import redis from 'util/redis';
+import { UniswapV3Sdk } from 'services/util/apollo-client';
 
 const FEE_TIER_DENOMINATOR = 1000000;
 

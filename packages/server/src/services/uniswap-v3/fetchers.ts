@@ -7,7 +7,6 @@ import fetch from 'cross-fetch';
 
 import { UniswapV3Fetcher, UniswapV3FetcherMemoized } from 'services/uniswap-v3';
 import appConfig from 'config';
-import Fetcher from 'services/uniswap-v3/fetcher';
 import { getUniswapV3Sdk } from 'services/util/apollo-client';
 
 const config: Record<string, string> = appConfig.uniswap.v3.networks;
@@ -15,7 +14,7 @@ const config: Record<string, string> = appConfig.uniswap.v3.networks;
 // Manages subgraph clients for multiple networks
 export class UniswapV3Fetchers {
   private static instance: UniswapV3Fetchers;
-  private static clients: Map<string, UniswapV3FetcherMemoized> = new Map();
+  private static clients: Map<keyof typeof config, UniswapV3Fetcher> = new Map();
   private constructor() {
     // eslint-ignore no-empty-function
   }
