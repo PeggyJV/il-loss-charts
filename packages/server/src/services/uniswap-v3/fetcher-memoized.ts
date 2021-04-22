@@ -10,18 +10,13 @@ import {
 import memoizer from 'util/memoizer-redis';
 import redis from 'util/redis';
 
-type Keys = keyof UniswapV3Fetcher;
-type MemoizedFunction<T> = (...args: Array<any>) => T;
-
 export class UniswapV3FetcherMemoized implements UniswapFetcher {
   private memoize: ReturnType<typeof memoizer>;
   private fetcher: UniswapV3Fetcher;
-  private memoized: Map<Keys, MemoizedFunction<UniswapV3Fetcher[Keys]>>;
 
   constructor(fetcher: UniswapV3Fetcher, network: string) {
     this.memoize = memoizer(redis, { keyPrefix: network });
     this.fetcher = fetcher;
-    this.memoized = new Map();
   }
 
   getEthPrice(blockNumber?: number): Promise<{ ethPrice: number }> {
