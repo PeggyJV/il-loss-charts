@@ -39,15 +39,15 @@ const sdk = getBitquerySdk(client);
 
 export default class BitqueryFetcher {
     formatDate(date: Date): string {
-        return format(date, 'YYYY-MM-dd')
+        return format(date, 'yyyy-MM-dd')
     }
 
-    async getLastDayOHLC(baseToken: string, quoteToken: string): Promise<DexTrades> {
+    async getLastDayOHLC(baseTokenId: string, quoteTokenId: string): Promise<DexTrades> {
         // Calculate start Date and endDate
         const endDate = this.formatDate(endOfDay(new Date()));
         const startDate = this.formatDate(subDays(startOfDay(new Date()), 1));
 
-        const result = await sdk.getPoolDailyOHLC(baseToken, quoteToken, startDate, endDate);
+        const result = await sdk.getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate });
         const dexTrades = result?.ethereum?.dexTrades;
 
         if (dexTrades == null) {
@@ -57,13 +57,13 @@ export default class BitqueryFetcher {
         return dexTrades;
     }
 
-    async getLastWeekOHLC(baseToken: string, quoteToken: string): Promise<DexTrades> {
+    async getLastWeekOHLC(baseTokenId: string, quoteTokenId: string): Promise<DexTrades> {
         // Calculate start Date and endDate
         // Todo make this weekly
         const endDate = this.formatDate(endOfDay(new Date()));
         const startDate = this.formatDate(subDays(startOfDay(new Date()), 1));
 
-        const result = await sdk.getPoolDailyOHLC(baseToken, quoteToken, startDate, endDate);
+        const result = await sdk.getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate });
         const dexTrades = result?.ethereum?.dexTrades;
 
         if (dexTrades == null) {

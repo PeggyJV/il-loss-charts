@@ -1,11 +1,11 @@
 query getPoolDailyOHLC($baseTokenId: String!, $quoteTokenId: String!, $startDate: String, $endDate: String) {
-  ethereum(network: "ethereum") {
+  ethereum(network: ethereum) {
     dexTrades(
       options: {asc: "timeInterval.day"}
       date: {between: [$startDate, $endDate]}
       exchangeName: {is: "Uniswap"}
-      baseCurrency: {is: "$baseTokenId"}
-      quoteCurrency: {is: "$quoteTokenId"}
+      baseCurrency: {is: $baseTokenId}
+      quoteCurrency: {is: $quoteTokenId}
     ) {
       timeInterval {
         day(count: 1)
@@ -23,8 +23,10 @@ query getPoolDailyOHLC($baseTokenId: String!, $quoteTokenId: String!, $startDate
       quoteAmount
       trades: count
       quotePrice
-      maximum_price: quotePrice(calculate: "maximum")
-      minimum_price: quotePrice(calculate: "minimum")
+      open_price: minimum(of: block get: quote_price)
+      close_price: maximum(of: block get: quote_price)
+      maximum_price: quotePrice(calculate: maximum)
+      minimum_price: quotePrice(calculate: minimum)
     }
   }
 }

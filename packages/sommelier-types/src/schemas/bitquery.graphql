@@ -1,5 +1,21 @@
+enum network {
+    ethereum
+}
+
+enum ofFilter {
+    block
+}
+
+enum getFilter {
+    quote_price
+}
+
+enum calculation {
+    minimum
+    maximum
+}
+
 type ethereum {
-    network: String!
     dexTrades(
         options: Options,
         date: SearchDate,
@@ -44,12 +60,16 @@ type DexTrades {
     timeInterval: TimeInterval
     baseAmount: Int!
     quoteAmount: String!
-    count: Int!
-    quotePrice(calculate: String = "maximum"): Int!
+    # Both trades and count are here because this codegen doesn't seem to work well with renamed fields in queries
+    trades: Int
+    count: Int
+    quotePrice(calculate: calculation = maximum): Int!
     maximum_price: Int!
     minimum_price: Int!
-    open_price: String!
-    close_price: String!
+    open_price: String
+    close_price: String
+    minimum(of: ofFilter = block, get: getFilter = quote_price): String
+    maximum(of: ofFilter = block, get: getFilter = quote_price): String
 }
 
 type TimeInterval {
@@ -58,7 +78,7 @@ type TimeInterval {
 
 type Query {
     # getPoolDailyOHLC(baseTokenId: ID!, quoteTokenId: ID!, startDate: String, endDate: String): ethereum
-    ethereum(network: String = "ethereum"): ethereum
+    ethereum(network: network = ethereum): ethereum
 }
 
 schema {

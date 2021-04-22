@@ -26,8 +26,8 @@ const fetcher = new BitqueryFetcher();
 // GET /marketData/daily
 function getPoolDailyOHLC(req: Request<unknown, unknown, unknown, GetMarketDataQuery>) {
     const { baseToken, quoteToken } = req.query;
-    validateEthAddress(baseToken);
-    validateEthAddress(quoteToken);
+    validateEthAddress(baseToken, 'baseToken');
+    validateEthAddress(quoteToken, 'quoteToken');
 
     return fetcher.getLastDayOHLC(baseToken, quoteToken);
 }
@@ -35,8 +35,8 @@ function getPoolDailyOHLC(req: Request<unknown, unknown, unknown, GetMarketDataQ
 // GET /marketData/daily
 function getPoolWeeklyOHLC(req: Request<unknown, unknown, unknown, GetMarketDataQuery>) {
     const { baseToken, quoteToken } = req.query;
-    validateEthAddress(baseToken);
-    validateEthAddress(quoteToken);
+    validateEthAddress(baseToken, 'baseToken');
+    validateEthAddress(quoteToken, 'quoteToken');
 
     return fetcher.getLastWeekOHLC(baseToken, quoteToken);
 }
@@ -46,9 +46,9 @@ export default express.Router()
     .get('/weekly', cacheMiddleware(300), getMarketDataValidator, wrapRequest(getPoolWeeklyOHLC));
 
 // TODO: put this somewhere else
-function validateEthAddress(id: any) {
+function validateEthAddress(id: any, paramName = 'id') {
     const isValidId = isValidEthAddress(id);
     if (!isValidId) {
-        throw new HTTPError(400, `'id' must be a valid ETH address.`);
+        throw new HTTPError(400, `'${paramName}' must be a valid ETH address.`);
     }
 }
