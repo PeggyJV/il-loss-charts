@@ -1,5 +1,4 @@
-import PropTypes from 'prop-types';
-
+import config from 'config';
 import { Wallet } from 'types/states';
 
 function ConnectWalletButton({
@@ -10,29 +9,15 @@ function ConnectWalletButton({
     wallet: Wallet;
 }): JSX.Element {
     const account = wallet?.account;
-    const buttonText = account ? `Connected: ${account}` : 'CONNECT WALLET';
-
-    // const buttonStyle = {
-    //     fontWeight: 800,
-    //     border: 'none',
-    //     borderRadius: 0,
-    //     padding: '0.5rem 2rem',
-    //     width: 'fit-content',
-    // };
-    // const walletStyle = {
-    //     ...buttonStyle,
-    //     background: 'var(--bgAccent)',
-    // };
-    // const accountStyle = {
-    //     ...buttonStyle,
-    //     background: 'var(--bgMoon)',
-    // };
-
+    const network = wallet?.network ? config.networks[wallet?.network].name : 'Connected'
+    
+    // figure out a fix for template literal strings with TS
+    const buttonText = account ? network.toUpperCase() + ' : ' + account : 'CONNECT WALLET';
+    
     return (
         <>
             <button
                 className='connect-wallet-button'
-                // style={account ? accountStyle : walletStyle}
                 onClick={onClick}
             >
                 {buttonText}
@@ -40,14 +25,5 @@ function ConnectWalletButton({
         </>
     );
 }
-
-ConnectWalletButton.propTypes = {
-    onClick: PropTypes.func,
-    wallet: PropTypes.shape({
-        account: PropTypes.string,
-        providerName: PropTypes.string,
-        provider: PropTypes.object,
-    }).isRequired,
-};
 
 export default ConnectWalletButton;
