@@ -1,18 +1,36 @@
 type ethereum {
     network: String!
-    dexTrades: DexTradeConfig!
+    dexTrades(
+        options: Options,
+        date: SearchDate,
+        exchangeName: Exchange,
+        baseCurrency: BaseCurrency,
+        quoteCurrency: QuoteCurrency
+    ): DexTradeConfig!
     date: String!
     exchangeName: String!
-    baseCurrency: Token!
-    quoteCurrency: Token!
-    baseAmount: Int!
-    quoteAmount: String!
-    trades: Int!
-    quotePrice: Int!
-    maximum_price: Int!
-    minimum_price: Int!
-    open_price: String!
-    close_price: String!
+}
+
+input Options {
+    asc: String
+    desc: String
+}
+
+input SearchDate {
+    between: [String]
+    since: String
+}
+
+input Exchange {
+    is: String!
+}
+
+input BaseCurrency {
+    is: String!
+}
+
+input QuoteCurrency {
+    is: String!
 }
 
 type Token {
@@ -21,9 +39,28 @@ type Token {
 }
 
 type DexTradeConfig {
+    baseCurrency: Token!
+    quoteCurrency: Token!
     timeInterval: TimeInterval
+    baseAmount: Int!
+    quoteAmount: String!
+    count: Int!
+    quotePrice(calculate: String = "maximum"): Int!
+    maximum_price: Int!
+    minimum_price: Int!
+    open_price: String!
+    close_price: String!
 }
 
 type TimeInterval {
-    day: String
+    day(count: Int): String
+}
+
+type Query {
+    # getPoolDailyOHLC(baseTokenId: ID!, quoteTokenId: ID!, startDate: String, endDate: String): ethereum
+    ethereum(network: String = "ethereum"): ethereum
+}
+
+schema {
+  query: Query
 }
