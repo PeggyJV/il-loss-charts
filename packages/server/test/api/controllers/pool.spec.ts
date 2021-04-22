@@ -2,10 +2,10 @@ import { endOfDay, endOfHour, subDays, subHours, startOfDay, startOfHour } from 
 import supertest from 'supertest';
 
 import { app } from 'common/server';
-import UV3Fetchers from 'services/uniswap-v3/fetchers';
+import { UniswapV3Fetchers } from 'services/uniswap-v3/fetchers';
 
 const request = supertest(app);
-const fetcher = UV3Fetchers.get('mainnet');
+const fetcher = UniswapV3Fetchers.get('mainnet');
 
 const validId = '0x1581d1a4f79885255e1993765ddee80c5e715181';
 

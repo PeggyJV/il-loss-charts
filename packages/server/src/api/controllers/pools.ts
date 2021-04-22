@@ -11,11 +11,11 @@ import { Request, Router } from 'express';
 import { HTTPError } from 'api/util/errors';
 import { isValidEthAddress } from 'util/eth';
 import catchAsyncRoute from 'api/util/catch-async-route';
-import UV3Fetchers from 'services/uniswap-v3/fetchers';
+import { UniswapV3Fetchers } from 'services/uniswap-v3/fetchers';
 
 // TODO: move this somewhere else, maybe to the fetchers manager.
 // Will also need to namespace by network
-const fetcher = UV3Fetchers.get('mainnet');
+const fetcher = UniswapV3Fetchers.get('mainnet');
 
 // TODO: move this to utils
 const poolIdParamsSchema = Joi.object().keys({

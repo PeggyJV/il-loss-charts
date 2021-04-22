@@ -22,7 +22,15 @@ type GetTopPoolsResult = UnMaybe<GetPoolsOverviewQuery['pools']>;
 type GetPoolDailyDataResult = UnMaybe<GetPoolDailyDataQuery['poolDayDatas']>;
 type GetPoolHourlyDataResult = UnMaybe<GetPoolHourlyDataQuery['poolHourDatas']>;
 
-export default class UniswapV3Fetcher {
+export interface UniswapFetcher {
+  getEthPrice(blockNumber?: number): Promise<({ ethPrice: number })>;
+  getPoolOverview(poolId: string, blockNumber?: number): Promise<GetPoolOverviewResult>;
+  getTopPools(count: number, orderBy: keyof Pool): Promise<GetTopPoolsResult>;
+  getPoolDailyData(poolId: string, start: Date, end: Date): Promise<GetPoolDailyDataResult>;
+  getPoolHourlyData(poolId: string, start: Date, end: Date): Promise<GetPoolHourlyDataResult>;
+}
+
+export class UniswapV3Fetcher {
   sdk: Sdk;
 
   constructor(sdk: Sdk) {
@@ -93,24 +101,6 @@ export default class UniswapV3Fetcher {
       return pools;
     } catch (error) {
       throw makeSdkError(`Could not fetch top pool.`, error);
-    }
-  }
-
-  async getCurrentTopPerformingPools(count = 100) {
-    try {
-      const { pools } = await this.sdk.getTopPools({
-        first: count,
-        orderDirection: 'desc',
-        orderBy: 'volumeUSD',
-      });
-
-      if (pools == null || pools.length === 0) {
-        throw new Error('No pools returned.');
-      }
-
-      return pools;
-    } catch (error) {
-      throw makeSdkError(`Could not fetch top performing pools.`, error);
     }
   }
 
