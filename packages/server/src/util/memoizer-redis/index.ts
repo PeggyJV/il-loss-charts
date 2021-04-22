@@ -4,6 +4,15 @@ import crypto from 'crypto';
 import { hourMs, secondMs } from 'util/date';
 import lockFactory from 'util/memoizer-redis/lock';
 
+// https://github.com/microsoft/TypeScript/issues/27711
+// Fixes issue with Promise<Promise<T>>
+export type Promise<A extends any> =
+    globalThis.Promise<
+        A extends globalThis.Promise<infer X>
+        ? X
+        : A
+    >
+
 // Not allowed to specify keyPrefix when memoizing a function
 interface MemoizerOptions {
   lookupTimeout: number, // how long to wait on redis.get
@@ -28,6 +37,9 @@ export const defaultOptions: MemoizerFactoryOptions = {
 };
 
 export default function memoizerFactory(client: Redis.Redis, opts: Partial<MemoizerFactoryOptions> = {}) {
+  // map of memoized functions
+  const memoizedFns = new Map();
+
   const prefix = opts.keyPrefix?.length ? `:${opts.keyPrefix}` : defaultOptions.keyPrefix;
   const keyPrefix = `memo${prefix}`;
   const memoizerFactoryOptions = {
@@ -39,11 +51,15 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
   const lock = lockFactory(client, memoizerFactoryOptions);
 
   // memoizes a fn
-  return function memoizer<T>(fn: T, opts: Partial<MemoizerOptions> = {}) {
+  return function memoizer<T>(fn: (...args: Array<any>) => T, opts: Partial<MemoizerOptions> = {}) {
     if (typeof fn !== 'function') {
       throw new Error('Only functions can be memoized');
     }
-    const fnKey = fn.name;
+    // fn.bind(this) name becomes "bound fn"
+    // split on the space and get the last part to find correct name
+    const fnParts = fn.name.split(' ');
+    const fnKey = fnParts[fnParts.length - 1];
+
     const {
       lookupTimeout,
       lockTimeout,
@@ -53,8 +69,15 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
       hashArgs
     } = { ...memoizerFactoryOptions, ...opts };
 
+    // Don't memoize functions in this namespace more than once
+    const fnNamespace = getFnNamespace(keyPrefix, fnKey);
+    let memoized = memoizedFns.get(fnNamespace);
+    if (typeof memoized === 'function') {
+      return memoized;
+    }
+
     // the actual memoized function
-    return async function memoized(...args: Array<any>): Promise<ReturnType<<T>() => T>> {
+    memoized = async function memoized(...args: Array<any>): Promise<T> {
       const cacheKey = getCacheKey(keyPrefix, fnKey, hashArgs(args));
 
       // lookup in redis first
@@ -82,6 +105,9 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
 
       return finalResult;
     }
+
+    memoizedFns.set(fnNamespace, memoized);
+    return memoized;
   }
 }
 
@@ -89,8 +115,12 @@ export function sha1(args: Array<any>): string {
   return crypto.createHash('sha1').update(JSON.stringify(args)).digest('hex');
 }
 
+export function getFnNamespace(keyPrefix: string, fnKey: string): string {
+  return `${keyPrefix}:${fnKey}`;
+}
+
 export function getCacheKey(keyPrefix: string, fnKey: string, argsKey: string): string {
-  return `${keyPrefix}:${fnKey}:${argsKey}`;
+  return `${getFnNamespace(keyPrefix, fnKey)}:${argsKey}`;
 }
 
 export async function lookup(client: Redis.Redis, cacheKey: string, lookupTimeout: number): Promise<any | void> {

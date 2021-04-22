@@ -17,10 +17,10 @@ type UnMaybe<T> = Exclude<T, null | undefined>;
 
 // Fn return types derived from generated types
 // Type = { ...pool, volumeUSD: string, feesUSD: string }
-type GetPoolOverviewResult = UnMaybe<GetPoolOverviewQuery['pool']>;
-type GetTopPoolsResult = UnMaybe<GetPoolsOverviewQuery['pools']>;
-type GetPoolDailyDataResult = UnMaybe<GetPoolDailyDataQuery['poolDayDatas']>;
-type GetPoolHourlyDataResult = UnMaybe<GetPoolHourlyDataQuery['poolHourDatas']>;
+export type GetPoolOverviewResult = UnMaybe<GetPoolOverviewQuery['pool']>;
+export type GetTopPoolsResult = UnMaybe<GetPoolsOverviewQuery['pools']>;
+export type GetPoolDailyDataResult = UnMaybe<GetPoolDailyDataQuery['poolDayDatas']>;
+export type GetPoolHourlyDataResult = UnMaybe<GetPoolHourlyDataQuery['poolHourDatas']>;
 
 export interface UniswapFetcher {
   getEthPrice(blockNumber?: number): Promise<({ ethPrice: number })>;
