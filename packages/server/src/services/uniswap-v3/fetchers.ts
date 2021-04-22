@@ -5,6 +5,8 @@ import {
 } from '@apollo/client/core';
 import fetch from 'cross-fetch';
 
+import { EthNetwork } from '@sommelier/shared-types';
+
 import { UniswapV3Fetcher, UniswapV3FetcherMemoized } from 'services/uniswap-v3';
 import appConfig from 'config';
 import { getUniswapV3Sdk } from 'services/util/apollo-client';
@@ -14,12 +16,12 @@ const config: Record<string, string> = appConfig.uniswap.v3.networks;
 // Manages subgraph clients for multiple networks
 export class UniswapV3Fetchers {
   private static instance: UniswapV3Fetchers;
-  private static clients: Map<keyof typeof config, UniswapV3Fetcher> = new Map();
+  private static clients: Map<EthNetwork, UniswapV3Fetcher> = new Map();
   private constructor() {
     // eslint-ignore no-empty-function
   }
 
-  public static get(network = 'mainnet'): UniswapV3FetcherMemoized  { // TODO: union type of valid networks
+  public static get(network: EthNetwork = 'mainnet'): UniswapV3Fetcher { // TODO: union type of valid networks
     let client = UniswapV3Fetchers.clients.get(network);
     if (!client) {
       const existingClient = UniswapV3Fetchers.createClient(network);
@@ -49,7 +51,7 @@ export class UniswapV3Fetchers {
     return new UniswapV3FetcherMemoized(new UniswapV3Fetcher(sdk), network);
   }
 }
-p
-export function getUri(network: string): string | void {
+
+export function getUri(network: EthNetwork): string {
   return config[network];
 }

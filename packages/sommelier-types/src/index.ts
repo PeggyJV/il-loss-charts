@@ -126,3 +126,5 @@ export interface EthGasPrices {
     fast: number;
     fastest: number;
 }
+
+export type EthNetwork = "mainnet" | "rinkeby" | "goerli" | "ropsten" | "kovan";

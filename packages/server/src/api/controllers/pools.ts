@@ -8,6 +8,8 @@ import {
 } from 'date-fns';
 import { Request, Router } from 'express';
 
+import { EthNetwork } from '@sommelier/shared-types';
+
 import { HTTPError } from 'api/util/errors';
 import { isValidEthAddress } from 'util/eth';
 import { UniswapV3Fetchers } from 'services/uniswap-v3/fetchers';
@@ -15,7 +17,7 @@ import catchAsyncRoute from 'api/util/catch-async-route';
 import config from 'config';
 
 type Path = {
-  network: string
+  network: EthNetwork
 };
 
 type PoolPath = Path & {
@@ -108,7 +110,7 @@ async function getHistoricalDailyData(req: Request<PoolPath, unknown, unknown, G
 }
 
 // GET /pools/:id/historical/hourly
-async function getHistoricalHourlyData(req: Request) {
+async function getHistoricalHourlyData(req: Request<PoolPath, unknown, unknown, GetHistoricalDataQuery>) {
   const { poolId, network } = req.params;
   const fetcher = UniswapV3Fetchers.get(network);
 
