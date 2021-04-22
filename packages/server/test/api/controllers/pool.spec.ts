@@ -68,13 +68,41 @@ describe('pools HTTP tests', () => {
         expect(res.body).toMatchObject(expected);
 
         expect(getTopPools).toBeCalledTimes(1);
-        expect(getTopPools).toBeCalledWith(undefined, 'volumeUSD');
+        expect(getTopPools).toBeCalledWith(100, 'volumeUSD');
 
         getTopPools.mockRestore();
       }
     });
 
     test('calls the subgraph with count', async () => {
+      const expected = [{ id: '123' }, { id: '345' }];
+      getTopPools.mockResolvedValue(expected);
+
+      const count = 999;
+      const sort = 'volumeUSD';
+      const res = await request.get(url).query({ count, sort });
+
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject(expected);
+
+      expect(getTopPools).toBeCalledTimes(1);
+      expect(getTopPools).toBeCalledWith(count, 'volumeUSD');
+    });
+
+    test('calls the subgraph with default count of 100', async () => {
+      const expected = [{ id: '123' }, { id: '345' }];
+      getTopPools.mockResolvedValue(expected);
+
+      const res = await request.get(url).query({});
+
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject(expected);
+
+      expect(getTopPools).toBeCalledTimes(1);
+      expect(getTopPools).toBeCalledWith(100, 'volumeUSD');
+    });
+
+    test('calls the subgraph with default sort', async () => {
       const expected = [{ id: '123' }, { id: '345' }];
       getTopPools.mockResolvedValue(expected);
 
@@ -119,6 +147,24 @@ describe('pools HTTP tests', () => {
       const res = await request.get(url).query({ count: 'abcd' });
       expect(res.status).toBe(400);
       expect(res.body.error).toBe('Validation Error: "count" must be a number')
+    });
+
+    test('400s with negative count', async () => {
+      const res = await request.get(url).query({ count: -1000 });
+      expect(res.status).toBe(400);
+      expect(res.body.error).toMatch('Validation Error: "count" must be greater than or equal to 1');
+    });
+
+    test('400s with count > 1000', async () => {
+      const res = await request.get(url).query({ count: 1001 });
+      expect(res.status).toBe(400);
+      expect(res.body.error).toMatch('Validation Error: "count" must be less than or equal to 1000');
+    });
+
+    test('400s with count = 0', async () => {
+      const res = await request.get(url).query({ count: 0 });
+      expect(res.status).toBe(400);
+      expect(res.body.error).toMatch('Validation Error: "count" must be greater than or equal to 1');
     });
 
     test('400s with invalid network', async () => {

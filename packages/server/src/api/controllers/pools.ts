@@ -53,7 +53,7 @@ async function getEthPrice(req: Request<Path, unknown, unknown, unknown>) {
 type GetTopPoolsQuery = { count: number, sort: 'volumeUSD' | 'reserveUSD' };
 const getTopPoolsValidator = celebrate({
   [Segments.QUERY]: Joi.object().keys({
-    count: Joi.number(),
+    count: Joi.number().min(1).max(1000).default(100),
     sort: Joi.string().valid('volumeUSD', 'reserveUSD').default('volumeUSD'),
   }),
   [Segments.PARAMS]: networkSchema,
