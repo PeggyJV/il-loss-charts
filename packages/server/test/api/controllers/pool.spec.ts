@@ -68,7 +68,7 @@ describe('pools HTTP tests', () => {
         expect(res.body).toMatchObject(expected);
 
         expect(getTopPools).toBeCalledTimes(1);
-        expect(getTopPools).toBeCalledWith(undefined);
+        expect(getTopPools).toBeCalledWith(undefined, 'volumeUSD');
 
         getTopPools.mockRestore();
       }
@@ -85,7 +85,34 @@ describe('pools HTTP tests', () => {
       expect(res.body).toMatchObject(expected);
 
       expect(getTopPools).toBeCalledTimes(1);
-      expect(getTopPools).toBeCalledWith(count);
+      expect(getTopPools).toBeCalledWith(count, 'volumeUSD');
+    });
+
+    it('allows sorting by reserveUSD', async () => {
+      const expected = [{ id: '123' }, { id: '345' }];
+      getTopPools.mockResolvedValue(expected);
+
+      const count = 999;
+      const sort = 'reserveUSD';
+      const res = await request.get(url).query({ count, sort });
+
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject(expected);
+
+      expect(getTopPools).toBeCalledTimes(1);
+      expect(getTopPools).toBeCalledWith(count, sort);
+    });
+
+    it('400s on invalid sort qs', async () => {
+      const expected = [{ id: '123' }, { id: '345' }];
+      getTopPools.mockResolvedValue(expected);
+
+      const count = 999;
+      const sort = 'notallowed';
+      const res = await request.get(url).query({ count, sort });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toMatch('Validation Error: "sort" must be one of [volumeUSD, reserveUSD]');
     });
 
     test('400s with invalid count', async () => {
