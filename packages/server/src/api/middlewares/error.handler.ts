@@ -29,4 +29,7 @@ export default function errorHandler(
 
     // all other errors should be a 500
     res.status(500).json({ error: internalError });
+
+    // let us know about these 500s
+    console.warn(`Internal Server Error: ${err.stack ?? err.message}`);
 }

@@ -9,5 +9,5 @@ export default function routes(app: Application): void {
     
     app.use('/api/v1/uniswap', uniswapRouter);
 
-    poolsRouter(app, '/api/v1/:network');
+    poolsRouter(app, '/api/v1');
 }

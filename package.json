@@ -18,7 +18,8 @@
         "prod": "cd packages/server && yarn start",
         "generate-gql": "graphql-codegen --config codegen.yml",
         "generate-gql-watch": "graphql-codegen --config codegen.yml --watch",
-        "test-ci": "lerna run test --stream --concurrency 1"
+        "test-ci": "lerna run test --stream --concurrency 1",
+        "test": "jest --forceExit"
     },
     "volta": {
         "node": "14.15.4",
