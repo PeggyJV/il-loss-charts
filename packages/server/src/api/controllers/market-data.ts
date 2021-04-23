@@ -11,16 +11,14 @@ import catchAsyncRoute from 'api/util/catch-async-route';
 type GetMarketDataQuery = { baseToken: string, quoteToken: string };
 const getMarketDataValidator = celebrate({
     [Segments.QUERY]: Joi.object().keys({
-        baseToken: Joi.string(),
-        quoteToken: Joi.string()
+        baseToken: Joi.string().custom(validateEthAddress, 'Validate Token Address').required(),
+        quoteToken: Joi.string().custom(validateEthAddress, 'Validate Token Address').required(),
     })
 });
 
 // GET /marketData/daily
 function getPoolDailyOHLC(req: Request<unknown, unknown, unknown, GetMarketDataQuery>) {
     const { baseToken, quoteToken } = req.query;
-    validateEthAddress(baseToken, 'baseToken');
-    validateEthAddress(quoteToken, 'quoteToken');
 
     return BitqueryFetcher.getLastDayOHLC(baseToken, quoteToken);
 }
@@ -28,8 +26,6 @@ function getPoolDailyOHLC(req: Request<unknown, unknown, unknown, GetMarketDataQ
 // GET /marketData/daily
 function getPoolWeeklyOHLC(req: Request<unknown, unknown, unknown, GetMarketDataQuery>) {
     const { baseToken, quoteToken } = req.query;
-    validateEthAddress(baseToken, 'baseToken');
-    validateEthAddress(quoteToken, 'quoteToken');
 
     return BitqueryFetcher.getLastWeekOHLC(baseToken, quoteToken);
 }

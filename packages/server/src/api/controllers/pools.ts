@@ -31,7 +31,7 @@ const fetcher = UniswapV3Fetchers.get('mainnet');
 
 // TODO: move this to utils
 const poolIdParamsSchema = Joi.object().keys({
-  poolId: Joi.string().custom((param) => validateEthAddress(param), 'Validate Pool Id').required(),
+  poolId: Joi.string().custom(validateEthAddress, 'Validate Pool Id').required(),
   network: Joi.string().valid(...networks).required(),
 });
 const poolIdValidator = celebrate({

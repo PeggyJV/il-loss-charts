@@ -1,9 +1,13 @@
-import { HTTPError } from 'api/util/errors';
+import { CustomHelpers } from 'joi';
 import { isValidEthAddress } from 'util/eth';
 
-export default function validateEthAddress(id: any, paramName = 'id'): void {
+export default function validateEthAddress(id: any, helpers: CustomHelpers): string {
+    const prop = helpers?.state?.path?.[0] ?? 'id';
     const isValidId = isValidEthAddress(id);
     if (!isValidId) {
-        throw new HTTPError(400, `'${paramName}' must be a valid ETH address.`);
+      throw new Error(`"${prop}" must be a valid ETH address.`);
     }
-}
+  
+    const validAddress: string = id;
+    return validAddress;
+  } 
