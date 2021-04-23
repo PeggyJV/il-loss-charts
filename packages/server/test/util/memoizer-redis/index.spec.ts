@@ -9,7 +9,6 @@ import memoizer, {
   serialize,
   deserialize,
 } from 'util/memoizer-redis/index';
-import { escapeHTML } from 'core-js/core/string';
 
 describe('memoizer-redis tests', () => {
   afterEach(async () => {
