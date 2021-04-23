@@ -20,7 +20,7 @@ export default function lockFactory(client: Redis.Redis, options: LockOptions): 
     const expireAt = Date.now() + timeout + 1;
 
     // try to set a lock
-    const aquired = await setLock(client, lockKey, expireAt, retry);
+    const acquired = await setLock(client, lockKey, expireAt, retry);
     if (!acquired) return;
 
       // caller can manually unlock before the lock expires
