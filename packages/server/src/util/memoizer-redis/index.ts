@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-unsafe-return  */
 import Redis from 'ioredis';
 import crypto from 'crypto';
 
@@ -20,7 +21,7 @@ interface MemoizerOptions {
   lookupTimeout: number, // how long to wait on redis.get
   ttl: number, // how long the value should be cached for in ms
   hashArgs: (args: Array<any>) => string, // function to hash args
-};
+}
 
 // Set keyPrefix when creating the memoizer factory
 interface MemoizerFactoryOptions extends MemoizerOptions {
@@ -55,7 +56,7 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
   const lock = lockFactory(client, memoizerFactoryOptions);
 
   // memoizes a fn
-  return function memoizer<T>(fn: (...args: Array<any>) => T, opts: Partial<MemoizerOptions> = {}) {
+  return function memoizer<T>(fn: (...args: Array<any>) => Promise<T>, opts: Partial<MemoizerOptions> = {}) {
     if (typeof fn !== 'function') {
       throw new Error('Only functions can be memoized');
     }
@@ -111,6 +112,7 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
       }
 
       // dont wait for the unlock
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       unlock();
 
       return finalResult;
@@ -153,6 +155,7 @@ export async function writeKey(client: Redis.Redis, cacheKey: string, data: any,
 export function serialize(data: any): string {
   return JSON.stringify(data);
 }
+
 export function deserialize(data: any): any {
   try {
     return JSON.parse(data);

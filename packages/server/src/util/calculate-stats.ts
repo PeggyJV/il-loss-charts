@@ -12,7 +12,6 @@ import {
     LPStats,
     MarketStats,
     UniswapLiquidityPositionAtTime,
-    StatsOverTime,
 } from '@sommelier/shared-types';
 
 import redis from 'util/redis';

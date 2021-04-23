@@ -9,6 +9,7 @@ export type ApolloRequesterOptions<V, R> =
 
 const validDocDefOps = ['mutation', 'query', 'subscription'];
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default function getSdkApollo<C>(client: ApolloClient<C>) {
   const requester: Requester = async <R, V>(
     doc: DocumentNode,

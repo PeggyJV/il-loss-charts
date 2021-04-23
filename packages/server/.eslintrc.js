@@ -9,6 +9,8 @@ module.exports = {
     },
     rules: {
         'unicorn/expiring-todo-comments': 'error',
+        'no-unused-vars': 'off', // use @typescript-eslint/no-unused-vars
+        '@typescript-eslint/no-unused-vars': 'error',
     },
     extends: ['../../.eslintrc.json'],
 };

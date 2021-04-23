@@ -68,7 +68,7 @@ describe('pools HTTP tests', () => {
         expect(res.body).toMatchObject(expected);
 
         expect(getTopPools).toBeCalledTimes(1);
-        expect(getTopPools).toBeCalledWith(undefined);
+        expect(getTopPools).toBeCalledWith(100, 'volumeUSD');
 
         getTopPools.mockRestore();
       }
@@ -79,19 +79,92 @@ describe('pools HTTP tests', () => {
       getTopPools.mockResolvedValue(expected);
 
       const count = 999;
+      const sort = 'volumeUSD';
+      const res = await request.get(url).query({ count, sort });
+
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject(expected);
+
+      expect(getTopPools).toBeCalledTimes(1);
+      expect(getTopPools).toBeCalledWith(count, 'volumeUSD');
+    });
+
+    test('calls the subgraph with default count of 100', async () => {
+      const expected = [{ id: '123' }, { id: '345' }];
+      getTopPools.mockResolvedValue(expected);
+
+      const res = await request.get(url).query({});
+
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject(expected);
+
+      expect(getTopPools).toBeCalledTimes(1);
+      expect(getTopPools).toBeCalledWith(100, 'volumeUSD');
+    });
+
+    test('calls the subgraph with default sort', async () => {
+      const expected = [{ id: '123' }, { id: '345' }];
+      getTopPools.mockResolvedValue(expected);
+
+      const count = 999;
       const res = await request.get(url).query({ count });
 
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject(expected);
 
       expect(getTopPools).toBeCalledTimes(1);
-      expect(getTopPools).toBeCalledWith(count);
+      expect(getTopPools).toBeCalledWith(count, 'volumeUSD');
+    });
+
+    it('allows sorting by reserveUSD', async () => {
+      const expected = [{ id: '123' }, { id: '345' }];
+      getTopPools.mockResolvedValue(expected);
+
+      const count = 999;
+      const sort = 'reserveUSD';
+      const res = await request.get(url).query({ count, sort });
+
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject(expected);
+
+      expect(getTopPools).toBeCalledTimes(1);
+      expect(getTopPools).toBeCalledWith(count, sort);
+    });
+
+    it('400s on invalid sort qs', async () => {
+      const expected = [{ id: '123' }, { id: '345' }];
+      getTopPools.mockResolvedValue(expected);
+
+      const count = 999;
+      const sort = 'notallowed';
+      const res = await request.get(url).query({ count, sort });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toMatch('Validation Error: "sort" must be one of [volumeUSD, reserveUSD]');
     });
 
     test('400s with invalid count', async () => {
       const res = await request.get(url).query({ count: 'abcd' });
       expect(res.status).toBe(400);
       expect(res.body.error).toBe('Validation Error: "count" must be a number')
+    });
+
+    test('400s with negative count', async () => {
+      const res = await request.get(url).query({ count: -1000 });
+      expect(res.status).toBe(400);
+      expect(res.body.error).toMatch('Validation Error: "count" must be greater than or equal to 1');
+    });
+
+    test('400s with count > 1000', async () => {
+      const res = await request.get(url).query({ count: 1001 });
+      expect(res.status).toBe(400);
+      expect(res.body.error).toMatch('Validation Error: "count" must be less than or equal to 1000');
+    });
+
+    test('400s with count = 0', async () => {
+      const res = await request.get(url).query({ count: 0 });
+      expect(res.status).toBe(400);
+      expect(res.body.error).toMatch('Validation Error: "count" must be greater than or equal to 1');
     });
 
     test('400s with invalid network', async () => {

@@ -1,31 +1,21 @@
 import {
-    useEffect,
-    useState,
-    useMemo,
-    useRef,
     Dispatch,
     SetStateAction,
 } from 'react';
-import { Combobox } from 'react-widgets';
 
 import { UniswapPair } from '@sommelier/shared-types';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { matchSorter, MatchSorterOptions } from 'match-sorter';
-import { PairWithLogo } from 'components/token-with-logo';
+import { matchSorter } from 'match-sorter';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-    faSearch,
-    faLink,
     faRetweet,
-    faWineGlassAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import './pair-search.scss';
 import { resolveLogo } from 'components/token-with-logo';
-import NavbarCollapse from 'react-bootstrap/esm/NavbarCollapse';
 
-type SearchKeys = { [searchKey: string]: UniswapPair };
+// type SearchKeys = { [searchKey: string]: UniswapPair };
 
 const useStyles = makeStyles(() => ({
     input: {
@@ -73,18 +63,18 @@ function PairSearch({
 
     const classes = useStyles();
 
-    const searchKeys: SearchKeys = useMemo(
-        (): SearchKeys =>
-            pairs.reduce((acc: SearchKeys, pair: UniswapPair) => {
-                const address = pair.id.toLowerCase();
+    // const searchKeys: SearchKeys = useMemo(
+    //     (): SearchKeys =>
+    //         pairs.reduce((acc: SearchKeys, pair: UniswapPair) => {
+    //             const address = pair.id.toLowerCase();
 
-                acc[address] = pair;
-                acc[pair.pairReadable] = pair;
+    //             acc[address] = pair;
+    //             acc[pair.pairReadable] = pair;
 
-                return acc;
-            }, {}),
-        [pairs]
-    );
+    //             return acc;
+    //         }, {}),
+    //     [pairs]
+    // );
 
     // TODO: allow searching by token name or address
     // Update actual pair if current value matches a given ID
@@ -102,35 +92,35 @@ function PairSearch({
     //     // eslint-disable-next-line react-hooks/exhaustive-deps
     // }, [currentValue, searchKeys]);
 
-    const lookForPair = (pair: UniswapPair, value: string) => {
-        const search = value.toLowerCase();
-        const symbol0 = pair.token0.symbol.toLowerCase();
-        const symbol1 = pair.token1.symbol.toLowerCase();
-        const address = pair.id.toLowerCase();
+    // const lookForPair = (pair: UniswapPair, value: string) => {
+    //     const search = value.toLowerCase();
+    //     const symbol0 = pair.token0.symbol.toLowerCase();
+    //     const symbol1 = pair.token1.symbol.toLowerCase();
+    //     const address = pair.id.toLowerCase();
 
-        return [symbol0, symbol1, pair.pairReadable, address].some(
-            (value) => value.indexOf(search) > -1
-        );
-    };
+    //     return [symbol0, symbol1, pair.pairReadable, address].some(
+    //         (value) => value.indexOf(search) > -1
+    //     );
+    // };
 
-    function sorter(a: UniswapPair, b: UniswapPair) {
-        const pairAReserve = parseInt(a?.volumeUSD);
-        const pairBReserve = parseInt(b?.volumeUSD);
+    // function sorter(a: UniswapPair, b: UniswapPair) {
+    //     const pairAReserve = parseInt(a?.volumeUSD);
+    //     const pairBReserve = parseInt(b?.volumeUSD);
 
-        if (pairAReserve > pairBReserve) return -1;
+    //     if (pairAReserve > pairBReserve) return -1;
 
-        if (pairBReserve > pairAReserve) return 1;
+    //     if (pairBReserve > pairAReserve) return 1;
 
-        return 0;
-    }
+    //     return 0;
+    // }
 
-    const renderTextField = (item: string | UniswapPair) => {
-        if (typeof item === 'string' || !item) {
-            return item;
-        }
+    // const renderTextField = (item: string | UniswapPair) => {
+    //     if (typeof item === 'string' || !item) {
+    //         return item;
+    //     }
 
-        return item.pairReadable;
-    };
+    //     return item.pairReadable;
+    // };
 
     const pairFilter = (options: UniswapPair[], { inputValue }: any) =>
         matchSorter(options, inputValue, {
@@ -166,7 +156,7 @@ function PairSearch({
             debug={true}
             noOptionsText={'Invalid Pair'}
             loadingText={'...loading'}
-            onChange={(ev, pair, reason) => {
+            onChange={(ev, pair) => {
                 console.log(pair?.id);
                 pair && setPairId(pair?.id);
             }}

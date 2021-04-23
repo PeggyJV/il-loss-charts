@@ -2,16 +2,12 @@ import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { LPPositionData } from '@sommelier/shared-types';
-import { ErrorBoundary } from 'react-error-boundary';
 import { AllPairsState, TopPairsState, Wallet } from 'types/states';
 import { useBalance } from 'hooks/use-balance';
 import { usePairDataOverview } from 'hooks/use-pair-data-overview';
-import PositionsTable from 'components/positions-table';
 import { TelegramCTA } from 'components/telegram-cta';
-import { ComponentError } from 'components/page-error';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import mixpanel from 'util/mixpanel';
-import TopPairsWidget from 'components/top-pairs-widget';
 import ConnectWalletButton from 'components/connect-wallet-button';
 import PendingTx from 'components/pending-tx';
 import SearchContainer from 'containers/search-container';
@@ -23,7 +19,6 @@ function LandingContainer({
     topPairs,
     wallet,
     setShowConnectWallet,
-    handleAddLiquidity,
     currentPairId,
 }: {
     allPairs: AllPairsState;

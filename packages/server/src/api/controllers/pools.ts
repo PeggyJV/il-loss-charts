@@ -50,10 +50,11 @@ async function getEthPrice(req: Request<Path, unknown, unknown, unknown>) {
 
 // GET /pools
 // should gen the query types from the joi schema?
-type GetTopPoolsQuery = { count: number };
+type GetTopPoolsQuery = { count: number, sort: 'volumeUSD' | 'reserveUSD' };
 const getTopPoolsValidator = celebrate({
   [Segments.QUERY]: Joi.object().keys({
-    count: Joi.number()
+    count: Joi.number().min(1).max(1000).default(100),
+    sort: Joi.string().valid('volumeUSD', 'reserveUSD').default('volumeUSD'),
   }),
   [Segments.PARAMS]: networkSchema,
 });
@@ -66,8 +67,8 @@ async function getTopPools(req: Request<Path, unknown, unknown, GetTopPoolsQuery
   // Request<any, any, any, ParsedQs> query must be a ParsedQs
   // We should add a union type for all validated queries
   // or find a better TS integration with Celebrate
-  const { count }: GetTopPoolsQuery = <any> req.query;
-  return fetcher.getTopPools(count);
+  const { count, sort }: GetTopPoolsQuery = <any> req.query;
+  return fetcher.getTopPools(count, sort);
 }
 
 // GET /pools/:id

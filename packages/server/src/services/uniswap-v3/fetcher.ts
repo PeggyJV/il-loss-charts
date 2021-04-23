@@ -29,10 +29,10 @@ export interface UniswapFetcher {
   getPoolDailyData(poolId: string, start: Date, end: Date): Promise<GetPoolDailyDataResult>;
   getPoolHourlyData(poolId: string, start: Date, end: Date): Promise<GetPoolHourlyDataResult>;
   getHistoricalDailyData(poolId: string, start: Date, end: Date): Promise<GetPoolDailyDataResult>;
-  getHistoricalHourlyData(poolId: string, start: Date, end: Date): Promise<GetPoolDailyHourlyResult>;
+  getHistoricalHourlyData(poolId: string, start: Date, end: Date): Promise<GetPoolHourlyDataResult>;
 }
 
-export class UniswapV3Fetcher {
+export class UniswapV3Fetcher implements UniswapFetcher {
   sdk: Sdk;
 
   constructor(sdk: Sdk) {
@@ -92,7 +92,7 @@ export class UniswapV3Fetcher {
 
   async getTopPools(
     count = 1000,
-    orderBy: keyof Pool = 'volumeUSD',
+    orderBy: keyof Pool,
   ): Promise<GetTopPoolsResult> {
     try {
       const { pools } = await this.sdk.getPoolsOverview({ first: count, orderDirection: 'desc', orderBy });
