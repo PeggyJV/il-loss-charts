@@ -196,7 +196,7 @@ describe('pools HTTP tests', () => {
     test('400s with invalid pool address', async () => {
       const res = await request.get(`${url}/123abcd`);
       expect(res.status).toBe(400);
-      expect(res.body.error).toMatch('"id" must be a valid ETH address.');
+      expect(res.body.error).toMatch('"poolId" must be a valid ETH address.');
     });
 
     test('400s with invalid network', async () => {
@@ -261,7 +261,7 @@ describe('pools HTTP tests', () => {
     test('400s with invalid pool address', async () => {
       const res = await request.get(getUrl('abcd'));
       expect(res.status).toBe(400);
-      expect(res.body.error).toMatch('"id" must be a valid ETH address.');
+      expect(res.body.error).toMatch('"poolId" must be a valid ETH address.');
     });
 
     test('400s if no startDate passed', async () => {
@@ -368,7 +368,7 @@ describe('pools HTTP tests', () => {
     test('400s with invalid pool address', async () => {
       const res = await request.get(getUrl('abcd'));
       expect(res.status).toBe(400);
-      expect(res.body.error).toMatch('"id" must be a valid ETH address.');
+      expect(res.body.error).toMatch('"poolId" must be a valid ETH address.');
     });
 
     test('400s if no startDate passed', async () => {

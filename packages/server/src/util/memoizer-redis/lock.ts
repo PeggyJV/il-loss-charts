@@ -5,7 +5,7 @@ interface LockOptions {
   lockRetry: number,
 }
 
-type Locker = (lockKey: string, timeout: number, retry: number) => Promise<Unlocker>;
+type Locker = (lockKey: string, timeout: number, retry: number) => Promise<Unlocker | void>;
 type Unlocker = () => Promise<void>;
 
 const LOCK_SUCCESSFULY_SET = 'OK';
@@ -15,12 +15,14 @@ export default function lockFactory(client: Redis.Redis, options: LockOptions): 
   const { lockTimeout, lockRetry } = options;
 
   // locking fn
-  return async function lock(lockKey: string, timeout = lockTimeout, retry = lockRetry): Promise<Unlocker> {
+  return async function lock(lockKey: string, timeout = lockTimeout, retry = lockRetry): Promise<Unlocker | void> {
     lockKey = `lock:${lockKey}`;
     const expireAt = Date.now() + timeout + 1;
 
     // try to set a lock
-    await setLock(client, lockKey, expireAt, retry);
+    const acquired = await setLock(client, lockKey, expireAt, retry);
+    if (!acquired) return;
+
       // caller can manually unlock before the lock expires
     return async function unlock(): Promise<void> {
       if (Date.now() < expireAt) {

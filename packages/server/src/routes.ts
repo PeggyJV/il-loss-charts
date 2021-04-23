@@ -10,6 +10,5 @@ export default function routes(app: Application): void {
     
     app.use('/api/v1/uniswap', uniswapRouter);
     app.use('/api/v1/marketData', marketDataRouter);
-    
-    poolsRouter(app, '/api/v1/');
+    app.use('/api/v1', poolsRouter);
 }

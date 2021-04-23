@@ -31,7 +31,7 @@ const fetcher = UniswapV3Fetchers.get('mainnet');
 
 // TODO: move this to utils
 const poolIdParamsSchema = Joi.object().keys({
-  poolId: Joi.string().custom((param) => validateEthAddress(param), 'Validate Pool Id').required(),
+  poolId: Joi.string().custom(validateEthAddress, 'Validate Pool Id').required(),
   network: Joi.string().valid(...networks).required(),
 });
 const poolIdValidator = celebrate({
@@ -125,12 +125,10 @@ async function getHistoricalHourlyData(req: Request<PoolPath, unknown, unknown, 
 }
 
 const route = Router();
-export default (app: Router, baseUrl: string): void => {
-  app.use(baseUrl, route);
+route.get('/:network/ethPrice', networkValidator, catchAsyncRoute(getEthPrice));
+route.get('/:network/pools', getTopPoolsValidator, catchAsyncRoute(getTopPools));
+route.get('/:network/pools/:poolId', poolIdValidator, catchAsyncRoute(getPoolOverview));
+route.get('/:network/pools/:poolId/historical/daily', getHistoricalDataValidator, catchAsyncRoute(getHistoricalDailyData));
+route.get('/:network/pools/:poolId/historical/hourly', getHistoricalDataValidator, catchAsyncRoute(getHistoricalHourlyData));
 
-  route.get('/:network/ethPrice', networkValidator, catchAsyncRoute(getEthPrice));
-  route.get('/:network/pools', getTopPoolsValidator, catchAsyncRoute(getTopPools));
-  route.get('/:network/pools/:poolId', poolIdValidator, catchAsyncRoute(getPoolOverview));
-  route.get('/:network/pools/:poolId/historical/daily', getHistoricalDataValidator, catchAsyncRoute(getHistoricalDailyData));
-  route.get('/:network/pools/:poolId/historical/hourly', getHistoricalDataValidator, catchAsyncRoute(getHistoricalHourlyData));
-}
+export default route;

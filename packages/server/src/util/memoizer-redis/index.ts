@@ -2,8 +2,8 @@
 import Redis from 'ioredis';
 import crypto from 'crypto';
 
+import { delay } from 'util/promise';
 import { hourMs, secondMs } from 'util/date';
-import config from 'config';
 import lockFactory from 'util/memoizer-redis/lock';
 
 // https://github.com/microsoft/TypeScript/issues/27711
@@ -19,20 +19,20 @@ export type Promise<A extends any> =
 // Not allowed to specify keyPrefix when memoizing a function
 interface MemoizerOptions {
   lookupTimeout: number, // how long to wait on redis.get
+  lockTimeout: number, // how long to attempt to get a lock
+  lockRetry: number, // how long to wait before trying to aquire a lock again
   ttl: number, // how long the value should be cached for in ms
   hashArgs: (args: Array<any>) => string, // function to hash args
 }
 
 // Set keyPrefix when creating the memoizer factory
 interface MemoizerFactoryOptions extends MemoizerOptions {
+  enabled: boolean, // enables or disables memoization
   keyPrefix: string, // namespace, recommend commit sha
-  lockTimeout: number, // how long to attempt to get a lock
-  lockRetry: number, // how long to wait before trying to aquire a lock again
 }
 
-const memoConfig = config.memoizerRedis;
-
 export const defaultOptions: MemoizerFactoryOptions = {
+  enabled: true,
   lookupTimeout: secondMs * 4,
   ttl: hourMs,
   keyPrefix: '',
@@ -43,6 +43,7 @@ export const defaultOptions: MemoizerFactoryOptions = {
 
 export default function memoizerFactory(client: Redis.Redis, opts: Partial<MemoizerFactoryOptions> = {}) {
   // map of memoized functions
+  // TODO: rip this out, you may want to memoized versions of a fns with different options
   const memoizedFns = new Map();
 
   const prefix = opts.keyPrefix?.length ? `:${opts.keyPrefix}` : defaultOptions.keyPrefix;
@@ -56,13 +57,13 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
   const lock = lockFactory(client, memoizerFactoryOptions);
 
   // memoizes a fn
-  return function memoizer<T>(fn: (...args: Array<any>) => Promise<T>, opts: Partial<MemoizerOptions> = {}) {
+  return function memoizer<T>(fn: (...args: Array<any>) => T, fnOpts: Partial<MemoizerOptions> = {}) {
     if (typeof fn !== 'function') {
       throw new Error('Only functions can be memoized');
     }
 
-    // noop if the memoizer is disabled (for tests)
-    if (!memoConfig.enabled) {
+    // noop if the memoizer is disabled (for testing)
+    if (!memoizerFactoryOptions.enabled) {
       return fn;
     }
 
@@ -78,7 +79,7 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
       keyPrefix,
       ttl,
       hashArgs
-    } = { ...memoizerFactoryOptions, ...opts };
+    } = { ...memoizerFactoryOptions, ...fnOpts };
 
     // Don't memoize functions in this namespace more than once
     const fnNamespace = getFnNamespace(keyPrefix, fnKey);
@@ -108,12 +109,15 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
       if (finalResult == null) {
         // fine, we have to do the work now
         finalResult = await fn(...args);
-        await writeKey(client, cacheKey, finalResult, ttl);
       }
 
-      // dont wait for the unlock
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      unlock();
+      // only update cache if we were able to get a lock
+      if (typeof unlock === 'function') {
+        await writeKey(client, cacheKey, finalResult, ttl);
+
+        // dont wait for the unlock
+        unlock();
+      }
 
       return finalResult;
     }
@@ -137,7 +141,7 @@ export function getCacheKey(keyPrefix: string, fnKey: string, argsKey: string): 
 
 export async function lookup(client: Redis.Redis, cacheKey: string, lookupTimeout: number): Promise<any | void> {
   const getPromise = client.get(cacheKey);
-  const timeout = new Promise(resolve => setTimeout(resolve, lookupTimeout));
+  const timeout = delay(lookupTimeout);
 
   // try to fetch from redis until timeout is exceeded
   const result = await Promise.race([getPromise, timeout]);
@@ -157,12 +161,5 @@ export function serialize(data: any): string {
 }
 
 export function deserialize(data: any): any {
-  try {
-    return JSON.parse(data);
-  } catch (error) {
-    const msg = 'Could not deserialize data from Redis.'
-    console.error(msg);
-
-    throw new Error(msg);
-  }
+  return JSON.parse(data);
 }
