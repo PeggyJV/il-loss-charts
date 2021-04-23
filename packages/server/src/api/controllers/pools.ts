@@ -125,12 +125,10 @@ async function getHistoricalHourlyData(req: Request<PoolPath, unknown, unknown, 
 }
 
 const route = Router();
-export default (app: Router, baseUrl: string): void => {
-  app.use(baseUrl, route);
+route.get('/:network/ethPrice', networkValidator, catchAsyncRoute(getEthPrice));
+route.get('/:network/pools', getTopPoolsValidator, catchAsyncRoute(getTopPools));
+route.get('/:network/pools/:poolId', poolIdValidator, catchAsyncRoute(getPoolOverview));
+route.get('/:network/pools/:poolId/historical/daily', getHistoricalDataValidator, catchAsyncRoute(getHistoricalDailyData));
+route.get('/:network/pools/:poolId/historical/hourly', getHistoricalDataValidator, catchAsyncRoute(getHistoricalHourlyData));
 
-  route.get('/:network/ethPrice', networkValidator, catchAsyncRoute(getEthPrice));
-  route.get('/:network/pools', getTopPoolsValidator, catchAsyncRoute(getTopPools));
-  route.get('/:network/pools/:poolId', poolIdValidator, catchAsyncRoute(getPoolOverview));
-  route.get('/:network/pools/:poolId/historical/daily', getHistoricalDataValidator, catchAsyncRoute(getHistoricalDailyData));
-  route.get('/:network/pools/:poolId/historical/hourly', getHistoricalDataValidator, catchAsyncRoute(getHistoricalHourlyData));
-}
+export default route;
