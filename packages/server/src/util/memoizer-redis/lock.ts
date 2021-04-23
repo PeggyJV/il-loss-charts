@@ -21,7 +21,7 @@ export default function lockFactory(client: Redis.Redis, options: LockOptions): 
 
     // try to set a lock
     const aquired = await setLock(client, lockKey, expireAt, retry);
-    if (!aquired) return;
+    if (!acquired) return;
 
       // caller can manually unlock before the lock expires
     return async function unlock(): Promise<void> {
