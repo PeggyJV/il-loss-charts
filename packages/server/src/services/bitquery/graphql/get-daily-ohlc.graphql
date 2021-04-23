@@ -1,7 +1,7 @@
 query getPoolDailyOHLC($baseTokenId: String!, $quoteTokenId: String!, $startDate: ISO8601DateTime!, $endDate: ISO8601DateTime!) {
   ethereum(network: ethereum) {
     dexTrades(
-      options: {asc: "timeInterval.day"}
+      options: {desc: "timeInterval.day"}
       date: {between: [$startDate, $endDate]}
       exchangeName: {is: "Uniswap"}
       baseCurrency: {is: $baseTokenId}

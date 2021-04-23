@@ -5,11 +5,7 @@ import { HTTPError } from 'api/util/errors';
 import { isValidEthAddress } from 'util/eth';
 import cacheMiddleware from 'api/middlewares/cache';
 import BitqueryFetcher from 'services/bitquery/fetcher';
-import wrapRequest from 'api/util/wrap-request';
-
-// TODO: move this somewhere else, maybe to the fetchers manager.
-import { wrapWithCache, keepCachePopulated } from 'util/redis-data-cache';
-import redis from 'util/redis';
+import catchAsyncRoute from 'api/util/catch-async-route';
 
 // GET /pools
 // should gen the query types from the joi schema?
@@ -21,15 +17,13 @@ const getMarketDataValidator = celebrate({
     })
 });
 
-const fetcher = new BitqueryFetcher();
-
 // GET /marketData/daily
 function getPoolDailyOHLC(req: Request<unknown, unknown, unknown, GetMarketDataQuery>) {
     const { baseToken, quoteToken } = req.query;
     validateEthAddress(baseToken, 'baseToken');
     validateEthAddress(quoteToken, 'quoteToken');
 
-    return fetcher.getLastDayOHLC(baseToken, quoteToken);
+    return BitqueryFetcher.getLastDayOHLC(baseToken, quoteToken);
 }
 
 // GET /marketData/daily
@@ -38,12 +32,12 @@ function getPoolWeeklyOHLC(req: Request<unknown, unknown, unknown, GetMarketData
     validateEthAddress(baseToken, 'baseToken');
     validateEthAddress(quoteToken, 'quoteToken');
 
-    return fetcher.getLastWeekOHLC(baseToken, quoteToken);
+    return BitqueryFetcher.getLastWeekOHLC(baseToken, quoteToken);
 }
 
 export default express.Router()
-    .get('/daily', cacheMiddleware(300), getMarketDataValidator, wrapRequest(getPoolDailyOHLC))
-    .get('/weekly', cacheMiddleware(300), getMarketDataValidator, wrapRequest(getPoolWeeklyOHLC));
+    .get('/daily', cacheMiddleware(300), getMarketDataValidator, catchAsyncRoute(getPoolDailyOHLC))
+    .get('/weekly', cacheMiddleware(300), getMarketDataValidator, catchAsyncRoute(getPoolWeeklyOHLC));
 
 // TODO: put this somewhere else
 function validateEthAddress(id: any, paramName = 'id') {

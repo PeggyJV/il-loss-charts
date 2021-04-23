@@ -1,0 +1,25 @@
+{
+    "__typename": "EthereumDexTrades",
+    "timeInterval": {
+        "__typename": "TimeInterval",
+        "day": "2021-04-22"
+    },
+    "baseCurrency": {
+        "__typename": "Currency",
+        "symbol": "WETH",
+        "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+    },
+    "baseAmount": 99539.21424941249,
+    "quoteCurrency": {
+        "__typename": "Currency",
+        "symbol": "USDT",
+        "address": "0xdac17f958d2ee523a2206206994597c13d831ec7"
+    },
+    "quoteAmount": 246479785.468198,
+    "trades": 16164,
+    "quotePrice": 2476.207867691228,
+    "open_price": "2415.5659492904906",
+    "close_price": "2392.254237254723",
+    "maximum_price": 2654.746052234945,
+    "minimum_price": 2015.4660856631285
+}

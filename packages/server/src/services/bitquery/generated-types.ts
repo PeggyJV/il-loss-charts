@@ -18,8 +18,8 @@ export type BaseCurrency = {
   is: Scalars['String'];
 };
 
-export type DexTrades = {
-  __typename?: 'DexTrades';
+export type DexTrade = {
+  __typename?: 'DexTrade';
   baseCurrency: Token;
   quoteCurrency: Token;
   timeInterval?: Maybe<TimeInterval>;
@@ -37,18 +37,18 @@ export type DexTrades = {
 };
 
 
-export type DexTradesQuotePriceArgs = {
+export type DexTradeQuotePriceArgs = {
   calculate?: Maybe<Calculation>;
 };
 
 
-export type DexTradesMinimumArgs = {
+export type DexTradeMinimumArgs = {
   of?: Maybe<OfFilter>;
   get?: Maybe<GetFilter>;
 };
 
 
-export type DexTradesMaximumArgs = {
+export type DexTradeMaximumArgs = {
   of?: Maybe<OfFilter>;
   get?: Maybe<GetFilter>;
 };
@@ -105,7 +105,7 @@ export enum Calculation {
 
 export type Ethereum = {
   __typename?: 'ethereum';
-  dexTrades: DexTrades;
+  dexTrades?: Maybe<Array<DexTrade>>;
   date: Scalars['String'];
   exchangeName: Scalars['String'];
 };
@@ -143,10 +143,10 @@ export type GetPoolDailyOhlcQuery = (
   { __typename?: 'Query' }
   & { ethereum?: Maybe<(
     { __typename?: 'ethereum' }
-    & { dexTrades: (
-      { __typename?: 'DexTrades' }
-      & Pick<DexTrades, 'baseAmount' | 'quoteAmount' | 'quotePrice'>
-      & { trades: DexTrades['count'], open_price: DexTrades['minimum'], close_price: DexTrades['maximum'], maximum_price: DexTrades['quotePrice'], minimum_price: DexTrades['quotePrice'] }
+    & { dexTrades?: Maybe<Array<(
+      { __typename?: 'DexTrade' }
+      & Pick<DexTrade, 'baseAmount' | 'quoteAmount' | 'quotePrice'>
+      & { trades: DexTrade['count'], open_price: DexTrade['minimum'], close_price: DexTrade['maximum'], maximum_price: DexTrade['quotePrice'], minimum_price: DexTrade['quotePrice'] }
       & { timeInterval?: Maybe<(
         { __typename?: 'TimeInterval' }
         & Pick<TimeInterval, 'day'>
@@ -157,7 +157,7 @@ export type GetPoolDailyOhlcQuery = (
         { __typename?: 'Token' }
         & Pick<Token, 'symbol' | 'address'>
       ) }
-    ) }
+    )>> }
   )> }
 );
 
@@ -166,7 +166,7 @@ export const GetPoolDailyOhlcDocument = gql`
     query getPoolDailyOHLC($baseTokenId: String!, $quoteTokenId: String!, $startDate: ISO8601DateTime!, $endDate: ISO8601DateTime!) {
   ethereum(network: ethereum) {
     dexTrades(
-      options: {asc: "timeInterval.day"}
+      options: {desc: "timeInterval.day"}
       date: {between: [$startDate, $endDate]}
       exchangeName: {is: "Uniswap"}
       baseCurrency: {is: $baseTokenId}
