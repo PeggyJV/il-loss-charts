@@ -25,6 +25,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 6379: 6379
 
     steps:
     - uses: actions/checkout@v2
@@ -36,7 +38,8 @@ jobs:
     - name: test redis
       run: yarn workspace @sommelier/data-service redis
       env:
-        REDIS_URL: redis
+        REDIS_URL: localhost
+        REDIS_PORT: 6379
     
     # - run: yarn build
     # - run: yarn test-ci
