@@ -11,7 +11,7 @@ export default function catchAsyncRoute(
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
             const response = await controllerFn(req, res);
-            return res.json(response);
+            return res.json({ data: response });
         } catch (err) {
           next(err);
         }
