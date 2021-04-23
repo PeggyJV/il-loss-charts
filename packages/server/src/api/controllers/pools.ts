@@ -11,7 +11,7 @@ import { Request, Router } from 'express';
 import { EthNetwork } from '@sommelier/shared-types';
 
 import { HTTPError } from 'api/util/errors';
-import { isValidEthAddress } from 'util/eth';
+import validateEthAddress from 'api/util/validate-eth-address';
 import { UniswapV3Fetchers } from 'services/uniswap-v3/fetchers';
 import catchAsyncRoute from 'api/util/catch-async-route';
 import config from 'config';
@@ -31,7 +31,7 @@ const fetcher = UniswapV3Fetchers.get('mainnet');
 
 // TODO: move this to utils
 const poolIdParamsSchema = Joi.object().keys({
-  poolId: Joi.string().custom(validateEthAddress, 'Validate Pool Id').required(),
+  poolId: Joi.string().custom((param) => validateEthAddress(param), 'Validate Pool Id').required(),
   network: Joi.string().valid(...networks).required(),
 });
 const poolIdValidator = celebrate({
@@ -133,15 +133,4 @@ export default (app: Router, baseUrl: string): void => {
   route.get('/:network/pools/:poolId', poolIdValidator, catchAsyncRoute(getPoolOverview));
   route.get('/:network/pools/:poolId/historical/daily', getHistoricalDataValidator, catchAsyncRoute(getHistoricalDailyData));
   route.get('/:network/pools/:poolId/historical/hourly', getHistoricalDataValidator, catchAsyncRoute(getHistoricalHourlyData));
-}
-
-// TODO: put this somewhere else
-function validateEthAddress(id: any): string {
-  const isValidId = isValidEthAddress(id);
-  if (!isValidId) {
-    throw new Error('"id" must be a valid ETH address.');
-  }
-
-  const validAddress: string = id;
-  return validAddress;
 }

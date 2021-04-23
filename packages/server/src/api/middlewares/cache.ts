@@ -11,6 +11,7 @@ interface ResponseWithCache extends Response {
 export default function cacheMiddleware(ttl: number): RequestHandler {
     return (req: Request, res: ResponseWithCache, next: NextFunction) => {
         const key = '__express__' + req.originalUrl || req.url;
+        console.log('THIS IS KEY', key);
         const cacheContent: unknown | null = memCache.get(key);
         if (cacheContent) {
             res.send(cacheContent);

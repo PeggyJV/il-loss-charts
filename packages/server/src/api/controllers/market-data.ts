@@ -1,8 +1,7 @@
 import { celebrate, Joi, Segments } from 'celebrate';
 import express, { Request, Response, Router } from 'express';
 
-import { HTTPError } from 'api/util/errors';
-import { isValidEthAddress } from 'util/eth';
+import validateEthAddress from 'api/util/validate-eth-address';
 import cacheMiddleware from 'api/middlewares/cache';
 import BitqueryFetcher from 'services/bitquery/fetcher';
 import catchAsyncRoute from 'api/util/catch-async-route';
@@ -39,10 +38,3 @@ export default express.Router()
     .get('/daily', cacheMiddleware(300), getMarketDataValidator, catchAsyncRoute(getPoolDailyOHLC))
     .get('/weekly', cacheMiddleware(300), getMarketDataValidator, catchAsyncRoute(getPoolWeeklyOHLC));
 
-// TODO: put this somewhere else
-function validateEthAddress(id: any, paramName = 'id') {
-    const isValidId = isValidEthAddress(id);
-    if (!isValidId) {
-        throw new HTTPError(400, `'${paramName}' must be a valid ETH address.`);
-    }
-}
