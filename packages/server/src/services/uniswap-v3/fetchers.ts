@@ -38,7 +38,7 @@ export class UniswapV3Fetchers {
     return client;
   }
 
-  private static createClient(network = 'mainnet') {
+  private static createClient(network: EthNetwork = 'mainnet') {
     const uri = getUri(network);
     if (uri == null) {
       throw new Error(`${network} is an invalid network.`)
