@@ -2,7 +2,7 @@ import config from './src/config';
 import Redis from 'ioredis';
 
 const redis = new Redis({
-    host: '127.0.0.1',
+    host: config.redisHost,
     port: 6379,
 });
 
