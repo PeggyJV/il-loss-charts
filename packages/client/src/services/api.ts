@@ -31,7 +31,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
     ): Promise<ApiResponse<IUniswapPair>> {
         if (useOffline) return OfflineFetcher.getPairOverview(pairId);
 
-        const response = await fetch(`/api/v1/uniswap/pairs/${pairId}`);
+        const response = await fetch(`/api/v1/rinkeby/pools/${pairId}`);
         const { data, error } = await (response.json() as Promise<
             ApiResponse<IUniswapPair>
         >);
@@ -49,7 +49,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
     ): Promise<ApiResponse<UniswapSwap[]>> {
         if (useOffline) return OfflineFetcher.getLatestSwaps(pairId);
 
-        const response = await fetch(`/api/v1/uniswap/pairs/${pairId}/swaps`);
+        const response = await fetch(`/api/v1/rinkeby/pools/${pairId}/swaps`);
         const { data, error } = await (response.json() as Promise<
             ApiResponse<UniswapSwap[]>
         >);
@@ -91,7 +91,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
     ): Promise<ApiResponse<IUniswapPair[]>> {
         if (useOffline) return OfflineFetcher.getTopPairs(count);
 
-        const response = await fetch(`/api/v1/uniswap/pairs?count=${count}`);
+        const response = await fetch(`/api/v1/rinkeby/pools?count=${count}`);
         const { data, error } = await (response.json() as Promise<
             ApiResponse<IUniswapPair[]>
         >);
@@ -179,7 +179,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
             );
 
         const response = await fetch(
-            `/api/v1/uniswap/pairs/${pairId}/historical/daily?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+            `/api/v1/rinkeby/pools/${pairId}/historical/daily?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
         );
         const { data, error } = await (response.json() as Promise<
             ApiResponse<UniswapDailyData[]>
@@ -210,7 +210,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
             );
 
         const response = await fetch(
-            `/api/v1/uniswap/pairs/${pairId}/historical/hourly?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+            `/api/v1/rinkeby/pools/${pairId}/historical/hourly?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
         );
         const { data, error } = await (response.json() as Promise<
             ApiResponse<UniswapHourlyData[]>
