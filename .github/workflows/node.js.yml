@@ -35,11 +35,9 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: yarn
-    - name: test redis
-      run: yarn workspace @sommelier/data-service redis
+    - run: yarn build
+    - name: Run all tests
+      run: yarn test-ci
       env:
         REDIS_URL: localhost
         REDIS_PORT: 6379
-    
-    # - run: yarn build
-    # - run: yarn test-ci

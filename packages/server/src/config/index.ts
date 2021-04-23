@@ -1,10 +1,11 @@
+import { RecursivePartial } from 'types/shared';
 import defaultConfig from './default';
 import production from './production';
 import test from './test';
 
 import AppConfig, { Environments } from 'types/app-config';
 
-const configEnvs: Partial<{ [env in Environments]: Partial<AppConfig> }> = {
+const configEnvs: Partial<{ [env in Environments]: RecursivePartial<AppConfig> }> = {
     production,
     test,
 };

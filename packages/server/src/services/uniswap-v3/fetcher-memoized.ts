@@ -8,8 +8,11 @@ import {
   UniswapFetcher,
   UniswapV3Fetcher
 } from 'services/uniswap-v3/fetcher';
+import appConfig from 'config';
 import memoizer from 'util/memoizer-redis';
 import redis from 'util/redis';
+
+const config = appConfig.memoizerRedis;
 
 // TODO: Move this to config and review TTLs
 const memoConfig = {
@@ -26,7 +29,7 @@ export class UniswapV3FetcherMemoized implements UniswapFetcher {
   private fetcher: UniswapV3Fetcher;
 
   constructor(fetcher: UniswapV3Fetcher, network: string) {
-    this.memoize = memoizer(redis, { keyPrefix: network });
+    this.memoize = memoizer(redis, { keyPrefix: network, enabled: config.enabled });
     this.fetcher = fetcher;
   }
 
