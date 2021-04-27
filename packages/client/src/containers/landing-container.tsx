@@ -21,14 +21,14 @@ function LandingContainer({
     topPairs,
     wallet,
     setShowConnectWallet,
-    handleAddLiquidity,
+    // handleAddLiquidity,
     currentPairId,
 }: {
     allPairs: AllPairsState;
     topPairs: TopPairsState | null;
     wallet: Wallet;
     setShowConnectWallet: (wallet: boolean) => void;
-    handleAddLiquidity: (paidId: string) => void;
+    // handleAddLiquidity: (paidId: string) => void;
     currentPairId: string | null;
 }): JSX.Element {
     const [isLoading, setIsLoading] = useState(false);
@@ -132,7 +132,6 @@ function LandingContainer({
             <SearchContainer allPairs={allPairs} setPairId={setPairId} />
             <Box display='flex' justifyContent='space-around'>
                 <AddLiquidityV3
-                    pairId={pairId}
                     pairData={pairData}
                     balances={balances}
                 />

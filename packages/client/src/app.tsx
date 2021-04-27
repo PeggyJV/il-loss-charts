@@ -317,9 +317,6 @@ function App(): ReactElement {
                                                         setShowConnectWallet={
                                                             setShowConnectWallet
                                                         }
-                                                        handleAddLiquidity={
-                                                            handleAddLiquidity
-                                                        }
                                                         currentPairId={currentPairId}
                                                     />
                                                 </Route>

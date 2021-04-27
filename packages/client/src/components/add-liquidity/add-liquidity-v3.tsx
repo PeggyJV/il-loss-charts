@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import './add-liquidity-v3.scss';
-import { resolveLogo } from 'components/token-with-logo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { TokenInput } from 'components/token-input';
 import { WalletBalance } from 'components/wallet-balance';
@@ -12,12 +11,10 @@ import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 import { ethers } from 'ethers';
 type Props = {
     balances: WalletBalances;
-    pairId: string | null;
     pairData: IUniswapPair | null;
 };
 export const AddLiquidityV3 = ({
     balances,
-    pairId,
     pairData,
 }: Props): JSX.Element => {
     
