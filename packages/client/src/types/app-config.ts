@@ -1,7 +1,6 @@
-export type Environments = 'production' | 'development' | 'test' | 'staging';
+import { EthNetwork, NetworkIds } from '@sommelier/shared-types';
 
-export type NetworkNamespace = 'mainnet' | 'rinkeby' | 'goerli' | 'ropsten' | 'kovan';
-export type NetworkIds = '1' | '4' | '5' | '3' | '42'
+export type Environments = 'production' | 'development' | 'test' | 'staging';
 type ContractABI =
     | 'ADD_LIQUIDITY'
     | 'REMOVE_LIQUIDITY'
@@ -11,7 +10,7 @@ type ContractABI =
 type Network = {
     [key in NetworkIds]: {
         id: number;
-        name: NetworkNamespace;
+        name: EthNetwork;
         contracts?: Partial<
             {
                 [key in ContractABI]: string;

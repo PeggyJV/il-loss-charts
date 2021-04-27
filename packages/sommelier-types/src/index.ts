@@ -128,3 +128,5 @@ export interface EthGasPrices {
 }
 
 export type EthNetwork = "mainnet" | "rinkeby" | "goerli" | "ropsten" | "kovan";
+
+export type NetworkIds = '1' | '4' | '5' | '3' | '42';

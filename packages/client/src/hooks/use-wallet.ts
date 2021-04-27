@@ -1,4 +1,4 @@
-import { NetworkNamespace, NetworkIds } from './../types/app-config';
+import { NetworkIds } from '@sommelier/shared-types';
 import { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';
 
@@ -92,13 +92,13 @@ export default function useWallet(): {
                 setWallet(walletObj);
 
                 try {
-                  const mixpanelData = {
-                    distinct_id: account,
-                    account,
-                    providerName: 'metamask'
-                  }
+                    const mixpanelData = {
+                        distinct_id: account,
+                        account,
+                        providerName: 'metamask',
+                    };
 
-                  mixpanel.track('wallet', mixpanelData);
+                    mixpanel.track('wallet', mixpanelData);
                 } catch (e) {
                     console.error(`Metrics error on wallet.`);
                 }
@@ -108,7 +108,7 @@ export default function useWallet(): {
         });
 
         ethereum.on('networkChanged', (networkId: NetworkIds) => {
-            setWallet({...wallet, network: networkId })
+            setWallet({ ...wallet, network: networkId });
         });
     }
 
@@ -125,13 +125,13 @@ export default function useWallet(): {
             setWallet(walletObj);
 
             try {
-              const mixpanelData = {
-                distinct_id: account,
-                account,
-                providerName: 'walletconnect'
-              }
+                const mixpanelData = {
+                    distinct_id: account,
+                    account,
+                    providerName: 'walletconnect',
+                };
 
-              mixpanel.track('wallet', mixpanelData);
+                mixpanel.track('wallet', mixpanelData);
             } catch (e) {
                 console.error(`Metrics error on wallet.`);
             }
@@ -139,7 +139,12 @@ export default function useWallet(): {
     });
 
     wcProvider.on('disconnect', () => {
-        setWallet({ account: null, provider: null, providerName: null, network: null });
+        setWallet({
+            account: null,
+            provider: null,
+            providerName: null,
+            network: null,
+        });
         cookies.remove('current_wallet');
     });
 
@@ -163,19 +168,19 @@ export default function useWallet(): {
             account,
             providerName: 'metamask',
             provider: (window as any).ethereum,
-            network: (window as any).ethereum.networkVersion
+            network: (window as any).ethereum.networkVersion,
         };
 
         setWallet(walletObj);
 
         try {
-          const mixpanelData = {
-            distinct_id: account,
-            account,
-            providerName: 'metamask'
-          }
+            const mixpanelData = {
+                distinct_id: account,
+                account,
+                providerName: 'metamask',
+            };
 
-          mixpanel.track('wallet', mixpanelData);
+            mixpanel.track('wallet', mixpanelData);
         } catch (e) {
             console.error(`Metrics error on wallet.`);
         }
@@ -195,13 +200,13 @@ export default function useWallet(): {
             setWallet(walletObj);
 
             try {
-              const mixpanelData = {
-                distinct_id: wcProvider.accounts[0],
-                account: wcProvider.accounts[0],
-                providerName: 'walletconnect'
-              }
+                const mixpanelData = {
+                    distinct_id: wcProvider.accounts[0],
+                    account: wcProvider.accounts[0],
+                    providerName: 'walletconnect',
+                };
 
-              mixpanel.track('wallet:connect', mixpanelData);
+                mixpanel.track('wallet:connect', mixpanelData);
             } catch (e) {
                 console.error(`Metrics error on wallet.`);
             }
@@ -212,7 +217,12 @@ export default function useWallet(): {
         mixpanel.track('wallet:disconnect', {
             providerName: wallet.providerName,
         });
-        setWallet({ account: null, providerName: null, provider: null, network: null });
+        setWallet({
+            account: null,
+            providerName: null,
+            provider: null,
+            network: null,
+        });
         cookies.remove('current_wallet');
     };
 

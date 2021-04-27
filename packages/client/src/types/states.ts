@@ -7,10 +7,9 @@ import {
     UniswapHourlyData,
     UniswapSwap,
     UniswapMintOrBurn,
-    LPStats
+    LPStats,
+    NetworkIds,
 } from '@sommelier/shared-types';
-
-import {NetworkIds} from 'types/app-config';
 
 import { ethers } from 'ethers';
 
