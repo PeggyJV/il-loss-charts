@@ -134,6 +134,7 @@ function LandingContainer({
             <SearchContainer allPairs={allPairs} setPairId={setPairId} />
             <Box display='flex' justifyContent='space-around'>
                 <AddLiquidityV3
+                    wallet={wallet}
                     pairData={pairData}
                     balances={balances}
                     gasPrices={gasPrices}

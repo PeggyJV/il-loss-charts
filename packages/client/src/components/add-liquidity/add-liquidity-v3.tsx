@@ -14,24 +14,26 @@ import './add-liquidity-v3.scss';
 import 'rc-slider/assets/index.css';
 
 import { EthGasPrices, IUniswapPair } from '@sommelier/shared-types';
+import config from 'config';
+import addLiquidityAbi from 'constants/abis/uniswap_v3_add_liquidity.json';
 
 import { TokenInput } from 'components/token-input';
 import { WalletBalance } from 'components/wallet-balance';
+import { toastSuccess, toastError } from 'util/toasters';
+import { compactHash } from 'util/formats';
 
-import { WalletBalances } from 'types/states';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRetweet } from '@fortawesome/free-solid-svg-icons';
-
+import { Wallet, WalletBalances } from 'types/states';
 import { useMarketData } from 'hooks/use-market-data';
-import { convertSqrtPriceX96 } from 'util/uniswap-v3';
 
 type Props = {
+    wallet: Wallet;
     balances: WalletBalances;
     pairData: IUniswapPair | null;
     gasPrices: EthGasPrices | null;
 };
+
 export const AddLiquidityV3 = ({
+    wallet,
     balances,
     pairData,
     gasPrices,
@@ -47,6 +49,11 @@ export const AddLiquidityV3 = ({
         'needed'
     );
 
+    let provider: ethers.providers.Web3Provider | null = null;
+    if (wallet.provider) {
+        provider = new ethers.providers.Web3Provider(wallet?.provider);
+    }
+
     // const [tokenData, setTokenData] = useState<Record<
     //     string,
     //     {
@@ -60,6 +67,101 @@ export const AddLiquidityV3 = ({
     const token0 = pairData?.token0.id ?? '';
     const token1 = pairData?.token1.id ?? '';
     const marketData = useMarketData(token0, token1);
+
+    const doAddLiquidity = async () => {
+        if (!pairData || !provider) return;
+        if (!currentGasPrice) {
+            throw new Error('Gas price not selected.');
+        }
+
+        const addLiquidityContractAddress = config.networks[wallet.network || '1']?.contracts?.ADD_LIQUIDITY_V3;
+
+        if (!addLiquidityContractAddress) {
+            throw new Error('Add liquidity contract not available on this network.');
+        }
+
+        // Create signer
+        const signer = provider.getSigner();
+        // Create read-write contract instance
+        const addLiquidityContract = new ethers.Contract(
+            addLiquidityContractAddress,
+            addLiquidityAbi,
+            signer
+        );
+
+        (window as any).contract = addLiquidityContract;
+        console.log('CHECK WINDOW');
+
+        const fnName = token === 'ETH' ? 'addLiquidityEthForUniV3' : 'addLiquidityForUniV3';
+        const tokenId = 0;
+        const baseAmount = 100;
+        const quoteAmount = baseAmount * 1634.7;
+        const amount0Desired = ethers.utils.parseUnits(baseAmount.toString(), 18);
+        const amount1Desired = ethers.utils.parseUnits(quoteAmount.toString(), 18);
+
+        const mintParams = [
+            token0,                     // token0
+            token1,                     // token1
+            3000,                       // feeTier TODO: get from pairData
+            75490,                      // tickLower
+            77810,                      // tickUpper
+            amount0Desired,             // amount0Desired
+            amount1Desired,             // amount1Desired
+            0,                          // amount0Min TODO: use price impact to set min
+            0,                          // amount1Min TODO: use price impact to set min
+            wallet.account,             // recipient
+            2 ** 256 - 1                // deadline
+        ];
+
+        const decimals = parseInt(balances[token]?.decimals || '0', 10);
+        if (decimals === 0) {
+            throw new Error(
+                `Do not have decimal units for ${decimals} - unsafe, cannot proceed`
+            );
+        }
+
+        let baseMsgValue = ethers.utils.parseUnits('0.005', 18);
+        if (token === 'ETH') {
+            baseMsgValue = baseMsgValue.add(
+                ethers.utils.parseUnits(token0Amount.toString(), decimals)
+            );
+        }
+        const value = baseMsgValue.toString();
+        const baseGasPrice = ethers.utils
+            .parseUnits(currentGasPrice.toString(), 9)
+            .toString();
+
+
+        // Call the contract and sign
+        let gasEstimate: ethers.BigNumber;
+
+        try {
+            gasEstimate = await addLiquidityContract.estimateGas[
+                fnName
+            ](tokenId, mintParams, {
+                gasPrice: baseGasPrice,
+                value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
+            });
+
+            // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
+            gasEstimate = gasEstimate.add(gasEstimate.div(3));
+        } catch (err) {
+            // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
+            console.error(`Could not estimate gas: ${err.message as string}`);
+
+            toastError('Could not estimate gas for this transaction. Check your parameters or try a different pool.');
+            return;
+        }
+
+        const { hash } = await addLiquidityContract[
+            fnName
+        ](tokenId, mintParams, {
+            gasPrice: baseGasPrice,
+            value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
+        });
+
+        toastSuccess(`Submitted: ${compactHash(hash)}`);
+    }
 
     // (window as any).tokenData = tokenData;
     // useEffect(() => {
@@ -284,7 +386,7 @@ export const AddLiquidityV3 = ({
                         <Range defaultValue={[0, 100]} value={[20, 80]} />
                     </div> */}
                     <div className='btn-container'>
-                        <button className='btn-addl'>ADD LIQUIDITY</button>
+                        <button className='btn-addl' onClick={doAddLiquidity}>ADD LIQUIDITY</button>
                     </div>
                 </div>
             </div>

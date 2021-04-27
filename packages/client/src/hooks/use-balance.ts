@@ -15,10 +15,12 @@ type Props = {
 };
 export const useBalance = ({ pairData, wallet }: Props): WalletBalances => {
     let provider: ethers.providers.Web3Provider;
-    if(wallet.provider)
-    provider = new ethers.providers.Web3Provider(wallet?.provider);
+    if (wallet.provider) {
+        provider = new ethers.providers.Web3Provider(wallet?.provider);
+    }
+
     const [balances, setBalances] = useState<WalletBalances>({});
-    console.log('THIS IS PAIRDATA',pairData);
+
     useEffect(() => {
         // get balances of both tokens
         const getBalances = async () => {

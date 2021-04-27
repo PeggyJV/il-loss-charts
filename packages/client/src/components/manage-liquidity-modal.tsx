@@ -34,9 +34,7 @@ function ManageLiquidityModal({
 }): JSX.Element | null {
     const [mode, setMode] = useState<'add' | 'remove'>('add');
     
-    const pairData = usePairDataOverview(
-        pairId
-        );
+    const pairData = usePairDataOverview(pairId);
       
     const [
         positionData,

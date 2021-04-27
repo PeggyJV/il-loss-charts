@@ -22,8 +22,6 @@ export const useMarketData = (
         fetchPairData(baseToken, quoteToken)
     );
 
-    console.log('data :: ', newPair);
-
     return newPair;
 };
 
