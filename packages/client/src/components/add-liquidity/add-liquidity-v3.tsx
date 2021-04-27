@@ -8,6 +8,7 @@ import {
     InputGroup
 } from 'react-bootstrap';
 
+import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
 import classNames from 'classnames';
 import './add-liquidity-v3.scss';
@@ -15,11 +16,12 @@ import 'rc-slider/assets/index.css';
 
 import { EthGasPrices, IUniswapPair } from '@sommelier/shared-types';
 import config from 'config';
+import erc20Abi from 'constants/abis/erc20.json';
 import addLiquidityAbi from 'constants/abis/uniswap_v3_add_liquidity.json';
 
 import { TokenInput } from 'components/token-input';
 import { WalletBalance } from 'components/wallet-balance';
-import { toastSuccess, toastError } from 'util/toasters';
+import { toastSuccess, toastError, toastWarn } from 'util/toasters';
 import { compactHash } from 'util/formats';
 
 import { Wallet, WalletBalances } from 'types/states';
@@ -92,26 +94,85 @@ export const AddLiquidityV3 = ({
         (window as any).contract = addLiquidityContract;
         console.log('CHECK WINDOW');
 
+        // TODO get these addresses from pool
+        const side0 = '0xc778417E063141139Fce010982780140Aa0cD5Ab';
+        const side1 = '0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735';
+
         const fnName = token === 'ETH' ? 'addLiquidityEthForUniV3' : 'addLiquidityForUniV3';
         const tokenId = 0;
-        const baseAmount = 100;
+        const baseAmount = 1;
         const quoteAmount = baseAmount * 1634.7;
-        const amount0Desired = ethers.utils.parseUnits(baseAmount.toString(), 18);
-        const amount1Desired = ethers.utils.parseUnits(quoteAmount.toString(), 18);
+        const amount0Desired = ethers.utils.parseUnits(baseAmount.toString(), 18).toString();
+        const amount1Desired = ethers.utils.parseUnits(quoteAmount.toString(), 18).toString();
 
         const mintParams = [
-            token0,                     // token0
-            token1,                     // token1
-            3000,                       // feeTier TODO: get from pairData
-            75490,                      // tickLower
-            77810,                      // tickUpper
-            amount0Desired,             // amount0Desired
-            amount1Desired,             // amount1Desired
-            0,                          // amount0Min TODO: use price impact to set min
-            0,                          // amount1Min TODO: use price impact to set min
-            wallet.account,             // recipient
-            2 ** 256 - 1                // deadline
+            side0,                                                 // token0
+            side1,                                                 // token1
+            500,                                                   // feeTier TODO: get from pairData
+            75490,                                                  // tickLower
+            77810,                                                  // tickUpper
+            amount0Desired,                                         // amount0Desired
+            amount1Desired,                                         // amount1Desired
+            0,                                                      // amount0Min TODO: use price impact to set min
+            0,                                                      // amount1Min TODO: use price impact to set min
+            wallet.account,                                         // recipient
+            Math.floor(Date.now() / 1000) + 86400000                // deadline
         ];
+
+        // approve DAI. TODO: Make this approval separate
+        const daiContract = new ethers.Contract(
+            side1,
+            erc20Abi,
+            signer
+        );
+
+        const baseApproveAmount = ethers.utils
+            .parseUnits(
+                new BigNumber(amount1Desired).times(100).toFixed(),
+                18
+            )
+            .toString();
+        const baseGasPrice = ethers.utils
+            .parseUnits(currentGasPrice.toString(), 9)
+            .toString();
+
+        // Call the contract and sign
+        let approvalEstimate: ethers.BigNumber;
+
+        try {
+            approvalEstimate = await daiContract.estimateGas.approve(
+                addLiquidityContractAddress,
+                baseApproveAmount,
+                { gasPrice: baseGasPrice }
+            );
+
+            // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
+            approvalEstimate = approvalEstimate.add(approvalEstimate.div(3));
+        } catch (err) {
+            // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
+            console.error(
+                `Could not estimate gas fees: ${err.message as string}`
+            );
+
+            approvalEstimate = ethers.BigNumber.from('1000000');
+        }
+
+        // Approve the add liquidity contract to spend entry tokens
+        const { hash: approveHash } = await daiContract.approve(
+            addLiquidityContractAddress,
+            baseApproveAmount,
+            { gasPrice: baseGasPrice, gasLimit: approvalEstimate }
+        );
+
+        // setApprovalState('pending');
+        toastWarn(`Approving tx ${compactHash(approveHash)}`);
+
+        await provider.waitForTransaction(approveHash);
+
+
+        console.log('THIS IS MINT PARAMS')
+        console.log(mintParams);
+        console.log('FN NAME', fnName);
 
         const decimals = parseInt(balances[token]?.decimals || '0', 10);
         if (decimals === 0) {
@@ -122,15 +183,9 @@ export const AddLiquidityV3 = ({
 
         let baseMsgValue = ethers.utils.parseUnits('0.005', 18);
         if (token === 'ETH') {
-            baseMsgValue = baseMsgValue.add(
-                ethers.utils.parseUnits(token0Amount.toString(), decimals)
-            );
+            baseMsgValue = baseMsgValue.add(amount0Desired);
         }
         const value = baseMsgValue.toString();
-        const baseGasPrice = ethers.utils
-            .parseUnits(currentGasPrice.toString(), 9)
-            .toString();
-
 
         // Call the contract and sign
         let gasEstimate: ethers.BigNumber;
@@ -148,6 +203,7 @@ export const AddLiquidityV3 = ({
         } catch (err) {
             // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
             console.error(`Could not estimate gas: ${err.message as string}`);
+            (window as any).gasError = err;
 
             toastError('Could not estimate gas for this transaction. Check your parameters or try a different pool.');
             return;
