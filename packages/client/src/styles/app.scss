@@ -1003,6 +1003,22 @@ p {
     text-align: right;
 }
 
+.price-container {
+    margin-bottom: 2em;
+}
+
+.price-container .price-heading {
+    text-align: center;
+}
+
+.price-container .liquidity-heading {
+    text-align: center;
+}
+
+.price-container .price-impact {
+    color: var(--bgMoon);
+}
+
 .add-v3-container .sub-heading {
     padding-left: 1em;
 }

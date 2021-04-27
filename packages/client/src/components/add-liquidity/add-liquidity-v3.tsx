@@ -57,8 +57,8 @@ export const AddLiquidityV3 = ({
     //     }
     // > | null>(null);
 
-    const token0 = pairData?.token0.symbol ?? '';
-    const token1 = pairData?.token1.symbol ?? '';
+    const token0 = pairData?.token0.id ?? '';
+    const token1 = pairData?.token1.id ?? '';
     const marketData = useMarketData(token0, token1);
 
     // (window as any).tokenData = tokenData;
@@ -116,7 +116,11 @@ export const AddLiquidityV3 = ({
     //     setTokenData(tokenDataMap);
     // }, [balances, pairData]);
 
-    if (!pairData) return null;
+    if (!pairData || !marketData) return null;
+    (window as any).marketData = marketData;
+    const currentPrice = marketData.quotePrice || 1.234352;
+    const liquidityLow = (currentPrice * 0.9).toString();
+    const liquidityHigh = (currentPrice * 1.1).toString();
 
     const TransactionSettings = () => (
         <>
@@ -249,7 +253,9 @@ export const AddLiquidityV3 = ({
                     </div>
                 </div> */}
                 <div className='price-container'>
-                    <h3>Current Price: {convertSqrtPriceX96(pairData.sqrtPrice).toFixed()}</h3>
+                    <h3 className='price-heading'>Current Price: {currentPrice}</h3>
+                    <p className='liquidity-heading'>Liquidity Range: {liquidityLow} to {liquidityHigh}</p>
+                    <p className='liquidity-heading'>Expected Price Impact <span className='price-impact'>0.2%</span></p>
                 </div>
                 <TransactionSettings />
                 <div className='preview-container'>
