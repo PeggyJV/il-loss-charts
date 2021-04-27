@@ -24,6 +24,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 
 import { useMarketData } from 'hooks/use-market-data';
+import { convertSqrtPriceX96 } from 'util/uniswap-v3';
+
 type Props = {
     balances: WalletBalances;
     pairData: IUniswapPair | null;
@@ -33,7 +35,7 @@ export const AddLiquidityV3 = ({
     balances,
     pairData,
     gasPrices,
-}: Props): JSX.Element => {
+}: Props): JSX.Element | null => {
     const [token0Amount, setToken0Amount] = useState('0');
     const [token1Amount, setToken1Amount] = useState('0');
     const [token, setToken] = useState('ETH');
@@ -113,6 +115,9 @@ export const AddLiquidityV3 = ({
 
     //     setTokenData(tokenDataMap);
     // }, [balances, pairData]);
+
+    if (!pairData) return null;
+
     const TransactionSettings = () => (
         <>
             <p className='sub-heading'>
@@ -243,6 +248,9 @@ export const AddLiquidityV3 = ({
                         <p className='fees'>13.2% fees 24hrs</p>
                     </div>
                 </div> */}
+                <div className='price-container'>
+                    <h3>Current Price: {convertSqrtPriceX96(pairData.sqrtPrice).toFixed()}</h3>
+                </div>
                 <TransactionSettings />
                 <div className='preview-container'>
 
