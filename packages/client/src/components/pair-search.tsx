@@ -9,11 +9,10 @@ import { matchSorter } from 'match-sorter';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-    faRetweet,
-} from '@fortawesome/free-solid-svg-icons';
+import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 import './pair-search.scss';
 import { resolveLogo } from 'components/token-with-logo';
+
 
 // type SearchKeys = { [searchKey: string]: UniswapPair };
 
@@ -24,7 +23,7 @@ const useStyles = makeStyles(() => ({
     },
 }));
 
-// hack this a little more, TextField is still ugly af
+//TODO: hack this a little more, TextField is still ugly af
 const CssTextField = withStyles({
     root: {
         // '& label.Mui-focused': {
@@ -156,8 +155,7 @@ function PairSearch({
             debug={true}
             noOptionsText={'Invalid Pair'}
             loadingText={'...loading'}
-            onChange={(ev, pair) => {
-                console.log(pair?.id);
+            onChange={(_, pair) => {
                 pair && setPairId(pair?.id);
             }}
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return

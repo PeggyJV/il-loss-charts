@@ -1,3 +1,4 @@
+import { NetworkIds } from '@sommelier/shared-types';
 import { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';
 
@@ -34,6 +35,7 @@ export default function useWallet(): {
         account: null,
         provider: null,
         providerName: null,
+        network: null,
     };
     if (
         walletFromCookie &&
@@ -44,6 +46,7 @@ export default function useWallet(): {
             initialWalletState.account = walletFromCookie.account;
             initialWalletState.providerName = walletFromCookie.providerName;
             initialWalletState.provider = (window as any).ethereum;
+            initialWalletState.network = ethereum.networkVersion;
         }
         // } else if (
         //     // Create walletconnect session if wallet connect
@@ -64,6 +67,7 @@ export default function useWallet(): {
             account: null,
             providerName: null,
             provider: null,
+            network: null,
         };
     }
 
@@ -82,24 +86,29 @@ export default function useWallet(): {
                     account,
                     providerName: 'metamask',
                     provider: (window as any).ethereum,
+                    network: ethereum.networkVersion,
                 };
 
                 setWallet(walletObj);
 
                 try {
-                  const mixpanelData = {
-                    distinct_id: account,
-                    account,
-                    providerName: 'metamask'
-                  }
+                    const mixpanelData = {
+                        distinct_id: account,
+                        account,
+                        providerName: 'metamask',
+                    };
 
-                  mixpanel.track('wallet', mixpanelData);
+                    mixpanel.track('wallet', mixpanelData);
                 } catch (e) {
                     console.error(`Metrics error on wallet.`);
                 }
             } else {
                 disconnectWallet();
             }
+        });
+
+        ethereum.on('networkChanged', (networkId: NetworkIds) => {
+            setWallet({ ...wallet, network: networkId });
         });
     }
 
@@ -110,18 +119,19 @@ export default function useWallet(): {
                 account,
                 providerName: 'walletconnect',
                 provider: wcProvider,
+                network: null, // figure this out for wc
             };
 
             setWallet(walletObj);
 
             try {
-              const mixpanelData = {
-                distinct_id: account,
-                account,
-                providerName: 'walletconnect'
-              }
+                const mixpanelData = {
+                    distinct_id: account,
+                    account,
+                    providerName: 'walletconnect',
+                };
 
-              mixpanel.track('wallet', mixpanelData);
+                mixpanel.track('wallet', mixpanelData);
             } catch (e) {
                 console.error(`Metrics error on wallet.`);
             }
@@ -129,7 +139,12 @@ export default function useWallet(): {
     });
 
     wcProvider.on('disconnect', () => {
-        setWallet({ account: null, provider: null, providerName: null });
+        setWallet({
+            account: null,
+            provider: null,
+            providerName: null,
+            network: null,
+        });
         cookies.remove('current_wallet');
     });
 
@@ -153,18 +168,19 @@ export default function useWallet(): {
             account,
             providerName: 'metamask',
             provider: (window as any).ethereum,
+            network: (window as any).ethereum.networkVersion,
         };
 
         setWallet(walletObj);
 
         try {
-          const mixpanelData = {
-            distinct_id: account,
-            account,
-            providerName: 'metamask'
-          }
+            const mixpanelData = {
+                distinct_id: account,
+                account,
+                providerName: 'metamask',
+            };
 
-          mixpanel.track('wallet', mixpanelData);
+            mixpanel.track('wallet', mixpanelData);
         } catch (e) {
             console.error(`Metrics error on wallet.`);
         }
@@ -176,6 +192,7 @@ export default function useWallet(): {
             account: wcProvider.accounts[0],
             providerName: 'walletconnect',
             provider: wcProvider,
+            network: null, // figure this out for wc
         };
 
         // If provider is different, sest to the WC wallet
@@ -183,13 +200,13 @@ export default function useWallet(): {
             setWallet(walletObj);
 
             try {
-              const mixpanelData = {
-                distinct_id: wcProvider.accounts[0],
-                account: wcProvider.accounts[0],
-                providerName: 'walletconnect'
-              }
+                const mixpanelData = {
+                    distinct_id: wcProvider.accounts[0],
+                    account: wcProvider.accounts[0],
+                    providerName: 'walletconnect',
+                };
 
-              mixpanel.track('wallet:connect', mixpanelData);
+                mixpanel.track('wallet:connect', mixpanelData);
             } catch (e) {
                 console.error(`Metrics error on wallet.`);
             }
@@ -200,7 +217,12 @@ export default function useWallet(): {
         mixpanel.track('wallet:disconnect', {
             providerName: wallet.providerName,
         });
-        setWallet({ account: null, providerName: null, provider: null });
+        setWallet({
+            account: null,
+            providerName: null,
+            provider: null,
+            network: null,
+        });
         cookies.remove('current_wallet');
     };
 

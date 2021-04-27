@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { LPPositionData } from '@sommelier/shared-types';
+
 import { AllPairsState, TopPairsState, Wallet } from 'types/states';
 import { useBalance } from 'hooks/use-balance';
 import { usePairDataOverview } from 'hooks/use-pair-data-overview';
+
 import { TelegramCTA } from 'components/telegram-cta';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import mixpanel from 'util/mixpanel';
@@ -19,13 +21,14 @@ function LandingContainer({
     topPairs,
     wallet,
     setShowConnectWallet,
+    // handleAddLiquidity,
     currentPairId,
 }: {
     allPairs: AllPairsState;
     topPairs: TopPairsState | null;
     wallet: Wallet;
     setShowConnectWallet: (wallet: boolean) => void;
-    handleAddLiquidity: (paidId: string) => void;
+    // handleAddLiquidity: (paidId: string) => void;
     currentPairId: string | null;
 }): JSX.Element {
     const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +47,7 @@ function LandingContainer({
 
     (window as any).positionData = positionData;
     (window as any).pairId = pairId;
+    (window as any).balances = balances;
 
     useEffect(() => {
         const fetchPositionsForWallet = async () => {
@@ -128,7 +132,6 @@ function LandingContainer({
             <SearchContainer allPairs={allPairs} setPairId={setPairId} />
             <Box display='flex' justifyContent='space-around'>
                 <AddLiquidityV3
-                    pairId={pairId}
                     pairData={pairData}
                     balances={balances}
                 />
