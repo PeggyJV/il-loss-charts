@@ -72,7 +72,7 @@ function App(): ReactElement {
     const [gasPrices, setGasPrices] = useState<EthGasPrices | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
     const { wallet, error, ...restWalletProps } = useWallet();
-    const [prefetchedPairs, setPairsToFetch] = usePrefetch(null);
+    // const [prefetchedPairs, setPairsToFetch] = usePrefetch(null);
     // subscribe to the hook, will propogate to the nearest boundary
     const [pendingTx, setPendingTx] = useState<PendingTx>({
         approval: [],
@@ -138,29 +138,29 @@ function App(): ReactElement {
                 setTopPairs({ daily: topDailyPairs, weekly: topWeeklyPairs });
 
                 // Prefetch first ten daily and weekly pairs
-                const { list: pairsToFetch } = [
-                    ...topDailyPairs.slice(0, 10),
-                    ...topWeeklyPairs.slice(0, 10),
-                    wethDaiPair,
-                ].reduce(
-                    (
-                        acc: {
-                            list: MarketStats[];
-                            lookup: { [pairId: string]: boolean };
-                        },
-                        pair
-                    ) => {
-                        if (!acc.lookup[pair.id]) {
-                            // TODO: Fix this typing. We don't need a IUniswapPair, or MarketStats
-                            // All we need is an object with an ID
-                            acc.list.push((pair as any) as MarketStats);
-                        }
-                        return acc;
-                    },
-                    { list: [], lookup: {} }
-                );
+                // const { list: pairsToFetch } = [
+                //     ...topDailyPairs.slice(0, 10),
+                //     ...topWeeklyPairs.slice(0, 10),
+                //     wethDaiPair,
+                // ].reduce(
+                //     (
+                //         acc: {
+                //             list: MarketStats[];
+                //             lookup: { [pairId: string]: boolean };
+                //         },
+                //         pair
+                //     ) => {
+                //         if (!acc.lookup[pair.id]) {
+                //             // TODO: Fix this typing. We don't need a IUniswapPair, or MarketStats
+                //             // All we need is an object with an ID
+                //             acc.list.push((pair as any) as MarketStats);
+                //         }
+                //         return acc;
+                //     },
+                //     { list: [], lookup: {} }
+                // );
 
-                setPairsToFetch(pairsToFetch);
+                // setPairsToFetch(pairsToFetch);
             }
         };
 
@@ -296,9 +296,10 @@ function App(): ReactElement {
                                                 <Route path='/pair'>
                                                     <PairContainer
                                                         allPairs={allPairs}
-                                                        prefetchedPairs={
-                                                            prefetchedPairs
-                                                        }
+                                                        // prefetchedPairs={
+                                                        //     prefetchedPairs
+                                                        // }
+                                                        prefetchedPairs={null}
                                                         handleAddLiquidity={
                                                             handleAddLiquidity
                                                         }
