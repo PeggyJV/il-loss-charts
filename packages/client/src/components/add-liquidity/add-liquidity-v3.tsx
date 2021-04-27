@@ -1,28 +1,50 @@
 
 import { useState, useEffect } from 'react';
+import {
+    Row,
+    Col,
+    Form,
+    FormControl,
+    InputGroup
+} from 'react-bootstrap';
+
+import { ethers } from 'ethers';
+import classNames from 'classnames';
 import './add-liquidity-v3.scss';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import 'rc-slider/assets/index.css';
+
+import { EthGasPrices, IUniswapPair } from '@sommelier/shared-types';
+
 import { TokenInput } from 'components/token-input';
 import { WalletBalance } from 'components/wallet-balance';
-import { IUniswapPair } from '@sommelier/shared-types';
+
 import { WalletBalances } from 'types/states';
-import 'rc-slider/assets/index.css';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRetweet } from '@fortawesome/free-solid-svg-icons';
-import { ethers } from 'ethers';
-import {useMarketData} from 'hooks/use-market-data';
+
+import { useMarketData } from 'hooks/use-market-data';
 type Props = {
     balances: WalletBalances;
     pairData: IUniswapPair | null;
+    gasPrices: EthGasPrices | null;
 };
 export const AddLiquidityV3 = ({
     balances,
     pairData,
+    gasPrices,
 }: Props): JSX.Element => {
-
-
     const [token0Amount, setToken0Amount] = useState('0');
     const [token1Amount, setToken1Amount] = useState('0');
     const [token, setToken] = useState('ETH');
+    const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
+    const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
+        gasPrices?.standard
+    );
+    const [approvalState, setApprovalState] = useState<'needed' | 'done'>(
+        'needed'
+    );
+
     // const [tokenData, setTokenData] = useState<Record<
     //     string,
     //     {
@@ -91,6 +113,76 @@ export const AddLiquidityV3 = ({
 
     //     setTokenData(tokenDataMap);
     // }, [balances, pairData]);
+    const TransactionSettings = () => (
+        <>
+            <p className='sub-heading'>
+                <strong>Transaction Settings</strong>
+            </p>
+            {(
+                <Form.Group as={Row}>
+                    <Form.Label column sm={6}>
+                        Slippage Tolerance
+                    </Form.Label>
+                    <Col sm={2}></Col>
+                    <Col sm={4}>
+                        <InputGroup>
+                            <FormControl
+                                min='0'
+                                className='slippage-tolerance-input'
+                                value={slippageTolerance}
+                                type='number'
+                                onChange={(e) => {
+                                    setSlippageTolerance(
+                                        parseFloat(e.target.value)
+                                    );
+                                }}
+                            />
+                            <InputGroup.Append>
+                                <InputGroup.Text>%</InputGroup.Text>
+                            </InputGroup.Append>
+                        </InputGroup>
+                    </Col>
+                </Form.Group>
+            )}
+            {gasPrices && (
+                <Form.Group as={Row} className='transaction-speed-input'>
+                        <Form.Label column sm={4}>Transaction Speed</Form.Label>
+                        <Col className='gas-prices-input' sm={8}>   
+                            <div className='button-group-h'>
+                                <button
+                                    className={classNames({
+                                        active: currentGasPrice === gasPrices.standard,
+                                    })}
+                                    onClick={() =>
+                                        setCurrentGasPrice(gasPrices.standard)
+                                    }
+                                >
+                                    Standard <br />({gasPrices.standard} Gwei)
+                                </button>
+                                <button
+                                    className={classNames({
+                                        active: currentGasPrice === gasPrices.fast,
+                                    })}
+                                    onClick={() => setCurrentGasPrice(gasPrices.fast)}
+                                >
+                                    Fast <br />({gasPrices.fast} Gwei)
+                                </button>
+                                <button
+                                    className={classNames({
+                                        active: currentGasPrice === gasPrices.fastest,
+                                    })}
+                                    onClick={() =>
+                                        setCurrentGasPrice(gasPrices.fastest)
+                                    }
+                                >
+                                    Fastest <br />({gasPrices.fastest} Gwei)
+                                </button>
+                            </div>
+                        </Col>
+                </Form.Group>
+            )}
+        </>
+    );
 
     return (
         <>
@@ -151,7 +243,9 @@ export const AddLiquidityV3 = ({
                         <p className='fees'>13.2% fees 24hrs</p>
                     </div>
                 </div> */}
+                <TransactionSettings />
                 <div className='preview-container'>
+
                     {/* <div className='header'>
                         <h4>Position Preview</h4>
                         <div className='total-and-pool'>

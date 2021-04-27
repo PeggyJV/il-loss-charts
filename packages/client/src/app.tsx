@@ -314,6 +314,7 @@ function App(): ReactElement {
                                                     <LandingContainer
                                                         allPairs={allPairs}
                                                         topPairs={topPairs}
+                                                        gasPrices={gasPrices}
                                                         wallet={wallet}
                                                         setShowConnectWallet={
                                                             setShowConnectWallet

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import { LPPositionData } from '@sommelier/shared-types';
+import { LPPositionData, EthGasPrices } from '@sommelier/shared-types';
 
 import { AllPairsState, TopPairsState, Wallet } from 'types/states';
 import { useBalance } from 'hooks/use-balance';
@@ -23,6 +23,7 @@ function LandingContainer({
     setShowConnectWallet,
     // handleAddLiquidity,
     currentPairId,
+    gasPrices
 }: {
     allPairs: AllPairsState;
     topPairs: TopPairsState | null;
@@ -30,6 +31,7 @@ function LandingContainer({
     setShowConnectWallet: (wallet: boolean) => void;
     // handleAddLiquidity: (paidId: string) => void;
     currentPairId: string | null;
+    gasPrices: EthGasPrices | null;
 }): JSX.Element {
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -134,6 +136,7 @@ function LandingContainer({
                 <AddLiquidityV3
                     pairData={pairData}
                     balances={balances}
+                    gasPrices={gasPrices}
                 />
             </Box>
             {/* {wallet.account && positionData && (

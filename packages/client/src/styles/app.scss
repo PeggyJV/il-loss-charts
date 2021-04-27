@@ -995,6 +995,18 @@ p {
     }
 }
 
+.transaction-speed-input.row {
+    padding: 1em 0;
+}
+
+.gas-prices-input {
+    text-align: right;
+}
+
+.add-v3-container .sub-heading {
+    padding-left: 1em;
+}
+
 .rw-popup-container.rw-calendar-popup {
     left: initial;
 }
