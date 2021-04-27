@@ -21,3 +21,7 @@ generates:
       - "typescript"
       - "typescript-operations"
       - "typescript-generic-sdk"
+  packages/sommelier-types/src/bitquery.ts:
+    schema: packages/sommelier-types/src/schemas/bitquery.graphql
+    plugins:
+      - "typescript"

@@ -9,6 +9,7 @@ import { WalletBalances } from 'types/states';
 import 'rc-slider/assets/index.css';
 import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 import { ethers } from 'ethers';
+import {useMarketData} from 'hooks/use-market-data';
 type Props = {
     balances: WalletBalances;
     pairData: IUniswapPair | null;
@@ -17,7 +18,8 @@ export const AddLiquidityV3 = ({
     balances,
     pairData,
 }: Props): JSX.Element => {
-    
+
+
     const [token0Amount, setToken0Amount] = useState('0');
     const [token1Amount, setToken1Amount] = useState('0');
     const [token, setToken] = useState('ETH');
@@ -33,6 +35,8 @@ export const AddLiquidityV3 = ({
 
     const token0 = pairData?.token0.symbol ?? '';
     const token1 = pairData?.token1.symbol ?? '';
+    const marketData = useMarketData(token0, token1);
+
     // (window as any).tokenData = tokenData;
     // useEffect(() => {
     //     const reserveLookup: Record<string, string> = {
