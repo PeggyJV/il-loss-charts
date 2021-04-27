@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { LPPositionData } from '@sommelier/shared-types';
-import { ErrorBoundary } from 'react-error-boundary';
+
 import { AllPairsState, TopPairsState, Wallet } from 'types/states';
 import { useBalance } from 'hooks/use-balance';
 import { usePairDataOverview } from 'hooks/use-pair-data-overview';
-import PositionsTable from 'components/positions-table';
+
 import { TelegramCTA } from 'components/telegram-cta';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import mixpanel from 'util/mixpanel';
