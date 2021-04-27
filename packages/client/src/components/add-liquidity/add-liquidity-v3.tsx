@@ -100,8 +100,9 @@ export const AddLiquidityV3 = ({
 
         const fnName = token === 'ETH' ? 'addLiquidityEthForUniV3' : 'addLiquidityForUniV3';
         const tokenId = 0;
-        const baseAmount = 1;
-        const quoteAmount = baseAmount * 1634.7;
+        const currentPrice = 1634.7;
+        const baseAmount = parseFloat(token0Amount);
+        const quoteAmount = baseAmount * currentPrice;
         const amount0Desired = ethers.utils.parseUnits(baseAmount.toString(), 18).toString();
         const amount1Desired = ethers.utils.parseUnits(quoteAmount.toString(), 18).toString();
 
@@ -109,8 +110,8 @@ export const AddLiquidityV3 = ({
             side0,                                                 // token0
             side1,                                                 // token1
             500,                                                   // feeTier TODO: get from pairData
-            75490,                                                  // tickLower
-            77810,                                                  // tickUpper
+            75490,                                                  // tickLower TODO: choose dynamically from price and strategy
+            77810,                                                  // tickUpper TODO: choose dynamically from price and strategy
             amount0Desired,                                         // amount0Desired
             amount1Desired,                                         // amount1Desired
             0,                                                      // amount0Min TODO: use price impact to set min
@@ -128,7 +129,7 @@ export const AddLiquidityV3 = ({
 
         const baseApproveAmount = ethers.utils
             .parseUnits(
-                new BigNumber(amount1Desired).times(100).toFixed(),
+                new BigNumber(amount1Desired.toString()).times(100).toFixed(),
                 18
             )
             .toString();
