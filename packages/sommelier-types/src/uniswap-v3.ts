@@ -188,11 +188,11 @@ export type Query = {
   __typename?: 'Query';
   bundle?: Maybe<Bundle>;
   pool?: Maybe<Pool>;
-  pools?: Maybe<Array<Maybe<Pool>>>;
+  pools: Array<Pool>;
   poolDayData?: Maybe<PoolDayData>;
-  poolDayDatas?: Maybe<Array<Maybe<PoolDayData>>>;
+  poolDayDatas: Array<PoolDayData>;
   poolHourData?: Maybe<PoolDayData>;
-  poolHourDatas?: Maybe<Array<Maybe<PoolHourData>>>;
+  poolHourDatas: Array<PoolHourData>;
   token?: Maybe<Token>;
 };
 
@@ -392,3 +392,120 @@ export type UniswapDayData = {
   totalLiquidityUSD: Scalars['BigDecimal'];
   txCount: Scalars['BigInt'];
 };
+
+export type GetEthPriceQueryVariables = Exact<{
+  id: Scalars['ID'];
+  blockNumber?: Maybe<Scalars['Int']>;
+}>;
+
+
+export type GetEthPriceQuery = (
+  { __typename?: 'Query' }
+  & { bundle?: Maybe<(
+    { __typename?: 'Bundle' }
+    & Pick<Bundle, 'ethPrice'>
+  )> }
+);
+
+export type GetPoolDailyDataQueryVariables = Exact<{
+  id: Scalars['ID'];
+  orderBy: Scalars['String'];
+  orderDirection: Scalars['String'];
+  startDate: Scalars['Int'];
+  endDate: Scalars['Int'];
+}>;
+
+
+export type GetPoolDailyDataQuery = (
+  { __typename?: 'Query' }
+  & { poolDayDatas: Array<(
+    { __typename?: 'PoolDayData' }
+    & Pick<PoolDayData, 'date' | 'id' | 'periodVolumeToken0' | 'periodVolumeToken1' | 'periodVolumeUSD' | 'reserveUSD' | 'reserve0' | 'reserve1'>
+  )> }
+);
+
+export type GetPoolHourlyDataQueryVariables = Exact<{
+  id: Scalars['ID'];
+  orderBy: Scalars['String'];
+  orderDirection: Scalars['String'];
+  startTime: Scalars['Int'];
+  endTime: Scalars['Int'];
+}>;
+
+
+export type GetPoolHourlyDataQuery = (
+  { __typename?: 'Query' }
+  & { poolHourDatas: Array<(
+    { __typename?: 'PoolHourData' }
+    & Pick<PoolHourData, 'periodStartUnix' | 'periodVolumeToken0' | 'periodVolumeToken1' | 'periodVolumeUSD' | 'reserveUSD' | 'reserve0' | 'reserve1'>
+    & { pool: (
+      { __typename?: 'Pool' }
+      & Pick<Pool, 'id'>
+    ) }
+  )> }
+);
+
+export type GetPoolOverviewQueryVariables = Exact<{
+  id: Scalars['ID'];
+  blockNumber?: Maybe<Scalars['Int']>;
+}>;
+
+
+export type GetPoolOverviewQuery = (
+  { __typename?: 'Query' }
+  & { pool?: Maybe<(
+    { __typename?: 'Pool' }
+    & Pick<Pool, 'id' | 'reserve0' | 'reserve1' | 'reserveUSD' | 'trackedReserveETH' | 'token0Price' | 'token1Price' | 'volumeUSD' | 'untrackedVolumeUSD' | 'txCount' | 'feeTier' | 'createdAtTimestamp'>
+    & { token0: (
+      { __typename?: 'Token' }
+      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH' | 'tradeVolumeUSD' | 'totalLiquidity'>
+    ), token1: (
+      { __typename?: 'Token' }
+      & Pick<Token, 'id' | 'symbol' | 'name' | 'decimals' | 'derivedETH' | 'tradeVolumeUSD' | 'totalLiquidity'>
+    ) }
+  )> }
+);
+
+export type GetPoolsOverviewQueryVariables = Exact<{
+  first: Scalars['Int'];
+  orderBy: Scalars['String'];
+  orderDirection: Scalars['String'];
+}>;
+
+
+export type GetPoolsOverviewQuery = (
+  { __typename?: 'Query' }
+  & { pools: Array<(
+    { __typename?: 'Pool' }
+    & Pick<Pool, 'id' | 'volumeUSD' | 'reserveUSD'>
+    & { token0: (
+      { __typename?: 'Token' }
+      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+    ), token1: (
+      { __typename?: 'Token' }
+      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+    ) }
+  )> }
+);
+
+export type GetTopPoolsQueryVariables = Exact<{
+  first: Scalars['Int'];
+  orderDirection: Scalars['String'];
+  orderBy: Scalars['String'];
+}>;
+
+
+export type GetTopPoolsQuery = (
+  { __typename?: 'Query' }
+  & { pools: Array<(
+    { __typename?: 'Pool' }
+    & Pick<Pool, 'id' | 'volumeUSD' | 'reserveUSD'>
+    & { token0: (
+      { __typename?: 'Token' }
+      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+    ), token1: (
+      { __typename?: 'Token' }
+      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+    ) }
+  )> }
+);

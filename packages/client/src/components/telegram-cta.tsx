@@ -1,5 +1,3 @@
-
-
 export const TelegramCTA = (): JSX.Element => {
     return (
         <div className='telegram-cta'>
@@ -11,4 +9,3 @@ export const TelegramCTA = (): JSX.Element => {
         </div>
     );
 };
-

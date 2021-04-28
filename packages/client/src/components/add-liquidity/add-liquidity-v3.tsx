@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
     Row,
     Col,
@@ -21,7 +20,7 @@ import addLiquidityAbi from 'constants/abis/uniswap_v3_add_liquidity.json';
 
 import { TokenInput } from 'components/token-input';
 import { WalletBalance } from 'components/wallet-balance';
-import { toastSuccess, toastError, toastWarn } from 'util/toasters';
+import { toastSuccess, toastWarn } from 'util/toasters';
 import { compactHash } from 'util/formats';
 
 import { Wallet, WalletBalances } from 'types/states';
@@ -41,30 +40,16 @@ export const AddLiquidityV3 = ({
     gasPrices,
 }: Props): JSX.Element | null => {
     const [token0Amount, setToken0Amount] = useState('0');
-    const [token1Amount, setToken1Amount] = useState('0');
     const [token, setToken] = useState('ETH');
     const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
-    );
-    const [approvalState, setApprovalState] = useState<'needed' | 'done'>(
-        'needed'
     );
 
     let provider: ethers.providers.Web3Provider | null = null;
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
-
-    // const [tokenData, setTokenData] = useState<Record<
-    //     string,
-    //     {
-    //         id: string;
-    //         balance: string;
-    //         allowance: { [a: string]: string };
-    //         reserve: string;
-    //     }
-    // > | null>(null);
 
     const token0 = pairData?.token0.id ?? '';
     const token1 = pairData?.token1.id ?? '';
@@ -92,7 +77,6 @@ export const AddLiquidityV3 = ({
         );
 
         (window as any).contract = addLiquidityContract;
-        console.log('CHECK WINDOW');
 
         // TODO get these addresses from pool
         const side0 = '0xc778417E063141139Fce010982780140Aa0cD5Ab';
@@ -189,26 +173,26 @@ export const AddLiquidityV3 = ({
         const value = baseMsgValue.toString();
 
         // Call the contract and sign
-        let gasEstimate: ethers.BigNumber;
+        // let gasEstimate: ethers.BigNumber;
 
-        try {
-            gasEstimate = await addLiquidityContract.estimateGas[
-                fnName
-            ](tokenId, mintParams, {
-                gasPrice: baseGasPrice,
-                value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
-            });
+        // try {
+        //     gasEstimate = await addLiquidityContract.estimateGas[
+        //         fnName
+        //     ](tokenId, mintParams, {
+        //         gasPrice: baseGasPrice,
+        //         value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
+        //     });
 
-            // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
-            gasEstimate = gasEstimate.add(gasEstimate.div(3));
-        } catch (err) {
-            // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
-            console.error(`Could not estimate gas: ${err.message as string}`);
-            (window as any).gasError = err;
+        //     // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
+        //     gasEstimate = gasEstimate.add(gasEstimate.div(3));
+        // } catch (err) {
+        //     // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
+        //     console.error(`Could not estimate gas: ${err.message as string}`);
+        //     (window as any).gasError = err;
 
-            toastError('Could not estimate gas for this transaction. Check your parameters or try a different pool.');
-            return;
-        }
+        //     toastError('Could not estimate gas for this transaction. Check your parameters or try a different pool.');
+        //     return;
+        // }
 
         const { hash } = await addLiquidityContract[
             fnName

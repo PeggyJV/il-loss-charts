@@ -14,30 +14,23 @@ import {
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import useWebSocket from 'react-use-websocket';
-import ManageLiquidityModal from 'components/manage-liquidity-modal';
+
 import config from 'config';
 import {
     UniswapPair,
     EthGasPrices,
-    MarketStats,
 } from '@sommelier/shared-types';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LandingContainer from 'containers/landing-container';
-import MarketContainer from 'containers/market-container';
-import PairContainer from 'containers/pair-container';
-import PositionContainer from 'containers/position-container';
 import ConnectWalletModal from 'components/connect-wallet-modal';
 import { PageError, ModalError } from 'components/page-error';
 
 import useWallet from 'hooks/use-wallet';
-import usePrefetch from 'hooks/use-prefetch';
-
-import initialData from 'constants/initialData.json';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { calculatePairRankings } from 'services/calculate-stats';
 
-import { AllPairsState, TopPairsState } from 'types/states';
+import { AllPairsState } from 'types/states';
 export type PendingTx = {
     approval: Array<string>;
     confirm: Array<string>;
@@ -66,13 +59,11 @@ function App(): ReactElement {
         lookups: null,
         byLiquidity: null,
     });
-    const [marketData, setMarketData] = useState<MarketStats[] | null>(null);
-    const [topPairs, setTopPairs] = useState<TopPairsState | null>(null);
     const [currentError, setError] = useState<string | null>(null);
     const [gasPrices, setGasPrices] = useState<EthGasPrices | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
     const { wallet, error, ...restWalletProps } = useWallet();
-    // const [prefetchedPairs, setPairsToFetch] = usePrefetch(null);
+
     // subscribe to the hook, will propogate to the nearest boundary
     const [pendingTx, setPendingTx] = useState<PendingTx>({
         approval: [],
@@ -108,93 +99,11 @@ function App(): ReactElement {
             }
         };
 
-        const fetchTopPairs = async () => {
-            // Fetch all pairs
-            const [
-                { data: topWeeklyPairs, error: topWeeklyPairsError },
-                { data: topDailyPairs, error: topDailyPairsError },
-                { data: wethDaiPair, error: wethDaiPairError },
-            ] = await Promise.all([
-                Uniswap.getWeeklyTopPerformingPairs(),
-                Uniswap.getDailyTopPerformingPairs(),
-                Uniswap.getPairOverview(initialData.pairId),
-            ]);
-
-            const error =
-                topWeeklyPairsError ?? topDailyPairsError ?? wethDaiPairError;
-
-            if (error) {
-                // we could not get our market data
-                console.warn(`Could not fetch market data: ${error}`);
-                setError(error);
-                return;
-            }
-
-            // if (marketData) {
-            //     setMarketData(marketData);
-            // }
-
-            if (topWeeklyPairs && topDailyPairs && wethDaiPair) {
-                setTopPairs({ daily: topDailyPairs, weekly: topWeeklyPairs });
-
-                // Prefetch first ten daily and weekly pairs
-                // const { list: pairsToFetch } = [
-                //     ...topDailyPairs.slice(0, 10),
-                //     ...topWeeklyPairs.slice(0, 10),
-                //     wethDaiPair,
-                // ].reduce(
-                //     (
-                //         acc: {
-                //             list: MarketStats[];
-                //             lookup: { [pairId: string]: boolean };
-                //         },
-                //         pair
-                //     ) => {
-                //         if (!acc.lookup[pair.id]) {
-                //             // TODO: Fix this typing. We don't need a IUniswapPair, or MarketStats
-                //             // All we need is an object with an ID
-                //             acc.list.push((pair as any) as MarketStats);
-                //         }
-                //         return acc;
-                //     },
-                //     { list: [], lookup: {} }
-                // );
-
-                // setPairsToFetch(pairsToFetch);
-            }
-        };
-
-        const fetchMarketData = async () => {
-            // Fetch all pairs
-            const [
-                { data: marketData, error: marketDataError },
-                // { data: topPairs, error: topPairsError }
-            ] = await Promise.all([
-                Uniswap.getMarketData(),
-                // Uniswap.getDailyTopPerformingPairs()
-            ]);
-
-            const error = marketDataError;
-            // const error = marketDataError ?? topPairsError;
-
-            if (error) {
-                // we could not get our market data
-                console.warn(`Could not fetch market data: ${error}`);
-                setError(error);
-                return;
-            }
-
-            if (marketData) {
-                setMarketData(marketData);
-            }
-        };
-
         void fetchAllPairs();
-        void fetchTopPairs();
-        void fetchMarketData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // TODO: are we using this??
     const { sendJsonMessage, lastJsonMessage } = useWebSocket(config.wsApi);
 
     // Handle websocket message
@@ -219,19 +128,6 @@ function App(): ReactElement {
         sendJsonMessage({ op: 'subscribe', topics: ['ethGas:getGasPrices'] });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    const [showAddLiquidity, setShowAddLiquidity] = useState(false);
-    const [currentPairId, setCurrentPairId] = useState<string | null>(null);
-    const handleAddLiquidity = (pairId: string) => {
-        setCurrentPairId(pairId);
-
-        // Check if wallet exists, if not show wallet modal
-        // if (wallet && wallet.account) {
-        //     setShowAddLiquidity(true);
-        // } else {
-        //     setShowConnectWallet(true);
-        // }
-    };
 
     return (
         <ErrorBoundary
@@ -269,13 +165,6 @@ function App(): ReactElement {
                                                 error={error}
                                                 {...restWalletProps}
                                             />
-                                            <ManageLiquidityModal
-                                                show={showAddLiquidity}
-                                                setShow={setShowAddLiquidity}
-                                                wallet={wallet}
-                                                pairId={currentPairId}
-                                                gasPrices={gasPrices}
-                                            />
                                         </ErrorBoundary>
                                         <ErrorBoundary
                                             fallbackRender={({ error }) => (
@@ -283,43 +172,14 @@ function App(): ReactElement {
                                             )}
                                         >
                                             <Switch>
-                                                <Route path='/positions'>
-                                                    <PositionContainer
-                                                        wallet={wallet}
-                                                    />
-                                                </Route>
-                                                <Route path='/market'>
-                                                    <MarketContainer
-                                                        marketData={marketData}
-                                                    />
-                                                </Route>
-                                                <Route path='/pair'>
-                                                    <PairContainer
-                                                        allPairs={allPairs}
-                                                        // prefetchedPairs={
-                                                        //     prefetchedPairs
-                                                        // }
-                                                        prefetchedPairs={null}
-                                                        handleAddLiquidity={
-                                                            handleAddLiquidity
-                                                        }
-                                                    />
-                                                </Route>
-                                                {/* <Route path='/search'>
-                                                    <SearchContainer
-                                                        allPairs={allPairs}
-                                                    />
-                                                </Route> */}
                                                 <Route path='/'>
                                                     <LandingContainer
                                                         allPairs={allPairs}
-                                                        topPairs={topPairs}
                                                         gasPrices={gasPrices}
                                                         wallet={wallet}
                                                         setShowConnectWallet={
                                                             setShowConnectWallet
                                                         }
-                                                        currentPairId={currentPairId}
                                                     />
                                                 </Route>
                                             </Switch>

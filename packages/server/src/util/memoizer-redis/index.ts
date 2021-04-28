@@ -57,7 +57,7 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
   const lock = lockFactory(client, memoizerFactoryOptions);
 
   // memoizes a fn
-  return function memoizer<T>(fn: (...args: Array<any>) => T, fnOpts: Partial<MemoizerOptions> = {}) {
+  return function memoizer<T>(fn: (...args: Array<any>) => Promise<T>, fnOpts: Partial<MemoizerOptions> = {}) {
     if (typeof fn !== 'function') {
       throw new Error('Only functions can be memoized');
     }
@@ -116,7 +116,7 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
         await writeKey(client, cacheKey, finalResult, ttl);
 
         // dont wait for the unlock
-        unlock();
+        void unlock();
       }
 
       return finalResult;

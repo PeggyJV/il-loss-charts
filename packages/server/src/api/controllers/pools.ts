@@ -54,6 +54,7 @@ export function v3v2Token(token: Token): IToken {
 }
 
 export function poolToPair(pool: Pool): IUniswapPair {
+  // eslint-disable-next-line
   const createdAtTimestamp: string = <any> pool.createdAtTimestamp;
   const id: string = pool.id;
   const token0Price: string = <any> new BigNumber(pool.token0Price).toString();
@@ -63,6 +64,7 @@ export function poolToPair(pool: Pool): IUniswapPair {
   const volumeUSD:string = <any> new BigNumber(pool.volumeUSD).toString();
   const untrackedVolumeUSD:string = <any> new BigNumber(pool.untrackedVolumeUSD);
   const totalSupply = '0'; // TODO
+  // eslint-disable-next-line
   const feesUSD:string = <any> new BigNumber(pool.uncollectedFeesUSD + pool.collectedFeesUSD).toString();
   const reserve0: string = <any> new BigNumber(pool.reserve0).toString();
   const reserve1: string = <any> new BigNumber(pool.reserve1).toString();
@@ -101,9 +103,6 @@ type PoolPath = Path & {
 };
 
 const networks = Object.keys(config.uniswap.v3.networks);
-// TODO: move this somewhere else, mpaybe to the fetchers manager.
-// Will also need to namespace by network
-const fetcher = UniswapV3Fetchers.get('mainnet');
 
 // TODO: move this to utils
 const poolIdParamsSchema = Joi.object().keys({

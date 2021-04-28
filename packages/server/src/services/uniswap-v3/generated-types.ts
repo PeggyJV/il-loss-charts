@@ -190,11 +190,11 @@ export type Query = {
   __typename?: 'Query';
   bundle?: Maybe<Bundle>;
   pool?: Maybe<Pool>;
-  pools?: Maybe<Array<Maybe<Pool>>>;
+  pools: Array<Pool>;
   poolDayData?: Maybe<PoolDayData>;
-  poolDayDatas?: Maybe<Array<Maybe<PoolDayData>>>;
+  poolDayDatas: Array<PoolDayData>;
   poolHourData?: Maybe<PoolDayData>;
-  poolHourDatas?: Maybe<Array<Maybe<PoolHourData>>>;
+  poolHourDatas: Array<PoolHourData>;
   token?: Maybe<Token>;
 };
 
@@ -420,10 +420,10 @@ export type GetPoolDailyDataQueryVariables = Exact<{
 
 export type GetPoolDailyDataQuery = (
   { __typename?: 'Query' }
-  & { poolDayDatas?: Maybe<Array<Maybe<(
+  & { poolDayDatas: Array<(
     { __typename?: 'PoolDayData' }
     & Pick<PoolDayData, 'date' | 'id' | 'periodVolumeToken0' | 'periodVolumeToken1' | 'periodVolumeUSD' | 'reserveUSD' | 'reserve0' | 'reserve1'>
-  )>>> }
+  )> }
 );
 
 export type GetPoolHourlyDataQueryVariables = Exact<{
@@ -437,14 +437,14 @@ export type GetPoolHourlyDataQueryVariables = Exact<{
 
 export type GetPoolHourlyDataQuery = (
   { __typename?: 'Query' }
-  & { poolHourDatas?: Maybe<Array<Maybe<(
+  & { poolHourDatas: Array<(
     { __typename?: 'PoolHourData' }
     & Pick<PoolHourData, 'periodStartUnix' | 'periodVolumeToken0' | 'periodVolumeToken1' | 'periodVolumeUSD' | 'reserveUSD' | 'reserve0' | 'reserve1'>
     & { pool: (
       { __typename?: 'Pool' }
       & Pick<Pool, 'id'>
     ) }
-  )>>> }
+  )> }
 );
 
 export type GetPoolOverviewQueryVariables = Exact<{
@@ -477,7 +477,7 @@ export type GetPoolsOverviewQueryVariables = Exact<{
 
 export type GetPoolsOverviewQuery = (
   { __typename?: 'Query' }
-  & { pools?: Maybe<Array<Maybe<(
+  & { pools: Array<(
     { __typename?: 'Pool' }
     & Pick<Pool, 'id' | 'volumeUSD' | 'reserveUSD'>
     & { token0: (
@@ -487,7 +487,7 @@ export type GetPoolsOverviewQuery = (
       { __typename?: 'Token' }
       & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
     ) }
-  )>>> }
+  )> }
 );
 
 export type GetTopPoolsQueryVariables = Exact<{
@@ -499,7 +499,7 @@ export type GetTopPoolsQueryVariables = Exact<{
 
 export type GetTopPoolsQuery = (
   { __typename?: 'Query' }
-  & { pools?: Maybe<Array<Maybe<(
+  & { pools: Array<(
     { __typename?: 'Pool' }
     & Pick<Pool, 'id' | 'volumeUSD' | 'reserveUSD'>
     & { token0: (
@@ -509,7 +509,7 @@ export type GetTopPoolsQuery = (
       { __typename?: 'Token' }
       & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
     ) }
-  )>>> }
+  )> }
 );
 
 

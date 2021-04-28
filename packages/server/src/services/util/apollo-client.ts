@@ -4,7 +4,7 @@ import { DocumentNode } from 'graphql';
 import * as UniswapV3Types from '../uniswap-v3/generated-types';
 import * as BitqueryTypes from '../bitquery/generated-types';
 
-type Requester<C= {}> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R>
+type Requester<C= Record<string, unknown>> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R>
 
 export type ApolloRequesterOptions<V, R> =
   | Omit<QueryOptions<V>, 'variables' | 'query'>
@@ -12,7 +12,7 @@ export type ApolloRequesterOptions<V, R> =
 
 const validDocDefOps = ['mutation', 'query', 'subscription'];
 
-export function generateRequester<C>(client: ApolloClient<C>) {
+export function generateRequester<C>(client: ApolloClient<C>): Requester {
   const requester: Requester = async <R, V>(
     doc: DocumentNode,
     variables: V,
@@ -74,12 +74,12 @@ export function generateRequester<C>(client: ApolloClient<C>) {
   return requester;
 }
 
-export function getUniswapV3Sdk<C>(client: ApolloClient<C>) {
+export function getUniswapV3Sdk<C>(client: ApolloClient<C>): ReturnType<typeof UniswapV3Types.getSdk> {
   const requester = generateRequester(client);
   return UniswapV3Types.getSdk(requester);
 }
 
-export function getBitquerySdk<C>(client: ApolloClient<C>) {
+export function getBitquerySdk<C>(client: ApolloClient<C>): ReturnType<typeof BitqueryTypes.getSdk> {
   const requester = generateRequester(client);
   return BitqueryTypes.getSdk(requester);
 }
