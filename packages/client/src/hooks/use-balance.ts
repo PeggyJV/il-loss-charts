@@ -46,6 +46,7 @@ export const useBalance = ({ pairData, wallet }: Props): WalletBalances => {
                     );
                     return balance;
                 } catch (e) {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     console.error(`Could not get balance of token ${tokenAddress} for wallet ${wallet.account!}`);
                     console.error(`Error; ${e.message as string}`);
                     return ethers.BigNumber.from(0);

@@ -14,19 +14,16 @@ import { AddLiquidityV3 } from 'components/add-liquidity/add-liquidity-v3';
 import { Box } from '@material-ui/core';
 
 function LandingContainer({
-    allPairs,
     wallet,
     setShowConnectWallet,
-    currentPairId,
     gasPrices
 }: {
     allPairs: AllPairsState;
     wallet: Wallet;
     setShowConnectWallet: (wallet: boolean) => void;
-    currentPairId: string | null;
     gasPrices: EthGasPrices | null;
 }): JSX.Element {
-    const [pairId, setPairId] = useState(currentPairId || null);
+    const [pairId, setPairId] = useState<string | null>(null);
     const pairData = usePairDataOverview(pairId || null);
     const balances = useBalance({
         pairData,

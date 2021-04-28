@@ -54,7 +54,7 @@ export function v3v2Token(token: Token): IToken {
 }
 
 export function poolToPair(pool: Pool): IUniswapPair {
-  const createdAtTimestamp: string = <any> pool.createdAtTimestamp;
+  const createdAtTimestamp: string =  pool.createdAtTimestamp;
   const id: string = pool.id;
   const token0Price: string = <any> new BigNumber(pool.token0Price).toString();
   const token1Price:string = <any> new BigNumber(pool.token1Price).toString();

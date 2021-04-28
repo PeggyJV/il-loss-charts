@@ -1,5 +1,5 @@
 import { celebrate, Joi, Segments } from 'celebrate';
-import express, { Request, Response, Router } from 'express';
+import { Request, Router } from 'express';
 
 import validateEthAddress from 'api/util/validate-eth-address';
 import cacheMiddleware from 'api/middlewares/cache';
@@ -30,7 +30,7 @@ function getPoolWeeklyOHLC(req: Request<unknown, unknown, unknown, GetMarketData
     return BitqueryFetcher.getLastWeekOHLC(baseToken, quoteToken);
 }
 
-export default express.Router()
+export default Router()
     .get('/daily', cacheMiddleware(300), getMarketDataValidator, catchAsyncRoute(getPoolDailyOHLC))
     .get('/weekly', cacheMiddleware(300), getMarketDataValidator, catchAsyncRoute(getPoolWeeklyOHLC));
 

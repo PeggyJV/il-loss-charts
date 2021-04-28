@@ -1,4 +1,4 @@
-import {useQuery, UseQueryResult} from 'react-query';
+import {useQuery} from 'react-query';
 import { IUniswapPair, UniswapPair } from '@sommelier/shared-types';
 
 type Temp = {

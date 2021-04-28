@@ -14,30 +14,23 @@ import {
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import useWebSocket from 'react-use-websocket';
-import ManageLiquidityModal from 'components/manage-liquidity-modal';
+
 import config from 'config';
 import {
     UniswapPair,
     EthGasPrices,
-    MarketStats,
 } from '@sommelier/shared-types';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LandingContainer from 'containers/landing-container';
-import MarketContainer from 'containers/market-container';
-import PairContainer from 'containers/pair-container';
-import PositionContainer from 'containers/position-container';
 import ConnectWalletModal from 'components/connect-wallet-modal';
 import { PageError, ModalError } from 'components/page-error';
 
 import useWallet from 'hooks/use-wallet';
-import usePrefetch from 'hooks/use-prefetch';
-
-import initialData from 'constants/initialData.json';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { calculatePairRankings } from 'services/calculate-stats';
 
-import { AllPairsState, TopPairsState } from 'types/states';
+import { AllPairsState } from 'types/states';
 export type PendingTx = {
     approval: Array<string>;
     confirm: Array<string>;
@@ -70,7 +63,6 @@ function App(): ReactElement {
     const [gasPrices, setGasPrices] = useState<EthGasPrices | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
     const { wallet, error, ...restWalletProps } = useWallet();
-    const [currentPairId, setCurrentPairId] = useState<string | null>(null);
 
     // subscribe to the hook, will propogate to the nearest boundary
     const [pendingTx, setPendingTx] = useState<PendingTx>({
@@ -187,9 +179,6 @@ function App(): ReactElement {
                                                         wallet={wallet}
                                                         setShowConnectWallet={
                                                             setShowConnectWallet
-                                                        }
-                                                        currentPairId={
-                                                            currentPairId
                                                         }
                                                     />
                                                 </Route>
