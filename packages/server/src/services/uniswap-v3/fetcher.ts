@@ -12,8 +12,6 @@ import { HTTPError } from 'api/util/errors';
 import { toDateInt } from 'util/gql'
 import { UniswapV3Sdk } from 'services/util/apollo-client';
 
-const FEE_TIER_DENOMINATOR = 1000000;
-
 // The reverse of the Maybe type defined by graphql codegen
 type UnMaybe<T> = Exclude<T, null | undefined>;
 

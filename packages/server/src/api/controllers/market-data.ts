@@ -1,5 +1,5 @@
 import { celebrate, Joi, Segments } from 'celebrate';
-import { Request, Router } from 'express';
+import { Request } from 'express';
 
 import validateEthAddress from 'api/util/validate-eth-address';
 import cacheMiddleware from 'api/middlewares/cache';

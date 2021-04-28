@@ -1,7 +1,7 @@
 import { CustomHelpers } from 'joi';
 import { isValidEthAddress } from 'util/eth';
 
-export default function validateEthAddress(id: any, helpers: CustomHelpers): string {
+export default function validateEthAddress(id: string, helpers: CustomHelpers): string {
     const prop = helpers?.state?.path?.[0] ?? 'id';
     const isValidId = isValidEthAddress(id);
     if (!isValidId) {

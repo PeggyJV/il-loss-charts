@@ -1,1 +1,2 @@
 src/services/uniswap-v3/generated-types.ts
+src/services/bitquery/generated-types.ts
