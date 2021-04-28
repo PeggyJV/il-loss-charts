@@ -222,16 +222,6 @@ function App(): ReactElement {
 
     const [showAddLiquidity, setShowAddLiquidity] = useState(false);
     const [currentPairId, setCurrentPairId] = useState<string | null>(null);
-    const handleAddLiquidity = (pairId: string) => {
-        setCurrentPairId(pairId);
-
-        // Check if wallet exists, if not show wallet modal
-        // if (wallet && wallet.account) {
-        //     setShowAddLiquidity(true);
-        // } else {
-        //     setShowConnectWallet(true);
-        // }
-    };
 
     return (
         <ErrorBoundary
@@ -269,13 +259,6 @@ function App(): ReactElement {
                                                 error={error}
                                                 {...restWalletProps}
                                             />
-                                            <ManageLiquidityModal
-                                                show={showAddLiquidity}
-                                                setShow={setShowAddLiquidity}
-                                                wallet={wallet}
-                                                pairId={currentPairId}
-                                                gasPrices={gasPrices}
-                                            />
                                         </ErrorBoundary>
                                         <ErrorBoundary
                                             fallbackRender={({ error }) => (
@@ -283,33 +266,6 @@ function App(): ReactElement {
                                             )}
                                         >
                                             <Switch>
-                                                <Route path='/positions'>
-                                                    <PositionContainer
-                                                        wallet={wallet}
-                                                    />
-                                                </Route>
-                                                <Route path='/market'>
-                                                    <MarketContainer
-                                                        marketData={marketData}
-                                                    />
-                                                </Route>
-                                                <Route path='/pair'>
-                                                    <PairContainer
-                                                        allPairs={allPairs}
-                                                        // prefetchedPairs={
-                                                        //     prefetchedPairs
-                                                        // }
-                                                        prefetchedPairs={null}
-                                                        handleAddLiquidity={
-                                                            handleAddLiquidity
-                                                        }
-                                                    />
-                                                </Route>
-                                                {/* <Route path='/search'>
-                                                    <SearchContainer
-                                                        allPairs={allPairs}
-                                                    />
-                                                </Route> */}
                                                 <Route path='/'>
                                                     <LandingContainer
                                                         allPairs={allPairs}
@@ -319,7 +275,9 @@ function App(): ReactElement {
                                                         setShowConnectWallet={
                                                             setShowConnectWallet
                                                         }
-                                                        currentPairId={currentPairId}
+                                                        currentPairId={
+                                                            currentPairId
+                                                        }
                                                     />
                                                 </Route>
                                             </Switch>
