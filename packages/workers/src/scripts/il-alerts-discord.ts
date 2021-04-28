@@ -68,6 +68,8 @@ async function runDiscordAlerts(): Promise<void> {
     // TODO: Save requests by only fetching first and last hour
     const historicalFetches = topPairs.map(
         (pair: IUniswapPair): Promise<UniswapHourlyData[]> =>
+        // TODO: remove
+        // eslint-disable-next-line
             UniswapFetcher.getPoolHourlyData(pair.id, startDate, endDate)
     );
 
