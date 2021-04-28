@@ -447,11 +447,11 @@ input PoolHourDatasWhere {
 type Query {
   bundle(id: ID!, block: Int): Bundle
   pool(id: ID!, block: Int): Pool
-  pools(first: Int, orderBy: String, orderDirection: String, where: PoolWhere): [Pool]
+  pools(first: Int, orderBy: String, orderDirection: String, where: PoolWhere): [Pool!]!
   poolDayData(id: ID!): PoolDayData
-  poolDayDatas(orderBy: String, orderDirection: String, where: PoolDayDatasWhere): [PoolDayData]
+  poolDayDatas(orderBy: String, orderDirection: String, where: PoolDayDatasWhere): [PoolDayData!]!
   poolHourData(id: ID!): PoolDayData
-  poolHourDatas(orderBy: String, orderDirection: String, where: PoolHourDatasWhere): [PoolHourData]
+  poolHourDatas(orderBy: String, orderDirection: String, where: PoolHourDatasWhere): [PoolHourData!]!
   token(id: ID!): Token
 }
 
