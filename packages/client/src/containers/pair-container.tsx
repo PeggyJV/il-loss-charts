@@ -371,7 +371,7 @@ function PairContainer({
                 </p>
             </div>
 
-            <PairSearch pairs={allPairs.pairs} setPairId={setPairId} />
+            <PairSearch  setPairId={setPairId} />
             <div className='pair-controls'>
                 <div className='pair-and-pool-stats'>
                     <PairSelector

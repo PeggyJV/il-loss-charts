@@ -57,7 +57,7 @@ function LandingContainer({
                     <ConnectWalletButton onClick={showWalletModal} wallet={wallet} />
                 </div>
             </div>
-            <PairSearch pairs={allPairs.pairs} setPairId={setPairId} />
+            <PairSearch  setPairId={setPairId} />
             <Box display='flex' justifyContent='space-around'>
                 <AddLiquidityV3
                     wallet={wallet}

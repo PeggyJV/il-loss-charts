@@ -13,8 +13,7 @@ import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 import './pair-search.scss';
 import { resolveLogo } from 'components/token-with-logo';
 
-
-// type SearchKeys = { [searchKey: string]: UniswapPair };
+import { useAllPairs } from 'hooks/data-fetchers';
 
 const useStyles = makeStyles(() => ({
     input: {
@@ -35,21 +34,21 @@ const CssTextField = withStyles({
     },
 })(TextField);
 export function PairSearch({
-    pairs,
     setPairId,
 }: {
-    pairs: UniswapPair[] | null;
     setPairId: Dispatch<SetStateAction<string | null>>;
 }): JSX.Element {
     const classes = useStyles();
-    // TODO: use loading prop from hook
-    if (pairs == null) {
+    const { data: pairs, isLoading: isAllPairsLoading } = useAllPairs();
+    if (isAllPairsLoading || !pairs) {
         return (
             <div className='loading-container'>
                 <div className='wine-pulse'>🍷</div>
             </div>
         )
     }
+
+    (window as any).pairs = pairs;
     // function sorter(a: UniswapPair, b: UniswapPair) {
     //     const pairAReserve = parseInt(a?.volumeUSD);
     //     const pairBReserve = parseInt(b?.volumeUSD);
