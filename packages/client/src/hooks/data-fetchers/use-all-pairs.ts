@@ -13,9 +13,7 @@ export const useAllPairs = (): Temp => {
         const response = await fetch(`/api/v1/rinkeby/pools?count=${1000}`);
         // TODO: remove data prop
         const json: { data: IUniswapPair[] } = await (response.json() as any);
-        console.log('heheyjson', json);
         const { data } = json;
-        console.log('hehhey', data);
 
         return data.map((d: IUniswapPair) => new UniswapPair(d));
     };
