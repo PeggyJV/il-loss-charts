@@ -66,13 +66,12 @@ function App(): ReactElement {
         lookups: null,
         byLiquidity: null,
     });
-    const [marketData, setMarketData] = useState<MarketStats[] | null>(null);
-    const [topPairs, setTopPairs] = useState<TopPairsState | null>(null);
     const [currentError, setError] = useState<string | null>(null);
     const [gasPrices, setGasPrices] = useState<EthGasPrices | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
     const { wallet, error, ...restWalletProps } = useWallet();
-    // const [prefetchedPairs, setPairsToFetch] = usePrefetch(null);
+    const [currentPairId, setCurrentPairId] = useState<string | null>(null);
+
     // subscribe to the hook, will propogate to the nearest boundary
     const [pendingTx, setPendingTx] = useState<PendingTx>({
         approval: [],
@@ -108,93 +107,11 @@ function App(): ReactElement {
             }
         };
 
-        const fetchTopPairs = async () => {
-            // Fetch all pairs
-            const [
-                { data: topWeeklyPairs, error: topWeeklyPairsError },
-                { data: topDailyPairs, error: topDailyPairsError },
-                { data: wethDaiPair, error: wethDaiPairError },
-            ] = await Promise.all([
-                Uniswap.getWeeklyTopPerformingPairs(),
-                Uniswap.getDailyTopPerformingPairs(),
-                Uniswap.getPairOverview(initialData.pairId),
-            ]);
-
-            const error =
-                topWeeklyPairsError ?? topDailyPairsError ?? wethDaiPairError;
-
-            if (error) {
-                // we could not get our market data
-                console.warn(`Could not fetch market data: ${error}`);
-                setError(error);
-                return;
-            }
-
-            // if (marketData) {
-            //     setMarketData(marketData);
-            // }
-
-            if (topWeeklyPairs && topDailyPairs && wethDaiPair) {
-                setTopPairs({ daily: topDailyPairs, weekly: topWeeklyPairs });
-
-                // Prefetch first ten daily and weekly pairs
-                // const { list: pairsToFetch } = [
-                //     ...topDailyPairs.slice(0, 10),
-                //     ...topWeeklyPairs.slice(0, 10),
-                //     wethDaiPair,
-                // ].reduce(
-                //     (
-                //         acc: {
-                //             list: MarketStats[];
-                //             lookup: { [pairId: string]: boolean };
-                //         },
-                //         pair
-                //     ) => {
-                //         if (!acc.lookup[pair.id]) {
-                //             // TODO: Fix this typing. We don't need a IUniswapPair, or MarketStats
-                //             // All we need is an object with an ID
-                //             acc.list.push((pair as any) as MarketStats);
-                //         }
-                //         return acc;
-                //     },
-                //     { list: [], lookup: {} }
-                // );
-
-                // setPairsToFetch(pairsToFetch);
-            }
-        };
-
-        const fetchMarketData = async () => {
-            // Fetch all pairs
-            const [
-                { data: marketData, error: marketDataError },
-                // { data: topPairs, error: topPairsError }
-            ] = await Promise.all([
-                Uniswap.getMarketData(),
-                // Uniswap.getDailyTopPerformingPairs()
-            ]);
-
-            const error = marketDataError;
-            // const error = marketDataError ?? topPairsError;
-
-            if (error) {
-                // we could not get our market data
-                console.warn(`Could not fetch market data: ${error}`);
-                setError(error);
-                return;
-            }
-
-            if (marketData) {
-                setMarketData(marketData);
-            }
-        };
-
         void fetchAllPairs();
-        void fetchTopPairs();
-        void fetchMarketData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // TODO: are we using this??
     const { sendJsonMessage, lastJsonMessage } = useWebSocket(config.wsApi);
 
     // Handle websocket message
@@ -219,9 +136,6 @@ function App(): ReactElement {
         sendJsonMessage({ op: 'subscribe', topics: ['ethGas:getGasPrices'] });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    const [showAddLiquidity, setShowAddLiquidity] = useState(false);
-    const [currentPairId, setCurrentPairId] = useState<string | null>(null);
 
     return (
         <ErrorBoundary
@@ -269,7 +183,6 @@ function App(): ReactElement {
                                                 <Route path='/'>
                                                     <LandingContainer
                                                         allPairs={allPairs}
-                                                        topPairs={topPairs}
                                                         gasPrices={gasPrices}
                                                         wallet={wallet}
                                                         setShowConnectWallet={

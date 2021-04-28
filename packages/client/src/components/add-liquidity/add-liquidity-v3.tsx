@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
     Row,
     Col,
@@ -41,30 +40,16 @@ export const AddLiquidityV3 = ({
     gasPrices,
 }: Props): JSX.Element | null => {
     const [token0Amount, setToken0Amount] = useState('0');
-    const [token1Amount, setToken1Amount] = useState('0');
     const [token, setToken] = useState('ETH');
     const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
-    );
-    const [approvalState, setApprovalState] = useState<'needed' | 'done'>(
-        'needed'
     );
 
     let provider: ethers.providers.Web3Provider | null = null;
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
-
-    // const [tokenData, setTokenData] = useState<Record<
-    //     string,
-    //     {
-    //         id: string;
-    //         balance: string;
-    //         allowance: { [a: string]: string };
-    //         reserve: string;
-    //     }
-    // > | null>(null);
 
     const token0 = pairData?.token0.id ?? '';
     const token1 = pairData?.token1.id ?? '';
@@ -92,7 +77,6 @@ export const AddLiquidityV3 = ({
         );
 
         (window as any).contract = addLiquidityContract;
-        console.log('CHECK WINDOW');
 
         // TODO get these addresses from pool
         const side0 = '0xc778417E063141139Fce010982780140Aa0cD5Ab';
