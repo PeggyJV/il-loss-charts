@@ -13,7 +13,7 @@ import classNames from 'classnames';
 import './add-liquidity-v3.scss';
 import 'rc-slider/assets/index.css';
 
-import { EthGasPrices, IUniswapPair } from '@sommelier/shared-types';
+import { EthGasPrices } from '@sommelier/shared-types';
 import config from 'config';
 import erc20Abi from 'constants/abis/erc20.json';
 import addLiquidityAbi from 'constants/abis/uniswap_v3_add_liquidity.json';
