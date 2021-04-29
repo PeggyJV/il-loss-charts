@@ -14,7 +14,9 @@ export interface UseTopPools {
 export const useTopPools = (network = 'rinkeby'): UseTopPools => {
     const getTopPools = async () => {
         const response = await fetch(`/api/v1/${network}/pools?count=${1000}`);
-        const data: GetTopPoolsResult = await (response.json() as any);
+        if(!response.ok) throw new Error(`Failed to fetch top pools`);
+        
+        const data = await(response.json() as Promise<GetTopPoolsResult>);
 
         debug.pools = data;
 
