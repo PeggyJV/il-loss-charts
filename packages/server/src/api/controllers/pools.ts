@@ -79,7 +79,7 @@ async function getTopPools(req: Request<Path, unknown, unknown, GetTopPoolsQuery
   // Request<any, any, any, ParsedQs> query must be a ParsedQs
   // We should add a union type for all validated queries
   // or find a better TS integration with Celebrate
-  let { count, sort }: GetTopPoolsQuery = <any> req.query;
+  const { count, sort }: GetTopPoolsQuery = <any> req.query;
   return fetcher.getTopPools(count, sort);
 }
 

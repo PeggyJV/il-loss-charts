@@ -12,14 +12,8 @@ const fetcher = UniswapV3Fetchers.get('mainnet');
 const networks = Object.keys(config.uniswap.v3.networks);
 const validId = '0x1581d1a4f79885255e1993765ddee80c5e715181';
 
-describe('todo', () => {
-  it('has one test', () => {
-    expect(true).toBeTruthy();
-  })
-});
-
 // TODO: unskip after we remove data prop and v3/v2
-describe.skip('pools HTTP tests', () => {
+describe('pools HTTP tests', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
