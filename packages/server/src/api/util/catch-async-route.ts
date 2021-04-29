@@ -10,7 +10,8 @@ export default function catchAsyncRoute(
 ): RequestHandler {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
-            return controllerFn(req, res);
+            const result = await controllerFn(req, res);
+            res.json(result);
         } catch (err) {
           next(err);
         }

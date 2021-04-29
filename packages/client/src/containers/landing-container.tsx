@@ -9,9 +9,10 @@ import { TelegramCTA } from 'components/telegram-cta';
 import mixpanel from 'util/mixpanel';
 import ConnectWalletButton from 'components/connect-wallet-button';
 import PendingTx from 'components/pending-tx';
-import { PairSearch } from 'components/pair-search';
+import { PoolSearch } from 'components/pool-search';
 import { AddLiquidityV3 } from 'components/add-liquidity/add-liquidity-v3';
 import { Box } from '@material-ui/core';
+import { debug } from 'util/debug';
 
 function LandingContainer({
     wallet,
@@ -23,15 +24,15 @@ function LandingContainer({
     setShowConnectWallet: (wallet: boolean) => void;
     gasPrices: EthGasPrices | null;
 }): JSX.Element {
-    const [pairId, setPairId] = useState<string | null>(null);
-    const pairData = usePairDataOverview(pairId || null);
+    const [poolId, setPoolId] = useState<string | null>(null);
+    const pairData = usePairDataOverview(poolId || null);
     const balances = useBalance({
         pairData,
         wallet,
     });
 
-    (window as any).pairId = pairId;
-    (window as any).balances = balances;
+    debug.poolId = poolId;
+    debug.balances = balances;
 
     const showWalletModal = () => setShowConnectWallet(true);
     useEffect(() => {
@@ -54,7 +55,7 @@ function LandingContainer({
                     <ConnectWalletButton onClick={showWalletModal} wallet={wallet} />
                 </div>
             </div>
-            <PairSearch  setPairId={setPairId} />
+            <PoolSearch  setPoolId={setPoolId} />
             <Box display='flex' justifyContent='space-around'>
                 <AddLiquidityV3
                     wallet={wallet}

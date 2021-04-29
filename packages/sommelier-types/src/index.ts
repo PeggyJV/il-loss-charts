@@ -7,7 +7,9 @@ import {
     UniswapPair 
 } from './pair';
 
-export { ILiquidityData, IUniswapPair, IToken, UniswapPair };
+export type { ILiquidityData, IUniswapPair, IToken }; // used as type
+export { UniswapPair }; // use as value
+
 export interface UniswapDailyData extends ILiquidityData {
     __typename: 'PairDayData';
     date: number;
@@ -130,3 +132,7 @@ export interface EthGasPrices {
 export type EthNetwork = "mainnet" | "rinkeby" | "goerli" | "ropsten" | "kovan";
 
 export type NetworkIds = '1' | '4' | '5' | '3' | '42';
+
+// Utility
+export type ArrayElement<ArrayType extends readonly unknown[]> = 
+  ArrayType extends readonly (infer ElementType)[] ? ElementType : never;

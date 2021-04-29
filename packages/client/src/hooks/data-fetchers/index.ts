@@ -1,1 +1,1 @@
-export * from './use-all-pairs';
+export * from './use-top-pools';

@@ -29,7 +29,7 @@ const memoConfig = {
 // Proxy for UniswapV3Fetcher where functions are memoized
 export class UniswapV3FetcherMemoized implements UniswapFetcher {
   private memoize: ReturnType<typeof memoizer>;
-  private fetcher: UniswapV3Fetcher;
+  public fetcher: UniswapV3Fetcher;
 
   constructor(fetcher: UniswapV3Fetcher, network: string) {
     this.memoize = memoizer(redis, { keyPrefix: network, enabled: config.enabled });

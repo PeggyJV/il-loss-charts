@@ -3,7 +3,6 @@ import {
     SetStateAction,
 } from 'react';
 
-import { UniswapPair } from '@sommelier/shared-types';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { matchSorter } from 'match-sorter';
 import TextField from '@material-ui/core/TextField';
@@ -12,8 +11,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 import './pair-search.scss';
 import { resolveLogo } from 'components/token-with-logo';
+import { poolName } from 'util/formats';
 
-import { useAllPairs } from 'hooks/data-fetchers';
+import { TopPool, useTopPools } from 'hooks/data-fetchers';
 
 const useStyles = makeStyles(() => ({
     input: {
@@ -33,22 +33,21 @@ const CssTextField = withStyles({
         },
     },
 })(TextField);
-export function PairSearch({
-    setPairId,
+export function PoolSearch({
+    setPoolId,
 }: {
-    setPairId: Dispatch<SetStateAction<string | null>>;
+    setPoolId: Dispatch<SetStateAction<string | null>>;
 }): JSX.Element {
     const classes = useStyles();
-    const { data: pairs, isLoading: isAllPairsLoading } = useAllPairs();
-    if (isAllPairsLoading || !pairs) {
+    const { data: pools, isLoading: isTopPoolsLoading } = useTopPools();
+    if (isTopPoolsLoading || !pools) {
         return (
             <div className='loading-container'>
-                <div className='wine-pulse'>🍷</div>
+                <div className='wine-pulse'>🍷fuck</div>
             </div>
         )
     }
 
-    (window as any).pairs = pairs;
     // function sorter(a: UniswapPair, b: UniswapPair) {
     //     const pairAReserve = parseInt(a?.volumeUSD);
     //     const pairBReserve = parseInt(b?.volumeUSD);
@@ -60,33 +59,33 @@ export function PairSearch({
     //     return 0;
     // }
 
-    const pairFilter = (options: UniswapPair[], { inputValue }: any) =>
+    const poolFilter = (options: TopPool[], { inputValue }: any) =>
         matchSorter(options, inputValue, {
-            keys: ['token0.symbol', 'token1.symbol', 'token.pairReadable'],
+            keys: ['token0.symbol', 'token1.symbol', poolName],
         }).slice(0, 50);
 
-    const renderPairWithLogo = (pair: UniswapPair) => (
+    const renderPoolWithLogo = (pool: TopPool) => (
         <div className='pair-option-with-logo'>
             <div className='pair'>
-                {resolveLogo(pair?.token0?.id)}&nbsp;&nbsp;
-                {pair?.token0?.symbol}
+                {resolveLogo(pool?.token0?.id)}&nbsp;&nbsp;
+                {pool?.token0?.symbol}
             </div>
             &nbsp;
             {<FontAwesomeIcon icon={faRetweet} />}
             &nbsp;
             <div className='pair'>
-                {pair?.token1?.symbol}
+                {pool?.token1?.symbol}
                 &nbsp;&nbsp;
-                {resolveLogo(pair?.token1?.id)}
+                {resolveLogo(pool?.token1?.id)}
             </div>
         </div>
     );
     return (
         <div className='pair-search-container'>
-            <h4 className='heading-main'>SEARCH UNISWAP V3 PAIRS</h4>
+            <h4 className='heading-main'>SEARCH UNISWAP V3 POOLS</h4>
             <Autocomplete
                 id='all-pairs'
-                options={pairs}
+                options={pools}
                 classes={classes}
                 className='mui-pair-search'
                 autoHighlight={false}
@@ -96,14 +95,14 @@ export function PairSearch({
                 debug={true}
                 noOptionsText={'Invalid Pair'}
                 loadingText={'...loading'}
-                onChange={(_, pair) => {
-                    pair && setPairId(pair?.id);
+                onChange={(_, pool) => {
+                    pool && setPoolId(pool?.id);
                 }}
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                getOptionLabel={(option) => option.pairReadable}
+                getOptionLabel={poolName}
                 style={{ width: 500 }}
-                filterOptions={pairFilter}
-                renderOption={renderPairWithLogo}
+                filterOptions={poolFilter}
+                renderOption={renderPoolWithLogo}
                 renderInput={(params) => (
                     <CssTextField
                         {...params}
@@ -121,4 +120,4 @@ export function PairSearch({
     );
 }
 
-export default PairSearch;
+export default PoolSearch;
