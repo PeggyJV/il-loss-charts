@@ -7,92 +7,24 @@ import {
   subWeeks,
 } from 'date-fns';
 import { Request, Router } from 'express';
-import { EthNetwork, IToken, IUniswapPair } from '@sommelier/shared-types';
-import BigNum from 'bignumber.js'
+import { EthNetwork } from '@sommelier/shared-types';
 
 import { HTTPError } from 'api/util/errors';
-import { Pool, Token } from 'services/uniswap-v3/generated-types';
-import { UniswapV3Fetchers } from 'services/uniswap-v3/fetchers';
+import { UniswapV3Fetchers } from 'services/uniswap-v3';
+import {
+  GetEthPriceResult,
+  GetPoolDailyDataResult,
+  GetPoolHourlyDataResult,
+  GetPoolOverviewResult,
+  GetTopPoolsResult,
+} from '@sommelier/shared-types/src/api'; // how do we export at root level?
 import catchAsyncRoute from 'api/util/catch-async-route';
 import config from 'config';
 import validateEthAddress from 'api/util/validate-eth-address';
 
-class BigNumber {
-  num: string;
-  constructor(val: any) {
-    const str = new BigNum(val).toString();
-    console.log('str', str);
-    this.num = str;
-  }
-
-  // Jank, just for testing
-  toString() {
-    const str = this.num;
-    return str === 'NaN' ? '0' : str;
-  }
-}
-
-export function v3v2Token(token: Token): IToken {
-  const decimals: string = <any> new BigNumber(token.decimals).toString();
-  const derivedETH: string = <any> new BigNumber(token.derivedETH).toString();
-  const id: string = token.id;
-  const name: string = token.name;
-  const symbol: string = token.symbol;
-  const totalLiquidity: string = <any> new BigNumber(token.totalLiquidity).toString();
-  const tradeVolumeUSD: string = <any> new BigNumber(token.tradeVolumeUSD).toString();
-
-  return {
-    __typename: 'Token',
-    decimals,
-    derivedETH,
-    id,
-    name,
-    symbol,
-    totalLiquidity,
-    tradeVolumeUSD,
-  }
-}
-
-export function poolToPair(pool: Pool): IUniswapPair {
-  // eslint-disable-next-line
-  const createdAtTimestamp: string = <any> pool.createdAtTimestamp;
-  const id: string = pool.id;
-  const token0Price: string = <any> new BigNumber(pool.token0Price).toString();
-  const token1Price:string = <any> new BigNumber(pool.token1Price).toString();
-  const trackedReserveETH:string = <any> new BigNumber(pool.trackedReserveETH).toString();
-  const txCount:string = <any> new BigNumber(pool.txCount).toString();
-  const volumeUSD:string = <any> new BigNumber(pool.volumeUSD).toString();
-  const untrackedVolumeUSD:string = <any> new BigNumber(pool.untrackedVolumeUSD);
-  const totalSupply = '0'; // TODO
-  // eslint-disable-next-line
-  const feesUSD:string = <any> new BigNumber(pool.uncollectedFeesUSD + pool.collectedFeesUSD).toString();
-  const reserve0: string = <any> new BigNumber(pool.reserve0).toString();
-  const reserve1: string = <any> new BigNumber(pool.reserve1).toString();
-  const reserveUSD: string = <any> new BigNumber(pool.reserveUSD).toString();
-
-  const token0 = v3v2Token(pool.token0);
-  const token1 = v3v2Token(pool.token1)
-
-
-  return {
-    __typename: 'Pair',
-    token0,
-    token1,
-    createdAtTimestamp,
-    id,
-    token0Price,
-    token1Price,
-    trackedReserveETH,
-    txCount,
-    volumeUSD,
-    untrackedVolumeUSD,
-    totalSupply,
-    feesUSD,
-    reserve0,
-    reserve1,
-    reserveUSD,
-  }
-}
+// poolToPair(pool: Pool): IUniswapPair {
+  // const totalSupply = '0'; // TODO
+  // const feesUSD:string = <any> new BigNumber(pool.uncollectedFeesUSD + pool.collectedFeesUSD).toString();
 
 type Path = {
   network: EthNetwork
@@ -121,7 +53,7 @@ const networkValidator = celebrate({
 });
 
 // GET /ethPrice
-async function getEthPrice(req: Request<Path, unknown, unknown, unknown>) {
+async function getEthPrice(req: Request<Path, unknown, unknown, unknown>): Promise<GetEthPriceResult> {
   const { network } = req.params;
   const fetcher = UniswapV3Fetchers.get(network);
 
@@ -139,7 +71,7 @@ const getTopPoolsValidator = celebrate({
   [Segments.PARAMS]: networkSchema,
 });
 
-async function getTopPools(req: Request<Path, unknown, unknown, GetTopPoolsQuery>): Promise<IUniswapPair[]> {
+async function getTopPools(req: Request<Path, unknown, unknown, GetTopPoolsQuery>): Promise<GetTopPoolsResult> {
   const { network } = req.params;
   const fetcher = UniswapV3Fetchers.get(network);
 
@@ -148,17 +80,15 @@ async function getTopPools(req: Request<Path, unknown, unknown, GetTopPoolsQuery
   // We should add a union type for all validated queries
   // or find a better TS integration with Celebrate
   const { count, sort }: GetTopPoolsQuery = <any> req.query;
-  const result: Pool[] = <any> await fetcher.getTopPools(count, sort);
-  return result.map(poolToPair);
+  return fetcher.getTopPools(count, sort);
 }
 
 // GET /pools/:id
-async function getPoolOverview(req: Request<PoolPath, unknown, unknown, unknown>): Promise<IUniswapPair> {
+async function getPoolOverview(req: Request<PoolPath, unknown, unknown, unknown>): Promise<GetPoolOverviewResult> {
   const { poolId, network } = req.params;
   const fetcher = UniswapV3Fetchers.get(network);
 
-  const pool: Pool = <any> await fetcher.getPoolOverview(poolId);
-  return poolToPair(pool);
+  return fetcher.getPoolOverview(poolId);
 }
 
 // GET /pools/:id/historical/daily
@@ -174,7 +104,7 @@ const getHistoricalDataValidator = celebrate({
   })
 });
 
-async function getHistoricalDailyData(req: Request<PoolPath, unknown, unknown, GetHistoricalDataQuery>) {
+async function getHistoricalDailyData(req: Request<PoolPath, unknown, unknown, GetHistoricalDataQuery>): Promise<GetPoolDailyDataResult> {
   const { poolId, network } = req.params;
   const fetcher = UniswapV3Fetchers.get(network);
 
@@ -187,7 +117,7 @@ async function getHistoricalDailyData(req: Request<PoolPath, unknown, unknown, G
 }
 
 // GET /pools/:id/historical/hourly
-async function getHistoricalHourlyData(req: Request<PoolPath, unknown, unknown, GetHistoricalDataQuery>) {
+async function getHistoricalHourlyData(req: Request<PoolPath, unknown, unknown, GetHistoricalDataQuery>): Promise<GetPoolHourlyDataResult> {
   const { poolId, network } = req.params;
   const fetcher = UniswapV3Fetchers.get(network);
 

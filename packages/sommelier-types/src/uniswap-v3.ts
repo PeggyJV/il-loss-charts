@@ -1,28 +1,29 @@
+import { BigNumber } from 'bignumber.js';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 /** All built-in and custom scalars, mapped to their actual values */
-export type Scalars = {
+export interface Scalars {
   ID: string;
   String: string;
   Boolean: boolean;
   Int: number;
   Float: number;
-  BigDecimal: any;
-  BigInt: any;
-  Bytes: any;
-};
+  BigDecimal: BigNumber;
+  BigInt: BigNumber;
+  Bytes: string;
+}
 
 
 
-export type Bundle = {
+export interface Bundle {
   __typename?: 'Bundle';
   id: Scalars['ID'];
   ethPrice: Scalars['BigDecimal'];
-};
+}
 
-export type Burn = {
+export interface Burn {
   __typename?: 'Burn';
   id: Scalars['ID'];
   transaction: Transaction;
@@ -40,10 +41,10 @@ export type Burn = {
   needsComplete: Scalars['Boolean'];
   feeTo?: Maybe<Scalars['Bytes']>;
   feeLiquidity?: Maybe<Scalars['BigDecimal']>;
-};
+}
 
 
-export type Collect = {
+export interface Collect {
   __typename?: 'Collect';
   id: Scalars['ID'];
   transaction: Transaction;
@@ -57,9 +58,9 @@ export type Collect = {
   to?: Maybe<Scalars['Bytes']>;
   logIndex?: Maybe<Scalars['BigInt']>;
   amountUSD?: Maybe<Scalars['BigDecimal']>;
-};
+}
 
-export type Factory = {
+export interface Factory {
   __typename?: 'Factory';
   id: Scalars['ID'];
   poolCount: Scalars['BigInt'];
@@ -70,9 +71,9 @@ export type Factory = {
   totalLiquidityUSD: Scalars['BigDecimal'];
   totalLiquidityETH: Scalars['BigDecimal'];
   txCount: Scalars['BigInt'];
-};
+}
 
-export type Mint = {
+export interface Mint {
   __typename?: 'Mint';
   id: Scalars['ID'];
   transaction: Transaction;
@@ -89,9 +90,9 @@ export type Mint = {
   amountUSD?: Maybe<Scalars['BigDecimal']>;
   feeTo?: Maybe<Scalars['Bytes']>;
   feeLiquidity?: Maybe<Scalars['BigDecimal']>;
-};
+}
 
-export type Pool = {
+export interface Pool {
   __typename?: 'Pool';
   id: Scalars['ID'];
   token0: Token;
@@ -129,9 +130,9 @@ export type Pool = {
   swaps: Array<Swap>;
   collects: Array<Collect>;
   ticks: Array<Tick>;
-};
+}
 
-export type PoolDayData = {
+export interface PoolDayData {
   __typename?: 'PoolDayData';
   id: Scalars['ID'];
   date: Scalars['Int'];
@@ -147,15 +148,15 @@ export type PoolDayData = {
   periodVolumeToken1: Scalars['BigDecimal'];
   periodVolumeUSD: Scalars['BigDecimal'];
   periodTxCount: Scalars['BigInt'];
-};
+}
 
-export type PoolDayDatasWhere = {
+export interface PoolDayDatasWhere {
   id?: Maybe<Scalars['ID']>;
   date_gt?: Maybe<Scalars['Int']>;
   date_lt?: Maybe<Scalars['Int']>;
-};
+}
 
-export type PoolHourData = {
+export interface PoolHourData {
   __typename?: 'PoolHourData';
   id: Scalars['ID'];
   periodStartUnix: Scalars['Int'];
@@ -171,20 +172,20 @@ export type PoolHourData = {
   periodVolumeToken1: Scalars['BigDecimal'];
   periodVolumeUSD: Scalars['BigDecimal'];
   periodTxCount: Scalars['BigInt'];
-};
+}
 
-export type PoolHourDatasWhere = {
+export interface PoolHourDatasWhere {
   id?: Maybe<Scalars['ID']>;
   periodStartUnix_gt?: Maybe<Scalars['Int']>;
   periodStartUnix_lt?: Maybe<Scalars['Int']>;
-};
+}
 
-export type PoolWhere = {
+export interface PoolWhere {
   volumeUSD_lt?: Maybe<Scalars['BigDecimal']>;
   reserveUSD_gt?: Maybe<Scalars['BigDecimal']>;
-};
+}
 
-export type Query = {
+export interface Query {
   __typename?: 'Query';
   bundle?: Maybe<Bundle>;
   pool?: Maybe<Pool>;
@@ -194,58 +195,58 @@ export type Query = {
   poolHourData?: Maybe<PoolDayData>;
   poolHourDatas: Array<PoolHourData>;
   token?: Maybe<Token>;
-};
+}
 
 
-export type QueryBundleArgs = {
+export interface QueryBundleArgs {
   id: Scalars['ID'];
   block?: Maybe<Scalars['Int']>;
-};
+}
 
 
-export type QueryPoolArgs = {
+export interface QueryPoolArgs {
   id: Scalars['ID'];
   block?: Maybe<Scalars['Int']>;
-};
+}
 
 
-export type QueryPoolsArgs = {
+export interface QueryPoolsArgs {
   first?: Maybe<Scalars['Int']>;
   orderBy?: Maybe<Scalars['String']>;
   orderDirection?: Maybe<Scalars['String']>;
   where?: Maybe<PoolWhere>;
-};
+}
 
 
-export type QueryPoolDayDataArgs = {
+export interface QueryPoolDayDataArgs {
   id: Scalars['ID'];
-};
+}
 
 
-export type QueryPoolDayDatasArgs = {
+export interface QueryPoolDayDatasArgs {
   orderBy?: Maybe<Scalars['String']>;
   orderDirection?: Maybe<Scalars['String']>;
   where?: Maybe<PoolDayDatasWhere>;
-};
+}
 
 
-export type QueryPoolHourDataArgs = {
+export interface QueryPoolHourDataArgs {
   id: Scalars['ID'];
-};
+}
 
 
-export type QueryPoolHourDatasArgs = {
+export interface QueryPoolHourDatasArgs {
   orderBy?: Maybe<Scalars['String']>;
   orderDirection?: Maybe<Scalars['String']>;
   where?: Maybe<PoolHourDatasWhere>;
-};
+}
 
 
-export type QueryTokenArgs = {
+export interface QueryTokenArgs {
   id: Scalars['ID'];
-};
+}
 
-export type Swap = {
+export interface Swap {
   __typename?: 'Swap';
   id: Scalars['ID'];
   transaction: Transaction;
@@ -262,9 +263,9 @@ export type Swap = {
   to: Scalars['Bytes'];
   logIndex?: Maybe<Scalars['BigInt']>;
   amountUSD: Scalars['BigDecimal'];
-};
+}
 
-export type Tick = {
+export interface Tick {
   __typename?: 'Tick';
   id: Scalars['ID'];
   pool: Pool;
@@ -291,9 +292,9 @@ export type Tick = {
   createdAtBlockNumber: Scalars['BigInt'];
   liquidityProviderCount: Scalars['BigInt'];
   swaps: Array<Swap>;
-};
+}
 
-export type TickDayData = {
+export interface TickDayData {
   __typename?: 'TickDayData';
   id: Scalars['ID'];
   date: Scalars['Int'];
@@ -310,9 +311,9 @@ export type TickDayData = {
   periodVolumeToken1: Scalars['BigDecimal'];
   periodVolumeUSD: Scalars['BigDecimal'];
   periodTxCount: Scalars['BigInt'];
-};
+}
 
-export type TickHourData = {
+export interface TickHourData {
   __typename?: 'TickHourData';
   id: Scalars['ID'];
   periodStartUnix: Scalars['Int'];
@@ -329,9 +330,9 @@ export type TickHourData = {
   periodVolumeToken1: Scalars['BigDecimal'];
   periodVolumeUSD: Scalars['BigDecimal'];
   periodTxCount: Scalars['BigInt'];
-};
+}
 
-export type Token = {
+export interface Token {
   __typename?: 'Token';
   id: Scalars['ID'];
   symbol: Scalars['String'];
@@ -351,9 +352,9 @@ export type Token = {
   poolDayDataQuote: Array<PoolDayData>;
   poolBase: Array<Pool>;
   poolQuote: Array<Pool>;
-};
+}
 
-export type TokenDayData = {
+export interface TokenDayData {
   __typename?: 'TokenDayData';
   id: Scalars['ID'];
   date: Scalars['Int'];
@@ -366,9 +367,9 @@ export type TokenDayData = {
   totalLiquidityETH: Scalars['BigDecimal'];
   totalLiquidityUSD: Scalars['BigDecimal'];
   priceUSD: Scalars['BigDecimal'];
-};
+}
 
-export type Transaction = {
+export interface Transaction {
   __typename?: 'Transaction';
   id: Scalars['ID'];
   blockNumber: Scalars['BigInt'];
@@ -377,9 +378,9 @@ export type Transaction = {
   burns: Array<Maybe<Burn>>;
   swaps: Array<Maybe<Swap>>;
   collects: Array<Maybe<Collect>>;
-};
+}
 
-export type UniswapDayData = {
+export interface UniswapDayData {
   __typename?: 'UniswapDayData';
   id: Scalars['ID'];
   date: Scalars['Int'];
@@ -391,7 +392,7 @@ export type UniswapDayData = {
   totalVolumeUSD: Scalars['BigDecimal'];
   totalLiquidityUSD: Scalars['BigDecimal'];
   txCount: Scalars['BigInt'];
-};
+}
 
 export type GetEthPriceQueryVariables = Exact<{
   id: Scalars['ID'];
