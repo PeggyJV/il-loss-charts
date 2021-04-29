@@ -1,3 +1,5 @@
+import { debug } from 'util/debug';
+
 export async function get0xSwapQuote(
     buyToken: string,
     sellToken: string,
@@ -16,7 +18,7 @@ export async function get0xSwapQuote(
             }
         );
         const quote = await response.json();
-        (window as any).quote = quote;
+        debug.quote = quote;
 
         return quote as { quote: string };
     } catch (err) {

@@ -26,6 +26,7 @@ import { compactHash } from 'util/formats';
 import { Wallet, WalletBalances } from 'types/states';
 import { useMarketData } from 'hooks/use-market-data';
 import { PoolOverview } from 'hooks/data-fetchers';
+import { debug } from 'util/debug';
 
 type Props = {
     wallet: Wallet;
@@ -77,7 +78,7 @@ export const AddLiquidityV3 = ({
             signer
         );
 
-        (window as any).contract = addLiquidityContract;
+        debug.contract = addLiquidityContract;
 
         // TODO get these addresses from pool
         const side0 = '0xc778417E063141139Fce010982780140Aa0cD5Ab';
@@ -189,7 +190,6 @@ export const AddLiquidityV3 = ({
         // } catch (err) {
         //     // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
         //     console.error(`Could not estimate gas: ${err.message as string}`);
-        //     (window as any).gasError = err;
 
         //     toastError('Could not estimate gas for this transaction. Check your parameters or try a different pool.');
         //     return;
@@ -205,7 +205,6 @@ export const AddLiquidityV3 = ({
         toastSuccess(`Submitted: ${compactHash(hash)}`);
     }
 
-    // (window as any).tokenData = tokenData;
     // useEffect(() => {
     //     const reserveLookup: Record<string, string> = {
     //         [pairData?.token0.symbol as string]: pairData?.reserve0 || '',
@@ -262,7 +261,7 @@ export const AddLiquidityV3 = ({
 
     if (!marketData) return null;
     if (!pool || !pool?.token0 || !pool?.token1 ) return null;
-    (window as any).marketData = marketData;
+    debug.marketData = marketData;
     const currentPrice = marketData.quotePrice || 1.234352;
     const liquidityLow = (currentPrice * 0.9).toString();
     const liquidityHigh = (currentPrice * 1.1).toString();

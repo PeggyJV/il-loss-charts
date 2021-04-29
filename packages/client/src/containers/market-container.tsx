@@ -12,6 +12,7 @@ import mixpanel from 'util/mixpanel';
 import {ErrorBoundary} from 'react-error-boundary';
 import { resolveLogo } from 'components/token-with-logo';
 import { ComponentError } from 'components/page-error';
+import { debug } from 'util/debug';
 
 function OverviewContainer({
     marketData,
@@ -22,7 +23,7 @@ function OverviewContainer({
         mixpanel.track('pageview:market', {});
     }, []);
 
-    (window as any).marketData = marketData;
+    debug.marketData = marketData;
 
     return (
         <div>
@@ -120,7 +121,7 @@ function MarketDataTable({ data }: { data: MarketStats[] }) {
             market: { id: d.id, token0: d.token0, token1: d.token1 },
         }));
 
-    (window as any).sortedIL = sortedIl;
+    debug.sortedIl = sortedIl;
 
     const onRowClick = (e: SyntheticEvent, pair: IUniswapPair) => {
         history.push(`/pair?id=${pair.id}`);

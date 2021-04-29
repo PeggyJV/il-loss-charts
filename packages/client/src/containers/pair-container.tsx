@@ -34,6 +34,7 @@ import { PageError } from 'components/page-error';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { deriveLPStats } from 'services/calculate-stats';
+import { debug } from 'util/debug';
 
 
 function PairContainer({
@@ -159,7 +160,7 @@ function PairContainer({
             if (error) {
                 // we could not list pairs
                 console.warn(`Could not fetch top pairs: ${error}`);
-                (window as any).error = error;
+                debug.error = error;
                 setError(error);
                 return;
             }

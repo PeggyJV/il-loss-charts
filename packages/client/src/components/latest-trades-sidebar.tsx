@@ -7,6 +7,7 @@ import { IToken, UniswapSwap, UniswapMintOrBurn } from '@sommelier/shared-types'
 
 import { MintOrBurn, Swap } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
+import { debug } from 'util/debug';
 
 function LatestTradeSidebar({
     latestSwaps,
@@ -26,7 +27,7 @@ function LatestTradeSidebar({
     const { swaps, mintsAndBurns } = latestSwaps;
     if (!swaps || !mintsAndBurns) return null;
 
-    (window as any).mintsAndBurns = mintsAndBurns;
+    debug.mintsAndBurnts = mintsAndBurns;
 
     return (
         <Card className='chart-card'>

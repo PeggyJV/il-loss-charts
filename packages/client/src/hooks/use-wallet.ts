@@ -4,6 +4,7 @@ import Cookies from 'universal-cookie';
 
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { Provider, Wallet } from 'types/states';
+import { debug } from 'util/debug';
 import mixpanel from 'util/mixpanel';
 
 const cookies = new Cookies();
@@ -12,7 +13,7 @@ const wcProvider = new WalletConnectProvider({
     infuraId: process.env.REACT_APP_INFURA_PROJECT_ID,
 });
 
-(window as any).wcProvider = wcProvider;
+debug.wcProvider = wcProvider;
 
 export default function useWallet(): {
     ethereum?: any;

@@ -16,6 +16,7 @@ import AddLiquidity from 'components/add-liquidity';
 import RemoveLiquidity from 'components/remove-liquidity';
 import { PendingTxContext, PendingTx } from 'app';
 import { useBalance } from 'hooks/use-balance-v2';
+import { debug } from 'util/debug';
 
 // TODO convert add, remove to a hook and separate UI from it
 function ManageLiquidityModal({
@@ -143,11 +144,11 @@ function ManageLiquidityModal({
     }
 
     // Calculate expected LP shares
-    (window as any).balances = balances;
-    (window as any).pairData = pairData;
-    (window as any).positionData = positionData;
-    (window as any).ethers = ethers;
-    (window as any).gasPrices = gasPrices;
+    debug.balances = balances;
+    debug.pairData = pairData;
+    debug.positionData = positionData;
+    debug.ethers = ethers;
+    debug.gasPrices = gasPrices;
 
     if (!pairData) {
         return null;

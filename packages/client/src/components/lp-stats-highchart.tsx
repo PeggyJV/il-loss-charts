@@ -9,6 +9,7 @@ HCMore(Highcharts);
 import { LPStats as ILPStats } from '@sommelier/shared-types';
 import { LPStats } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
+import { debug } from 'util/debug';
 
 type AreaChartDataPoint = [number, number, number];
 type BarChartDataPoint = [number, number];
@@ -21,7 +22,7 @@ function LPStatsChart({
     const volChartData: BarChartDataPoint[] = [];
     const liqChartData: BarChartDataPoint[] = [];
 
-    (window as any).lpStats = lpStats;
+    debug.lpStats = lpStats;
 
     lpStats.ticks.forEach((stats, i) => {
         const runningGain = new BigNumber(lpStats.runningFees[i]).plus(lpStats.runningNotionalGain[i]).toNumber();
@@ -45,7 +46,7 @@ function LPStatsChart({
         ]);
     });
 
-    (window as any).chartData = chartData;
+    debug.chartData = chartData;
 
     const options: Highcharts.Options = {
         chart: {
