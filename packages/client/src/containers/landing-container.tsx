@@ -3,7 +3,7 @@ import { EthGasPrices } from '@sommelier/shared-types';
 
 import { AllPairsState, Wallet } from 'types/states';
 import { useBalance } from 'hooks/use-balance';
-import { usePairDataOverview } from 'hooks/use-pair-data-overview';
+import { usePoolOverview } from 'hooks/data-fetchers';
 
 import { TelegramCTA } from 'components/telegram-cta';
 import mixpanel from 'util/mixpanel';
@@ -25,9 +25,9 @@ function LandingContainer({
     gasPrices: EthGasPrices | null;
 }): JSX.Element {
     const [poolId, setPoolId] = useState<string | null>(null);
-    const pairData = usePairDataOverview(poolId || null);
+    const { data: pool } = usePoolOverview('rinkeby', poolId);
     const balances = useBalance({
-        pairData,
+        pool,
         wallet,
     });
 
@@ -59,7 +59,7 @@ function LandingContainer({
             <Box display='flex' justifyContent='space-around'>
                 <AddLiquidityV3
                     wallet={wallet}
-                    pairData={pairData}
+                    pool={pool}
                     balances={balances}
                     gasPrices={gasPrices}
                 />

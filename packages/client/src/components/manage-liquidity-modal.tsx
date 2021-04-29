@@ -15,7 +15,7 @@ import { usePairDataOverview } from 'hooks/use-pair-data-overview';
 import AddLiquidity from 'components/add-liquidity';
 import RemoveLiquidity from 'components/remove-liquidity';
 import { PendingTxContext, PendingTx } from 'app';
-import { useBalance } from 'hooks/use-balance';
+import { useBalance } from 'hooks/use-balance-v2';
 
 // TODO convert add, remove to a hook and separate UI from it
 function ManageLiquidityModal({

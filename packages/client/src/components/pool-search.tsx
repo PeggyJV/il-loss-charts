@@ -43,7 +43,7 @@ export function PoolSearch({
     if (isTopPoolsLoading || !pools) {
         return (
             <div className='loading-container'>
-                <div className='wine-pulse'>🍷fuck</div>
+                <div className='wine-pulse'>🍷</div>
             </div>
         )
     }
@@ -96,6 +96,7 @@ export function PoolSearch({
                 noOptionsText={'Invalid Pair'}
                 loadingText={'...loading'}
                 onChange={(_, pool) => {
+                    console.log('setting pool id in pool search', pool?.id)
                     pool && setPoolId(pool?.id);
                 }}
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return

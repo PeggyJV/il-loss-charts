@@ -1,4 +1,3 @@
-import { BigNumber } from 'bignumber.js';
 import { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 export type Maybe<T> = T | null;
@@ -12,8 +11,8 @@ export interface Scalars {
   Boolean: boolean;
   Int: number;
   Float: number;
-  BigDecimal: BigNumber;
-  BigInt: BigNumber;
+  BigDecimal: string;
+  BigInt: string;
   Bytes: string;
 }
 

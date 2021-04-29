@@ -25,18 +25,19 @@ import { compactHash } from 'util/formats';
 
 import { Wallet, WalletBalances } from 'types/states';
 import { useMarketData } from 'hooks/use-market-data';
+import { PoolOverview } from 'hooks/data-fetchers';
 
 type Props = {
     wallet: Wallet;
     balances: WalletBalances;
-    pairData: IUniswapPair | null;
+    pool: PoolOverview | null;
     gasPrices: EthGasPrices | null;
 };
 
 export const AddLiquidityV3 = ({
     wallet,
     balances,
-    pairData,
+    pool,
     gasPrices,
 }: Props): JSX.Element | null => {
     const [token0Amount, setToken0Amount] = useState('0');
@@ -51,12 +52,12 @@ export const AddLiquidityV3 = ({
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
 
-    const token0 = pairData?.token0.id ?? '';
-    const token1 = pairData?.token1.id ?? '';
+    const token0 = pool?.token0?.id ?? '';
+    const token1 = pool?.token1?.id ?? '';
     const marketData = useMarketData(token0, token1);
 
     const doAddLiquidity = async () => {
-        if (!pairData || !provider) return;
+        if (!pool || !provider) return;
         if (!currentGasPrice) {
             throw new Error('Gas price not selected.');
         }
@@ -259,7 +260,8 @@ export const AddLiquidityV3 = ({
     //     setTokenData(tokenDataMap);
     // }, [balances, pairData]);
 
-    if (!pairData || !marketData) return null;
+    if (!marketData) return null;
+    if (!pool || !pool?.token0 || !pool?.token1 ) return null;
     (window as any).marketData = marketData;
     const currentPrice = marketData.quotePrice || 1.234352;
     const liquidityLow = (currentPrice * 0.9).toString();
