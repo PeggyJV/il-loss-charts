@@ -6,6 +6,7 @@ import { PairPricesState, StatsWindow } from 'types/states';
 import { Pair, DailyData, LPStats } from 'constants/prop-types';
 
 import { calculateTimeWindowStats } from 'services/calculate-stats';
+import { debug } from 'util/debug';
 
 function PercentChangeStat({ value }: { value?: BigNumber }) {
     if (!value) throw new Error('Passed falsy value to PercentChangeStat');
@@ -40,7 +41,7 @@ function TotalPoolStats({
             ? trailingStats.totalStats
             : trailingStats.lastPeriodStats;
 
-    (window as any).poolStats = stats;
+    debug.poolStats = stats;
 
     const handleSetWindow = (selectedWindow: StatsWindow) => {
         // Reset to total if already clicked

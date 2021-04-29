@@ -1,10 +1,13 @@
 import { hourMs, minuteMs } from 'util/date';
 import { Pool } from 'services/uniswap-v3/generated-types';
 import {
+  GetEthPriceResult,
   GetPoolDailyDataResult,
   GetPoolHourlyDataResult,
   GetPoolOverviewResult,
   GetTopPoolsResult,
+} from '@sommelier/shared-types/src/api'; // how do we export at root level?
+import {
   UniswapFetcher,
   UniswapV3Fetcher
 } from 'services/uniswap-v3/fetcher';
@@ -26,7 +29,7 @@ const memoConfig = {
 // Proxy for UniswapV3Fetcher where functions are memoized
 export class UniswapV3FetcherMemoized implements UniswapFetcher {
   private memoize: ReturnType<typeof memoizer>;
-  private fetcher: UniswapV3Fetcher;
+  public fetcher: UniswapV3Fetcher;
 
   constructor(fetcher: UniswapV3Fetcher, network: string) {
     this.memoize = memoizer(redis, { keyPrefix: network, enabled: config.enabled });
@@ -34,7 +37,7 @@ export class UniswapV3FetcherMemoized implements UniswapFetcher {
   }
 
   // TODO: figure out how to DRY this up and keep types
-  getEthPrice(blockNumber?: number): Promise<{ ethPrice: number }> {
+  getEthPrice(blockNumber?: number): Promise<GetEthPriceResult> {
     const config = memoConfig.getEthPrice;
     const fn: UniswapFetcher['getEthPrice'] = this.memoize(this.fetcher.getEthPrice.bind(this.fetcher), config);
     return fn(blockNumber);

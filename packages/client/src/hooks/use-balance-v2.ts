@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import erc20Abi from 'constants/abis/erc20.json';
 import { Wallet, WalletBalances } from 'types/states';
-import { PoolOverview } from 'hooks/data-fetchers';
-import { poolName } from 'util/formats';
+import { UniswapPair } from '@sommelier/shared-types';
 const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
 const EXCHANGE_REMOVE_ABI_ADDRESS =
     '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
@@ -12,9 +11,9 @@ const EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS =
 
 type Props = {
     wallet: Wallet;
-    pool: PoolOverview | void;
+    pairData: UniswapPair | null;
 };
-export const useBalance = ({ pool, wallet }: Props): WalletBalances => {
+export const useBalance = ({ pairData, wallet }: Props): WalletBalances => {
     let provider: ethers.providers.Web3Provider;
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
@@ -25,12 +24,11 @@ export const useBalance = ({ pool, wallet }: Props): WalletBalances => {
     useEffect(() => {
         // get balances of both tokens
         const getBalances = async () => {
-            if (!provider || !wallet.account) return;
-            if (!pool || !pool.token0 || !pool.token1) return;
+            if (!provider || !wallet.account || !pairData) return;
 
             const getTokenBalances = [
-                pool.token0.id,
-                pool.token1.id,
+                pairData.token0.id,
+                pairData.token1.id,
             ].map(async (tokenAddress) => {
                 if (!tokenAddress) {
                     throw new Error(
@@ -56,8 +54,8 @@ export const useBalance = ({ pool, wallet }: Props): WalletBalances => {
             });
 
             const getAllowances = [
-                pool.token0.id,
-                pool.token1.id
+                pairData.token0.id,
+                pairData.token1.id
             ].map(async (tokenAddress) => {
                 if (!tokenAddress) {
                     throw new Error(
@@ -85,8 +83,8 @@ export const useBalance = ({ pool, wallet }: Props): WalletBalances => {
             });
 
             const getTwoSideAllowances = [
-                pool.token0.id,
-                pool.token1.id
+                pairData.token0.id,
+                pairData.token1.id
             ].map(async (tokenAddress) => {
                 if (!tokenAddress) {
                     throw new Error(
@@ -148,29 +146,29 @@ export const useBalance = ({ pool, wallet }: Props): WalletBalances => {
                         ),
                     },
                 },
-                [pool.token0.symbol]: {
-                    id: pool.token0.id,
-                    symbol: pool.token0.symbol,
+                [pairData.token0.symbol]: {
+                    id: pairData.token0.id,
+                    symbol: pairData.token0.symbol,
                     balance: token0Balance,
-                    decimals: pool.token0.decimals,
+                    decimals: pairData.token0.decimals,
                     allowance: {
                         [EXCHANGE_ADD_ABI_ADDRESS]: token0Allowance,
                         [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: addTwoToken0Allowance,
                     },
                 },
-                [pool.token1.symbol]: {
-                    id: pool.token1.id,
-                    symbol: pool.token1.symbol,
+                [pairData.token1.symbol]: {
+                    id: pairData.token1.id,
+                    symbol: pairData.token1.symbol,
                     balance: token1Balance,
-                    decimals: pool.token0.decimals,
+                    decimals: pairData.token0.decimals,
                     allowance: {
                         [EXCHANGE_ADD_ABI_ADDRESS]: token1Allowance,
                         [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: addTwoToken1Allowance,
                     },
                 },
                 currentPair: {
-                    id: pool.id,
-                    symbol: poolName(pool),
+                    id: pairData.id,
+                    symbol: pairData.pairReadable,
                     balance: pairBalance,
                     decimals: '18',
                     allowance: {
@@ -183,7 +181,7 @@ export const useBalance = ({ pool, wallet }: Props): WalletBalances => {
 
         void getBalances();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [wallet, pool]);
+    }, [wallet, pairData]);
 
     return balances;
 };

@@ -5,6 +5,7 @@ import { Integrations } from '@sentry/tracing';
 import './index.css';
 import App from './app';
 import reportWebVitals from './reportWebVitals';
+import { debug } from 'util/debug';
 
 Sentry.init({
     dsn:
@@ -27,3 +28,7 @@ ReactDOM.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
+// Set window.debug
+(window as any).d = debug;
+(window as any).debug = debug;

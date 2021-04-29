@@ -6,6 +6,7 @@ import PositionsTable from 'components/positions-table';
 import { ErrorBoundary, useErrorHandler } from 'react-error-boundary';
 import { LPPositionData, IToken } from '@sommelier/shared-types';
 import { Wallet } from 'types/states';
+import { debug } from 'util/debug';
 
 // import PositionSelector from 'components/position-selector';
 import LPStatsChart from 'components/lp-stats-highchart';
@@ -35,8 +36,8 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
     );
 
     // const currentPosition = positions[pairId];
-    (window as any).positionData = positionData;
-    (window as any).pairId = pairId;
+    debug.positionData = positionData;
+    debug.pairId = pairId;
     const currentStats = pairId
         ? positionData?.stats?.[pairId]?.aggregatedStats
         : null;

@@ -13,7 +13,7 @@ import classNames from 'classnames';
 import './add-liquidity-v3.scss';
 import 'rc-slider/assets/index.css';
 
-import { EthGasPrices, IUniswapPair } from '@sommelier/shared-types';
+import { EthGasPrices } from '@sommelier/shared-types';
 import config from 'config';
 import erc20Abi from 'constants/abis/erc20.json';
 import addLiquidityAbi from 'constants/abis/uniswap_v3_add_liquidity.json';
@@ -25,18 +25,20 @@ import { compactHash } from 'util/formats';
 
 import { Wallet, WalletBalances } from 'types/states';
 import { useMarketData } from 'hooks/use-market-data';
+import { PoolOverview } from 'hooks/data-fetchers';
+import { debug } from 'util/debug';
 
 type Props = {
     wallet: Wallet;
     balances: WalletBalances;
-    pairData: IUniswapPair | null;
+    pool: PoolOverview | null;
     gasPrices: EthGasPrices | null;
 };
 
 export const AddLiquidityV3 = ({
     wallet,
     balances,
-    pairData,
+    pool,
     gasPrices,
 }: Props): JSX.Element | null => {
     const [token0Amount, setToken0Amount] = useState('0');
@@ -51,12 +53,12 @@ export const AddLiquidityV3 = ({
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
 
-    const token0 = pairData?.token0.id ?? '';
-    const token1 = pairData?.token1.id ?? '';
+    const token0 = pool?.token0?.id ?? '';
+    const token1 = pool?.token1?.id ?? '';
     const marketData = useMarketData(token0, token1);
 
     const doAddLiquidity = async () => {
-        if (!pairData || !provider) return;
+        if (!pool || !provider) return;
         if (!currentGasPrice) {
             throw new Error('Gas price not selected.');
         }
@@ -76,7 +78,7 @@ export const AddLiquidityV3 = ({
             signer
         );
 
-        (window as any).contract = addLiquidityContract;
+        debug.contract = addLiquidityContract;
 
         // TODO get these addresses from pool
         const side0 = '0xc778417E063141139Fce010982780140Aa0cD5Ab';
@@ -188,7 +190,6 @@ export const AddLiquidityV3 = ({
         // } catch (err) {
         //     // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
         //     console.error(`Could not estimate gas: ${err.message as string}`);
-        //     (window as any).gasError = err;
 
         //     toastError('Could not estimate gas for this transaction. Check your parameters or try a different pool.');
         //     return;
@@ -204,7 +205,6 @@ export const AddLiquidityV3 = ({
         toastSuccess(`Submitted: ${compactHash(hash)}`);
     }
 
-    // (window as any).tokenData = tokenData;
     // useEffect(() => {
     //     const reserveLookup: Record<string, string> = {
     //         [pairData?.token0.symbol as string]: pairData?.reserve0 || '',
@@ -259,8 +259,9 @@ export const AddLiquidityV3 = ({
     //     setTokenData(tokenDataMap);
     // }, [balances, pairData]);
 
-    if (!pairData || !marketData) return null;
-    (window as any).marketData = marketData;
+    if (!marketData) return null;
+    if (!pool || !pool?.token0 || !pool?.token1 ) return null;
+    debug.marketData = marketData;
     const currentPrice = marketData.quotePrice || 1.234352;
     const liquidityLow = (currentPrice * 0.9).toString();
     const liquidityHigh = (currentPrice * 1.1).toString();

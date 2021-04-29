@@ -1,29 +1,23 @@
 import { dayMs } from 'util/date';
 import {
   GetEthPriceQueryVariables,
-  GetPoolDailyDataQuery,
-  GetPoolHourlyDataQuery,
-  GetPoolOverviewQuery,
   GetPoolOverviewQueryVariables,
-  GetPoolsOverviewQuery,
   Pool
 } from 'services/uniswap-v3/generated-types';
+import {
+  GetEthPriceResult,
+  GetPoolDailyDataResult,
+  GetPoolHourlyDataResult,
+  GetPoolOverviewResult,
+  GetTopPoolsResult,
+} from '@sommelier/shared-types/src/api'; // how do we export at root level?
 import { HTTPError } from 'api/util/errors';
 import { toDateInt } from 'util/gql'
 import { UniswapV3Sdk } from 'services/util/apollo-client';
-
-// The reverse of the Maybe type defined by graphql codegen
-type UnMaybe<T> = Exclude<T, null | undefined>;
-
-// Fn return types derived from generated types
-// Type = { ...pool, volumeUSD: string, feesUSD: string }
-export type GetPoolOverviewResult = UnMaybe<GetPoolOverviewQuery['pool']>;
-export type GetTopPoolsResult = UnMaybe<GetPoolsOverviewQuery['pools']>;
-export type GetPoolDailyDataResult = UnMaybe<GetPoolDailyDataQuery['poolDayDatas']>;
-export type GetPoolHourlyDataResult = UnMaybe<GetPoolHourlyDataQuery['poolHourDatas']>;
+import { BigNumber } from 'bignumber.js';
 
 export interface UniswapFetcher {
-  getEthPrice(blockNumber?: number): Promise<({ ethPrice: number })>;
+  getEthPrice(blockNumber?: number): Promise<GetEthPriceResult>;
   getPoolOverview(poolId: string, blockNumber?: number): Promise<GetPoolOverviewResult>;
   getTopPools(count: number, orderBy: keyof Pool): Promise<GetTopPoolsResult>;
   getPoolDailyData(poolId: string, start: Date, end: Date): Promise<GetPoolDailyDataResult>;
@@ -41,7 +35,7 @@ export class UniswapV3Fetcher {
 
   async getEthPrice(
     blockNumber?: number
-  ): Promise<{ ethPrice: number }> {
+  ): Promise<GetEthPriceResult> {
     let options: GetEthPriceQueryVariables = { id: '1' };
     if (typeof blockNumber === 'number') {
       options = {
@@ -57,7 +51,7 @@ export class UniswapV3Fetcher {
         throw new Error('ethPrice not returned.');
       }
 
-      return { ethPrice: bundle.ethPrice };
+      return { ethPrice: new BigNumber(bundle.ethPrice) };
     } catch (error) {
       throw makeSdkError(`Could not fetch ethPrice.`, error);
     }

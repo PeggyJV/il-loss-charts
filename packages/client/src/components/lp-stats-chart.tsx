@@ -18,6 +18,7 @@ import { LPStats as ILPStats } from '@sommelier/shared-types';
 import LPStatsWidget from 'components/lp-stats-widget';
 import { LPStats } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
+import { debug } from 'util/debug';
 
 interface LPStatsDataPoint {
     fullDate?: Date;
@@ -55,7 +56,7 @@ function LPStatsChart({
         });
     });
 
-    (window as any).chartData = chartData;
+    debug.chartData = chartData;
 
     const showXAxisTicks = window.innerWidth > 700;
 

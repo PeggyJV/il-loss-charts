@@ -8,6 +8,16 @@ generates:
     plugins:
       - "typescript"
       - "typescript-operations"
+    # config:
+    #   scalars:
+    #     BigDecimal: "bignumber.js#BigNumber"
+    #     BigInt: "bignumber.js#BigNumber"
+    #     Bytes: "string" # https://thegraph.com/docs/define-a-subgraph#built-in-scalar-types
+    config:
+      scalars:
+        BigDecimal: "string"
+        BigInt: "string"
+        Bytes: "string" # https://thegraph.com/docs/define-a-subgraph#built-in-scalar-types
   packages/server/src/services/uniswap-v3/generated-types.ts:
     schema: packages/sommelier-types/src/schemas/uniswap-v3.graphql
     documents: 
@@ -16,6 +26,16 @@ generates:
       - "typescript"
       - "typescript-operations"
       - "typescript-generic-sdk"
+    config:
+      scalars:
+        BigDecimal: "string"
+        BigInt: "string"
+        Bytes: "string"
+    # config:
+    #   scalars:
+    #     BigDecimal: "bignumber.js#BigNumber"
+    #     BigInt: "bignumber.js#BigNumber"
+    #     Bytes: "string"
   packages/server/src/services/bitquery/generated-types.ts:
     schema: packages/sommelier-types/src/schemas/bitquery.graphql
     documents: 
@@ -28,3 +48,6 @@ generates:
     schema: packages/sommelier-types/src/schemas/bitquery.graphql
     plugins:
       - "typescript"
+
+config:
+  declarationKind: 'interface'

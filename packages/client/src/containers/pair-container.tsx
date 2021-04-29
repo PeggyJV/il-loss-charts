@@ -2,10 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { Container } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-// import useWebSocket from 'react-use-websocket';
 import PropTypes from 'prop-types';
-
-// import config from 'config';
 
 import {
     UniswapDailyData,
@@ -24,7 +21,7 @@ import initialData from 'constants/initialData.json';
 import usePairData from 'hooks/use-pair-data';
 import mixpanel from 'util/mixpanel';
 
-import PairSearch from 'components/pair-search';
+import PoolSearch from 'components/pool-search';
 import PairSelector from 'components/pair-selector';
 import LPInput from 'components/lp-input';
 import LPStatsWidget from 'components/lp-stats-widget';
@@ -37,6 +34,7 @@ import { PageError } from 'components/page-error';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { deriveLPStats } from 'services/calculate-stats';
+import { debug } from 'util/debug';
 
 
 function PairContainer({
@@ -162,7 +160,7 @@ function PairContainer({
             if (error) {
                 // we could not list pairs
                 console.warn(`Could not fetch top pairs: ${error}`);
-                (window as any).error = error;
+                debug.error = error;
                 setError(error);
                 return;
             }
@@ -371,7 +369,7 @@ function PairContainer({
                 </p>
             </div>
 
-            <PairSearch  setPairId={setPairId} />
+            <PoolSearch  setPoolId={setPairId} />
             <div className='pair-controls'>
                 <div className='pair-and-pool-stats'>
                     <PairSelector

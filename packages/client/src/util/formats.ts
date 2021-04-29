@@ -1,3 +1,5 @@
+import { PoolLike } from '@sommelier/shared-types/src/api';
+
 const usdFormatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -14,4 +16,10 @@ export const compactHash = (val = ''): string => {
         return val.substring(0, 6).concat('... ');
     }
     return val.substring(0, 6).concat('...').concat(val.substring(62));
+}
+
+export const poolName = (pool: PoolLike): string => {
+    if (!pool || !pool.token0 || !pool.token1) return '';
+
+    return `${pool.token0.name}-${pool.token1.name}`
 }

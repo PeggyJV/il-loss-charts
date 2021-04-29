@@ -6,6 +6,7 @@ import { PairPricesState, SwapsState, PairDataState } from 'types/states';
 
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import mixpanel from 'util/mixpanel';
+import { debug } from 'util/debug';
 
 export default function usePairData(
     pairId: string | null,
@@ -63,7 +64,7 @@ export default function usePairData(
                     Uniswap.getHistoricalHourlyData(pairId, twoWeeksAgo),
                 ]);
 
-                (window as any).hourlyData = historicalHourlyData;
+                debug.hourlyData = historicalHourlyData;
 
                 const historicalErrors = dailyDataError ?? hourlyDataError;
                 if (historicalErrors) {

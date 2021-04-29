@@ -29,8 +29,9 @@ import { PageError, ModalError } from 'components/page-error';
 import useWallet from 'hooks/use-wallet';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { calculatePairRankings } from 'services/calculate-stats';
-
 import { AllPairsState } from 'types/states';
+import { debug } from 'util/debug';
+
 export type PendingTx = {
     approval: Array<string>;
     confirm: Array<string>;
@@ -82,7 +83,7 @@ function App(): ReactElement {
             if (error) {
                 // we could not list pairs
                 console.warn(`Could not fetch top pairs: ${error}`);
-                (window as any).error = error;
+                debug.error = error
                 setError(error);
                 return;
             }
