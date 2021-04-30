@@ -11,15 +11,16 @@
     "scripts": {
         "dev": "lerna run dev --parallel",
         "dev:offline": "REACT_APP_OFFLINE_MODE=true lerna run dev --parallel",
+        "dev-live": "PORT=4000 cd packages/server && yarn start",
         "clean": "lerna run clean",
         "build": "lerna run clean && lerna run build",
-        "lint": "lerna run lint --stream --concurrency 1",
-        "dev-live": "PORT=4000 cd packages/server && yarn start",
+        "lint": "lerna run lint --stream --concurrency 3",
+        "lint:fix": "lerna run lint:fix --stream --concurrency 3",
         "prod": "cd packages/server && yarn start",
         "generate-gql": "graphql-codegen --config codegen.yml",
         "generate-gql-watch": "graphql-codegen --config codegen.yml --watch",
-        "test-ci": "lerna run test --stream --concurrency 1",
-        "test": "jest --forceExit"
+        "test": "lerna run test --stream --concurrency 3",
+        "test-ci": "lerna run test --stream --concurrency 1"
     },
     "volta": {
         "node": "14.15.4",
