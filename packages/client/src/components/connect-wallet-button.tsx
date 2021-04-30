@@ -7,7 +7,6 @@ function ConnectWalletButton({
     onClick: () => void;
 }): JSX.Element {
     const {wallet} = useWallet();
-    console.log(wallet);
     const account = wallet?.account;
     const network = wallet?.network ? config.networks[wallet?.network].name : 'Connected'
     

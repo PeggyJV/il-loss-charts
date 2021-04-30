@@ -82,7 +82,8 @@ export const useBalance = ({ pool}: Props): WalletBalances => {
                 } catch (e) {
                     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                     console.error(`Could not get allowance of contract ${targetAddress} on behalf of ${wallet?.account ?? ''} for token ${tokenAddress}`);
-                    console.error(`Error; ${e.message as string}`);
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                    console.error(`Error; ${e.message}`);
                     return ethers.BigNumber.from(0);
                 }
             });
@@ -110,8 +111,10 @@ export const useBalance = ({ pool}: Props): WalletBalances => {
                     );
                     return allowance;
                 } catch (e) {
-                    console.error(`Could not get two-sided allowance of contract ${targetAddress} on behalf of ${wallet?.account ?? ''} for token ${tokenAddress as string}`);
-                    console.error(`Error; ${e.message as string}`);
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                    console.error(`Could not get two-sided allowance of contract ${targetAddress} on behalf of ${wallet?.account ?? ''} for token ${tokenAddress}`);
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                    console.error(`Error; ${e.message}`);
                     return ethers.BigNumber.from(0);
                 }
             });
