@@ -8,6 +8,7 @@ import {
     FormControl,
     Modal,
 } from 'react-bootstrap';
+import { Box } from '@material-ui/core';
 
 import { Combobox } from 'react-widgets';
 import { ethers } from 'ethers';
@@ -462,7 +463,7 @@ function RemoveLiquidity({
     return (
         <>
             <Modal.Body className='connect-wallet-modal'>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Box dispaly='flex' justfiyContent='flex-end'>
                     <div className='balances-container'>
                         <p className='sub-heading'>
                             <strong>Wallet Balance</strong>
@@ -476,7 +477,7 @@ function RemoveLiquidity({
                             </tr>
                         </table>
                     </div>
-                </div>
+                </Box>
                 <br />
                 {/* <Form.Label>
                     <h5>

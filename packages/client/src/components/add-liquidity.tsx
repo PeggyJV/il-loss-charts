@@ -7,6 +7,7 @@ import {
     InputGroup,
     Modal,
 } from 'react-bootstrap';
+import { Box } from '@material-ui/core';
 
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
@@ -778,12 +779,7 @@ function AddLiquidity({
     };
 
     const PoolShare = (): JSX.Element => (
-        <div
-            style={{
-                display: 'flex',
-                flexDirection: 'column',
-            }}
-        >
+        <Box display='flex' flexDirection='column'>
             <div>
                 <p className='sub-heading'>
                     <strong>Pool Share</strong>
@@ -818,7 +814,7 @@ function AddLiquidity({
                     {expectedPriceImpact !== 'NaN' ? expectedPriceImpact : 0}%
                 </div>
             </div>
-        </div>
+        </Box>
     );
 
     const TransactionSettings = () => (
@@ -893,9 +889,9 @@ function AddLiquidity({
     return (
         <>
             <Modal.Body className='connect-wallet-modal'>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Box display='flex' justifyContent='flex-end'>
                     <WalletBalance balances={balances} />
-                </div>
+                </Box>
                 <br />
                 {/* <Form.Label>
                         <h5>
