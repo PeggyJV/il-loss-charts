@@ -15,7 +15,6 @@ import ConnectWalletButton from 'components/connect-wallet-button';
 import 'styles/burger-menu.scss';
 
 function SideMenu({
-    wallet,
     setShowConnectWallet,
 }: {
     wallet: Wallet;
@@ -48,7 +47,7 @@ function SideMenu({
                     <Link to={'/'}>SOMMELIER FINANCE</Link>
                 </h5>
                 <div className='side-menu-connected'>
-                    <ConnectWalletButton onClick={showModal} wallet={wallet} />
+                    <ConnectWalletButton onClick={showModal} />
                 </div>
             </div>
             <div>

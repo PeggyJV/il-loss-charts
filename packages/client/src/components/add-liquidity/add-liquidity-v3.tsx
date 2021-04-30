@@ -23,20 +23,19 @@ import { WalletBalance } from 'components/wallet-balance';
 import { toastSuccess, toastWarn } from 'util/toasters';
 import { compactHash } from 'util/formats';
 
-import { Wallet, WalletBalances } from 'types/states';
+import { WalletBalances } from 'types/states';
+import {useWallet} from 'hooks/use-wallet';
 import { useMarketData } from 'hooks/use-market-data';
 import { PoolOverview } from 'hooks/data-fetchers';
 import { debug } from 'util/debug';
 
 type Props = {
-    wallet: Wallet;
     balances: WalletBalances;
     pool: PoolOverview | null;
     gasPrices: EthGasPrices | null;
 };
 
 export const AddLiquidityV3 = ({
-    wallet,
     balances,
     pool,
     gasPrices,
@@ -47,7 +46,7 @@ export const AddLiquidityV3 = ({
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
     );
-
+    const {wallet} = useWallet();
     let provider: ethers.providers.Web3Provider | null = null;
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);

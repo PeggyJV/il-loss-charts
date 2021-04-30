@@ -1,13 +1,13 @@
 import config from 'config';
-import { Wallet } from 'types/states';
+import {useWallet} from 'hooks/use-wallet';
 
 function ConnectWalletButton({
     onClick,
-    wallet,
 }: {
     onClick: () => void;
-    wallet: Wallet | null;
 }): JSX.Element {
+    const {wallet} = useWallet();
+    console.log(wallet);
     const account = wallet?.account;
     const network = wallet?.network ? config.networks[wallet?.network].name : 'Connected'
     
