@@ -21,5 +21,5 @@ export const compactHash = (val = ''): string => {
 export const poolName = (pool: PoolLike): string => {
     if (!pool || !pool.token0 || !pool.token1) return '';
 
-    return `${pool.token0.name}-${pool.token1.name}`
+    return `${pool.token0.symbol}-${pool.token1.symbol}`
 }
