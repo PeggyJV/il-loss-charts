@@ -6,7 +6,7 @@ import validateEthAddress from 'api/util/validate-eth-address';
 import cacheMiddleware from 'api/middlewares/cache';
 import BitqueryFetcher from 'services/bitquery/fetcher';
 import catchAsyncRoute from 'api/util/catch-async-route';
-// import * as indicators from 'api/util/indicators';
+import * as indicators from 'util/indicators';
 
 // GET /pools
 // should gen the query types from the joi schema?
@@ -51,10 +51,10 @@ async function getPoolIndicators(req: Request<unknown, unknown, unknown, GetIndi
     const startDate = subDays(now, numDays);
 
     const marketData = await BitqueryFetcher.getPeriodDailyOHLC(baseToken, quoteToken, startDate, endDate);
-    // const poolIndicators = indicators.getAllIndicators(marketData);
+    const poolIndicators = indicators.getAllIndicators(marketData);
 
-    return { marketData, indicators: {} }
-    // return { marketData, indicators: poolIndicators }
+    // return { marketData, indicators: {} }
+    return { marketData, indicators: poolIndicators }
 }
 
 export default Router()

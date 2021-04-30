@@ -130,10 +130,11 @@ export interface EthGasPrices {
 }
 
 export interface LiquidityBound {
-    token0Id: string;
-    token1Id: string;
+    baseTokenId: string;
+    quoteTokenId: string;
     indicatorName: string;
     metadata?: { [key: string]: any }
+    currentPrice?: number;
     upperBound: number;
     lowerBound: number;
 }
