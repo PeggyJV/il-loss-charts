@@ -1,7 +1,7 @@
-import { LiquidityBound } from '@sommelier/shared-types';
+import { LiquidityBand } from '@sommelier/shared-types';
 import { DexTrade } from 'services/bitquery/generated-types';
 
-export function getAllIndicators(marketData: DexTrade[]): { [indicatorName: string]: LiquidityBound } {
+export function getAllIndicators(marketData: DexTrade[]): { [indicatorName: string]: LiquidityBand } {
     return {
         bollingerSMANormalBand: getSMABollingerBands(marketData),
         bollingerSMAWideBand: getSMABollingerBands(marketData, 2.5),
@@ -11,7 +11,7 @@ export function getAllIndicators(marketData: DexTrade[]): { [indicatorName: stri
     }
 }
 
-export function getEMABollingerBands(marketData: DexTrade[], numStdDevs = 2): LiquidityBound {
+export function getEMABollingerBands(marketData: DexTrade[], numStdDevs = 2): LiquidityBand {
     const sampleData = marketData[0];
     const ma = getEMA(marketData);
     const stddev = getStandardDeviation(marketData);
@@ -27,7 +27,7 @@ export function getEMABollingerBands(marketData: DexTrade[], numStdDevs = 2): Li
     };
 }
 
-export function getSMABollingerBands(marketData: DexTrade[], numStdDevs = 2): LiquidityBound {
+export function getSMABollingerBands(marketData: DexTrade[], numStdDevs = 2): LiquidityBand {
     const sampleData = marketData[0];
     const ma = getSMA(marketData);
     const stddev = getStandardDeviation(marketData);
@@ -43,7 +43,7 @@ export function getSMABollingerBands(marketData: DexTrade[], numStdDevs = 2): Li
     };
 }
 
-export function getRSILevels(marketData: DexTrade[]): LiquidityBound {
+export function getRSILevels(marketData: DexTrade[]): LiquidityBand {
     const sampleData = marketData[0];
     const currentPrice = sampleData.quotePrice;
     const last14Days = marketData.slice(0, 14);

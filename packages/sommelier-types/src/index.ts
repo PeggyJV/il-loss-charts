@@ -129,7 +129,7 @@ export interface EthGasPrices {
     fastest: number;
 }
 
-export interface LiquidityBound {
+export interface LiquidityBand {
     baseTokenId: string;
     quoteTokenId: string;
     indicatorName: string;
