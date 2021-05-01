@@ -47,9 +47,8 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                         );
                         return balance;
                     } catch (e) {
-                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                         console.error(
+                            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                             `Could not get balance of token ${tokenAddress} for wallet ${wallet.account}`
                         );
                         console.error(`Error; ${e.message as string}`);
@@ -79,10 +78,10 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                         );
                         return allowance;
                     } catch (e) {
-                        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                         console.error(
                             `Could not get allowance of contract ${targetAddress} on behalf of ${
                                 wallet?.account ?? ''
+                            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                             } for token ${tokenAddress}`
                         );
                         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -113,10 +112,10 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                         );
                         return allowance;
                     } catch (e) {
-                        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                         console.error(
                             `Could not get two-sided allowance of contract ${targetAddress} on behalf of ${
                                 wallet?.account ?? ''
+                            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                             } for token ${tokenAddress}`
                         );
                         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
