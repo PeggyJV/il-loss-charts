@@ -96,7 +96,6 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
       if (typeof cacheKeyOverride === 'function') {
         cacheKey = cacheKeyOverride(cacheKey, keyPrefix, fnKey, args);
       }
-      console.log('hey cache key', cacheKey)
 
       // lookup in redis first
       const firstLookup = await lookup(client, cacheKey, lookupTimeout);

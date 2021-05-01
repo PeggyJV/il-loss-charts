@@ -30,10 +30,12 @@ const memoConfig = {
 export class UniswapV3FetcherMemoized implements UniswapFetcher {
   private memoize: ReturnType<typeof memoizer>;
   public fetcher: UniswapV3Fetcher;
+  public network: string;
 
   constructor(fetcher: UniswapV3Fetcher, network: string) {
     this.memoize = memoizer(redis, { keyPrefix: network, enabled: config.enabled });
     this.fetcher = fetcher;
+    this.network = network;
   }
 
   // TODO: figure out how to DRY this up and keep types
@@ -50,7 +52,12 @@ export class UniswapV3FetcherMemoized implements UniswapFetcher {
   }
 
   getTopPools(count: number, orderBy: keyof Pool): Promise<GetTopPoolsResult> {
-    const config = memoConfig.getTopPools;
+    // TODO: move this to one time setup
+    let config: Record<string, any> = memoConfig.getTopPools;
+    if (this.network === 'mainnet') {
+      // custom cache key so we can easily keep cache warm on mainnet
+      config = { ...config, cacheKeyOverride: getTopPoolsMainnetKey }
+    }
     const fn: UniswapFetcher['getTopPools'] = this.memoize(this.fetcher.getTopPools.bind(this.fetcher), config);
     return fn(count, orderBy);
   }
@@ -78,4 +85,18 @@ export class UniswapV3FetcherMemoized implements UniswapFetcher {
     const fn: UniswapFetcher['getHistoricalHourlyData'] = this.memoize(this.fetcher.getHistoricalHourlyData.bind(this.fetcher), config);
     return fn(poolId, start, end);
   }
+}
+
+// when a user lands on the site, we always fetch the top 1000 pools by volumeUSD
+// this will allow us to manually define the cache key so we can keep it warm with a worker
+const { topPoolsMainnet } = config.cacheKeyOverrides;
+function getTopPoolsMainnetKey (originalKey: string, keyPrefix: string, fnKey: string, args: any[]) {
+  const [count, orderBy] = args;
+  // check for default args
+  if (count === 1000 && orderBy === 'volumeUSD') {
+    return topPoolsMainnet;
+  }
+
+  // return the original cache key if non default
+  return originalKey;
 }
