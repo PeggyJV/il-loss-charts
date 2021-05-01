@@ -134,7 +134,7 @@ export const WalletProvider = ({
             ethereum.on('accountsChanged', handleAccountChange);
 
             ethereum.on('networkChanged', handleNetworkChange);
-            
+
             return () => {
                 ethereum.removeListener('accountsChanged', handleAccountChange);
                 ethereum.removeListener('networkChanged', handleNetworkChange);
