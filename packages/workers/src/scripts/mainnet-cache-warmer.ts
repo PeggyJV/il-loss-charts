@@ -70,7 +70,7 @@ const cacheTimeoutMs = parseInt(cacheTimeoutStr, 10);
 const count = 1000;
 const sort = 'volumeUSD';
 
-(async function () {
+export default async function run () {
   // this function already validates null and length 0 pools
   // it will also throw on error, so only valid data will be cached
   console.log('Fetching Top Pools');
@@ -99,7 +99,4 @@ const sort = 'volumeUSD';
   console.time('unlock-elapsed');
   await unlock();
   console.timeEnd('unlock-elapsed');
-
-  // force exit
-  process.exit();
-})();
+}
