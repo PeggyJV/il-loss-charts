@@ -65,6 +65,8 @@ async function getEthPrice(req: Request<Path, unknown, unknown, unknown>): Promi
 type GetTopPoolsQuery = { count: number, sort: 'volumeUSD' | 'liquidity' };
 const getTopPoolsValidator = celebrate({
   [Segments.QUERY]: Joi.object().keys({
+    // If you change the default values for count or sort, you'll ned to update
+    // the cache warming work in packages/workers
     count: Joi.number().min(1).max(1000).default(100),
     sort: Joi.string().valid('volumeUSD', 'liquidity').default('volumeUSD'),
   }),

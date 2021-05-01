@@ -16,6 +16,7 @@
         "build": "lerna run clean && lerna run build",
         "lint": "lerna run lint --stream --concurrency 3",
         "lint:fix": "lerna run lint:fix --stream --concurrency 3",
+        "dev-live": "PORT=4000 cd packages/server && yarn start",
         "prod": "cd packages/server && yarn start",
         "generate-gql": "graphql-codegen --config codegen.yml",
         "generate-gql-watch": "graphql-codegen --config codegen.yml --watch",

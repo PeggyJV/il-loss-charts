@@ -29,6 +29,25 @@
     call-me-maybe "^1.0.1"
     js-yaml "^3.13.1"
 
+"@apollo/client@^3.3.16":
+  version "3.3.16"
+  resolved "https://registry.yarnpkg.com/@apollo/client/-/client-3.3.16.tgz#e4a51b0f86583b18ab81723660e381ef616536c1"
+  integrity sha512-EPTiNpmiU6/vvxpl4lXWQDqS3YddweC1sh/ewCuVP9IK0+xlVGb5vR1yhM/7T3PIJqwz52dGpZyJskmbTfENfQ==
+  dependencies:
+    "@graphql-typed-document-node/core" "^3.0.0"
+    "@types/zen-observable" "^0.8.0"
+    "@wry/context" "^0.6.0"
+    "@wry/equality" "^0.4.0"
+    fast-json-stable-stringify "^2.0.0"
+    graphql-tag "^2.12.0"
+    hoist-non-react-statics "^3.3.2"
+    optimism "^0.15.0"
+    prop-types "^15.7.2"
+    symbol-observable "^2.0.0"
+    ts-invariant "^0.7.0"
+    tslib "^1.10.0"
+    zen-observable "^0.8.14"
+
 "@apollo/client@^3.3.4", "@apollo/client@^3.3.6":
   version "3.3.15"
   resolved "https://registry.yarnpkg.com/@apollo/client/-/client-3.3.15.tgz#bdd230894aac4beb8ade2b472a1d3c9ea6152812"
@@ -7466,7 +7485,7 @@ cross-fetch@3.0.6:
   dependencies:
     node-fetch "2.6.1"
 
-cross-fetch@3.1.4, cross-fetch@^3.0.4, cross-fetch@^3.0.6:
+cross-fetch@3.1.4, cross-fetch@^3.0.4, cross-fetch@^3.0.6, cross-fetch@^3.1.4:
   version "3.1.4"
   resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.1.4.tgz#9723f3a3a247bf8b89039f3a380a9244e8fa2f39"
   integrity sha512-1eAtFWdIubi6T4XPy6ei9iUFoKpUkIF971QLN8lIvvvwueI65+Nw5haMNKUwfJxabqlIIDODJKGrQ66gxC0PbQ==
@@ -11391,6 +11410,22 @@ ioredis@^4.22.0:
   version "4.26.0"
   resolved "https://registry.yarnpkg.com/ioredis/-/ioredis-4.26.0.tgz#dbbfb5e5da085fc2b1de8174db50fa42f9fed66a"
   integrity sha512-nh39okWezWWZ35/RxXXzHksMFt4WCaev8SNO2kozRDeVdEAJj16EarqPP3JeHz8IEjEXN5CiVtbWMk62Z0eveQ==
+  dependencies:
+    cluster-key-slot "^1.1.0"
+    debug "^4.3.1"
+    denque "^1.1.0"
+    lodash.defaults "^4.2.0"
+    lodash.flatten "^4.4.0"
+    p-map "^2.1.0"
+    redis-commands "1.7.0"
+    redis-errors "^1.2.0"
+    redis-parser "^3.0.0"
+    standard-as-callback "^2.1.0"
+
+ioredis@^4.27.1:
+  version "4.27.1"
+  resolved "https://registry.yarnpkg.com/ioredis/-/ioredis-4.27.1.tgz#4ef947b455a1b995baa4b0d7e2c4e4f75f746421"
+  integrity sha512-PaFNFeBbOcEYHXAdrJuy7uesJcyvzStTM1aYMchTuky+VgKqDbXhnTJHaDsjAwcTwPx8Asatx+l2DW8zZ2xlsQ==
   dependencies:
     cluster-key-slot "^1.1.0"
     debug "^4.3.1"

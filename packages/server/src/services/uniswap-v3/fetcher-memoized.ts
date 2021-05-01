@@ -94,7 +94,7 @@ function getTopPoolsMainnetKey (originalKey: string, keyPrefix: string, fnKey: s
   const [count, orderBy] = args;
   // check for default args
   if (count === 1000 && orderBy === 'volumeUSD') {
-    return topPoolsMainnet;
+    return `${keyPrefix}:${topPoolsMainnet}`;
   }
 
   // return the original cache key if non default

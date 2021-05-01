@@ -168,3 +168,5 @@ export function serialize(data: any): string {
 export function deserialize(data: any): any {
   return JSON.parse(data);
 }
+
+export { lockFactory };
