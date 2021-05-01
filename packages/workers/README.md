@@ -14,3 +14,4 @@ env : type : default value
 #### Get Top Pools Configuration
 - `MAX_RETRY_TOP_POOLS` : `number` : `5` - Number of times to retry fetching top pools from subgraph
 - `CACHE_TIMEOUT_TOP_POOLS` : `number` : `6 minutes` - Cache timeout for top pools query in ms
+- `TOP_POOL_COUNT` : `number` : `10` - Number of pools to keep warm (getPoolOverview)

@@ -55,6 +55,10 @@ const getPoolOverview = memo(v3Fetcher.getPoolOverview.bind(v3Fetcher), memoConf
 const count = 1000;
 const sort = 'volumeUSD';
 
+// number of top pools to keep warm
+const poolCountStr = process.env.TOP_POOL_COUNT ?? '10';
+const poolCount = parseInt(poolCountStr, 10);
+
 export default async function run () {
   // this function already validates null and length 0 pools
   // it will also throw on error, so only valid data will be cached
@@ -66,11 +70,11 @@ export default async function run () {
   console.timeEnd('update-top-pools-elapsed');
   console.log(`Fetched Top Pools, count: ${topPools.length}`);
 
-  const topTen = topPools.slice(0, 10);
-  const topTenSymbols = topTen.map(poolName);
+  const top = topPools.slice(0, poolCount);
+  const topSymbols = top.map(poolName);
 
-  console.log(`Updating pool data for top ten pools ${topTenSymbols}`);
-  for (const pool of topTen) {
+  console.log(`Updating pool data for top ${poolCount} pools ${topSymbols}`);
+  for (const pool of top) {
     console.time(`update-pool-${poolName(pool)}-${pool.id}-elapsed`);
 
     // must pass undefined to match signature of original call
