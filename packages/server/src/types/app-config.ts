@@ -8,9 +8,6 @@ export default interface AppConfig {
     },
     memoizerRedis: {
         enabled: boolean,
-        cacheKeyOverrides: {
-            [key: string]: string,
-        },
     },
     uniswap: {
         v3: {

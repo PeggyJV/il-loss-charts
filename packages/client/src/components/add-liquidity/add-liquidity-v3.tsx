@@ -310,7 +310,6 @@ export const AddLiquidityV3 = ({
                             amount={token0Amount}
                             updateAmount={setToken0Amount}
                             updateToken={(token) => {
-                                console.log(token);
                                 setToken(token);
                             }}
                             handleTokenRatio={() => {

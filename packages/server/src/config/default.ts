@@ -10,9 +10,6 @@ const config: AppConfig = {
     },
     memoizerRedis: {
         enabled: true,
-        cacheKeyOverrides: {
-            topPoolsMainnet: 'mainnet-top-pools-1000',
-        }
     },
     uniswap: {
         v3: {

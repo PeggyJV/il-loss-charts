@@ -23,7 +23,6 @@ interface MemoizerOptions {
   lockRetry: number, // how long to wait before trying to aquire a lock again
   ttl: number, // how long the value should be cached for in ms
   hashArgs: (args: Array<any>) => string, // function to hash args
-  cacheKeyOverride?: (originalKey: string, keyPrefix: string, fnKey: string, args: Array<any>) => 'string',
 }
 
 // Set keyPrefix when creating the memoizer factory
@@ -80,7 +79,6 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
       keyPrefix,
       ttl,
       hashArgs,
-      cacheKeyOverride,
     } = { ...memoizerFactoryOptions, ...fnOpts };
 
     // Don't memoize functions in this namespace more than once
@@ -92,10 +90,7 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
 
     // the actual memoized function
     memoized = async function memoized(...args: Array<any>): Promise<T> {
-      let cacheKey = getCacheKey(keyPrefix, fnKey, hashArgs(args));
-      if (typeof cacheKeyOverride === 'function') {
-        cacheKey = cacheKeyOverride(cacheKey, keyPrefix, fnKey, args);
-      }
+      const cacheKey = getCacheKey(keyPrefix, fnKey, hashArgs(args));
 
       // lookup in redis first
       const firstLookup = await lookup(client, cacheKey, lookupTimeout);
@@ -125,6 +120,31 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
       }
 
       return finalResult;
+    }
+
+    // Force a cache update
+    memoized.forceUpdate = async (...args: any[]): Promise<T | undefined> => {
+      // get the cache key
+      const cacheKey = getCacheKey(keyPrefix, fnKey, hashArgs(args));
+      
+      // do the work
+      const data = await fn(...args);
+
+      // lock so other processes can't update
+      const unlock = await lock(cacheKey, lockTimeout, lockRetry);
+
+      if (unlock) {
+        // only update cache if we were able to get a lock
+        await writeKey(client, cacheKey, data, ttl);
+
+        // don't wait for the unlock
+        void unlock();
+
+        // we return the data for the happy case
+        return data;
+      }
+
+      // return null if we were unable to update the cache
     }
 
     memoizedFns.set(fnNamespace, memoized);

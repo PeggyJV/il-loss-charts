@@ -3,7 +3,7 @@ import express from 'express';
 
 import runTgAlerts from './scripts/il-alerts';
 import runDiscordAlerts from './scripts/il-alerts-discord';
-import runMainnetCacheWarmer from './scripts/mainnet-cache-warmer';
+import runRedisCacheWarmer from './scripts/redis-cache-warmer';
 
 const PORT = 8080;
 const CRON_EVERY_HOUR = '0 * * * *';
@@ -18,7 +18,7 @@ cron.schedule(CRON_EVERY_HOUR, () => {
 
 // every 5 minutes
 cron.schedule('5/* * * * *', () => {
-    void runMainnetCacheWarmer();
+    void runRedisCacheWarmer();
 })
 
 // Using express to keep the scheduler alive
