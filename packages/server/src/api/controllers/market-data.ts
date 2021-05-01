@@ -11,7 +11,7 @@ import * as indicators from 'util/indicators';
 // GET /pools
 // should gen the query types from the joi schema?
 type GetMarketDataQuery = { baseToken: string, quoteToken: string };
-type GetIndicatorsQuery = GetMarketDataQuery & { days?: string };
+type GetIndicatorsQuery = GetMarketDataQuery & { days: number };
 
 const getMarketDataValidator = celebrate({
     [Segments.QUERY]: Joi.object().keys({
@@ -23,7 +23,7 @@ const getIndicatorsValidator = celebrate({
     [Segments.QUERY]: Joi.object().keys({
         baseToken: Joi.string().custom(validateEthAddress, 'Validate Token Address').required(),
         quoteToken: Joi.string().custom(validateEthAddress, 'Validate Token Address').required(),
-        days: Joi.number().integer().min(1).max(100)
+        days: Joi.number().integer().min(1).max(100).default(19)
     })
 });
 
@@ -45,15 +45,13 @@ function getPoolWeeklyOHLC(req: Request<unknown, unknown, unknown, GetMarketData
 async function getPoolIndicators(req: Request<unknown, unknown, unknown, GetIndicatorsQuery>) {
     const { baseToken, quoteToken, days } = req.query;
 
-    const numDays = days ? parseInt(days, 10) : 19;
     const now = new Date();
     const endDate = endOfDay(now);
-    const startDate = subDays(now, numDays);
+    const startDate = subDays(now, days);
 
     const marketData = await BitqueryFetcher.getPeriodDailyOHLC(baseToken, quoteToken, startDate, endDate);
     const poolIndicators = indicators.getAllIndicators(marketData);
 
-    // return { marketData, indicators: {} }
     return { marketData, indicators: poolIndicators }
 }
 
