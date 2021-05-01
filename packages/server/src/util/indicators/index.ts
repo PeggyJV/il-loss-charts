@@ -3,11 +3,22 @@ import { DexTrade } from 'services/bitquery/generated-types';
 
 export function getAllIndicators(marketData: DexTrade[]): { [indicatorName: string]: LiquidityBand } {
     return {
-        bollingerSMANormalBand: getSMABollingerBands(marketData),
-        bollingerSMAWideBand: getSMABollingerBands(marketData, 2.5),
-        bollingerEMANormalBand: getEMABollingerBands(marketData),
-        bollingerEMAWideBand: getEMABollingerBands(marketData, 2.5),
-        rsi: getRSILevels(marketData)
+        bollingerSMANormalBand: { 
+            ...getSMABollingerBands(marketData), 
+            indicatorName: 'bollingerSMANormalBand' 
+        },
+        bollingerSMAWideBand: {
+            ...getSMABollingerBands(marketData, 2.5), 
+            indicatorName: 'bollingerSMANormalBand'
+        },
+        bollingerEMANormalBand: {
+            ...getEMABollingerBands(marketData),
+            indicatorName: 'bollingerEMANormalBand'
+        },
+        bollingerEMAWideBand: {
+            ...getEMABollingerBands(marketData, 2.5),
+            indicatorName: 'bollingerEMANormalBand'
+        }
     }
 }
 
@@ -111,11 +122,10 @@ export function getSMA(marketData: DexTrade[]): number {
     return priceSum / numDays;
 }
 
-export function getEMA(marketData: DexTrade[]): number {
+export function getEMA(marketData: DexTrade[], smoothing = 2): number {
     const numDays = marketData.length;
     const prevSMA = getSMA(marketData.slice(1));
 
-    const smoothing = 2;
     const ema = (getTypicalPrice(marketData[0]) * (smoothing / (1 + numDays)))
         + (prevSMA * (1 - (smoothing / (1 + numDays))));
     
