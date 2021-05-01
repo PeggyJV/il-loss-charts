@@ -9,6 +9,7 @@ env : type : default value
 - `REDIS_URL` : `string` : `127.0.0.1` - Target Redis instance host
 - `REDIS_PORT` : `number` : `6379` - Target Redis instance port
 - `REDIS_DB` : `number` : `0` - Target redis DB
+- `CACHE_WARMER_NETWORK` : `string` : `mainnet` - Target network to warm cache for
 
 #### Get Top Pools Configuration
 - `MAX_RETRY_TOP_POOLS` : `number` : `5` - Number of times to retry fetching top pools from subgraph

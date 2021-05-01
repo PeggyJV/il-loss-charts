@@ -42,7 +42,7 @@ const memoConfig = {
   lockRetry: 50, // spin on lock every 50ms
   ttl: cacheTimeoutMs,
 };
-const memo = memoizer(redis, { keyPrefix: 'rinkeby' });
+const memo = memoizer(redis, { keyPrefix: network });
 const v3Fetcher = new UniswapV3Fetcher(sdk);
 const getTopPools = memo(v3Fetcher.getTopPools.bind(v3Fetcher), memoConfig);
 const getPoolOverview = memo(v3Fetcher.getPoolOverview.bind(v3Fetcher), memoConfig);
