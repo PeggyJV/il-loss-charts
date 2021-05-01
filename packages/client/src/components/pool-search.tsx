@@ -8,8 +8,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 import './pair-search.scss';
 import { resolveLogo } from 'components/token-with-logo';
-import { poolName } from 'util/formats';
 import { Box } from '@material-ui/core';
+import { poolSymbol, poolName, PoolLike } from 'util/formats';
+
 import { TopPool, useTopPools } from 'hooks/data-fetchers';
 import { ThreeDots } from 'react-loading-icons';
 
@@ -55,7 +56,7 @@ export function PoolSearch({
 
     const poolFilter = (options: TopPool[], { inputValue }: any) =>
         matchSorter(options, inputValue, {
-            keys: ['token0.symbol', 'token1.symbol', poolName],
+            keys: ['token0.symbol', 'token1.symbol', poolSymbol],
         }).slice(0, 50);
 
     const renderPoolWithLogo = (pool: TopPool) => (
@@ -93,8 +94,8 @@ export function PoolSearch({
                     setPoolId(pool?.id ?? null);
                 }}
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                getOptionLabel={poolName}
-                style={{ width: 400 }}
+                getOptionLabel={poolOptionLabel}
+                style={{ width: 500 }}
                 filterOptions={poolFilter}
                 renderOption={renderPoolWithLogo}
                 renderInput={(params) => (
@@ -113,6 +114,10 @@ export function PoolSearch({
             />
         </Box>
     );
+}
+
+function poolOptionLabel(pool: PoolLike): string {
+    return poolSymbol(pool, '/');
 }
 
 export default PoolSearch;

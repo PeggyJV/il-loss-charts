@@ -18,8 +18,9 @@ export const compactHash = (val = ''): string => {
     return val.substring(0, 6).concat('...').concat(val.substring(62));
 }
 
-export const poolName = (pool: PoolLike): string => {
+export const poolSymbol = (pool: PoolLike, separator = ' '): string => {
     if (!pool || !pool.token0 || !pool.token1) return '';
 
-    return `${pool.token0.symbol}-${pool.token1.symbol}`
+    return `${pool.token0.symbol}${separator}${pool.token1.symbol}`
 }
+export type { PoolLike };
