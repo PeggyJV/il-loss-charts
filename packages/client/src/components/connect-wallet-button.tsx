@@ -1,24 +1,24 @@
 import config from 'config';
-import { Wallet } from 'types/states';
+import { useWallet } from 'hooks/use-wallet';
 
 function ConnectWalletButton({
     onClick,
-    wallet,
 }: {
     onClick: () => void;
-    wallet: Wallet | null;
 }): JSX.Element {
+    const { wallet } = useWallet();
     const account = wallet?.account;
-    const network = wallet?.network ? config.networks[wallet?.network].name : 'Connected'
-    
+    const network = wallet?.network
+        ? config.networks[wallet?.network].name
+        : 'Connected';
+
     // figure out a fix for template literal strings with TS
-    const buttonText = account ? network.toUpperCase() + ' : ' + account.toString() : 'CONNECT WALLET';
-    
+    const buttonText = account
+        ? network.toUpperCase() + ' : ' + account.toString()
+        : 'CONNECT WALLET';
+
     return (
-        <button
-            className='connect-wallet-button'
-            onClick={onClick}
-        >
+        <button className='connect-wallet-button' onClick={onClick}>
             {buttonText}
         </button>
     );

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { EthGasPrices } from '@sommelier/shared-types';
 
-import { AllPairsState, Wallet } from 'types/states';
+import { AllPairsState } from 'types/states';
 import { useBalance } from 'hooks/use-balance';
 import { usePoolOverview } from 'hooks/data-fetchers';
-
+import { useWallet } from 'hooks/use-wallet';
 import { TelegramCTA } from 'components/telegram-cta';
 import mixpanel from 'util/mixpanel';
 import ConnectWalletButton from 'components/connect-wallet-button';
@@ -15,20 +15,18 @@ import { Box } from '@material-ui/core';
 import { debug } from 'util/debug';
 
 function LandingContainer({
-    wallet,
     setShowConnectWallet,
-    gasPrices
+    gasPrices,
 }: {
     allPairs: AllPairsState;
-    wallet: Wallet;
     setShowConnectWallet: (wallet: boolean) => void;
     gasPrices: EthGasPrices | null;
 }): JSX.Element {
     const [poolId, setPoolId] = useState<string | null>(null);
     const { data: pool } = usePoolOverview('rinkeby', poolId);
+    const {wallet} = useWallet();
     const balances = useBalance({
         pool,
-        wallet,
     });
 
     debug.poolId = poolId;
@@ -52,13 +50,12 @@ function LandingContainer({
                 </div>
                 <div className='wallet-combo'>
                     {wallet?.account && <PendingTx />}
-                    <ConnectWalletButton onClick={showWalletModal} wallet={wallet} />
+                    <ConnectWalletButton onClick={showWalletModal} />
                 </div>
             </div>
-            <PoolSearch  setPoolId={setPoolId} />
+            <PoolSearch setPoolId={setPoolId} />
             <Box display='flex' justifyContent='space-around'>
                 <AddLiquidityV3
-                    wallet={wallet}
                     pool={pool}
                     balances={balances}
                     gasPrices={gasPrices}

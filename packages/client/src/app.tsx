@@ -2,7 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-widgets/dist/css/react-widgets.css';
 import 'styles/app.scss';
 import classNames from 'classnames';
-import { ErrorBoundary, useErrorHandler } from 'react-error-boundary';
+import { ErrorBoundary } from 'react-error-boundary';
 import {
     useState,
     useEffect,
@@ -16,17 +16,14 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import useWebSocket from 'react-use-websocket';
 
 import config from 'config';
-import {
-    UniswapPair,
-    EthGasPrices,
-} from '@sommelier/shared-types';
+import { UniswapPair, EthGasPrices } from '@sommelier/shared-types';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LandingContainer from 'containers/landing-container';
 import ConnectWalletModal from 'components/connect-wallet-modal';
 import { PageError, ModalError } from 'components/page-error';
 
-import useWallet from 'hooks/use-wallet';
+import { WalletProvider } from 'hooks/use-wallet';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { calculatePairRankings } from 'services/calculate-stats';
 import { AllPairsState } from 'types/states';
@@ -63,7 +60,6 @@ function App(): ReactElement {
     const [currentError, setError] = useState<string | null>(null);
     const [gasPrices, setGasPrices] = useState<EthGasPrices | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
-    const { wallet, error, ...restWalletProps } = useWallet();
 
     // subscribe to the hook, will propogate to the nearest boundary
     const [pendingTx, setPendingTx] = useState<PendingTx>({
@@ -71,7 +67,7 @@ function App(): ReactElement {
         confirm: [],
     });
     const queryClient = new QueryClient();
-    useErrorHandler(error);
+    // useErrorHandler(error);
     useEffect(() => {
         document.body.classList.add('dark');
     }, []);
@@ -83,7 +79,7 @@ function App(): ReactElement {
             if (error) {
                 // we could not list pairs
                 console.warn(`Could not fetch top pairs: ${error}`);
-                debug.error = error
+                debug.error = error;
                 setError(error);
                 return;
             }
@@ -134,64 +130,71 @@ function App(): ReactElement {
         <ErrorBoundary
             fallbackRender={({ error }) => <PageError errorMsg={error} />}
         >
-            <QueryClientProvider client={queryClient}>
-                <ToastContainer
-                    position='top-center'
-                    autoClose={5000}
-                    hideProgressBar={false}
-                    newestOnTop
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    draggable
-                    pauseOnHover
-                />
-                <Router>
-                    <div className={classNames('app', 'dark')} id='app-wrap'>
-                        <PendingTxContext.Provider
-                            value={{ pendingTx, setPendingTx }}
+            <WalletProvider>
+                <QueryClientProvider client={queryClient}>
+                    <ToastContainer
+                        position='top-center'
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        newestOnTop
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                    />
+                    <Router>
+                        <div
+                            className={classNames('app', 'dark')}
+                            id='app-wrap'
                         >
-                            <div className='app-body' id='app-body'>
-                                {currentError ? (
-                                    <PageError errorMsg={currentError} />
-                                ) : (
-                                    <>
-                                        <ErrorBoundary
-                                            FallbackComponent={ModalError}
-                                        >
-                                            <ConnectWalletModal
-                                                show={showConnectWallet}
-                                                setShow={setShowConnectWallet}
-                                                wallet={wallet}
-                                                error={error}
-                                                {...restWalletProps}
-                                            />
-                                        </ErrorBoundary>
-                                        <ErrorBoundary
-                                            fallbackRender={({ error }) => (
-                                                <PageError errorMsg={error} />
-                                            )}
-                                        >
-                                            <Switch>
-                                                <Route path='/'>
-                                                    <LandingContainer
-                                                        allPairs={allPairs}
-                                                        gasPrices={gasPrices}
-                                                        wallet={wallet}
-                                                        setShowConnectWallet={
-                                                            setShowConnectWallet
-                                                        }
+                            <PendingTxContext.Provider
+                                value={{ pendingTx, setPendingTx }}
+                            >
+                                <div className='app-body' id='app-body'>
+                                    {currentError ? (
+                                        <PageError errorMsg={currentError} />
+                                    ) : (
+                                        <>
+                                            <ErrorBoundary
+                                                FallbackComponent={ModalError}
+                                            >
+                                                <ConnectWalletModal
+                                                    show={showConnectWallet}
+                                                    setShow={
+                                                        setShowConnectWallet
+                                                    }
+                                                />
+                                            </ErrorBoundary>
+                                            <ErrorBoundary
+                                                fallbackRender={({ error }) => (
+                                                    <PageError
+                                                        errorMsg={error}
                                                     />
-                                                </Route>
-                                            </Switch>
-                                        </ErrorBoundary>
-                                    </>
-                                )}
-                            </div>
-                        </PendingTxContext.Provider>
-                    </div>
-                </Router>
-            </QueryClientProvider>
+                                                )}
+                                            >
+                                                <Switch>
+                                                    <Route path='/'>
+                                                        <LandingContainer
+                                                            allPairs={allPairs}
+                                                            gasPrices={
+                                                                gasPrices
+                                                            }
+                                                            setShowConnectWallet={
+                                                                setShowConnectWallet
+                                                            }
+                                                        />
+                                                    </Route>
+                                                </Switch>
+                                            </ErrorBoundary>
+                                        </>
+                                    )}
+                                </div>
+                            </PendingTxContext.Provider>
+                        </div>
+                    </Router>
+                </QueryClientProvider>
+            </WalletProvider>
         </ErrorBoundary>
     );
 }

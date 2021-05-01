@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import erc20Abi from 'constants/abis/erc20.json';
-import { Wallet, WalletBalances } from 'types/states';
+import { WalletBalances } from 'types/states';
 import { PoolOverview } from 'hooks/data-fetchers';
+import { useWallet } from 'hooks/use-wallet';
 import { poolName } from 'util/formats';
 const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
 const EXCHANGE_REMOVE_ABI_ADDRESS =
@@ -11,10 +12,10 @@ const EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS =
     '0xA522AA47C40F2BAC847cbe4D37455c521E69DEa7';
 
 type Props = {
-    wallet: Wallet;
     pool: PoolOverview | void;
 };
-export const useBalance = ({ pool, wallet }: Props): WalletBalances => {
+export const useBalance = ({ pool }: Props): WalletBalances => {
+    const { wallet } = useWallet();
     let provider: ethers.providers.Web3Provider;
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
@@ -28,90 +29,101 @@ export const useBalance = ({ pool, wallet }: Props): WalletBalances => {
             if (!provider || !wallet.account) return;
             if (!pool || !pool.token0 || !pool.token1) return;
 
-            const getTokenBalances = [
-                pool.token0.id,
-                pool.token1.id,
-            ].map(async (tokenAddress) => {
-                if (!tokenAddress) {
-                    throw new Error(
-                        'Could not get balance for pair without token address'
-                    );
-                }
-                const token = new ethers.Contract(
-                    tokenAddress,
-                    erc20Abi
-                ).connect(provider );
+            const getTokenBalances = [pool.token0.id, pool.token1.id].map(
+                async (tokenAddress) => {
+                    if (!tokenAddress) {
+                        throw new Error(
+                            'Could not get balance for pair without token address'
+                        );
+                    }
+                    const token = new ethers.Contract(
+                        tokenAddress,
+                        erc20Abi
+                    ).connect(provider);
 
-                try {                 
-                    const balance: ethers.BigNumber = await token.balanceOf(
-                        wallet.account
-                    );
-                    return balance;
-                } catch (e) {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    console.error(`Could not get balance of token ${tokenAddress} for wallet ${wallet.account!}`);
-                    console.error(`Error; ${e.message as string}`);
-                    return ethers.BigNumber.from(0);
+                    try {
+                        const balance: ethers.BigNumber = await token.balanceOf(
+                            wallet.account
+                        );
+                        return balance;
+                    } catch (e) {
+                        console.error(
+                            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                            `Could not get balance of token ${tokenAddress} for wallet ${wallet.account}`
+                        );
+                        console.error(`Error; ${e.message as string}`);
+                        return ethers.BigNumber.from(0);
+                    }
                 }
-            });
+            );
 
-            const getAllowances = [
-                pool.token0.id,
-                pool.token1.id
-            ].map(async (tokenAddress) => {
-                if (!tokenAddress) {
-                    throw new Error(
-                        'Could not get balance for pair without token address'
-                    );
+            const getAllowances = [pool.token0.id, pool.token1.id].map(
+                async (tokenAddress) => {
+                    if (!tokenAddress) {
+                        throw new Error(
+                            'Could not get balance for pair without token address'
+                        );
+                    }
+                    const token = new ethers.Contract(
+                        tokenAddress,
+                        erc20Abi
+                    ).connect(provider);
+
+                    const targetAddress = EXCHANGE_ADD_ABI_ADDRESS;
+
+                    try {
+                        const allowance: ethers.BigNumber = await token.allowance(
+                            wallet.account,
+                            targetAddress
+                        );
+                        return allowance;
+                    } catch (e) {
+                        console.error(
+                            `Could not get allowance of contract ${targetAddress} on behalf of ${
+                                wallet?.account ?? ''
+                            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                            } for token ${tokenAddress}`
+                        );
+                        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                        console.error(`Error; ${e.message}`);
+                        return ethers.BigNumber.from(0);
+                    }
                 }
-                const token = new ethers.Contract(
-                    tokenAddress,
-                    erc20Abi
-                ).connect(provider);
+            );
 
-                const targetAddress = EXCHANGE_ADD_ABI_ADDRESS;
+            const getTwoSideAllowances = [pool.token0.id, pool.token1.id].map(
+                async (tokenAddress) => {
+                    if (!tokenAddress) {
+                        throw new Error(
+                            'Could not get balance for pair without token address'
+                        );
+                    }
+                    const token = new ethers.Contract(
+                        tokenAddress,
+                        erc20Abi
+                    ).connect(provider);
 
-                try {
-                    const allowance: ethers.BigNumber = await token.allowance(
-                        wallet.account,
-                        targetAddress
-                    );
-                    return allowance;
-                } catch (e) {
-                    console.error(`Could not get allowance of contract ${targetAddress} on behalf of ${wallet?.account ?? ''} for token ${tokenAddress}`);
-                    console.error(`Error; ${e.message as string}`);
-                    return ethers.BigNumber.from(0);
+                    const targetAddress = EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS;
+
+                    try {
+                        const allowance: ethers.BigNumber = await token.allowance(
+                            wallet.account,
+                            targetAddress
+                        );
+                        return allowance;
+                    } catch (e) {
+                        console.error(
+                            `Could not get two-sided allowance of contract ${targetAddress} on behalf of ${
+                                wallet?.account ?? ''
+                            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                            } for token ${tokenAddress}`
+                        );
+                        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                        console.error(`Error; ${e.message}`);
+                        return ethers.BigNumber.from(0);
+                    }
                 }
-            });
-
-            const getTwoSideAllowances = [
-                pool.token0.id,
-                pool.token1.id
-            ].map(async (tokenAddress) => {
-                if (!tokenAddress) {
-                    throw new Error(
-                        'Could not get balance for pair without token address'
-                    );
-                }
-                const token = new ethers.Contract(
-                    tokenAddress,
-                    erc20Abi
-                ).connect(provider)
-                
-                const targetAddress = EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS;
-
-                try {
-                    const allowance: ethers.BigNumber = await token.allowance(
-                        wallet.account,
-                        targetAddress
-                    );
-                    return allowance;
-                } catch (e) {
-                    console.error(`Could not get two-sided allowance of contract ${targetAddress} on behalf of ${wallet?.account ?? ''} for token ${tokenAddress}`);
-                    console.error(`Error; ${e.message as string}`);
-                    return ethers.BigNumber.from(0);
-                }
-            });
+            );
 
             const getEthBalance = provider.getBalance(wallet.account);
             const [
