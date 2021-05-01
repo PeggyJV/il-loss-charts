@@ -1,7 +1,6 @@
 import { delay } from 'util/promise';
 import redis from 'util/redis';
 import memoizer, {
-  defaultOptions,
   sha1,
   getFnNamespace,
   getCacheKey,
@@ -9,6 +8,7 @@ import memoizer, {
   serialize,
   deserialize,
 } from 'util/memoizer-redis/index';
+import { assert } from 'chai';
 
 describe('memoizer-redis tests', () => {
   afterEach(async () => {
@@ -76,6 +76,38 @@ describe('memoizer-redis tests', () => {
       expect(r1).toMatch(arg);
       expect(r1).toMatch(r2);
       expect(fn).toHaveBeenCalledTimes(2);
+    });
+
+  test('custom key is used when supplying cacheKeyOverride', async () => {
+      const expected = 'my-expected-data';
+      const cacheKey = 'my-custom-key';
+
+      // the fn to memoize
+      const fnSpy = jest.fn();
+      function testSpy() {
+        fnSpy();
+        return expected;
+      }
+
+
+      // the cache key override
+      const cacheKeySpy = jest.fn();
+      function setKey(originalKey: string, keyPrefix: string, fnKey: string, args: any[]) {
+        cacheKeySpy();
+        return cacheKey;
+      }
+
+      const mfn = mem(testSpy, { cacheKeyOverride: setKey });
+      const firstResult = await mfn();
+      expect(firstResult).toEqual(expected);
+
+      // custom cache key should be used instead of default hash method
+      const cached = await redis.get(cacheKey);
+      expect(JSON.parse(cached)).toEqual(expected);
+
+      // fn should have been called
+      expect(cacheKeySpy).toHaveBeenCalled();
+      expect(fnSpy).toHaveBeenCalled();
     });
 
     test.skip('calls original function but does not update cache if lock timeout exceeded', async () => {

@@ -23,6 +23,7 @@ interface MemoizerOptions {
   lockRetry: number, // how long to wait before trying to aquire a lock again
   ttl: number, // how long the value should be cached for in ms
   hashArgs: (args: Array<any>) => string, // function to hash args
+  cacheKeyOverride?: (originalKey: string, keyPrefix: string, fnKey: string, args: Array<any>) => 'string',
 }
 
 // Set keyPrefix when creating the memoizer factory
@@ -78,7 +79,8 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
       lockRetry,
       keyPrefix,
       ttl,
-      hashArgs
+      hashArgs,
+      cacheKeyOverride,
     } = { ...memoizerFactoryOptions, ...fnOpts };
 
     // Don't memoize functions in this namespace more than once
@@ -90,7 +92,11 @@ export default function memoizerFactory(client: Redis.Redis, opts: Partial<Memoi
 
     // the actual memoized function
     memoized = async function memoized(...args: Array<any>): Promise<T> {
-      const cacheKey = getCacheKey(keyPrefix, fnKey, hashArgs(args));
+      let cacheKey = getCacheKey(keyPrefix, fnKey, hashArgs(args));
+      if (typeof cacheKeyOverride === 'function') {
+        cacheKey = cacheKeyOverride(cacheKey, keyPrefix, fnKey, args);
+      }
+      console.log('hey cache key', cacheKey)
 
       // lookup in redis first
       const firstLookup = await lookup(client, cacheKey, lookupTimeout);
