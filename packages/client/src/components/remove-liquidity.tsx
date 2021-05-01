@@ -463,7 +463,7 @@ function RemoveLiquidity({
     return (
         <>
             <Modal.Body className='connect-wallet-modal'>
-                <Box dispaly='flex' justfiyContent='flex-end'>
+                <Box display='flex' justifyContent='flex-end'>
                     <div className='balances-container'>
                         <p className='sub-heading'>
                             <strong>Wallet Balance</strong>
