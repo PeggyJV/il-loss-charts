@@ -15,7 +15,11 @@ export const usePoolOverview = (network = 'rinkeby', poolId: string | null): Use
     if (!poolId) return;
 
     const response = await fetch(`/api/v1/${network}/pools/${poolId}`);
-    const data: GetPoolOverviewResult = await (response.json() as any);
+    if(!response.ok) throw new Error(`Failed to fetch pool ${poolId}`);
+
+    const data = await(
+        response.json() as Promise<GetPoolOverviewResult>
+    );
 
     debug.pool = data;
 

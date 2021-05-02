@@ -1,28 +1,23 @@
-import PropTypes from 'prop-types';
+
 import { Button, Modal } from 'react-bootstrap';
 
-import useWallet from 'hooks/use-wallet';
+import {useWallet} from 'hooks/use-wallet';
 import {useErrorHandler} from 'react-error-boundary';
 import { ReactComponent as MetamaskLogo } from 'styles/metamask-logo.svg';
-import { ReactComponent as WalletConnectLogo } from 'styles/walletconnect-logo.svg';
 
 function ConnectWalletModal({
     show,
     setShow,
-    wallet,
-    connectMetaMask,
-    connectWalletConnect,
-    disconnectWallet,
-    availableProviders,
-}: ReturnType<typeof useWallet> & {
+}:  {
     show: boolean;
     setShow: (show: boolean) => void;
 }): JSX.Element {
     const handleClose = () => setShow(false);
     const handleError = useErrorHandler();
-
+    const {wallet, connectMetaMask, disconnectWallet} = useWallet();
     const titleText = wallet?.account
-        ? `Connected: ${wallet.account}`
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        ? `Connected: ${wallet?.account}`
         : 'Connect Wallet';
 
     const handleConnectMetaMask = async () => {
@@ -36,16 +31,16 @@ function ConnectWalletModal({
         setTimeout(handleClose, 500);
     };
 
-    const handleConnectWalletConnect = async () => {
-        try{
-            await connectWalletConnect();
-        } catch(e){
-            handleError(e);
-        }
+    // const handleConnectWalletConnect = async () => {
+    //     try{
+    //         await connectWalletConnect();
+    //     } catch(e){
+    //         handleError(e);
+    //     }
 
-        // Close modlal after half-second
-        setTimeout(handleClose, 500);
-    };
+    //     // Close modlal after half-second
+    //     setTimeout(handleClose, 500);
+    // };
 
     return (
         <Modal show={show} onHide={handleClose} dialogClassName='dark'>
@@ -62,18 +57,18 @@ function ConnectWalletModal({
                     <div className='connect-wallet-modal-options-container'>
                         <button
                             className='connect-wallet-modal-option'
-                            disabled={!availableProviders.metamask}
+                            // disabled={!availableProviders.metamask}
                             onClick={handleConnectMetaMask}
                         >
                             <MetamaskLogo />
                         </button>
-                        <button
+                        {/* <button
                             className='connect-wallet-modal-option'
                             disabled={!availableProviders.walletconnect}
                             onClick={handleConnectWalletConnect}
                         >
                             <WalletConnectLogo />
-                        </button>
+                        </button> */}
                     </div>
                 </Modal.Body>
             )}
@@ -92,18 +87,18 @@ function ConnectWalletModal({
     );
 }
 
-ConnectWalletModal.propTypes = {
-    show: PropTypes.bool.isRequired,
-    setShow: PropTypes.func.isRequired,
-    wallet: PropTypes.shape({
-        account: PropTypes.string,
-        providerName: PropTypes.string,
-        provider: PropTypes.object,
-    }).isRequired,
-    connectMetaMask: PropTypes.func,
-    connectWalletConnect: PropTypes.func,
-    disconnectWallet: PropTypes.func,
-    availableProviders: PropTypes.objectOf(PropTypes.bool),
-};
+// ConnectWalletModal.propTypes = {
+//     show: PropTypes.bool.isRequired,
+//     setShow: PropTypes.func.isRequired,
+//     wallet: PropTypes.shape({
+//         account: PropTypes.string,
+//         providerName: PropTypes.string,
+//         provider: PropTypes.object,
+//     }).isRequired,
+//     connectMetaMask: PropTypes.func,
+//     connectWalletConnect: PropTypes.func,
+//     disconnectWallet: PropTypes.func,
+//     availableProviders: PropTypes.objectOf(PropTypes.bool),
+// };
 
 export default ConnectWalletModal;
