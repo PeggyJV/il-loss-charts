@@ -129,6 +129,16 @@ export interface EthGasPrices {
     fastest: number;
 }
 
+export interface LiquidityBand {
+    baseTokenId: string;
+    quoteTokenId: string;
+    indicatorName: string;
+    metadata?: { [key: string]: any }
+    currentPrice?: number;
+    upperBound: number;
+    lowerBound: number;
+}
+
 export type EthNetwork = "mainnet" | "rinkeby" | "goerli" | "ropsten" | "kovan";
 
 export type NetworkIds = '1' | '4' | '5' | '3' | '42';

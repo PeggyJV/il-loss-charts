@@ -91,4 +91,20 @@ export default class BitqueryFetcher {
 
         return weeklyOHLC;
     }
+
+    static async getPeriodDailyOHLC(baseTokenId: string, quoteTokenId: string, start: Date, end: Date): Promise<DexTrade[]> {
+        // Calculate start Date and endDate
+        const endDate = BitqueryFetcher.formatDate(end);
+        const startDate = BitqueryFetcher.formatDate(start);
+
+        const result = await sdk.getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate });
+        const dexTrades = result?.ethereum?.dexTrades;
+
+        if (dexTrades == null) {
+            throw new HTTPError(404, `Could not get OHLC data for period ${startDate}-${endDate}.`);
+        }
+
+        return dexTrades;
+    }
+
 }
