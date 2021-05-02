@@ -66,12 +66,13 @@ export default async function run () {
   console.time('update-top-pools-elapsed');
 
   const topPools = await getTopPools.forceUpdate(count, sort);
+  console.timeEnd('update-top-pools-elapsed');
+
   if (topPools == null) {
     // we were unable to get a lock, throw and log error
     throw new Error('Unable to get lock to update top pool');
   }
 
-  console.timeEnd('update-top-pools-elapsed');
   console.log(`Fetched Top Pools, count: ${topPools.length}`);
 
   const top = topPools.slice(0, poolCount);
@@ -84,12 +85,12 @@ export default async function run () {
 
     // must pass undefined to match signature of original call
     const result = await getPoolOverview.forceUpdate(pool.id, undefined);
+    console.timeEnd(`update-pool-${poolId}-elapsed`);
+
     if (result == null) {
       // we were unable to get a lock, log error
       console.error(`Could not update cache for pool: ${poolId}`);
     }
-
-    console.timeEnd(`update-pool-${poolId}-elapsed`);
   }
 }
 
@@ -105,7 +106,6 @@ function poolName (pool: any) {
 }
 
 (async function () {
-
   await run();
   process.exit();
 })();
