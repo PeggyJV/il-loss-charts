@@ -1,7 +1,6 @@
 import { delay } from 'util/promise';
 import redis from 'util/redis';
 import memoizer, {
-  defaultOptions,
   sha1,
   getFnNamespace,
   getCacheKey,
@@ -9,6 +8,7 @@ import memoizer, {
   serialize,
   deserialize,
 } from 'util/memoizer-redis/index';
+import { assert } from 'chai';
 
 describe('memoizer-redis tests', () => {
   afterEach(async () => {
@@ -74,6 +74,20 @@ describe('memoizer-redis tests', () => {
       const r2 = await mfn(arg);
 
       expect(r1).toMatch(arg);
+      expect(r1).toMatch(r2);
+      expect(fn).toHaveBeenCalledTimes(2);
+    });
+
+    test('force cache update', async () => {
+      const r1 = await mfn(arg);
+
+      // force cache update
+      await mfn.forceUpdate(arg);
+      expect(fn).toHaveBeenCalledTimes(2);
+
+      const r2 = await mfn(arg);
+
+      expect(r1).toMatch(expected(arg))
       expect(r1).toMatch(r2);
       expect(fn).toHaveBeenCalledTimes(2);
     });

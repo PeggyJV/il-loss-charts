@@ -5,7 +5,7 @@ interface LockOptions {
   lockRetry: number,
 }
 
-type Locker = (lockKey: string, timeout: number, retry: number) => Promise<Unlocker | void>;
+type Locker = (lockKey: string, timeout?: number, retry?: number) => Promise<Unlocker | void>;
 type Unlocker = () => Promise<void>;
 
 const LOCK_SUCCESSFULY_SET = 'OK';

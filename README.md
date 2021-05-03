@@ -37,6 +37,8 @@ cd il-loss-charts
 yarn config set workspaces-experimental true # Use to enable yarn workspaces
 yarn # Running 'yarn' once at workspace roots installs all dependencies for each package
 
+yarn prepare # setup commit hooks
+
 ### Local Development
 
 # Getting environment variables set
@@ -55,7 +57,7 @@ yarn prod # runs the server only, which serves the client bundle
 
 ### Linting
 
-yarn lint # lints each package serially
+yarn lint # lints each package concurrently
 ```
 
 Lerna infers package topology to ensure that all lint/build tasks run in the proper order based on inter-package dependencies.

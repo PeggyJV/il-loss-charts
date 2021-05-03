@@ -4,7 +4,7 @@ import erc20Abi from 'constants/abis/erc20.json';
 import { WalletBalances } from 'types/states';
 import { PoolOverview } from 'hooks/data-fetchers';
 import { useWallet } from 'hooks/use-wallet';
-import { poolName } from 'util/formats';
+import { poolSymbol } from 'util/formats';
 const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
 const EXCHANGE_REMOVE_ABI_ADDRESS =
     '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
@@ -182,7 +182,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                 },
                 currentPair: {
                     id: pool.id,
-                    symbol: poolName(pool),
+                    symbol: poolSymbol(pool),
                     balance: pairBalance,
                     decimals: '18',
                     allowance: {

@@ -28,7 +28,17 @@ export default server;
 
 // Other exports for other packages
 
-import UniswapFetcher from 'services/uniswap';
-import { calculateMarketStats } from 'util/calculate-stats';
+import memoizer from 'util/memoizer-redis';
 
-export { UniswapFetcher, calculateMarketStats };
+import * as apolloClients from 'services/util/apollo-client';
+import { calculateMarketStats } from 'util/calculate-stats';
+import { UniswapV3Fetcher } from 'services/uniswap-v3/fetcher'
+import UniswapFetcher from 'services/uniswap';
+
+export {
+    apolloClients,
+    calculateMarketStats,
+    memoizer,
+    UniswapFetcher,
+    UniswapV3Fetcher,
+};

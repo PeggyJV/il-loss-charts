@@ -80,6 +80,7 @@
     "scripts": {
         "clean": "rimraf build *.tsbuildinfo",
         "lint": "eslint src --ext js,ts",
+        "lint:fix": "eslint src --ext js,ts --fix",
         "predeploy": "yarn build",
         "deploy": "gh-pages -d build",
         "dev": "react-scripts start",
