@@ -35,6 +35,7 @@ export const AddLiquidityV3 = ({
     const [token0Amount, setToken0Amount] = useState('0');
     const [token, setToken] = useState('ETH');
     // const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
     );

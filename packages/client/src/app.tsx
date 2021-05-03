@@ -25,7 +25,6 @@ import { PageError, ModalError } from 'components/page-error';
 
 import { WalletProvider } from 'hooks/use-wallet';
 
-
 export type PendingTx = {
     approval: Array<string>;
     confirm: Array<string>;
@@ -54,7 +53,7 @@ function App(): ReactElement {
     //     lookups: null,
     //     byLiquidity: null,
     // });
-    const [currentError, setError] = useState<string | null>(null);
+
     const [gasPrices, setGasPrices] = useState<EthGasPrices | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
 
@@ -149,43 +148,32 @@ function App(): ReactElement {
                                 value={{ pendingTx, setPendingTx }}
                             >
                                 <div className='app-body' id='app-body'>
-                                    {currentError ? (
-                                        <PageError errorMsg={currentError} />
-                                    ) : (
-                                        <>
-                                            <ErrorBoundary
-                                                FallbackComponent={ModalError}
-                                            >
-                                                <ConnectWalletModal
-                                                    show={showConnectWallet}
-                                                    setShow={
-                                                        setShowConnectWallet
-                                                    }
-                                                />
-                                            </ErrorBoundary>
-                                            <ErrorBoundary
-                                                fallbackRender={({ error }) => (
-                                                    <PageError
-                                                        errorMsg={error}
+                                    <>
+                                        <ErrorBoundary
+                                            FallbackComponent={ModalError}
+                                        >
+                                            <ConnectWalletModal
+                                                show={showConnectWallet}
+                                                setShow={setShowConnectWallet}
+                                            />
+                                        </ErrorBoundary>
+                                        <ErrorBoundary
+                                            fallbackRender={({ error }) => (
+                                                <PageError errorMsg={error} />
+                                            )}
+                                        >
+                                            <Switch>
+                                                <Route path='/'>
+                                                    <LandingContainer
+                                                        gasPrices={gasPrices}
+                                                        setShowConnectWallet={
+                                                            setShowConnectWallet
+                                                        }
                                                     />
-                                                )}
-                                            >
-                                                <Switch>
-                                                    <Route path='/'>
-                                                        <LandingContainer
-
-                                                            gasPrices={
-                                                                gasPrices
-                                                            }
-                                                            setShowConnectWallet={
-                                                                setShowConnectWallet
-                                                            }
-                                                        />
-                                                    </Route>
-                                                </Switch>
-                                            </ErrorBoundary>
-                                        </>
-                                    )}
+                                                </Route>
+                                            </Switch>
+                                        </ErrorBoundary>
+                                    </>
                                 </div>
                             </PendingTxContext.Provider>
                         </div>
