@@ -14,7 +14,6 @@ import { resolveLogo } from 'components/token-with-logo';
 import { poolName } from 'util/formats';
 import {Box} from '@material-ui/core';
 import { TopPool, useTopPools } from 'hooks/data-fetchers';
-import { blue } from '@material-ui/core/colors';
 
 const useStyles = makeStyles(() => ({
     input: {

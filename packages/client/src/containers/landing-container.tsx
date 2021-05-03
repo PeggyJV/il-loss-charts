@@ -1,7 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { EthGasPrices } from '@sommelier/shared-types';
-
-import { AllPairsState } from 'types/states';
 
 import { useWallet } from 'hooks/use-wallet';
 import { TelegramCTA } from 'components/telegram-cta';
@@ -10,7 +8,6 @@ import ConnectWalletButton from 'components/connect-wallet-button';
 import PendingTx from 'components/pending-tx';
 // import { PoolSearch } from 'components/pool-search';
 import { LiquidityContainer } from 'containers/liquidity-container';
-import { AddLiquidityV3 } from 'components/add-liquidity/add-liquidity-v3';
 import { Box } from '@material-ui/core';
 
 function LandingContainer({

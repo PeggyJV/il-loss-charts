@@ -16,7 +16,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import useWebSocket from 'react-use-websocket';
 
 import config from 'config';
-import { UniswapPair, EthGasPrices } from '@sommelier/shared-types';
+import { EthGasPrices } from '@sommelier/shared-types';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LandingContainer from 'containers/landing-container';
@@ -24,10 +24,7 @@ import ConnectWalletModal from 'components/connect-wallet-modal';
 import { PageError, ModalError } from 'components/page-error';
 
 import { WalletProvider } from 'hooks/use-wallet';
-import { UniswapApiFetcher as Uniswap } from 'services/api';
-import { calculatePairRankings } from 'services/calculate-stats';
-import { AllPairsState } from 'types/states';
-import { debug } from 'util/debug';
+
 
 export type PendingTx = {
     approval: Array<string>;

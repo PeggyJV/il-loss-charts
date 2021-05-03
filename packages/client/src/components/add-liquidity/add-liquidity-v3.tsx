@@ -1,9 +1,7 @@
-import { useState, Dispatch, SetStateAction } from 'react';
-import { Row, Col, Form, FormControl, InputGroup } from 'react-bootstrap';
+import { useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
-import classNames from 'classnames';
 import './add-liquidity-v3.scss';
 import 'rc-slider/assets/index.css';
 import { Box } from '@material-ui/core';
@@ -36,7 +34,7 @@ export const AddLiquidityV3 = ({
 }: Props): JSX.Element | null => {
     const [token0Amount, setToken0Amount] = useState('0');
     const [token, setToken] = useState('ETH');
-    const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
+    // const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
     );

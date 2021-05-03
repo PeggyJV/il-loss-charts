@@ -8,8 +8,6 @@ import { debug } from 'util/debug';
 import { EthGasPrices } from '@sommelier/shared-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faCog } from '@fortawesome/free-solid-svg-icons';
-
-import classNames from 'classnames';
 import './liquidity-container.scss';
 
 const SearchHeader = ({
@@ -34,13 +32,13 @@ const SearchHeader = ({
     );
 };
 
-const ActionBar = () => {
-    return (
-        <Box className='action-bar'>
-            <button>Add Liquidity</button>
-        </Box>
-    );
-};
+// const ActionBar = () => {
+//     return (
+//         <Box className='action-bar'>
+//             <button>Add Liquidity</button>
+//         </Box>
+//     );
+// };
 
 const TransactionSettings = ({
     gasPrices,
