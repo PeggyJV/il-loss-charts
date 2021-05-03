@@ -86,7 +86,8 @@ export const AddLiquidityV3 = ({
     // const token0 = pool?.token0?.id ?? '';
     // const token1 = pool?.token1?.id ?? '';
 
-    const { newPair: marketData, indicators } = useMarketData(token0, token1);
+    const { newPair: marketData, indicators } = useMarketData(pool?.token0, pool?.token1, wallet.network);
+    (window as any).marketData = marketData;
     (window as any).indicators = indicators;
 
     const SELECTED_INDICATOR_NAME = 'bollingerEMANormalBand';
@@ -298,9 +299,7 @@ export const AddLiquidityV3 = ({
         liquidityLow = (currentPrice * 0.9).toString();
         liquidityHigh = (currentPrice * 1.1).toString();
     }
-    console.log(balances);
-    console.log(token0, token1);
-
+    
     return (
         <>
             <div className='add-v3-container'>

@@ -104,6 +104,24 @@ export class UniswapApiFetcher extends OfflineFetcher {
         return { data, error };
     }
 
+    static async getTopV2Pairs(
+        count = 1000
+    ): Promise<ApiResponse<IUniswapPair[]>> {
+        if (useOffline) return OfflineFetcher.getTopPairs(count);
+
+        const response = await fetch(`/api/v1/uniswap/pairs?count=${count}`);
+        const { data, error } = await (response.json() as Promise<
+            ApiResponse<IUniswapPair[]>
+        >);
+
+        if (error && shouldRetryError(error)) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return UniswapApiFetcher.getTopPairs(count);
+        }
+
+        return { data, error };
+    }
+
     static async getMarketData(
         startDate = '2020-12-01'
     ): Promise<ApiResponse<MarketStats[]>> {
