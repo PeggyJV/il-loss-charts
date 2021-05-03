@@ -29,7 +29,7 @@ type Props = {
     pool: PoolOverview | null;
 };
 
-export type PriceDirection = 'bullish' | 'bearish' | 'neutral';
+export type Sentiment = 'bullish' | 'bearish' | 'neutral';
 
 export const AddLiquidityV3 = ({
     pool,
@@ -70,12 +70,9 @@ export const AddLiquidityV3 = ({
     // const [token, setToken] = useState('ETH');
     // TODO calculate price impact
     const { currentGasPrice, slippageTolerance } = useContext(LiquidityContext);
-    const [sentiment, setSentiment] = useState<string>('neutral');
+    const [sentiment, setSentiment] = useState<Sentiment>('neutral');
     const { wallet } = useWallet();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [priceDirection, setPriceDirection] = useState<PriceDirection>(
-        'neutral'
-    );
+
     let provider: ethers.providers.Web3Provider | null = null;
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
@@ -86,7 +83,7 @@ export const AddLiquidityV3 = ({
     // const token0 = pool?.token0?.id ?? '';
     // const token1 = pool?.token1?.id ?? '';
 
-    const { newPair: marketData, indicators } = useMarketData(pool?.token0, pool?.token1, wallet.network);
+    const { newPair: marketData, indicators } = useMarketData(pool?.token1, pool?.token0, wallet.network);
     (window as any).marketData = marketData;
     (window as any).indicators = indicators;
 
@@ -147,7 +144,7 @@ export const AddLiquidityV3 = ({
 
         const indicator = indicators[SELECTED_INDICATOR_NAME];
 
-        const [lowerBound, upperBound] = indicator.bounds[priceDirection];
+        const [lowerBound, upperBound] = indicator.bounds[sentiment];
         // Convert to lower tick and upper ticks
         const baseTokenCurrency = new Token(
             Number(wallet.network),
@@ -292,12 +289,17 @@ export const AddLiquidityV3 = ({
 
     if (!pool || !pool?.token0 || !pool?.token1) return null;
     debug.marketData = marketData;
-    const currentPrice = parseFloat(pool.token0Price);
+    const currentPrice = marketData?.quotePrice ?? parseFloat(pool.token0Price);
 
     let liquidityLow, liquidityHigh;
     if (indicators == null) {
         liquidityLow = (currentPrice * 0.9).toString();
         liquidityHigh = (currentPrice * 1.1).toString();
+    } else {
+        const indicator = indicators[SELECTED_INDICATOR_NAME];
+        const [lowerBound, upperBound] = indicator.bounds[sentiment];
+        liquidityLow = lowerBound;
+        liquidityHigh = upperBound;
     }
     
     return (

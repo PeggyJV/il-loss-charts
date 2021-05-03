@@ -21,7 +21,6 @@ export const useMarketData = (
     const getTopPairs = async (): Promise<IUniswapPair[]> => {
         if (!topPairs) {
             const { data: pairsRaw, error } = await Uniswap.getTopV2Pairs();
-            console.log('THIS IS TOP PAIRS', pairsRaw);
 
             if (error) {
                 // we could not list pairs
