@@ -1,7 +1,4 @@
-import {
-    Dispatch,
-    SetStateAction,
-} from 'react';
+import { Dispatch, SetStateAction } from 'react';
 
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { matchSorter } from 'match-sorter';
@@ -12,8 +9,9 @@ import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 import './pair-search.scss';
 import { resolveLogo } from 'components/token-with-logo';
 import { poolName } from 'util/formats';
-import {Box} from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import { TopPool, useTopPools } from 'hooks/data-fetchers';
+import { ThreeDots } from 'react-loading-icons';
 
 const useStyles = makeStyles(() => ({
     input: {
@@ -41,11 +39,7 @@ export function PoolSearch({
     const classes = useStyles();
     const { data: pools, isLoading: isTopPoolsLoading } = useTopPools();
     if (isTopPoolsLoading || !pools) {
-        return (
-            <div className='loading-container'>
-                <div className='wine-pulse'>🍷</div>
-            </div>
-        )
+        return <ThreeDots height='1rem' />;
     }
 
     // function sorter(a: UniswapPair, b: UniswapPair) {
@@ -80,6 +74,7 @@ export function PoolSearch({
             </div>
         </div>
     );
+
     return (
         <Box>
             <Autocomplete
@@ -95,7 +90,6 @@ export function PoolSearch({
                 noOptionsText={'Invalid Pair'}
                 loadingText={'...loading'}
                 onChange={(_, pool) => {
-                    console.log('setting pool id in pool search', pool?.id)
                     setPoolId(pool?.id ?? null);
                 }}
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
