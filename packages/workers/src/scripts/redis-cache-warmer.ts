@@ -16,7 +16,7 @@ dotenv.config();
 // configure apollo
 const uri =
     process.env.V3_SUBGRAPH_URL ||
-    'http://35.197.14.14:8000/subgraphs/name/sommelier/uniswap-v3';
+    'http://35.197.14.14:8000/subgraphs/name/sommelier/uniswap-v3-2';
 const link = new HttpLink({ uri, fetch });
 const cache = new InMemoryCache();
 const client = new ApolloClient({ link, cache });
