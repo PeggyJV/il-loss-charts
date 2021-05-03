@@ -51,14 +51,13 @@ export const AddLiquidityV3 = ({
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
 
-    console.log('Set pool');
     (window as any).pool = pool;
 
     const token0 = pool?.token0?.id ?? '';
     const token1 = pool?.token1?.id ?? '';
     const { newPair: marketData, indicators } = useMarketData(token0, token1);
-    (window as any).marketData = marketData;
     (window as any).indicators = indicators;
+
     const SELECTED_INDICATOR_NAME = 'bollingerEMANormalBand';
     
     const doAddLiquidity = async () => {
@@ -288,9 +287,13 @@ export const AddLiquidityV3 = ({
     // if (!marketData) return null;
     if (!pool || !pool?.token0 || !pool?.token1) return null;
     debug.marketData = marketData;
-    const currentPrice = marketData?.quotePrice || 1.234352;
-    const liquidityLow = (currentPrice * 0.9).toString();
-    const liquidityHigh = (currentPrice * 1.1).toString();
+    const currentPrice = parseFloat(pool.token0Price);
+
+    let liquidityLow, liquidityHigh;
+    if (indicators == null) {
+        liquidityLow = (currentPrice * 0.9).toString();
+        liquidityHigh = (currentPrice * 1.1).toString();
+    }
 
     return (
         <>
@@ -337,7 +340,7 @@ export const AddLiquidityV3 = ({
                     <Box display='flex' justifyContent='space-between'>
                         <div>Current Price</div>
                         <div>
-                            <span className='face-deep'>{currentPrice}</span>
+                            <span className='face-deep'>{currentPrice} {pool.token0.symbol} per {pool.token1.symbol}</span>
                         </div>
                     </Box>
                     <Box display='flex' justifyContent='space-between'>

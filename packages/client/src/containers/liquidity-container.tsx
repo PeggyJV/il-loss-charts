@@ -48,7 +48,7 @@ const TransactionSettings = ({
     const [currentGasPrice, setCurrentGasPrice] = useState<number | null>(
         gasPrices?.standard ?? null
     );
-    console.log(gasPrices);
+
     return (
         <>
             {gasPrices && (

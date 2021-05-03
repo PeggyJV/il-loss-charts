@@ -46,7 +46,7 @@ export function getSMABollingerBands(marketData: DexTrade[], numStdDevs = 2): Li
     const ma = getSMA(marketData);
     const stddev = getStandardDeviation(marketData);
     const boundTerm = numStdDevs * stddev;
-
+    
     return {
         baseTokenId: sampleData.baseCurrency.address,
         quoteTokenId: sampleData.quoteCurrency.address,
