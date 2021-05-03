@@ -609,12 +609,7 @@ export const GetPoolsOverviewDocument = gql`
     `;
 export const GetTopPoolsDocument = gql`
     query getTopPools($first: Int!, $orderDirection: String!, $orderBy: String!) {
-  pools(
-    first: $first
-    orderDirection: $orderDirection
-    orderBy: $orderBy
-    where: {volumeUSD_lt: 100000000, reserveUSD_gt: 500000}
-  ) {
+  pools(first: $first, orderDirection: $orderDirection, orderBy: $orderBy) {
     id
     createdAtTimestamp
     feeTier
