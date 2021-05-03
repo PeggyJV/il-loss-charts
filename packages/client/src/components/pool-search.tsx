@@ -9,7 +9,7 @@ import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 import './pair-search.scss';
 import { resolveLogo } from 'components/token-with-logo';
 import { Box } from '@material-ui/core';
-import { poolSymbol, poolName, PoolLike } from 'util/formats';
+import { poolSymbol, PoolLike } from 'util/formats';
 
 import { TopPool, useTopPools } from 'hooks/data-fetchers';
 import { ThreeDots } from 'react-loading-icons';
