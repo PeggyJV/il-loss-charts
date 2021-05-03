@@ -176,12 +176,12 @@ export const AddLiquidityV3 = ({
         // TODO calculate expected depending on input token (also handle two side)
         const totalAmount = parseFloat(token0Amount);
         const expectedBaseAmount = totalAmount / 2;
-        // const expectedQuoteAmount = expectedBaseAmount * currentPrice;
+        const expectedQuoteAmountNoSlippage = expectedBaseAmount * currentPrice;
         const amount0Desired = ethers.utils
             .parseUnits(expectedBaseAmount.toString(), 18)
             .toString();
         const amount1Desired = ethers.utils
-            .parseUnits(expectedQuoteAmount.toString(), 18)
+            .parseUnits(expectedQuoteAmountNoSlippage.toString(), 18)
             .toString();
 
         const expectedQuoteAmount = await uniPool.getOutputAmount(new TokenAmount(baseTokenCurrency, expectedBaseAmount));
@@ -193,7 +193,7 @@ export const AddLiquidityV3 = ({
         const amount0Min = new BigNumber(expectedBaseAmount).times(
             new BigNumber(1).minus(slippageRatio)
         );
-        const amount1Min = new BigNumber(expectedQuoteAmount).times(
+        const amount1Min = new BigNumber(expectedQuoteAmountNoSlippage).times(
             new BigNumber(1).minus(slippageRatio)
         );
 
