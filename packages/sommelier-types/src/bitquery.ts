@@ -9,7 +9,7 @@ export interface Scalars {
   Boolean: boolean;
   Int: number;
   Float: number;
-  ISO8601DateTime: string;
+  ISO8601DateTime: any;
 }
 
 export interface BaseCurrency {

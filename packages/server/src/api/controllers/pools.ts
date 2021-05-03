@@ -62,11 +62,11 @@ async function getEthPrice(req: Request<Path, unknown, unknown, unknown>): Promi
 
 // GET /pools
 // should gen the query types from the joi schema?
-type GetTopPoolsQuery = { count: number, sort: 'volumeUSD' | 'reserveUSD' };
+type GetTopPoolsQuery = { count: number, sort: 'volumeUSD' | 'liquidity' };
 const getTopPoolsValidator = celebrate({
   [Segments.QUERY]: Joi.object().keys({
     count: Joi.number().min(1).max(1000).default(100),
-    sort: Joi.string().valid('volumeUSD', 'reserveUSD').default('volumeUSD'),
+    sort: Joi.string().valid('volumeUSD', 'liquidity').default('volumeUSD'),
   }),
   [Segments.PARAMS]: networkSchema,
 });

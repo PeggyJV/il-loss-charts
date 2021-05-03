@@ -47,11 +47,11 @@ export class UniswapV3Fetcher {
     try {
       const { bundle } = await this.sdk.getEthPrice(options);
 
-      if (bundle?.ethPrice == null) {
+      if (bundle?.ethPriceUSD == null) {
         throw new Error('ethPrice not returned.');
       }
 
-      return { ethPrice: new BigNumber(bundle.ethPrice) };
+      return { ethPrice: new BigNumber(bundle.ethPriceUSD) };
     } catch (error) {
       throw makeSdkError(`Could not fetch ethPrice.`, error);
     }

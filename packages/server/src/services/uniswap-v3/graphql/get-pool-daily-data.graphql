@@ -7,12 +7,14 @@ query getPoolDailyData ($id: ID!, $orderBy: String!, $orderDirection: String!, $
         }
     ) {
         date
-        id,
-        periodVolumeToken0,
-        periodVolumeToken1,
-        periodVolumeUSD,
-        reserveUSD
-        reserve0
-        reserve1
+        pool {
+            id
+        }
+        liquidity
+        sqrtPrice
+        volumeToken0
+        volumeToken1
+        volumeUSD
+        tvlUSD
     }
 }

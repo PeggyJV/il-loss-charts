@@ -13,7 +13,8 @@ export default function catchAsyncRoute(
             const result = await controllerFn(req, res);
             return res.json(result);
         } catch (err) {
-          next(err);
+            console.log('Error in Route:', err);
+            res.status(err.status).send(err);
         }
     };
 }

@@ -135,8 +135,9 @@ export interface LiquidityBand {
     indicatorName: string;
     metadata?: { [key: string]: any }
     currentPrice?: number;
-    upperBound: number;
-    lowerBound: number;
+    bounds: {
+        [key: string]: [number, number]
+    }
 }
 
 export type EthNetwork = "mainnet" | "rinkeby" | "goerli" | "ropsten" | "kovan";

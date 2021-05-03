@@ -2,6 +2,9 @@ import { useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
+import { Price, Token } from '@uniswap/sdk-core';
+import { priceToClosestTick } from '@uniswap/v3-sdk';
+
 import './add-liquidity-v3.scss';
 import 'rc-slider/assets/index.css';
 import { Box } from '@material-ui/core';
@@ -27,6 +30,8 @@ type Props = {
     gasPrices: EthGasPrices | null;
 };
 
+export type PriceDirection = 'bullish' | 'bearish' | 'neutral';
+
 export const AddLiquidityV3 = ({
     balances,
     pool,
@@ -34,23 +39,30 @@ export const AddLiquidityV3 = ({
 }: Props): JSX.Element | null => {
     const [token0Amount, setToken0Amount] = useState('0');
     const [token, setToken] = useState('ETH');
-    // const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // TODO calculate price impact
+    const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
     );
     const { wallet } = useWallet();
+    const [priceDirection, setPriceDirection] = useState<PriceDirection>('neutral');
     let provider: ethers.providers.Web3Provider | null = null;
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
 
+    console.log('Set pool');
+    (window as any).pool = pool;
+
     const token0 = pool?.token0?.id ?? '';
     const token1 = pool?.token1?.id ?? '';
-    const marketData = useMarketData(token0, token1);
-
+    const { newPair: marketData, indicators } = useMarketData(token0, token1);
+    (window as any).marketData = marketData;
+    (window as any).indicators = indicators;
+    const SELECTED_INDICATOR_NAME = 'bollingerEMANormalBand';
+    
     const doAddLiquidity = async () => {
-        if (!pool || !provider) return;
+        if (!pool || !provider || !indicators) return;
         if (!currentGasPrice) {
             throw new Error('Gas price not selected.');
         }
@@ -75,41 +87,54 @@ export const AddLiquidityV3 = ({
 
         debug.contract = addLiquidityContract;
 
-        // TODO get these addresses from pool
-        const side0 = '0xc778417E063141139Fce010982780140Aa0cD5Ab';
-        const side1 = '0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735';
-
         const fnName =
             token === 'ETH'
                 ? 'addLiquidityEthForUniV3'
                 : 'addLiquidityForUniV3';
         const tokenId = 0;
+        // TODO set real current price
         const currentPrice = 1634.7;
-        const baseAmount = parseFloat(token0Amount);
-        const quoteAmount = baseAmount * currentPrice;
+        // TODO calculate expected
+        const expectedBaseAmount = parseFloat(token0Amount);
+        const expectedQuoteAmount = expectedBaseAmount * currentPrice;
         const amount0Desired = ethers.utils
-            .parseUnits(baseAmount.toString(), 18)
+            .parseUnits(expectedBaseAmount.toString(), 18)
             .toString();
         const amount1Desired = ethers.utils
-            .parseUnits(quoteAmount.toString(), 18)
+            .parseUnits(expectedQuoteAmount.toString(), 18)
             .toString();
+            
+        const slippageRatio = new BigNumber(slippageTolerance).div(100);
+        const amount0Min = new BigNumber(expectedBaseAmount).times(new BigNumber(1).minus(slippageRatio));
+        const amount1Min = new BigNumber(expectedQuoteAmount).times(new BigNumber(1).minus(slippageRatio));
+
+        const indicator = indicators[SELECTED_INDICATOR_NAME];
+
+        const [lowerBound, upperBound] = indicator.bounds[priceDirection];
+        // Convert to lower tick and upper ticks
+        const baseTokenCurrency = new Token(Number(wallet.network), pool.token0.id, Number(pool.token0.decimals), pool.token0.symbol, pool.token0.name);
+        const quoteTokenCurrency = new Token(Number(wallet.network), pool.token0.id, Number(pool.token1.decimals), pool.token1.symbol, pool.token1.name);
+        const lowerBoundPrice = new Price(baseTokenCurrency, quoteTokenCurrency, lowerBound, 1);
+        const lowerBoundTick = priceToClosestTick(lowerBoundPrice);
+        const upperBoundPrice = new Price(baseTokenCurrency, quoteTokenCurrency, upperBound, 1);
+        const upperBoundTick = priceToClosestTick(upperBoundPrice);
 
         const mintParams = [
-            side0, // token0
-            side1, // token1
-            500, // feeTier TODO: get from pairData
-            75490, // tickLower TODO: choose dynamically from price and strategy
-            77810, // tickUpper TODO: choose dynamically from price and strategy
+            token0, // token0
+            token1, // token1
+            pool.feeTier, // feeTier 
+            lowerBoundTick, // tickLower
+            upperBoundTick, // tickUpper
             amount0Desired, // amount0Desired
             amount1Desired, // amount1Desired
-            0, // amount0Min TODO: use price impact to set min
-            0, // amount1Min TODO: use price impact to set min
+            amount0Min, // amount0Min
+            amount1Min, // amount1Min
             wallet.account, // recipient
             Math.floor(Date.now() / 1000) + 86400000, // deadline
         ];
 
         // approve DAI. TODO: Make this approval separate
-        const daiContract = new ethers.Contract(side1, erc20Abi, signer);
+        const daiContract = new ethers.Contract(token1, erc20Abi, signer);
 
         const baseApproveAmount = ethers.utils
             .parseUnits(

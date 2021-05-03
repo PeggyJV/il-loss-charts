@@ -9,12 +9,12 @@ query getPoolHourlyData ($id: ID!, $orderBy: String!, $orderDirection: String!, 
       pool {
           id
       }
+      liquidity
+      sqrtPrice
       periodStartUnix
-      periodVolumeToken0
-      periodVolumeToken1
-      periodVolumeUSD
-      reserveUSD
-      reserve0
-      reserve1
+      volumeToken0
+      volumeToken1
+      volumeUSD
+      tvlUSD
   }
 }

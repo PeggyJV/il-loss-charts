@@ -33,8 +33,11 @@ export function getEMABollingerBands(marketData: DexTrade[], numStdDevs = 2): Li
         quoteTokenId: sampleData.quoteCurrency.address,
         indicatorName: 'BollingerBand',
         currentPrice: marketData[0].quotePrice,
-        upperBound: ma + boundTerm,
-        lowerBound: ma - boundTerm,
+        bounds: {
+            bullish: [ma - boundTerm, ma + (boundTerm * 1.5)],
+            neutral: [ma - boundTerm, ma + boundTerm],
+            bearish: [ma - (boundTerm * 1.5), ma + boundTerm],
+        }
     };
 }
 
@@ -49,8 +52,11 @@ export function getSMABollingerBands(marketData: DexTrade[], numStdDevs = 2): Li
         quoteTokenId: sampleData.quoteCurrency.address,
         indicatorName: 'BollingerBand',
         currentPrice: marketData[0].quotePrice,
-        upperBound: ma + boundTerm,
-        lowerBound: ma - boundTerm,
+        bounds: {
+            bullish: [ma - boundTerm, ma + (boundTerm * 1.5)],
+            neutral: [ma - boundTerm, ma + boundTerm],
+            bearish: [ma - (boundTerm * 1.5), ma + boundTerm],
+        }
     };
 }
 
@@ -109,8 +115,7 @@ export function getRSILevels(marketData: DexTrade[]): LiquidityBand {
         quoteTokenId: sampleData.quoteCurrency.address,
         indicatorName: 'RSI',
         currentPrice: currentPrice,
-        upperBound,
-        lowerBound
+        bounds: { neutral: [lowerBound, upperBound] }
     };
 }
 
