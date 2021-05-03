@@ -1,5 +1,5 @@
 .liquidity-container {
-    min-width: 650px;
+    width: 650px;
     background: var(--bgDefault);
     border: 1px solid var(--borderPrimary);
     > div {
@@ -16,6 +16,7 @@
         border-radius: 4px;
         margin: 0 0.5rem;
         color: var(--faceSecondary);
+        text-align: center;
         span {
             padding: 0 0.5rem;
         }

@@ -1,23 +1,22 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
 import { Price, Token } from '@uniswap/sdk-core';
 import { priceToClosestTick } from '@uniswap/v3-sdk';
-
+import { resolveLogo } from 'components/token-with-logo';
+import { TokenWithBalance } from 'components/token-with-balance';
 import './add-liquidity-v3.scss';
 import 'rc-slider/assets/index.css';
 import { Box } from '@material-ui/core';
-import { EthGasPrices } from '@sommelier/shared-types';
 import config from 'config';
 import erc20Abi from 'constants/abis/erc20.json';
 import addLiquidityAbi from 'constants/abis/uniswap_v3_add_liquidity.json';
-
+import { LiquidityContext } from 'containers/liquidity-container';
 import { TokenInput } from 'components/token-input';
-import { WalletBalance } from 'components/wallet-balance';
 import { toastSuccess, toastWarn } from 'util/toasters';
 import { compactHash } from 'util/formats';
-
+// import { Grid } from 'react-loading-icons';
 import { WalletBalances } from 'types/states';
 import { useWallet } from 'hooks/use-wallet';
 import { useMarketData } from 'hooks/use-market-data';
@@ -28,43 +27,70 @@ import classNames from 'classnames';
 type Props = {
     balances: WalletBalances;
     pool: PoolOverview | null;
-    gasPrices: EthGasPrices | null;
 };
 
 export type PriceDirection = 'bullish' | 'bearish' | 'neutral';
 
 export const AddLiquidityV3 = ({
-    balances,
     pool,
-    gasPrices,
+    balances,
 }: Props): JSX.Element | null => {
+    const [token0, setToken0] = useState(pool?.token0?.id ?? '');
+    const [token1, setToken1] = useState(pool?.token1?.id ?? '');
     const [token0Amount, setToken0Amount] = useState('0');
-    const [token, setToken] = useState('ETH');
+    const [token1Amount, setToken1Amount] = useState('0');
+
+    const token0Symbol = pool?.token0?.symbol ?? '';
+    const token1Symbol = pool?.token1?.symbol ?? '';
+    // State here is used to compute what tokens are being used to add liquidity with.
+    // const initialState = {
+    //     [token0Symbol]: pool?.token0,
+    //     [token1Symbol]: pool?.token1,
+    // };
+
+    // const reducer = (
+    //     state: { [x: string]: any },
+    //     action: { type: any; payload: { sym: any } }
+    // ) => {
+    //     let sym; let token;
+    //     switch (action.type) {
+    //         case 'remove':
+    //             sym = action.payload.sym;
+    //             const { [sym]: omit, ...rest } = state;
+    //             return { ...rest };
+    //         case 'add':
+    //             const token = action.payload.token;
+    //             return { ...state, token };
+    //         default:
+    //             throw new Error();
+    //     }
+    // };
+    // const [state, dispatch] = useReducer(reducer, initialState);
+    // console.log('state ', state);
+    // const [token, setToken] = useState('ETH');
     // TODO calculate price impact
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
-        gasPrices?.standard
-    );
+    const { currentGasPrice, slippageTolerance } = useContext(LiquidityContext);
     const [sentiment, setSentiment] = useState<string>('neutral');
     const { wallet } = useWallet();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [priceDirection, setPriceDirection] = useState<PriceDirection>('neutral');
+    const [priceDirection, setPriceDirection] = useState<PriceDirection>(
+        'neutral'
+    );
     let provider: ethers.providers.Web3Provider | null = null;
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
     }
 
     (window as any).pool = pool;
+    const ETH_ID = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+    // const token0 = pool?.token0?.id ?? '';
+    // const token1 = pool?.token1?.id ?? '';
 
-    const token0 = pool?.token0?.id ?? '';
-    const token1 = pool?.token1?.id ?? '';
     const { newPair: marketData, indicators } = useMarketData(token0, token1);
     (window as any).indicators = indicators;
 
     const SELECTED_INDICATOR_NAME = 'bollingerEMANormalBand';
-    
+
     const doAddLiquidity = async () => {
         if (!pool || !provider || !indicators) return;
         if (!currentGasPrice) {
@@ -92,7 +118,7 @@ export const AddLiquidityV3 = ({
         debug.contract = addLiquidityContract;
 
         const fnName =
-            token === 'ETH'
+            token0 === 'ETH'
                 ? 'addLiquidityEthForUniV3'
                 : 'addLiquidityForUniV3';
         const tokenId = 0;
@@ -107,26 +133,54 @@ export const AddLiquidityV3 = ({
         const amount1Desired = ethers.utils
             .parseUnits(expectedQuoteAmount.toString(), 18)
             .toString();
-            
-        const slippageRatio = new BigNumber(slippageTolerance).div(100);
-        const amount0Min = new BigNumber(expectedBaseAmount).times(new BigNumber(1).minus(slippageRatio));
-        const amount1Min = new BigNumber(expectedQuoteAmount).times(new BigNumber(1).minus(slippageRatio));
+
+        const slippageRatio = new BigNumber(slippageTolerance as number).div(
+            100
+        );
+        const amount0Min = new BigNumber(expectedBaseAmount).times(
+            new BigNumber(1).minus(slippageRatio)
+        );
+        const amount1Min = new BigNumber(expectedQuoteAmount).times(
+            new BigNumber(1).minus(slippageRatio)
+        );
 
         const indicator = indicators[SELECTED_INDICATOR_NAME];
 
         const [lowerBound, upperBound] = indicator.bounds[priceDirection];
         // Convert to lower tick and upper ticks
-        const baseTokenCurrency = new Token(Number(wallet.network), pool.token0.id, Number(pool.token0.decimals), pool.token0.symbol, pool.token0.name);
-        const quoteTokenCurrency = new Token(Number(wallet.network), pool.token0.id, Number(pool.token1.decimals), pool.token1.symbol, pool.token1.name);
-        const lowerBoundPrice = new Price(baseTokenCurrency, quoteTokenCurrency, lowerBound, 1);
+        const baseTokenCurrency = new Token(
+            Number(wallet.network),
+            pool.token0.id,
+            Number(pool.token0.decimals),
+            pool.token0.symbol,
+            pool.token0.name
+        );
+        const quoteTokenCurrency = new Token(
+            Number(wallet.network),
+            pool.token0.id,
+            Number(pool.token1.decimals),
+            pool.token1.symbol,
+            pool.token1.name
+        );
+        const lowerBoundPrice = new Price(
+            baseTokenCurrency,
+            quoteTokenCurrency,
+            lowerBound,
+            1
+        );
         const lowerBoundTick = priceToClosestTick(lowerBoundPrice);
-        const upperBoundPrice = new Price(baseTokenCurrency, quoteTokenCurrency, upperBound, 1);
+        const upperBoundPrice = new Price(
+            baseTokenCurrency,
+            quoteTokenCurrency,
+            upperBound,
+            1
+        );
         const upperBoundTick = priceToClosestTick(upperBoundPrice);
 
         const mintParams = [
             token0, // token0
             token1, // token1
-            pool.feeTier, // feeTier 
+            pool.feeTier, // feeTier
             lowerBoundTick, // tickLower
             upperBoundTick, // tickUpper
             amount0Desired, // amount0Desired
@@ -189,7 +243,7 @@ export const AddLiquidityV3 = ({
         console.log(mintParams);
         console.log('FN NAME', fnName);
 
-        const decimals = parseInt(balances[token]?.decimals || '0', 10);
+        const decimals = parseInt(balances[token0]?.decimals || '0', 10);
         if (decimals === 0) {
             throw new Error(
                 `Do not have decimal units for ${decimals} - unsafe, cannot proceed`
@@ -197,7 +251,7 @@ export const AddLiquidityV3 = ({
         }
 
         let baseMsgValue = ethers.utils.parseUnits('0.005', 18);
-        if (token === 'ETH') {
+        if (token0 === 'ETH') {
             baseMsgValue = baseMsgValue.add(amount0Desired);
         }
         const value = baseMsgValue.toString();
@@ -235,61 +289,6 @@ export const AddLiquidityV3 = ({
         toastSuccess(`Submitted: ${compactHash(hash)}`);
     };
 
-    // useEffect(() => {
-    //     const reserveLookup: Record<string, string> = {
-    //         [pairData?.token0.symbol as string]: pairData?.reserve0 || '',
-    //         [pairData?.token1.symbol as string]: pairData?.reserve1 || '',
-    //     };
-    //     // const CONTRACT_ADDRESS = twoSide
-    //     //     ? EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS
-    //     //     : EXCHANGE_ADD_ABI_ADDRESS;
-
-    //     const CONTRACT_ADDRESS = '0xA522AA47C40F2BAC847cbe4D37455c521E69DEa7';
-
-    // //     const tokenDataMap = Object.keys(balances).reduce<
-    //         Record<
-    //             string,
-    //             {
-    //                 id: string;
-    //                 balance: string;
-    //                 allowance: {
-    //                     [address: string]: string;
-    //                 };
-    //                 reserve: string;
-    //             }
-    //         >
-    //     >((acc, token) => {
-    //         if (token === 'currentPair') return acc;
-    //         const balance = ethers.utils.formatUnits(
-    //             balances?.[token].balance || 0,
-    //             parseInt(balances[token]?.decimals || '0', 10)
-    //         );
-
-    //         const allowance = ethers.utils.formatUnits(
-    //             balances?.[token].allowance?.[CONTRACT_ADDRESS] || 0,
-    //             parseInt(balances[token]?.decimals || '0', 10)
-    //         );
-
-    //         const id = balances?.[token].id;
-
-    //         const reserve =
-    //             token === 'ETH' ? reserveLookup['WETH'] : reserveLookup[token];
-
-    //         acc[token] = {
-    //             id,
-    //             balance,
-    //             allowance: {
-    //                 [CONTRACT_ADDRESS]: allowance,
-    //             },
-    //             reserve,
-    //         };
-    //         return acc;
-    //     }, {});
-
-    //     setTokenData(tokenDataMap);
-    // }, [balances, pairData]);
-
-    // if (!marketData) return null;
     if (!pool || !pool?.token0 || !pool?.token1) return null;
     debug.marketData = marketData;
     const currentPrice = parseFloat(pool.token0Price);
@@ -299,48 +298,85 @@ export const AddLiquidityV3 = ({
         liquidityLow = (currentPrice * 0.9).toString();
         liquidityHigh = (currentPrice * 1.1).toString();
     }
+    console.log(balances);
+    console.log(token0, token1);
 
     return (
         <>
             <div className='add-v3-container'>
-                <div className='token-and-wallet'>
-                    <div className='token-pair-selector'>
+                <Box
+                    display='flex'
+                    justifyContent='space-between'
+                    alignItems='center'
+                >
+                    <div>Input Token(s) 2 max</div>
+                    <Box display='flex'>
+                        <div
+                            className='token-with-logo'
+                            onClick={() =>
+                                setToken0(token0 ? '' : pool?.token0?.id)
+                            }
+                        >
+                            {resolveLogo(pool?.token0?.id)}&nbsp;
+                            {pool?.token0?.symbol}
+                        </div>
+                        <div
+                            className='token-with-logo'
+                            onClick={() =>
+                                setToken1(token0 ? '' : pool?.token0?.id)
+                            }
+                        >
+                            {resolveLogo(pool?.token1?.id)}&nbsp;
+                            {pool?.token1?.symbol}
+                        </div>
+                        <div className='token-with-logo'>
+                            {resolveLogo(ETH_ID)}&nbsp;
+                            {'ETH'}
+                        </div>
+                    </Box>
+                </Box>
+                <br />
+                <Box display='flex' justifyContent='space-between'>
+                    <Box width='48%'>
+                        <TokenWithBalance
+                            id={pool.token0.id}
+                            name={pool.token0.symbol}
+                            balance={balances?.[token0Symbol]?.balance}
+                            decimals={balances?.[token0Symbol]?.decimals}
+                        />
+                        <br />
+                        <TokenWithBalance
+                            id={pool.token1.id}
+                            name={pool.token1.symbol}
+                            balance={balances?.[token1Symbol]?.balance}
+                            decimals={balances?.[token1Symbol]?.decimals}
+                        />
+                    </Box>
+                    <Box width='48%'>
                         <TokenInput
-                            token={token}
+                            token={token0Symbol}
                             amount={token0Amount}
                             updateAmount={setToken0Amount}
-                            updateToken={(token) => {
-                                console.log(token);
-                                setToken(token);
-                            }}
                             handleTokenRatio={() => {
                                 return '';
                             }}
-                            options={['ETH', token0, token1]}
                             balances={balances}
                             twoSide={false}
                         />
-                        {/* <FontAwesomeIcon icon={faRetweet} /> */}
-
-                        {/* <TokenInput
-                            token={token1}
+                        <br />
+                        <TokenInput
+                            token={token1Symbol}
                             amount={token1Amount}
                             updateAmount={setToken1Amount}
-                            updateToken={() => {
-                                return '';
-                            }}
                             handleTokenRatio={() => {
                                 return '';
                             }}
-                            options={['ETH', token1]}
                             balances={balances}
                             twoSide={true}
-                        /> */}
-                    </div>
-                    <div className='wallet-fees'>
-                        <WalletBalance balances={balances} />
-                    </div>
-                </div>
+                        />
+                    </Box>
+                </Box>
+                <br />
                 <Box
                     display='flex'
                     justifyContent='space-between'
@@ -376,7 +412,10 @@ export const AddLiquidityV3 = ({
                     <Box display='flex' justifyContent='space-between'>
                         <div>Current Price</div>
                         <div>
-                            <span className='face-deep'>{currentPrice} {pool.token0.symbol} per {pool.token1.symbol}</span>
+                            <span className='face-deep'>
+                                {currentPrice} {pool.token0.symbol} per{' '}
+                                {pool.token1.symbol}
+                            </span>
                         </div>
                     </Box>
                     <Box display='flex' justifyContent='space-between'>

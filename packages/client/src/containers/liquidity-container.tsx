@@ -21,14 +21,14 @@ import classNames from 'classnames';
 type LiquidityContext = {
     poolId: string | null;
     currentGasPrice: number | null;
-    slippageTolerance: string | null;
+    slippageTolerance: number;
     setPoolId: Dispatch<SetStateAction<string | null>>;
     setCurrentGasPrice: Dispatch<SetStateAction<number | null>>;
 };
 const initialContext = {
     poolId: null,
     selectedGasPrice: null,
-    slippageTolerance: null,
+    slippageTolerance: 3.0,
     currentGasPrice: null,
 };
 export const LiquidityContext = createContext<Partial<LiquidityContext>>(
@@ -74,6 +74,7 @@ const TransactionSettings = ({
         LiquidityContext
     );
 
+    // TODO show loader only for prices
     if (!gasPrices) return <ThreeDots height='1rem' />;
     const isSlowActive = currentGasPrice === gasPrices?.standard;
     const isNormalActive = currentGasPrice === gasPrices?.fast;
@@ -160,7 +161,6 @@ export const LiquidityContainer = ({
                     <AddLiquidityV3
                         pool={pool}
                         balances={balances}
-                        gasPrices={gasPrices}
                     />
                 )}
                 {/* <ActionBar /> */}
