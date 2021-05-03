@@ -23,6 +23,7 @@ import { useWallet } from 'hooks/use-wallet';
 import { useMarketData } from 'hooks/use-market-data';
 import { PoolOverview } from 'hooks/data-fetchers';
 import { debug } from 'util/debug';
+import classNames from 'classnames';
 
 type Props = {
     balances: WalletBalances;
@@ -44,6 +45,7 @@ export const AddLiquidityV3 = ({
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
         gasPrices?.standard
     );
+    const [sentiment, setSentiment] = useState<string>('neutral');
     const { wallet } = useWallet();
     const [priceDirection, setPriceDirection] = useState<PriceDirection>('neutral');
     let provider: ethers.providers.Web3Provider | null = null;
@@ -336,6 +338,37 @@ export const AddLiquidityV3 = ({
                         <WalletBalance balances={balances} />
                     </div>
                 </div>
+                <Box
+                    display='flex'
+                    justifyContent='space-between'
+                    className='sentiment'
+                >
+                    <div
+                        className={classNames({
+                            active: sentiment === 'bullish',
+                        })}
+                        onClick={() => setSentiment('bullish')}
+                    >
+                        Bullish
+                    </div>
+                    <div
+                        className={classNames({
+                            active: sentiment === 'neutral',
+                        })}
+                        onClick={() => setSentiment('neutral')}
+                    >
+                        Neutral
+                    </div>
+                    <div
+                        className={classNames({
+                            active: sentiment === 'bearish',
+                        })}
+                        onClick={() => setSentiment('bearish')}
+                    >
+                        Bearish
+                    </div>
+                </Box>
+                <br />
                 <div className='preview'>
                     <Box display='flex' justifyContent='space-between'>
                         <div>Current Price</div>
