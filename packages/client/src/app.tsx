@@ -51,12 +51,12 @@ export const PendingTxContext = createContext<Partial<PendingTxContext>>(
 function App(): ReactElement {
     // ------------------ Initial Mount - API calls for first render ------------------
 
-    const [allPairs, setAllPairs] = useState<AllPairsState>({
-        isLoading: true,
-        pairs: null,
-        lookups: null,
-        byLiquidity: null,
-    });
+    // const [allPairs, setAllPairs] = useState<AllPairsState>({
+    //     isLoading: true,
+    //     pairs: null,
+    //     lookups: null,
+    //     byLiquidity: null,
+    // });
     const [currentError, setError] = useState<string | null>(null);
     const [gasPrices, setGasPrices] = useState<EthGasPrices | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
@@ -71,34 +71,34 @@ function App(): ReactElement {
     useEffect(() => {
         document.body.classList.add('dark');
     }, []);
-    useEffect(() => {
-        const fetchAllPairs = async () => {
-            // Fetch all pairs
-            const { data: pairsRaw, error } = await Uniswap.getTopPairs();
+    // useEffect(() => {
+    //     const fetchAllPairs = async () => {
+    //         // Fetch all pairs
+    //         const { data: pairsRaw, error } = await Uniswap.getTopPairs();
 
-            if (error) {
-                // we could not list pairs
-                console.warn(`Could not fetch top pairs: ${error}`);
-                debug.error = error;
-                setError(error);
-                return;
-            }
+    //         if (error) {
+    //             // we could not list pairs
+    //             console.warn(`Could not fetch top pairs: ${error}`);
+    //             debug.error = error;
+    //             setError(error);
+    //             return;
+    //         }
 
-            if (pairsRaw) {
-                const calculated = calculatePairRankings(pairsRaw);
+    //         if (pairsRaw) {
+    //             const calculated = calculatePairRankings(pairsRaw);
 
-                setAllPairs({
-                    isLoading: false,
-                    pairs: calculated.pairs.map((p) => new UniswapPair(p)),
-                    lookups: calculated.pairLookups,
-                    byLiquidity: calculated.byLiquidity,
-                });
-            }
-        };
+    //             setAllPairs({
+    //                 isLoading: false,
+    //                 pairs: calculated.pairs.map((p) => new UniswapPair(p)),
+    //                 lookups: calculated.pairLookups,
+    //                 byLiquidity: calculated.byLiquidity,
+    //             });
+    //         }
+    //     };
 
-        void fetchAllPairs();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    //     void fetchAllPairs();
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, []);
 
     // TODO: are we using this??
     const { sendJsonMessage, lastJsonMessage } = useWebSocket(config.wsApi);
@@ -176,7 +176,7 @@ function App(): ReactElement {
                                                 <Switch>
                                                     <Route path='/'>
                                                         <LandingContainer
-                                                            allPairs={allPairs}
+
                                                             gasPrices={
                                                                 gasPrices
                                                             }

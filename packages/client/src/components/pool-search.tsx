@@ -12,13 +12,14 @@ import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 import './pair-search.scss';
 import { resolveLogo } from 'components/token-with-logo';
 import { poolName } from 'util/formats';
-
+import {Box} from '@material-ui/core';
 import { TopPool, useTopPools } from 'hooks/data-fetchers';
+import { blue } from '@material-ui/core/colors';
 
 const useStyles = makeStyles(() => ({
     input: {
         color: 'var(--facePrimary)',
-        background: 'var(--bgContainer)',
+        background: 'var(--bgDeep)',
     },
 }));
 
@@ -81,8 +82,7 @@ export function PoolSearch({
         </div>
     );
     return (
-        <div className='pair-search-container'>
-            <h4 className='heading-main'>SEARCH UNISWAP V3 POOLS</h4>
+        <Box>
             <Autocomplete
                 id='all-pairs'
                 options={pools}
@@ -97,11 +97,11 @@ export function PoolSearch({
                 loadingText={'...loading'}
                 onChange={(_, pool) => {
                     console.log('setting pool id in pool search', pool?.id)
-                    pool && setPoolId(pool?.id);
+                    setPoolId(pool?.id ?? null);
                 }}
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 getOptionLabel={poolName}
-                style={{ width: 500 }}
+                style={{ width: 400 }}
                 filterOptions={poolFilter}
                 renderOption={renderPoolWithLogo}
                 renderInput={(params) => (
@@ -109,15 +109,16 @@ export function PoolSearch({
                         {...params}
                         className='pair-search-text'
                         style={{
-                            border: '1px solid var(--borderAccentAlt)',
+                            border: '1px solid var(--borderPrimary)',
+                            borderRadius: '2px',
                             fontWeight: 400,
                             textTransform: 'uppercase',
-                            background: 'var(--bgContainer)',
+                            background: 'var(--bgDeep)',
                         }}
                     />
                 )}
             />
-        </div>
+        </Box>
     );
 }
 

@@ -1,16 +1,19 @@
 .MuiAutocomplete-popper {
     color: var(--faceSecondary);
-    font-family: 'Source Sans Pro';
+    font-family: 'Source Code Pro';
     .MuiAutocomplete-paper {
-        background: var(--bgContainer);
+        background: var(--bgDeep);
         color: var(--faceSecondary);
+        border: 1px solid var(--borderAccentAlt);
         .MuiAutocomplete-listbox {
             .MuiAutocomplete-option {
-                padding: 1rem 0.85rem;
+                padding: 0.85rem;
                 font-weight: 600;
+                // border-bottom: 1px solid var(--borderDefault);
                 &[data-focus='true'] {
                     color: var(--faceDeep);
-                    background: var(--bgInfo);
+                    background: var(--objDefault);
+                    // border-bottom: 1px solid var(--borderPrimary);
                 }
             }
         }
@@ -19,15 +22,23 @@
         }
     }
 }
+
+.MuiAutocomplete-root {
+    .Mui-focused {
+        border: 1px solid var(--borderAccentAlt);
+        border-radius: 2px;
+    }
+}
+
 .MuiAutocomplete-endAdornment {
     color: var(--faceSecondary);
     svg {
         fill: var(--faceAccentAlt);
     }
     .MuiAutocomplete-clearIndicator {
-      svg {
-        fill: var(--faceSecondary);
-      }
+        svg {
+            fill: var(--faceSecondary);
+        }
     }
 }
 
@@ -38,6 +49,9 @@
 #all-pairs {
     padding: 1rem;
     text-transform: uppercase;
+    &:active {
+        border: 1px solid red;
+    }
 }
 
 .pair-option-with-logo {
@@ -51,13 +65,18 @@
         font-size: 1.5rem;
     }
     .pair {
-      border: 1px solid var(--borderMain);
-      padding: 0.5rem 1rem;
-      background: var(--bgSecondary);
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      line-height: 2rem;
-      font-size: 1rem;
+        border: 1px solid var(--borderDefault);
+        width: 125px;
+        height: 50px;
+        background: var(--objDefault);
+        border-radius: 2px;
+        border: 1px solid var(--borderPrimary);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 2rem;
+        font-size: 1rem;
     }
 }
