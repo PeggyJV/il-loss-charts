@@ -1,0 +1,44 @@
+.liquidity-container {
+    min-width: 650px;
+    background: var(--bgDefault);
+    border: 1px solid var(--borderPrimary);
+    > div {
+        border-bottom: 1px solid var(--borderDefault);
+        padding: 1rem;
+    }
+}
+
+.transaction-speed {
+    display: flex;
+    > div {
+        padding: 0.3rem;
+        border: 1px solid var(--borderPrimary);
+        border-radius: 4px;
+        margin: 0 0.5rem;
+        color: var(--faceSecondary);
+        span {
+            padding: 0 0.5rem;
+        }
+        &:hover {
+            background: var(--objDefault);
+            color: var(--faceDeep);
+            border: 1px solid var(--borderDefault);
+            cursor: pointer;
+        }
+    }
+    .active {
+        background: var(--objDefault);
+        color: var(--faceDeep);
+        border: 1px solid var(--borderDefault);
+    }
+}
+
+.transaction-settings {
+    padding: 0.3rem;
+    border: 1px solid var(--borderPrimary);
+    border-radius: 4px;
+    // margin: 0 0.5rem;
+    // color: var(--faceSecondary);
+    color: var(--faceSecondary);
+    cursor: pointer;
+}

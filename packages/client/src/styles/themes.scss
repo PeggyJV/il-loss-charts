@@ -3,34 +3,70 @@
 .dark {
     //backgrounds
     --bgDeep: var(--purple100);
-    --bgMain: var(--purple80);
-    --bgPrimary: var(--purple75);
+    --bgDefault: var(--purple90);
+    --bgPrimary: var(--purple80);
     --bgSecondary: var(--purple70);
-    --bgContainer: var(--purple90);
-    --bgOffset: var(--purple60);
-    --bgMoon: var(--green60);
-    --bgDump: var(--red70);
-    --bgAccent: var(--jam70);
-    --bgAccentAlt: var(--bubble50);
 
-    --borderDeep: var(--purple100);
-    --borderMain: var(--purple60);
-    --borderSecondary: var(--purple80);
-    --borderOffset: var(--bubble10);
+    --objDeep: var(--purple90);
+    --objDefault: var(--purple80);
+    --objPrimary: var(--purple70);
+    --objSecondary: var(--purple60);
+    --objPositive: var(--green80);
+    --objPositiveAlt: var(--green90);
+    --objNegative: var(--red80);
+    --objNegativeAlt: var(--red90);
+    --objAccent: var(--jam60);
+    --objAccentAlt: var(--bubble60);
+
+    // --borderDeep: var(--purple100);
+    --borderDefault: var(--purple80);
+    --borderPrimary: var(--purple70);
+    --borderSecondary: var(--purple40);
     --borderAccent: var(--jam40);
     --borderAccentAlt: var(--bubble40);
-
+    
     //fonts & svgs
     --faceDeep: var(--mono10);
-    --facePrimary: var(--mono20);
-    --faceSecondary: var(--mono40);
-    --faceOffset: var(--mono80);
-    --faceDisabled: var(--mono60);
-    --faceAccent: var(--jam50);
-    --faceAccentAlt: var(--bubble50);
-    --faceMoon: var(--green30);
-    --faceMoonSubtle: var(--green40);
-    --faceDump: var(--red50);
+    --faceDefault: var(--mono30);
+    --facePrimary: var(--mono40);
+    --faceSecondary: var(--mono70);
+    --faceDisabled: var(--mono80);
+    --faceAccent: var(--jam30);
+    --faceAccentAlt: var(--bubble30);
+    --facePositive: var(--green30);
+    --facePositiveAlt: var(--green40);
+    --faceNegative: var(--red30);
+    --faceNegativeAlt: var(--red40);
+
+    // --bgDeep: var(--purple100);
+    // --bgMain: var(--purple80);
+    // --bgPrimary: var(--purple75);
+    // --bgSecondary: var(--purple70);
+    // --bgContainer: var(--purple90);
+    // --bgOffset: var(--purple60);
+    // --bgMoon: var(--green60);
+    // --bgDump: var(--red70);
+    // --bgAccent: var(--jam70);
+    // --bgAccentAlt: var(--bubble50);
+
+    // --borderDeep: var(--purple100);
+    // --borderMain: var(--purple60);
+    // --borderSecondary: var(--purple80);
+    // --borderOffset: var(--bubble10);
+    // --borderAccent: var(--jam40);
+    // --borderAccentAlt: var(--bubble40);
+
+    // //fonts & svgs
+    // --faceDeep: var(--mono10);
+    // --facePrimary: var(--mono20);
+    // --faceSecondary: var(--mono40);
+    // --faceOffset: var(--mono80);
+    // --faceDisabled: var(--mono60);
+    // --faceAccent: var(--jam50);
+    // --faceAccentAlt: var(--bubble50);
+    // --faceMoon: var(--green30);
+    // --faceMoonSubtle: var(--green40);
+    // --faceDump: var(--red50);
 
     // semantic colors / UI objects
     // info
@@ -45,35 +81,34 @@
     // --btnInfoActive: var();
     // --btnInfoHover: var();
 
-    // action
-    --bgAction: var(--jam50);
-    --btnAction: var(--faceDeep);
-    --btnActionHover: var(--jam50);
+    // // action
+    // --bgAction: var(--jam50);
+    // --btnAction: var(--faceDeep);
+    // --btnActionHover: var(--jam50);
 
-    // info
-    --bgInfo: var(--purple50);
-    --bgInfoBorder: var(--purple60);
-    --btnInfo: var(--purple50);
-    --btnInfoHover: var(--purple40);
-    --btnInfoBorder: var(--purple40);
+    // // info
+    // --bgInfo: var(--purple50);
+    // --bgInfoBorder: var(--purple60);
+    // --btnInfo: var(--purple50);
+    // --btnInfoHover: var(--purple40);
+    // --btnInfoBorder: var(--purple40);
 
-    // warn
-    --bgWarn: var(--yellow90);
-    --bgWarnBorder: var(--yellow100);
+    // // warn
+    // --bgWarn: var(--yellow90);
+    // --bgWarnBorder: var(--yellow100);
 
-    // moon
-    --btnMoon: var(--green80);
-    --btnMoonHover: var(--green70);
-    --btnMoonBorder: var(--green70);
+    // // moon
+    // --btnMoon: var(--green80);
+    // --btnMoonHover: var(--green70);
+    // --btnMoonBorder: var(--green70);
 
-    // dump
-    --bgDump: var(--red90);
-    --bgDumpBorder: var(--red100);
-    --btnDump: var(--red80);
-    --btnDumpHover: var(--red70);
-    --btnDumpBorder: var(--red70); // fixeMe
+    // // dump
+    // --bgDump: var(--red90);
+    // --bgDumpBorder: var(--red100);
+    // --btnDump: var(--red80);
+    // --btnDumpHover: var(--red70);
+    // --btnDumpBorder: var(--red70); // fixeMe
     
-    background: black;
 }
 
 .light {

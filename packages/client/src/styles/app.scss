@@ -1,7 +1,7 @@
 // Import Bootstrap and its default variables
 // @import '~bootstrap/scss/bootstrap.scss';
 @import './themes.scss';
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@100;400;600&family=Source+Sans+Pro&display=swap');
 
 html {
@@ -9,8 +9,8 @@ html {
 }
 
 body {
-    font-family: 'Source Sans Pro', sans-serif;
-    background: #050211;
+    font-family: 'Source Code Pro', sans-serif;
+    background: var(--bgDeep);
 }
 a,
 a:hover,
@@ -76,7 +76,7 @@ p {
 
 .btn-neutral {
     padding: 0.25rem 0.5rem;
-    font-family: 'Source Sans Pro';
+    font-family: 'Source Code Pro';
     color: var(--faceDeep);
     text-transform: uppercase;
     font-size: 0.8rem;
@@ -250,13 +250,13 @@ p {
     text-align: right;
 }
 
-.pair-search-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    height: 10rem;
-}
+// .pair-search-container {
+//     display: flex;
+//     flex-direction: column;
+//     justify-content: space-around;
+//     align-items: center;
+//     height: 10rem;
+// }
 
 .card.no-border {
     // height: 120px;
@@ -1001,26 +1001,6 @@ p {
 
 .gas-prices-input {
     text-align: right;
-}
-
-.price-container {
-    margin-bottom: 2em;
-}
-
-.price-container .price-heading {
-    text-align: center;
-}
-
-.price-container .liquidity-heading {
-    text-align: center;
-}
-
-.price-container .price-impact {
-    color: var(--bgMoon);
-}
-
-.add-v3-container .sub-heading {
-    padding-left: 1em;
 }
 
 .rw-popup-container.rw-calendar-popup {

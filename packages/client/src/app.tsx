@@ -16,7 +16,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import useWebSocket from 'react-use-websocket';
 
 import config from 'config';
-import { UniswapPair, EthGasPrices } from '@sommelier/shared-types';
+import { EthGasPrices } from '@sommelier/shared-types';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LandingContainer from 'containers/landing-container';
@@ -24,10 +24,6 @@ import ConnectWalletModal from 'components/connect-wallet-modal';
 import { PageError, ModalError } from 'components/page-error';
 
 import { WalletProvider } from 'hooks/use-wallet';
-import { UniswapApiFetcher as Uniswap } from 'services/api';
-import { calculatePairRankings } from 'services/calculate-stats';
-import { AllPairsState } from 'types/states';
-import { debug } from 'util/debug';
 
 export type PendingTx = {
     approval: Array<string>;
@@ -51,13 +47,13 @@ export const PendingTxContext = createContext<Partial<PendingTxContext>>(
 function App(): ReactElement {
     // ------------------ Initial Mount - API calls for first render ------------------
 
-    const [allPairs, setAllPairs] = useState<AllPairsState>({
-        isLoading: true,
-        pairs: null,
-        lookups: null,
-        byLiquidity: null,
-    });
-    const [currentError, setError] = useState<string | null>(null);
+    // const [allPairs, setAllPairs] = useState<AllPairsState>({
+    //     isLoading: true,
+    //     pairs: null,
+    //     lookups: null,
+    //     byLiquidity: null,
+    // });
+
     const [gasPrices, setGasPrices] = useState<EthGasPrices | null>(null);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
 
@@ -71,34 +67,34 @@ function App(): ReactElement {
     useEffect(() => {
         document.body.classList.add('dark');
     }, []);
-    useEffect(() => {
-        const fetchAllPairs = async () => {
-            // Fetch all pairs
-            const { data: pairsRaw, error } = await Uniswap.getTopPairs();
+    // useEffect(() => {
+    //     const fetchAllPairs = async () => {
+    //         // Fetch all pairs
+    //         const { data: pairsRaw, error } = await Uniswap.getTopPairs();
 
-            if (error) {
-                // we could not list pairs
-                console.warn(`Could not fetch top pairs: ${error}`);
-                debug.error = error;
-                setError(error);
-                return;
-            }
+    //         if (error) {
+    //             // we could not list pairs
+    //             console.warn(`Could not fetch top pairs: ${error}`);
+    //             debug.error = error;
+    //             setError(error);
+    //             return;
+    //         }
 
-            if (pairsRaw) {
-                const calculated = calculatePairRankings(pairsRaw);
+    //         if (pairsRaw) {
+    //             const calculated = calculatePairRankings(pairsRaw);
 
-                setAllPairs({
-                    isLoading: false,
-                    pairs: calculated.pairs.map((p) => new UniswapPair(p)),
-                    lookups: calculated.pairLookups,
-                    byLiquidity: calculated.byLiquidity,
-                });
-            }
-        };
+    //             setAllPairs({
+    //                 isLoading: false,
+    //                 pairs: calculated.pairs.map((p) => new UniswapPair(p)),
+    //                 lookups: calculated.pairLookups,
+    //                 byLiquidity: calculated.byLiquidity,
+    //             });
+    //         }
+    //     };
 
-        void fetchAllPairs();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    //     void fetchAllPairs();
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, []);
 
     // TODO: are we using this??
     const { sendJsonMessage, lastJsonMessage } = useWebSocket(config.wsApi);
@@ -152,43 +148,32 @@ function App(): ReactElement {
                                 value={{ pendingTx, setPendingTx }}
                             >
                                 <div className='app-body' id='app-body'>
-                                    {currentError ? (
-                                        <PageError errorMsg={currentError} />
-                                    ) : (
-                                        <>
-                                            <ErrorBoundary
-                                                FallbackComponent={ModalError}
-                                            >
-                                                <ConnectWalletModal
-                                                    show={showConnectWallet}
-                                                    setShow={
-                                                        setShowConnectWallet
-                                                    }
-                                                />
-                                            </ErrorBoundary>
-                                            <ErrorBoundary
-                                                fallbackRender={({ error }) => (
-                                                    <PageError
-                                                        errorMsg={error}
+                                    <>
+                                        <ErrorBoundary
+                                            FallbackComponent={ModalError}
+                                        >
+                                            <ConnectWalletModal
+                                                show={showConnectWallet}
+                                                setShow={setShowConnectWallet}
+                                            />
+                                        </ErrorBoundary>
+                                        <ErrorBoundary
+                                            fallbackRender={({ error }) => (
+                                                <PageError errorMsg={error} />
+                                            )}
+                                        >
+                                            <Switch>
+                                                <Route path='/'>
+                                                    <LandingContainer
+                                                        gasPrices={gasPrices}
+                                                        setShowConnectWallet={
+                                                            setShowConnectWallet
+                                                        }
                                                     />
-                                                )}
-                                            >
-                                                <Switch>
-                                                    <Route path='/'>
-                                                        <LandingContainer
-                                                            allPairs={allPairs}
-                                                            gasPrices={
-                                                                gasPrices
-                                                            }
-                                                            setShowConnectWallet={
-                                                                setShowConnectWallet
-                                                            }
-                                                        />
-                                                    </Route>
-                                                </Switch>
-                                            </ErrorBoundary>
-                                        </>
-                                    )}
+                                                </Route>
+                                            </Switch>
+                                        </ErrorBoundary>
+                                    </>
                                 </div>
                             </PendingTxContext.Provider>
                         </div>
