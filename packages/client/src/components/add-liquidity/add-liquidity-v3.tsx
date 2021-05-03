@@ -2,8 +2,8 @@ import { useState, useContext } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
-import { Price, Token } from '@uniswap/sdk-core';
-import { priceToClosestTick } from '@uniswap/v3-sdk';
+import { Price, Token, TokenAmount } from '@uniswap/sdk-core';
+import { FeeAmount, Pool, priceToClosestTick } from '@uniswap/v3-sdk';
 import { resolveLogo } from 'components/token-with-logo';
 import { TokenWithBalance } from 'components/token-with-balance';
 import './add-liquidity-v3.scss';
@@ -88,6 +88,18 @@ export const AddLiquidityV3 = ({
     (window as any).indicators = indicators;
 
     const SELECTED_INDICATOR_NAME = 'bollingerEMANormalBand';
+    const currentPrice = marketData?.quotePrice ?? parseFloat(pool?.token0Price || '0');
+
+    let liquidityLow: number, liquidityHigh: number;
+    if (indicators == null) {
+        liquidityLow = (currentPrice * 0.9);
+        liquidityHigh = (currentPrice * 1.1);
+    } else {
+        const indicator = indicators[SELECTED_INDICATOR_NAME];
+        const [lowerBound, upperBound] = indicator.bounds[sentiment];
+        liquidityLow = lowerBound;
+        liquidityHigh = upperBound;
+    }
 
     const doAddLiquidity = async () => {
         if (!pool || !provider || !indicators) return;
@@ -120,31 +132,7 @@ export const AddLiquidityV3 = ({
                 ? 'addLiquidityEthForUniV3'
                 : 'addLiquidityForUniV3';
         const tokenId = 0;
-        // TODO set real current price
-        const currentPrice = 1634.7;
-        // TODO calculate expected
-        const expectedBaseAmount = parseFloat(token0Amount);
-        const expectedQuoteAmount = expectedBaseAmount * currentPrice;
-        const amount0Desired = ethers.utils
-            .parseUnits(expectedBaseAmount.toString(), 18)
-            .toString();
-        const amount1Desired = ethers.utils
-            .parseUnits(expectedQuoteAmount.toString(), 18)
-            .toString();
 
-        const slippageRatio = new BigNumber(slippageTolerance as number).div(
-            100
-        );
-        const amount0Min = new BigNumber(expectedBaseAmount).times(
-            new BigNumber(1).minus(slippageRatio)
-        );
-        const amount1Min = new BigNumber(expectedQuoteAmount).times(
-            new BigNumber(1).minus(slippageRatio)
-        );
-
-        const indicator = indicators[SELECTED_INDICATOR_NAME];
-
-        const [lowerBound, upperBound] = indicator.bounds[sentiment];
         // Convert to lower tick and upper ticks
         const baseTokenCurrency = new Token(
             Number(wallet.network),
@@ -163,17 +151,51 @@ export const AddLiquidityV3 = ({
         const lowerBoundPrice = new Price(
             baseTokenCurrency,
             quoteTokenCurrency,
-            lowerBound,
+            liquidityLow,
             1
         );
         const lowerBoundTick = priceToClosestTick(lowerBoundPrice);
         const upperBoundPrice = new Price(
             baseTokenCurrency,
             quoteTokenCurrency,
-            upperBound,
+            liquidityHigh,
             1
         );
         const upperBoundTick = priceToClosestTick(upperBoundPrice);
+
+        const uniPool = new Pool(
+            baseTokenCurrency, 
+            quoteTokenCurrency, 
+            parseInt(pool.feeTier, 10) as any as FeeAmount,
+            pool.sqrtPrice,
+            pool.liquidity,
+            parseInt(pool.tick || '0', 10),
+            []
+        );
+
+        // TODO calculate expected depending on input token (also handle two side)
+        const totalAmount = parseFloat(token0Amount);
+        const expectedBaseAmount = totalAmount / 2;
+        // const expectedQuoteAmount = expectedBaseAmount * currentPrice;
+        const amount0Desired = ethers.utils
+            .parseUnits(expectedBaseAmount.toString(), 18)
+            .toString();
+        const amount1Desired = ethers.utils
+            .parseUnits(expectedQuoteAmount.toString(), 18)
+            .toString();
+
+        const expectedQuoteAmount = await uniPool.getOutputAmount(new TokenAmount(baseTokenCurrency, expectedBaseAmount));
+
+
+        const slippageRatio = new BigNumber(slippageTolerance as number).div(
+            100
+        );
+        const amount0Min = new BigNumber(expectedBaseAmount).times(
+            new BigNumber(1).minus(slippageRatio)
+        );
+        const amount1Min = new BigNumber(expectedQuoteAmount).times(
+            new BigNumber(1).minus(slippageRatio)
+        );
 
         const mintParams = [
             token0, // token0
@@ -289,18 +311,6 @@ export const AddLiquidityV3 = ({
 
     if (!pool || !pool?.token0 || !pool?.token1) return null;
     debug.marketData = marketData;
-    const currentPrice = marketData?.quotePrice ?? parseFloat(pool.token0Price);
-
-    let liquidityLow, liquidityHigh;
-    if (indicators == null) {
-        liquidityLow = (currentPrice * 0.9).toString();
-        liquidityHigh = (currentPrice * 1.1).toString();
-    } else {
-        const indicator = indicators[SELECTED_INDICATOR_NAME];
-        const [lowerBound, upperBound] = indicator.bounds[sentiment];
-        liquidityLow = lowerBound;
-        liquidityHigh = upperBound;
-    }
     
     return (
         <>
