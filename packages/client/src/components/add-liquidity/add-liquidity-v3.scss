@@ -7,44 +7,33 @@
     flex-direction: column;
     // justify-content: space-between;
     // font-family: 'Barlow Condensed';
-    .form-group {
-        margin: 0;
-    }
-    .token-pair-selector {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        > div {
-            // border: 1px solid yellow;
-            margin: 1rem;
-        }
-    }
+    // }
 
-    .dropdown {
-        outline: none;
-        .btn-primary {
-            background: var(--bgSecondary);
-            border: 1px solid var(--bgDeep);
-            &:focus {
-                outline: none;
-                box-shadow: none;
-                border: 1px solid var(--borderAccentAlt);
-            }
-        }
-    }
-    .dropdown-menu {
-        // border: 1px solid red;
-        border-radius: 0;
-        background: var(--bgSecondary);
-        .dropdown-item {
-            color: var(--faceSecondary);
-            &.active,
-            &:hover {
-                color: var(--facePrimary);
-                background: var(--bgAccent);
-            }
-        }
-    }
+    // .dropdown {
+    //     outline: none;
+    //     .btn-primary {
+    //         background: var(--bgSecondary);
+    //         border: 1px solid var(--bgDeep);
+    //         &:focus {
+    //             outline: none;
+    //             box-shadow: none;
+    //             border: 1px solid var(--borderAccentAlt);
+    //         }
+    //     }
+    // }
+    // .dropdown-menu {
+    //     // border: 1px solid red;
+    //     border-radius: 0;
+    //     background: var(--bgSecondary);
+    //     .dropdown-item {
+    //         color: var(--faceSecondary);
+    //         &.active,
+    //         &:hover {
+    //             color: var(--facePrimary);
+    //             background: var(--bgAccent);
+    //         }
+    //     }
+    // }
 
     .token-and-wallet {
         padding: 1rem;
@@ -117,4 +106,97 @@
         }
     }
 
+    .token-business {
+        .token-select {
+            border: 1px solid red;
+        }
+    }
+
+    .token-with-logo {
+        display: inline-flex;
+        align-items: center;
+        color: var(--faceDeep);
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        border: 1px solid var(--borderDefault);
+        // background: var(--objDefault);
+        margin-left: 1rem;
+        &:hover {
+            cursor: pointer;
+            background: var(--objDefault);
+        }
+        img {
+            height: 2rem;
+        }
+        .no-image:after {
+            content: '🍇';
+            font-size: 1.5rem;
+        }
+    }
+
+    .token-input {
+        background: var(--bgDeep);
+        padding: 0.8rem 1rem;
+        border-radius: 4px;
+        button,
+        input {
+            background: var(--bgDeep);
+            box-shadow: none;
+            border: 0;
+            color: var(--faceDeep);
+            &:hover,
+            &:focus,
+            &:active,
+            &:focus-visible {
+                border: 0;
+                box-shadow: none;
+                outline: none;
+            }
+        }
+        input {
+            width: 150px;
+        }
+        button {
+            background: var(--objDefault);
+            padding: 0.3rem 1rem;
+            border-radius: 4px;
+        }
+    }
+
+    .token-with-balance {
+        border: 1px solid var(--borderDefault);
+        padding: 0rem 1rem;
+        border-radius: 4px;
+        .token-logo {
+            display: inline-flex;
+            align-items: center;
+            color: var(--faceDeep);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 1.5rem;
+            // border: 1px solid var(--borderDefault);
+            // background: var(--objDefault);
+            // &:hover {
+            //     cursor: pointer;
+            //     background: var(--objDefault);
+            // }
+            img {
+                height: 3rem;
+            }
+            .no-image:after {
+                content: '🍇';
+                font-size: 2rem;
+            }
+        }
+        .balance {
+            font-size: 0.8rem;
+            // border: 1px solid red;
+            .balance-string {
+                max-width: 125px;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+        }
+    }
 }

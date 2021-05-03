@@ -741,7 +741,7 @@ function AddLiquidity({
         }
     }
 
-    const dropdownOptions = (tokenData && Object.keys(tokenData)) || [];
+    // const dropdownOptions = (tokenData && Object.keys(tokenData)) || [];
     const dropdownOptionsPairTwo =
         tokenData &&
         Object.keys(tokenData).filter(
@@ -910,9 +910,9 @@ function AddLiquidity({
                     token={tokenOne}
                     amount={tokenOneAmount}
                     updateAmount={setTokenOneAmount}
-                    updateToken={setTokenOne}
+                    // updateToken={setTokenOne}
                     handleTokenRatio={handleTokenRatio}
-                    options={twoSide ? ['ETH', 'WETH'] : dropdownOptions}
+                    // options={twoSide ? ['ETH', 'WETH'] : dropdownOptions}
                     balances={balances}
                     twoSide={twoSide}
                 />
@@ -922,9 +922,9 @@ function AddLiquidity({
                         token={tokenTwo}
                         amount={tokenTwoAmount}
                         updateAmount={setTokenTwoAmount}
-                        updateToken={setTokenTwo}
+                        // updateToken={setTokenTwo}
                         handleTokenRatio={handleTokenRatio}
-                        options={dropdownOptionsPairTwo || []}
+                        // options={dropdownOptionsPairTwo || []}
                         balances={balances}
                         twoSide={twoSide}
                     />
