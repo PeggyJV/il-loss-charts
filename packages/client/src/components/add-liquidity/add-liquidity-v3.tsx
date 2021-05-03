@@ -1,9 +1,9 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
-import { Price, Token } from '@uniswap/sdk-core';
-import { priceToClosestTick } from '@uniswap/v3-sdk';
+import { Price, Token, TokenAmount } from '@uniswap/sdk-core';
+import { FeeAmount, Pool, priceToClosestTick } from '@uniswap/v3-sdk';
 import { resolveLogo } from 'components/token-with-logo';
 import { TokenWithBalance } from 'components/token-with-balance';
 import './add-liquidity-v3.scss';
@@ -29,7 +29,7 @@ type Props = {
     pool: PoolOverview | null;
 };
 
-export type PriceDirection = 'bullish' | 'bearish' | 'neutral';
+export type Sentiment = 'bullish' | 'bearish' | 'neutral';
 
 export const AddLiquidityV3 = ({
     pool,
@@ -39,9 +39,11 @@ export const AddLiquidityV3 = ({
     const [token1, setToken1] = useState(pool?.token1?.id ?? '');
     const [token0Amount, setToken0Amount] = useState('0');
     const [token1Amount, setToken1Amount] = useState('0');
+    const [priceImpact, setPriceImpact] = useState('0');
 
     const token0Symbol = pool?.token0?.symbol ?? '';
     const token1Symbol = pool?.token1?.symbol ?? '';
+
     // State here is used to compute what tokens are being used to add liquidity with.
     // const initialState = {
     //     [token0Symbol]: pool?.token0,
@@ -70,12 +72,10 @@ export const AddLiquidityV3 = ({
     // const [token, setToken] = useState('ETH');
     // TODO calculate price impact
     const { currentGasPrice, slippageTolerance } = useContext(LiquidityContext);
-    const [sentiment, setSentiment] = useState<string>('neutral');
+    const [sentiment, setSentiment] = useState<Sentiment>('neutral');
+    const [bounds, setBounds] = useState<[number, number]>([0, 0]);
     const { wallet } = useWallet();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [priceDirection, setPriceDirection] = useState<PriceDirection>(
-        'neutral'
-    );
+
     let provider: ethers.providers.Web3Provider | null = null;
     if (wallet.provider) {
         provider = new ethers.providers.Web3Provider(wallet?.provider);
@@ -86,10 +86,96 @@ export const AddLiquidityV3 = ({
     // const token0 = pool?.token0?.id ?? '';
     // const token1 = pool?.token1?.id ?? '';
 
-    const { newPair: marketData, indicators } = useMarketData(token0, token1);
+    const { newPair: marketData, indicators } = useMarketData(pool?.token1, pool?.token0, wallet.network);
+    (window as any).marketData = marketData;
     (window as any).indicators = indicators;
 
     const SELECTED_INDICATOR_NAME = 'bollingerEMANormalBand';
+    const currentPrice = marketData?.quotePrice ?? parseFloat(pool?.token0Price || '0');
+
+    useEffect(() => {
+        if (!pool) return;
+
+        const getPriceImpact = async () => {
+            const baseTokenCurrency = new Token(
+                Number(wallet.network),
+                pool.token0.id,
+                Number(pool.token0.decimals),
+                pool.token0.symbol,
+                pool.token0.name
+            );
+            const quoteTokenCurrency = new Token(
+                Number(wallet.network),
+                pool.token0.id,
+                Number(pool.token1.decimals),
+                pool.token1.symbol,
+                pool.token1.name
+            );
+
+            const uniPool = new Pool(
+                baseTokenCurrency,
+                quoteTokenCurrency,
+                parseInt(pool.feeTier, 10) as any as FeeAmount,
+                pool.sqrtPrice,
+                pool.liquidity,
+                parseInt(pool.tick || '0', 10),
+                []
+            );
+
+            const totalAmount = parseFloat(token0Amount);
+            const expectedBaseAmount = totalAmount / 2;
+
+            const [expectedQuoteAmount] = await uniPool.getOutputAmount(new TokenAmount(baseTokenCurrency, expectedBaseAmount));
+            const priceImpact = new BigNumber(expectedQuoteAmountNoSlippage)
+                .minus(expectedQuoteAmount.toFixed(8))
+                .div(expectedQuoteAmountNoSlippage)
+                .times(100)
+                .toFixed();
+
+            setPriceImpact(priceImpact);
+
+            if (indicators) {
+                const indicator = indicators[SELECTED_INDICATOR_NAME];
+                const [lowerBound, upperBound] = indicator.bounds[sentiment];
+                liquidityLow = lowerBound;
+                liquidityHigh = upperBound;
+    
+                // Convert to lower tick and upper ticks
+                const lowerBoundPrice = new Price(
+                    baseTokenCurrency,
+                    quoteTokenCurrency,
+                    liquidityLow,
+                    1
+                );
+                const lowerBoundTick = priceToClosestTick(lowerBoundPrice);
+                const upperBoundPrice = new Price(
+                    baseTokenCurrency,
+                    quoteTokenCurrency,
+                    liquidityHigh,
+                    1
+                );
+                const upperBoundTick = priceToClosestTick(upperBoundPrice);
+    
+                setBounds([lowerBoundTick, upperBoundTick]);
+            }
+        }
+
+        void getPriceImpact();
+    }, [token0Amount, sentiment]);
+
+    if (!pool) return null;
+
+    // TODO calculate expected depending on input token (also handle two side)
+    const totalAmount = parseFloat(token0Amount);
+    const expectedBaseAmount = totalAmount / 2;
+    const expectedQuoteAmountNoSlippage = expectedBaseAmount * currentPrice;
+    const amount0Desired = ethers.utils
+        .parseUnits(expectedBaseAmount.toString(), 18)
+        .toString();
+    const amount1Desired = ethers.utils
+        .parseUnits(expectedQuoteAmountNoSlippage.toString(), 18)
+        .toString();
+
 
     const doAddLiquidity = async () => {
         if (!pool || !provider || !indicators) return;
@@ -122,17 +208,7 @@ export const AddLiquidityV3 = ({
                 ? 'addLiquidityEthForUniV3'
                 : 'addLiquidityForUniV3';
         const tokenId = 0;
-        // TODO set real current price
-        const currentPrice = 1634.7;
-        // TODO calculate expected
-        const expectedBaseAmount = parseFloat(token0Amount);
-        const expectedQuoteAmount = expectedBaseAmount * currentPrice;
-        const amount0Desired = ethers.utils
-            .parseUnits(expectedBaseAmount.toString(), 18)
-            .toString();
-        const amount1Desired = ethers.utils
-            .parseUnits(expectedQuoteAmount.toString(), 18)
-            .toString();
+
 
         const slippageRatio = new BigNumber(slippageTolerance as number).div(
             100
@@ -140,49 +216,16 @@ export const AddLiquidityV3 = ({
         const amount0Min = new BigNumber(expectedBaseAmount).times(
             new BigNumber(1).minus(slippageRatio)
         );
-        const amount1Min = new BigNumber(expectedQuoteAmount).times(
+        const amount1Min = new BigNumber(expectedQuoteAmountNoSlippage).times(
             new BigNumber(1).minus(slippageRatio)
         );
-
-        const indicator = indicators[SELECTED_INDICATOR_NAME];
-
-        const [lowerBound, upperBound] = indicator.bounds[priceDirection];
-        // Convert to lower tick and upper ticks
-        const baseTokenCurrency = new Token(
-            Number(wallet.network),
-            pool.token0.id,
-            Number(pool.token0.decimals),
-            pool.token0.symbol,
-            pool.token0.name
-        );
-        const quoteTokenCurrency = new Token(
-            Number(wallet.network),
-            pool.token0.id,
-            Number(pool.token1.decimals),
-            pool.token1.symbol,
-            pool.token1.name
-        );
-        const lowerBoundPrice = new Price(
-            baseTokenCurrency,
-            quoteTokenCurrency,
-            lowerBound,
-            1
-        );
-        const lowerBoundTick = priceToClosestTick(lowerBoundPrice);
-        const upperBoundPrice = new Price(
-            baseTokenCurrency,
-            quoteTokenCurrency,
-            upperBound,
-            1
-        );
-        const upperBoundTick = priceToClosestTick(upperBoundPrice);
 
         const mintParams = [
             token0, // token0
             token1, // token1
             pool.feeTier, // feeTier
-            lowerBoundTick, // tickLower
-            upperBoundTick, // tickUpper
+            bounds[0], // tickLower
+            bounds[1], // tickUpper
             amount0Desired, // amount0Desired
             amount1Desired, // amount1Desired
             amount0Min, // amount0Min
@@ -291,16 +334,18 @@ export const AddLiquidityV3 = ({
 
     if (!pool || !pool?.token0 || !pool?.token1) return null;
     debug.marketData = marketData;
-    const currentPrice = parseFloat(pool.token0Price);
 
-    let liquidityLow, liquidityHigh;
+    let liquidityLow: number, liquidityHigh: number;
     if (indicators == null) {
-        liquidityLow = (currentPrice * 0.9).toString();
-        liquidityHigh = (currentPrice * 1.1).toString();
+        liquidityLow = (currentPrice * 0.9);
+        liquidityHigh = (currentPrice * 1.1);
+    } else {
+        const indicator = indicators[SELECTED_INDICATOR_NAME];
+        const [lowerBound, upperBound] = indicator.bounds[sentiment];
+        liquidityLow = lowerBound;
+        liquidityHigh = upperBound;
     }
-    console.log(balances);
-    console.log(token0, token1);
-
+    
     return (
         <>
             <div className='add-v3-container'>
@@ -429,7 +474,7 @@ export const AddLiquidityV3 = ({
                     <Box display='flex' justifyContent='space-between'>
                         <div>Expected Price Impact</div>
                         <div>
-                            <span className='price-impact'>0.2%</span>
+                            <span className='price-impact'>{priceImpact}%</span>
                         </div>
                     </Box>
                 </div>
