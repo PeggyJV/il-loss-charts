@@ -25,6 +25,7 @@ type LiquidityContext = {
     slippageTolerance: number;
     setPoolId: Dispatch<SetStateAction<string | null>>;
     setCurrentGasPrice: Dispatch<SetStateAction<number | null>>;
+    setSlippageTolerance: Dispatch<SetStateAction<number>>;
 };
 const initialContext = {
     poolId: null,
@@ -155,6 +156,7 @@ export const LiquidityContainer = ({
     const [currentGasPrice, setCurrentGasPrice] = useState<number | null>(
         gasPrices?.fast ?? null
     );
+    const [slippageTolerance, setSlippageTolerance] = useState(3.0);
     const balances = useBalance({
         pool,
     });
@@ -163,7 +165,7 @@ export const LiquidityContainer = ({
 
     return (
         <LiquidityContext.Provider
-            value={{ poolId, setPoolId, currentGasPrice, setCurrentGasPrice }}
+            value={{ poolId, setPoolId, currentGasPrice, setCurrentGasPrice, slippageTolerance, setSlippageTolerance }}
         >
             <Box className='liquidity-container'>
                 <SearchHeader setPoolId={setPoolId} />
