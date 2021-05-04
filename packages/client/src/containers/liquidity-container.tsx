@@ -1,5 +1,4 @@
-import {
-    useState,
+import { useState,
     useContext,
     useEffect,
     createContext,
@@ -19,23 +18,30 @@ import './liquidity-container.scss';
 import { ThreeDots } from 'react-loading-icons';
 import classNames from 'classnames';
 
+export enum GasPriceSelection {
+    Standard = 'standard',
+    Fast = 'fast',
+    Fastest = 'fastest',
+}
+
 type LiquidityContext = {
     poolId: string | null;
-    currentGasPrice: number | null;
+    selectedGasPrice: GasPriceSelection,
     slippageTolerance: number;
     setPoolId: Dispatch<SetStateAction<string | null>>;
-    setCurrentGasPrice: Dispatch<SetStateAction<number | null>>;
+    setSelectedGasPrice: Dispatch<SetStateAction<GasPriceSelection>>;
     setSlippageTolerance: Dispatch<SetStateAction<number>>;
 };
+
 const initialContext = {
     poolId: null,
-    selectedGasPrice: null,
+    selectedGasPrice: GasPriceSelection.Standard,
     slippageTolerance: 3.0,
-    currentGasPrice: null,
 };
 export const LiquidityContext = createContext<Partial<LiquidityContext>>(
     initialContext
 );
+
 const SearchHeader = ({
     setPoolId,
 }: {
@@ -51,20 +57,9 @@ const SearchHeader = ({
         >
             <div>{'Search Pairs'}</div>
             <PoolSearch setPoolId={setPoolId} />
-            {/* <div>
-                <button onClick={() => setPoolId(null)}>Clear</button>
-            </div> */}
         </Box>
     );
 };
-
-// const ActionBar = () => {
-//     return (
-//         <Box className='action-bar'>
-//             <button>Add Liquidity</button>
-//         </Box>
-//     );
-// };
 
 const TransactionSettings = ({
     gasPrices,
@@ -72,10 +67,11 @@ const TransactionSettings = ({
     gasPrices: EthGasPrices | null;
 }) => {
     // TODO why does TS think this could be undefined ?
-    const { currentGasPrice, setCurrentGasPrice } = useContext(
+    const { selectedGasPrice, setSelectedGasPrice } = useContext(
         LiquidityContext
     );
 
+<<<<<<< HEAD
     useEffect(() => {
         if (gasPrices && !currentGasPrice && setCurrentGasPrice) {
             setCurrentGasPrice(gasPrices.fast);
@@ -87,10 +83,15 @@ const TransactionSettings = ({
     const isSlowActive = currentGasPrice === gasPrices?.standard;
     const isNormalActive = currentGasPrice === gasPrices?.fast;
     const isFastActive = currentGasPrice === gasPrices?.fastest;
+=======
+    const isStandardActive = selectedGasPrice === GasPriceSelection.Standard;
+    const isNormalActive = selectedGasPrice === GasPriceSelection.Fast;
+    const isFastActive = selectedGasPrice === GasPriceSelection.Fastest;
+>>>>>>> 5651528 (fix eth price selection)
 
     return (
         <>
-            {gasPrices && setCurrentGasPrice && (
+            {setSelectedGasPrice && (
                 <Box
                     display='flex'
                     alignItems='center'
@@ -99,42 +100,35 @@ const TransactionSettings = ({
                     <div>Speed</div>
                     <div className='transaction-speed'>
                         <div
-                            className={classNames({ active: isSlowActive })}
+                            className={classNames({ active: isStandardActive })}
                             onClick={() =>
-                                setCurrentGasPrice(gasPrices?.standard)
+                                setSelectedGasPrice(GasPriceSelection.Standard)
                             }
                         >
-                            {isSlowActive && (
+                            {isStandardActive && (
                                 <FontAwesomeIcon icon={faCheckCircle} />
                             )}
-                            {gasPrices ? (
-                                <span>{`Slow ${gasPrices.standard} Gwei`}</span>
-                            ) : (
-                                <ThreeDots />
-                            )}
+                            <span>Standard {gasPrices?.standard ?? <ThreeDots height="17px" />} Gwei</span>
                         </div>
                         <div
                             className={classNames({ active: isNormalActive })}
-                            onClick={() => setCurrentGasPrice(gasPrices.fast)}
+                            onClick={() => setSelectedGasPrice(GasPriceSelection.Fast)}
                         >
                             {isNormalActive && (
                                 <FontAwesomeIcon icon={faCheckCircle} />
                             )}
-                            {!currentGasPrice && (
-                                <FontAwesomeIcon icon={faCheckCircle} />
-                            )}
-                            <span>{`Normal ${gasPrices.fast} Gwei`}</span>
+                            <span>Normal {gasPrices?.fast ?? <ThreeDots />} Gwei</span>
                         </div>
                         <div
                             className={classNames({ active: isFastActive })}
                             onClick={() =>
-                                setCurrentGasPrice(gasPrices.fastest)
+                                setSelectedGasPrice(GasPriceSelection.Fastest)
                             }
                         >
                             {isFastActive && (
                                 <FontAwesomeIcon icon={faCheckCircle} />
                             )}
-                            <span>{`Fast ${gasPrices.fastest} Gwei`}</span>
+                            <span>Fast {gasPrices?.fastest ?? <ThreeDots />} Gwei</span>
                         </div>
                     </div>
                     <div className='transaction-settings'>
@@ -153,10 +147,8 @@ export const LiquidityContainer = ({
 }): JSX.Element => {
     const [poolId, setPoolId] = useState<string | null>(null);
     const { data: pool } = usePoolOverview('rinkeby', poolId);
-    const [currentGasPrice, setCurrentGasPrice] = useState<number | null>(
-        gasPrices?.fast ?? null
-    );
     const [slippageTolerance, setSlippageTolerance] = useState(3.0);
+    const [selectedGasPrice, setSelectedGasPrice] = useState<GasPriceSelection>(GasPriceSelection.Fast);
     const balances = useBalance({
         pool,
     });
@@ -165,14 +157,13 @@ export const LiquidityContainer = ({
 
     return (
         <LiquidityContext.Provider
-            value={{ poolId, setPoolId, currentGasPrice, setCurrentGasPrice, slippageTolerance, setSlippageTolerance }}
+            value={{ poolId, setPoolId, selectedGasPrice, setSelectedGasPrice, slippageTolerance, setSlippageTolerance }}
         >
             <Box className='liquidity-container'>
                 <SearchHeader setPoolId={setPoolId} />
                 {poolId && pool && (
-                    <AddLiquidityV3 pool={pool} balances={balances} />
+                    <AddLiquidityV3 pool={pool} balances={balances} gasPrices={gasPrices} />
                 )}
-                {/* <ActionBar /> */}
                 {poolId && <TransactionSettings gasPrices={gasPrices} />}
             </Box>
         </LiquidityContext.Provider>

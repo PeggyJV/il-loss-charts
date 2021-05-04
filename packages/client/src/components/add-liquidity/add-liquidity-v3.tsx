@@ -16,10 +16,10 @@ import { LiquidityContext } from 'containers/liquidity-container';
 import { TokenInput } from 'components/token-input';
 import { toastSuccess, toastWarn, toastError } from 'util/toasters';
 import { compactHash } from 'util/formats';
-// import { Grid } from 'react-loading-icons';
 import { WalletBalances } from 'types/states';
 import { useWallet } from 'hooks/use-wallet';
-import { useMarketData } from 'hooks/use-market-data';
+import { useMarketData } from 'hooks';
+import { EthGasPrices } from '@sommelier/shared-types';
 import { PoolOverview } from 'hooks/data-fetchers';
 import { debug } from 'util/debug';
 import classNames from 'classnames';
@@ -27,6 +27,7 @@ import classNames from 'classnames';
 type Props = {
     balances: WalletBalances;
     pool: PoolOverview | null;
+    gasPrices: EthGasPrices | null;
 };
 
 export type Sentiment = 'bullish' | 'bearish' | 'neutral';
@@ -36,6 +37,7 @@ const ETH_ID = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 export const AddLiquidityV3 = ({
     pool,
     balances,
+    gasPrices,
 }: Props): JSX.Element | null => {
     const [priceImpact, setPriceImpact] = useState('0');
 
@@ -114,7 +116,13 @@ export const AddLiquidityV3 = ({
     const [tokenInputState, dispatch] = useReducer(reducer, initialState);
 
     // const [token, setToken] = useState('ETH');
-    const { currentGasPrice, slippageTolerance } = useContext(LiquidityContext);
+    // TODO calculate price impact
+    const { selectedGasPrice, slippageTolerance } = useContext(LiquidityContext);
+    let currentGasPrice: (number | null) = null;
+    if (gasPrices && selectedGasPrice) {
+        currentGasPrice = gasPrices[selectedGasPrice];
+    }
+
     const [sentiment, setSentiment] = useState<Sentiment>('neutral');
     const [bounds, setBounds] = useState<{
         prices: [number, number];
@@ -137,8 +145,8 @@ export const AddLiquidityV3 = ({
         pool?.token0,
         wallet.network
     );
-    (window as any).marketData = marketData;
-    (window as any).indicators = indicators;
+    debug.marketData = marketData;
+    debug.indicators = indicators;
 
     // returns a tuple [token0, token1];
     const getTokensWithAmounts = () => {
