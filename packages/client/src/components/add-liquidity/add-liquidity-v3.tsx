@@ -305,6 +305,25 @@ export const AddLiquidityV3 = ({
             if (indicators) {
                 const indicator = indicators[SELECTED_INDICATOR_NAME];
                 const [lowerBound, upperBound] = indicator.bounds[sentiment];
+                console.log('THIS BOUNDS', lowerBound, upperBound);
+                
+                // // SET DIFFERENT BOUNDS TO TEST THEORY
+                // const lowerBound = currentPrice * 0.9;
+                // const upperBound = currentPrice * 1.1;
+
+                // const c = new Price(
+                //     baseTokenCurrency,
+                //     quoteTokenCurrency,
+                //     ethers.utils
+                //         .parseUnits(
+                //             currentPrice.toString(),
+                //             quoteTokenCurrency.decimals
+                //         )
+                //         .toString(),
+                //     ethers.utils.parseUnits('1', quoteTokenCurrency.decimals).toString(),
+                // );
+
+                // console.log('CURRENT TICK', priceToClosestTick(c));
 
                 // Convert to lower tick and upper ticks
                 const lowerBoundPrice = new Price(
@@ -312,11 +331,11 @@ export const AddLiquidityV3 = ({
                     quoteTokenCurrency,
                     ethers.utils
                         .parseUnits(
-                            lowerBound.toString(),
+                            new BigNumber(lowerBound).toFixed(quoteTokenCurrency.decimals),
                             quoteTokenCurrency.decimals
                         )
                         .toString(),
-                    1,
+                    ethers.utils.parseUnits('1', quoteTokenCurrency.decimals).toString(),
                 );
                 const lowerBoundTick = priceToClosestTick(lowerBoundPrice);
                 // console.log('THIS IS LOWER BOUND PRICE', lowerBoundPrice.toFixed(18), lowerBoundTick);
@@ -325,14 +344,16 @@ export const AddLiquidityV3 = ({
                     quoteTokenCurrency,
                     ethers.utils
                         .parseUnits(
-                            upperBound.toString(),
+                            new BigNumber(upperBound).toFixed(quoteTokenCurrency.decimals),
                             quoteTokenCurrency.decimals
                         )
                         .toString(),
-                    1,
+                    ethers.utils.parseUnits('1', quoteTokenCurrency.decimals).toString(),
                 );
                 const upperBoundTick = priceToClosestTick(upperBoundPrice);
                 // console.log('THIS IS UPPER BOUND PRICE', upperBoundPrice.toFixed(18), upperBoundTick);
+
+                
 
                 setBounds({
                     prices: [lowerBound, upperBound],
@@ -429,16 +450,28 @@ export const AddLiquidityV3 = ({
             )
             .toString();
 
+        // const mintParams = [
+        //     token0, // token0
+        //     token1, // token1
+        //     Number(pool.feeTier), // feeTier
+        //     bounds.ticks[0], // tickLower
+        //     bounds.ticks[1], // tickUpper
+        //     baseAmount0Desired, // amount0Desired
+        //     baseAmount1Desired, // amount1Desired
+        //     baseAmount0Min, // amount0Min
+        //     baseAmount1Min, // amount1Min
+        //     wallet.account, // recipient
+        //     Math.floor(Date.now() / 1000) + 86400000, // deadline
+        // ];
+
         const mintParams = [
             token0, // token0
             token1, // token1
-            Number(pool.feeTier), // feeTier
-            bounds.ticks[0], // tickLower
-            bounds.ticks[1], // tickUpper
+            pool.feeTier, // feeTier
+            75490, // tickLower
+            77810, // tickUpper
             baseAmount0Desired, // amount0Desired
             baseAmount1Desired, // amount1Desired
-            // baseAmount0Min, // amount0Min
-            // baseAmount1Min, // amount1Min
             0,
             0,
             wallet.account, // recipient
@@ -532,6 +565,8 @@ export const AddLiquidityV3 = ({
 
         // Call the contract and sign
         let gasEstimate: ethers.BigNumber;
+
+        console.log('THIS IS MSG VALUE', value);
 
         try {
             gasEstimate = await addLiquidityContract.estimateGas[fnName](
