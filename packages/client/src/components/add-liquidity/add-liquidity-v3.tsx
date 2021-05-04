@@ -57,23 +57,23 @@ export const AddLiquidityV3 = ({
             name: pool?.token0?.name,
             symbol: pool?.token0?.symbol,
             amount: 0,
-            selected: true,
+            selected: false,
         },
         [token1Symbol]: {
             id: pool?.token1?.id,
             name: pool?.token1?.name,
             symbol: pool?.token1?.symbol,
             amount: 0,
-            selected: true,
+            selected: false,
         },
         ETH: {
             id: ETH_ID,
             symbol: 'ETH',
             name: 'Ethereum',
             amount: 0,
-            selected: false,
+            selected: true,
         },
-        selectedTokens: [pool?.token0?.symbol, pool?.token1?.symbol],
+        selectedTokens: ['ETH'],
         isWETHSelected:
             pool?.token0?.symbol === 'WETH' || pool?.token1?.symbol === 'WETH',
     };
@@ -119,7 +119,10 @@ export const AddLiquidityV3 = ({
     // TODO calculate price impact
     const { currentGasPrice, slippageTolerance } = useContext(LiquidityContext);
     const [sentiment, setSentiment] = useState<Sentiment>('neutral');
-    const [bounds, setBounds] = useState<[number, number]>([0, 0]);
+    const [bounds, setBounds] = useState<{
+        prices: [number, number];
+        ticks: [number, number];
+    }>({ prices: [0, 0], ticks: [0, 0] });
     const { wallet } = useWallet();
 
     let provider: ethers.providers.Web3Provider | null = null;
@@ -151,7 +154,10 @@ export const AddLiquidityV3 = ({
         marketData?.quotePrice ?? parseFloat(pool?.token0Price || '0');
 
     useEffect(() => {
-        if (!pool) return;
+        if (!pool) {
+            console.log('NO POOL');
+            return;
+        }
 
         const getPriceImpact = async () => {
             const baseTokenCurrency = new Token(
@@ -193,29 +199,43 @@ export const AddLiquidityV3 = ({
 
             setPriceImpact(priceImpact);
 
+            debug.indicators = indicators;
+
             if (indicators) {
                 const indicator = indicators[SELECTED_INDICATOR_NAME];
                 const [lowerBound, upperBound] = indicator.bounds[sentiment];
-                liquidityLow = lowerBound;
-                liquidityHigh = upperBound;
 
                 // Convert to lower tick and upper ticks
                 const lowerBoundPrice = new Price(
                     baseTokenCurrency,
                     quoteTokenCurrency,
-                    liquidityLow,
+                    ethers.utils
+                        .parseUnits(
+                            lowerBound.toString(),
+                            quoteTokenCurrency.decimals
+                        )
+                        .toString(),
                     1
                 );
                 const lowerBoundTick = priceToClosestTick(lowerBoundPrice);
                 const upperBoundPrice = new Price(
                     baseTokenCurrency,
                     quoteTokenCurrency,
-                    liquidityHigh,
+                    ethers.utils
+                        .parseUnits(
+                            upperBound.toString(),
+                            quoteTokenCurrency.decimals
+                        )
+                        .toString(),
                     1
                 );
                 const upperBoundTick = priceToClosestTick(upperBoundPrice);
 
-                setBounds([lowerBoundTick, upperBoundTick]);
+                setBounds({
+                    prices: [lowerBound, upperBound],
+                    // prices: [lowerBoundPrice.toFixed(), upperBoundPrice.toFixed()],
+                    ticks: [lowerBoundTick, upperBoundTick],
+                });
             }
         };
 
@@ -281,8 +301,8 @@ export const AddLiquidityV3 = ({
             token0, // token0
             token1, // token1
             pool.feeTier, // feeTier
-            bounds[0], // tickLower
-            bounds[1], // tickUpper
+            bounds.ticks[0], // tickLower
+            bounds.ticks[1], // tickUpper
             amount0Desired, // amount0Desired
             amount1Desired, // amount1Desired
             amount0Min, // amount0Min
@@ -391,17 +411,6 @@ export const AddLiquidityV3 = ({
 
     // if (!pool || !pool?.token0 || !pool?.token1) return null;
     debug.marketData = marketData;
-
-    let liquidityLow: number, liquidityHigh: number;
-    if (indicators == null) {
-        liquidityLow = currentPrice * 0.9;
-        liquidityHigh = currentPrice * 1.1;
-    } else {
-        const indicator = indicators[SELECTED_INDICATOR_NAME];
-        const [lowerBound, upperBound] = indicator.bounds[sentiment];
-        liquidityLow = lowerBound;
-        liquidityHigh = upperBound;
-    }
 
     const selectedSymbolCount = state.selectedTokens.length;
     const isToken0Active = state?.[token0Symbol]?.selected;
@@ -568,14 +577,16 @@ export const AddLiquidityV3 = ({
                 >
                     <div
                         className={classNames({
-                            active: sentiment === 'bullish',
+                            'sentiment-button': true,
+                            active: sentiment === 'bearish',
                         })}
-                        onClick={() => setSentiment('bullish')}
+                        onClick={() => setSentiment('bearish')}
                     >
-                        Bullish
+                        📉 Bearish
                     </div>
                     <div
                         className={classNames({
+                            'sentiment-button': true,
                             active: sentiment === 'neutral',
                         })}
                         onClick={() => setSentiment('neutral')}
@@ -584,11 +595,12 @@ export const AddLiquidityV3 = ({
                     </div>
                     <div
                         className={classNames({
-                            active: sentiment === 'bearish',
+                            'sentiment-button': true,
+                            active: sentiment === 'bullish',
                         })}
-                        onClick={() => setSentiment('bearish')}
+                        onClick={() => setSentiment('bullish')}
                     >
-                        Bearish
+                        📈 Bullish
                     </div>
                 </Box>
                 <br />
@@ -606,16 +618,20 @@ export const AddLiquidityV3 = ({
                         <div>Liquidity Range</div>
                         <div>
                             <span className='face-positive'>
-                                {liquidityLow} to {liquidityHigh}
+                                {bounds.prices[0]} to {bounds.prices[1]}
                             </span>
                         </div>
                     </Box>
-                    <Box display='flex' justifyContent='space-between'>
-                        <div>Expected Price Impact</div>
-                        <div>
-                            <span className='price-impact'>{priceImpact}%</span>
-                        </div>
-                    </Box>
+                    {selectedSymbolCount == 1 && (
+                        <Box display='flex' justifyContent='space-between'>
+                            <div>Expected Price Impact</div>
+                            <div>
+                                <span className='price-impact'>
+                                    {priceImpact}%
+                                </span>
+                            </div>
+                        </Box>
+                    )}
                 </div>
                 <br />
                 <div>

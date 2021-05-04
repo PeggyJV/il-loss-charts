@@ -98,6 +98,7 @@ export const WalletProvider = ({
     useEffect(() => {
         if (ethereum) {
             const handleNetworkChange = (networkId: NetworkIds) => {
+                console.log('NETWORK CHANGE', networkId);
                 setWallet({ ...wallet, network: networkId });
             };
 

@@ -209,3 +209,12 @@
         }
     }
 }
+
+.sentiment-button {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.sentiment-button + .sentiment-button {
+    margin-left: 1em;
+}

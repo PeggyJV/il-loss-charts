@@ -4,6 +4,7 @@ import {
     createContext,
     Dispatch,
     SetStateAction,
+    useEffect,
 } from 'react';
 import { PoolSearch } from 'components/pool-search';
 import { Box } from '@material-ui/core';
@@ -27,7 +28,6 @@ type LiquidityContext = {
 };
 const initialContext = {
     poolId: null,
-    selectedGasPrice: null,
     slippageTolerance: 3.0,
     currentGasPrice: null,
 };
@@ -74,6 +74,12 @@ const TransactionSettings = ({
         LiquidityContext
     );
 
+    useEffect(() => {
+        if (gasPrices && !currentGasPrice && setCurrentGasPrice) {
+            setCurrentGasPrice(gasPrices.fast);
+        }
+    }, [gasPrices, setCurrentGasPrice]);
+
     // TODO show loader only for prices
     if (!gasPrices) return <ThreeDots height='1rem' />;
     const isSlowActive = currentGasPrice === gasPrices?.standard;
@@ -100,7 +106,7 @@ const TransactionSettings = ({
                                 <FontAwesomeIcon icon={faCheckCircle} />
                             )}
                             {gasPrices ? (
-                                <span>{`Slow ${gasPrices.standard} Gwei`}</span>
+                                <span>{`Standard ${gasPrices.standard} Gwei`}</span>
                             ) : (
                                 <ThreeDots />
                             )}
@@ -115,7 +121,7 @@ const TransactionSettings = ({
                             {!currentGasPrice && (
                                 <FontAwesomeIcon icon={faCheckCircle} />
                             )}
-                            <span>{`Normal ${gasPrices.fast} Gwei`}</span>
+                            <span>{`Fast ${gasPrices.fast} Gwei`}</span>
                         </div>
                         <div
                             className={classNames({ active: isFastActive })}
@@ -126,7 +132,7 @@ const TransactionSettings = ({
                             {isFastActive && (
                                 <FontAwesomeIcon icon={faCheckCircle} />
                             )}
-                            <span>{`Fast ${gasPrices.fastest} Gwei`}</span>
+                            <span>{`Fastest ${gasPrices.fastest} Gwei`}</span>
                         </div>
                     </div>
                     <div className='transaction-settings'>
@@ -151,7 +157,6 @@ export const LiquidityContainer = ({
     const balances = useBalance({
         pool,
     });
-
     debug.poolId = poolId;
     debug.balances = balances;
 
