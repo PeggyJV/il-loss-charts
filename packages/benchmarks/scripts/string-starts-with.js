@@ -1,6 +1,6 @@
 const Benchmark = require('benchmark');
 
-const regex = /$ethGas:getGasPrices/;
+const regex = /^ethGas:getGasPrices/;
 const start = 'ethGas:getGasPrices';
 
 const matchingSuite = new Benchmark.Suite();

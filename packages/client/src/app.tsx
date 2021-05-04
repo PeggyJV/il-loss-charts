@@ -13,10 +13,8 @@ import {
 } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import useWebSocket from 'react-use-websocket';
+import { useEthGasPrices } from 'hooks';
 
-import config from 'config';
-import { EthGasPrices } from '@sommelier/shared-types';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LandingContainer from 'containers/landing-container';
@@ -54,7 +52,7 @@ function App(): ReactElement {
     //     byLiquidity: null,
     // });
 
-    const [gasPrices, setGasPrices] = useState<EthGasPrices | null>(null);
+    const gasPrices = useEthGasPrices();
     const [showConnectWallet, setShowConnectWallet] = useState(false);
 
     // subscribe to the hook, will propogate to the nearest boundary
@@ -95,32 +93,6 @@ function App(): ReactElement {
     //     void fetchAllPairs();
     //     // eslint-disable-next-line react-hooks/exhaustive-deps
     // }, []);
-
-    // TODO: are we using this??
-    const { sendJsonMessage, lastJsonMessage } = useWebSocket(config.wsApi);
-
-    // Handle websocket message
-    // Ignore if we have an error
-    useEffect(() => {
-        if (!lastJsonMessage) return;
-
-        const { topic } = lastJsonMessage;
-
-        if (!topic) return;
-
-        if (topic.startsWith('ethGas:getGasPrices')) {
-            const { data: gasPrices }: { data: EthGasPrices } = lastJsonMessage;
-            setGasPrices(gasPrices);
-        }
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [lastJsonMessage]);
-
-    //    Subscribe to gas prices on first render
-    useEffect(() => {
-        sendJsonMessage({ op: 'subscribe', topics: ['ethGas:getGasPrices'] });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     return (
         <ErrorBoundary

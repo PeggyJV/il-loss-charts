@@ -99,9 +99,11 @@ const TransactionSettings = ({
                             {isSlowActive && (
                                 <FontAwesomeIcon icon={faCheckCircle} />
                             )}
-                            {gasPrices ? <span>{`Slow ${gasPrices.standard} Gwei`}</span>
-                            : <ThreeDots />
-                            }
+                            {gasPrices ? (
+                                <span>{`Slow ${gasPrices.standard} Gwei`}</span>
+                            ) : (
+                                <ThreeDots />
+                            )}
                         </div>
                         <div
                             className={classNames({ active: isNormalActive })}
@@ -123,7 +125,7 @@ const TransactionSettings = ({
                         >
                             {isFastActive && (
                                 <FontAwesomeIcon icon={faCheckCircle} />
-                            ) }
+                            )}
                             <span>{`Fast ${gasPrices.fastest} Gwei`}</span>
                         </div>
                     </div>
@@ -149,7 +151,7 @@ export const LiquidityContainer = ({
     const balances = useBalance({
         pool,
     });
-    console.log('gas ', currentGasPrice);
+
     debug.poolId = poolId;
     debug.balances = balances;
 
@@ -160,10 +162,7 @@ export const LiquidityContainer = ({
             <Box className='liquidity-container'>
                 <SearchHeader setPoolId={setPoolId} />
                 {poolId && pool && (
-                    <AddLiquidityV3
-                        pool={pool}
-                        balances={balances}
-                    />
+                    <AddLiquidityV3 pool={pool} balances={balances} />
                 )}
                 {/* <ActionBar /> */}
                 {poolId && <TransactionSettings gasPrices={gasPrices} />}
