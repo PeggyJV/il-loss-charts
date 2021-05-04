@@ -8,7 +8,7 @@ import config from 'config';
 export const ethGasPriceTopic = 'ethGas:getGasPrices';
 export const gasPriceTopicRex = /^ethGas:getGasPrices/;
 
-export function useEthGasPrices() {
+export function useEthGasPrices(): EthGasPrices | null {
     const [gasPrices, setGasPrices] = useState<EthGasPrices | null>(null);
 
     const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
@@ -22,7 +22,7 @@ export function useEthGasPrices() {
             });
             setIsSubscribed(true);
         }
-    }, [isSubscribed]);
+    }, [isSubscribed, sendJsonMessage]);
 
     useEffect(() => {
         // if no message, bail
@@ -45,7 +45,7 @@ export function useEthGasPrices() {
 
             debug.gasPrices = newGasPrices;
         }
-    }, [lastJsonMessage]);
+    }, [lastJsonMessage, gasPrices]);
 
     return gasPrices;
 }
