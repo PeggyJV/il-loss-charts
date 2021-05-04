@@ -71,23 +71,10 @@ const TransactionSettings = ({
         LiquidityContext
     );
 
-<<<<<<< HEAD
-    useEffect(() => {
-        if (gasPrices && !currentGasPrice && setCurrentGasPrice) {
-            setCurrentGasPrice(gasPrices.fast);
-        }
-    }, [gasPrices, setCurrentGasPrice]);
-
     // TODO show loader only for prices
-    if (!gasPrices) return <ThreeDots height='1rem' />;
-    const isSlowActive = currentGasPrice === gasPrices?.standard;
-    const isNormalActive = currentGasPrice === gasPrices?.fast;
-    const isFastActive = currentGasPrice === gasPrices?.fastest;
-=======
     const isStandardActive = selectedGasPrice === GasPriceSelection.Standard;
     const isNormalActive = selectedGasPrice === GasPriceSelection.Fast;
     const isFastActive = selectedGasPrice === GasPriceSelection.Fastest;
->>>>>>> 5651528 (fix eth price selection)
 
     return (
         <>
@@ -108,7 +95,7 @@ const TransactionSettings = ({
                             {isStandardActive && (
                                 <FontAwesomeIcon icon={faCheckCircle} />
                             )}
-                            <span>Standard {gasPrices?.standard ?? <ThreeDots height="17px" />} Gwei</span>
+                            <span>Standard {gasPrices?.standard ?? <ThreeDots width="24px" />} Gwei</span>
                         </div>
                         <div
                             className={classNames({ active: isNormalActive })}
@@ -117,7 +104,7 @@ const TransactionSettings = ({
                             {isNormalActive && (
                                 <FontAwesomeIcon icon={faCheckCircle} />
                             )}
-                            <span>Normal {gasPrices?.fast ?? <ThreeDots />} Gwei</span>
+                            <span>Normal {gasPrices?.fast ?? <ThreeDots width="24px"/>} Gwei</span>
                         </div>
                         <div
                             className={classNames({ active: isFastActive })}
@@ -128,7 +115,7 @@ const TransactionSettings = ({
                             {isFastActive && (
                                 <FontAwesomeIcon icon={faCheckCircle} />
                             )}
-                            <span>Fast {gasPrices?.fastest ?? <ThreeDots />} Gwei</span>
+                            <span>Fast {gasPrices?.fastest ?? <ThreeDots width="24px" />} Gwei</span>
                         </div>
                     </div>
                     <div className='transaction-settings'>
