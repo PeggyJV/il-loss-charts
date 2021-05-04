@@ -4,7 +4,7 @@
     .MuiAutocomplete-paper {
         background: var(--bgDeep);
         color: var(--faceSecondary);
-        border: 1px solid var(--borderAccentAlt);
+        border: 1px solid var(--borderPrimary);
         .MuiAutocomplete-listbox {
             .MuiAutocomplete-option {
                 padding: 0.85rem;
@@ -25,8 +25,8 @@
 
 .MuiAutocomplete-root {
     .Mui-focused {
-        border: 1px solid var(--borderAccentAlt);
-        border-radius: 2px;
+        // border: 1px solid var(--borderAccentAlt);
+        // border-radius: 2px;
     }
 }
 

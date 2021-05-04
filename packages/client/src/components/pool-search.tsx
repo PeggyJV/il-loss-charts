@@ -21,7 +21,6 @@ const useStyles = makeStyles(() => ({
     },
 }));
 
-//TODO: hack this a little more, TextField is still ugly af
 const CssTextField = withStyles({
     root: {
         '& .MuiInput-underline:after': {
@@ -87,7 +86,7 @@ export function PoolSearch({
                 autoComplete={false}
                 autoSelect={false}
                 loading={false}
-                debug={true}
+                debug={false}
                 noOptionsText={'Invalid Pair'}
                 loadingText={'...loading'}
                 onChange={(_, pool) => {
@@ -95,7 +94,7 @@ export function PoolSearch({
                 }}
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 getOptionLabel={poolOptionLabel}
-                style={{ width: 500 }}
+                style={{ width: 400 }}
                 filterOptions={poolFilter}
                 renderOption={renderPoolWithLogo}
                 renderInput={(params) => (

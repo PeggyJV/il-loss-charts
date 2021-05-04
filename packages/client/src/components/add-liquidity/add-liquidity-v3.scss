@@ -79,7 +79,7 @@
         width: 100%;
         // font-weight: 600;
         border: 1px solid var(--objPositiveAlt);
-        border-radius: 2px;
+        border-radius: 4px;
         background: var(--objPositive);
         &:hover,
         :active,
@@ -92,17 +92,37 @@
         }
     }
 
+    .btn-negative {
+        background: var(--bgDefault);
+        border: 1px solid var(--borderAccent);
+        &:hover,
+        :active,
+        :focus {
+            background: var(--bgDefault);
+        }
+    }
+
+    .no-hover {
+        &:hover,
+        :active,
+        :focus {
+            background: var(--objPositive);
+        }
+    }
+
     .sentiment {
         > div {
             padding: 0.25rem 0.5rem;
+            color: var(--faceSecondary);
             border: 1px solid var(--borderPrimary);
             background: var(--objDeep);
             border-radius: 4px;
             cursor: pointer;
         }
         .active {
-            background: var(--objAccent);
-            border: 1px solid var(--borderAccent);
+            background: var(--objDefault);
+            border: 1px solid var(--borderDefault);
+            color: var(--faceDeep);
         }
     }
 

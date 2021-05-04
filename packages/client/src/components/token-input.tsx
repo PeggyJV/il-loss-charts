@@ -34,6 +34,7 @@ export const TokenInput = ({
     <div className='token-input'>
         <button
             className=''
+            disabled={!balances?.[token]}
             onClick={() => {
                 updateAmount(toBalanceStr(token, balances));
                 handleTokenRatio(token, toBalanceStr(token, balances));
@@ -43,7 +44,7 @@ export const TokenInput = ({
         </button>
         &nbsp;
         <input
-            placeholder='Amount'
+            placeholder='Enter Amount'
             value={amount}
             onChange={(e) => {
                 const val = e.target.value;

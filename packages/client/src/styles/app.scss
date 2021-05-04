@@ -751,7 +751,7 @@ p {
 .connect-wallet-modal-header,
 .connect-wallet-modal-footer {
     color: var(--faceAccentAlt);
-    background: var(--bgMain);
+    background: var(--bgDefault);
     .close {
         color: var(--faceSecondary);
         text-shadow: none;
@@ -815,7 +815,7 @@ p {
     white-space: nowrap;
     text-overflow: ellipsis;
     font-weight: 600;
-    background: var(--bgAccent);
+    background: var(--objAccent);
     border: 1px solid var(--borderAccent);
     border-radius: 0;
     padding: 0.5rem 1.25rem;
@@ -825,7 +825,7 @@ p {
     :active,
     :focus,
     :visited {
-        background-color: var(--btnActionHover);
+        background-color: var(--objAccent);
         border: 1px solid var(--borderAccent);
         outline: none;
         box-shadow: none;
