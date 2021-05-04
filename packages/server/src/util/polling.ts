@@ -6,6 +6,7 @@ import services, { DataSource } from 'services';
 class PollingUtil extends EventEmitter {
     static DEFAULT_INTERVAL = 15000; // 15s - eth blocks are 13s
     static MEMPOOL_INTERVAL = 1000; // poll the mempool every 1s (via Infura)
+    private latestTopicData: Map<string, unknown> = new Map();
 
     activeTopics: {
         [key: string]: { emitter: EventEmitter; interval: NodeJS.Timeout };
@@ -66,11 +67,15 @@ class PollingUtil extends EventEmitter {
         // Assume args are comma-delimited
         const argsArr = (args || '').split(',');
 
+        const latestTopicData = this.latestTopicData;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const interval: NodeJS.Timeout = <any>setInterval(() => {
-            queryFn(...argsArr).then((latest: unknown) =>
-                topicEmitter.emit('data', latest)
-            );
+            queryFn(...argsArr).then((latest: unknown) => {
+                // cache the latest topic data so we can return immediately on subscribe
+                latestTopicData.set(topic, latest);
+
+                return topicEmitter.emit('data', latest)
+            });
         }, intervalMs);
 
         // Unref prevents the interval from blocking app shutdown
@@ -92,6 +97,10 @@ class PollingUtil extends EventEmitter {
         delete this.activeTopics[topic];
 
         return true;
+    }
+
+    getLatestTopicData(topic: string): unknown | void {
+        return this.latestTopicData.get(topic);
     }
 }
 

@@ -174,6 +174,13 @@ export default class WsMessageHandler {
 
         // We assume token is valid
         if (source === 'uniswap' || source === 'ethGas') {
+            // send latest data first
+            const latestData = pollingUtil.getLatestTopicData(topic);
+            if (latestData) {
+                this.sendJSON({ topic, data: latestData });
+            }
+
+            // subcribe to polling
             pollingUtil.subscribe(topic, interval).on('data', (data: unknown) =>
                 this.sendJSON({
                     topic,
