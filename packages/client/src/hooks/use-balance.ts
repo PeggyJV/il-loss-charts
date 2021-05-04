@@ -23,6 +23,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
     }
 
     const [balances, setBalances] = useState<WalletBalances>({});
+    const EXCHANGE_ADD_V3_ABI_ADDRESS: string = config.networks[wallet.network || '1']?.contracts?.ADD_LIQUIDITY_V3 || '';
 
     useEffect(() => {
         // get balances of both tokens
@@ -70,9 +71,9 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                         erc20Abi
                     ).connect(provider);
 
-                    const targetAddress =
-                        config.networks[wallet.network || '1']?.contracts
-                            ?.ADD_LIQUIDITY_V3;
+                    const targetAddress = EXCHANGE_ADD_V3_ABI_ADDRESS;
+                        
+
 
                     try {
                         const allowance: ethers.BigNumber = await token.allowance(
@@ -82,7 +83,9 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                         return allowance;
                     } catch (e) {
                         console.error(
-                            `Could not get allowance of contract ${targetAddress as string} on behalf of ${
+                            `Could not get allowance of contract ${
+                                targetAddress 
+                            } on behalf of ${
                                 wallet?.account ?? ''
                                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                             } for token ${tokenAddress}`
@@ -157,7 +160,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                     balance: ethBalance,
                     decimals: '18',
                     allowance: {
-                        [EXCHANGE_ADD_ABI_ADDRESS]: ethers.BigNumber.from(0),
+                        [EXCHANGE_ADD_V3_ABI_ADDRESS]: ethers.BigNumber.from(0),
                         [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: ethers.BigNumber.from(
                             0
                         ),
@@ -169,7 +172,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                     balance: token0Balance,
                     decimals: pool.token0.decimals,
                     allowance: {
-                        [EXCHANGE_ADD_ABI_ADDRESS]: token0Allowance,
+                        [EXCHANGE_ADD_V3_ABI_ADDRESS]: token0Allowance,
                         [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: addTwoToken0Allowance,
                     },
                 },
@@ -179,7 +182,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                     balance: token1Balance,
                     decimals: pool.token0.decimals,
                     allowance: {
-                        [EXCHANGE_ADD_ABI_ADDRESS]: token1Allowance,
+                        [EXCHANGE_ADD_V3_ABI_ADDRESS]: token1Allowance,
                         [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: addTwoToken1Allowance,
                     },
                 },
