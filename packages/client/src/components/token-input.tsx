@@ -18,7 +18,7 @@ const toBalanceStr = (token: string, balances: WalletBalances): string => {
 type TokenInputProps = {
     token: string;
     amount: string;
-    updateAmount: React.Dispatch<React.SetStateAction<string>>;
+    updateAmount: (amount: string) => void;
     handleTokenRatio: (token: string, amount: string) => void;
     balances: WalletBalances;
     twoSide: boolean;
