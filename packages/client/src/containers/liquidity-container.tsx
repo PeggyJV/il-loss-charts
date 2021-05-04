@@ -99,7 +99,9 @@ const TransactionSettings = ({
                             {isSlowActive && (
                                 <FontAwesomeIcon icon={faCheckCircle} />
                             )}
-                            <span>{`Slow ${gasPrices.standard} Gwei`}</span>
+                            {gasPrices ? <span>{`Slow ${gasPrices.standard} Gwei`}</span>
+                            : <ThreeDots />
+                            }
                         </div>
                         <div
                             className={classNames({ active: isNormalActive })}
@@ -157,7 +159,7 @@ export const LiquidityContainer = ({
         >
             <Box className='liquidity-container'>
                 <SearchHeader setPoolId={setPoolId} />
-                {poolId && (
+                {poolId && pool && (
                     <AddLiquidityV3
                         pool={pool}
                         balances={balances}

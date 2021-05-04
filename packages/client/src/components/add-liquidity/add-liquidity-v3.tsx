@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, useReducer } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
@@ -31,44 +31,90 @@ type Props = {
 
 export type Sentiment = 'bullish' | 'bearish' | 'neutral';
 
+const ETH_ID = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+
 export const AddLiquidityV3 = ({
     pool,
     balances,
 }: Props): JSX.Element | null => {
-    const [token0, setToken0] = useState(pool?.token0?.id ?? '');
-    const [token1, setToken1] = useState(pool?.token1?.id ?? '');
     const [token0Amount, setToken0Amount] = useState('0');
     const [token1Amount, setToken1Amount] = useState('0');
     const [priceImpact, setPriceImpact] = useState('0');
 
+    const token0 = pool?.token0?.id ?? '';
+    const token1 = pool?.token1?.id ?? '';
     const token0Symbol = pool?.token0?.symbol ?? '';
     const token1Symbol = pool?.token1?.symbol ?? '';
 
     // State here is used to compute what tokens are being used to add liquidity with.
-    // const initialState = {
-    //     [token0Symbol]: pool?.token0,
-    //     [token1Symbol]: pool?.token1,
-    // };
 
-    // const reducer = (
-    //     state: { [x: string]: any },
-    //     action: { type: any; payload: { sym: any } }
-    // ) => {
-    //     let sym; let token;
-    //     switch (action.type) {
-    //         case 'remove':
-    //             sym = action.payload.sym;
-    //             const { [sym]: omit, ...rest } = state;
-    //             return { ...rest };
-    //         case 'add':
-    //             const token = action.payload.token;
-    //             return { ...state, token };
-    //         default:
-    //             throw new Error();
-    //     }
-    // };
-    // const [state, dispatch] = useReducer(reducer, initialState);
-    // console.log('state ', state);
+    // one-side or not
+    // token0 id symbol amount
+    // token1 id symbol amount
+    const initialState: Record<string, any> = {
+        [token0Symbol]: {
+            id: pool?.token0?.id,
+            name: pool?.token0?.name,
+            symbol: pool?.token0?.symbol,
+            amount: 0,
+            selected: true,
+        },
+        [token1Symbol]: {
+            id: pool?.token1?.id,
+            name: pool?.token1?.name,
+            symbol: pool?.token1?.symbol,
+            amount: 0,
+            selected: true,
+        },
+        ETH: {
+            id: ETH_ID,
+            symbol: 'ETH',
+            name: 'Ethereum',
+            amount: 0,
+            selected: false,
+        },
+        selectedTokens: [pool?.token0?.symbol, pool?.token1?.symbol],
+        isWETHSelected:
+            pool?.token0?.symbol === 'WETH' || pool?.token1?.symbol === 'WETH',
+    };
+
+    const reducer = (
+        state: { [x: string]: any },
+        action: { type: any; payload: { sym: any; amount?: any } }
+    ) => {
+        let sym: string;
+        let amt: string;
+        let selectedSymbols: Array<string>;
+        // eslint-disable-next-line no-debugger
+        switch (action.type) {
+            case 'toggle':
+                sym = action.payload.sym;
+                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+                selectedSymbols = state[sym].selected
+                    ? state.selectedTokens.filter(
+                          (symbol: string) => symbol !== sym
+                      )
+                    : [...state.selectedTokens, sym];
+
+                return {
+                    ...state,
+                    selectedTokens: selectedSymbols,
+                    [sym]: { ...state[sym], selected: !state[sym].selected },
+                };
+            case 'update-amount':
+                sym = action.payload.sym;
+                amt = action.payload.amount;
+                return {
+                    ...state,
+                    [sym]: { ...state[sym], amount: amt },
+                };
+            default:
+                throw new Error();
+        }
+    };
+
+    const [state, dispatch] = useReducer(reducer, initialState);
+
     // const [token, setToken] = useState('ETH');
     // TODO calculate price impact
     const { currentGasPrice, slippageTolerance } = useContext(LiquidityContext);
@@ -82,7 +128,6 @@ export const AddLiquidityV3 = ({
     }
 
     (window as any).pool = pool;
-    const ETH_ID = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
     // const token0 = pool?.token0?.id ?? '';
     // const token1 = pool?.token1?.id ?? '';
 
@@ -90,6 +135,13 @@ export const AddLiquidityV3 = ({
     (window as any).marketData = marketData;
     (window as any).indicators = indicators;
 
+    // returns a tuple [token0, token1];
+    const getTokensWithAmounts = () => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return state.selectedTokens.map((symbol: string) => state[symbol]);
+    };
+
+    debug.selectedTokens = getTokensWithAmounts();
     const SELECTED_INDICATOR_NAME = 'bollingerEMANormalBand';
     const currentPrice = marketData?.quotePrice ?? parseFloat(pool?.token0Price || '0');
 
@@ -345,7 +397,19 @@ export const AddLiquidityV3 = ({
         liquidityLow = lowerBound;
         liquidityHigh = upperBound;
     }
-    
+
+    const selectedSymbolCount = state.selectedTokens.length;
+    const isToken0Active = state?.[token0Symbol]?.selected;
+    const isToken1Active = state?.[token1Symbol]?.selected;
+    const isTokenETHActive = state?.['ETH']?.selected;
+    const isToken0Disabled = !isToken0Active && selectedSymbolCount === 2;
+    const isToken1Disabled = !isToken1Active && selectedSymbolCount === 2;
+    const isTokenETHDisabled =
+        !isTokenETHActive &&
+        (selectedSymbolCount === 2 || state['WETH']?.selected);
+    const selectedSymbol0 = state.selectedTokens[0];
+    const selectedSymbol1 = state.selectedTokens[1];
+    const disableWETH = state['ETH'].selected;
     return (
         <>
             <div className='add-v3-container'>
@@ -355,70 +419,140 @@ export const AddLiquidityV3 = ({
                     alignItems='center'
                 >
                     <div>Input Token(s) 2 max</div>
-                    <Box display='flex'>
-                        <div
-                            className='token-with-logo'
-                            onClick={() =>
-                                setToken0(token0 ? '' : pool?.token0?.id)
+                    <Box display='flex' className='token-select'>
+                        <button
+                            className={classNames('token-with-logo', {
+                                active: isToken0Active,
+                                disabled:
+                                    isToken0Disabled ||
+                                    (token0Symbol === 'WETH' && disableWETH),
+                            })}
+                            disabled={
+                                isToken0Disabled ||
+                                (token0Symbol === 'WETH' && disableWETH)
                             }
+                            onClick={() => {
+                                dispatch({
+                                    type: 'toggle',
+                                    payload: { sym: token0Symbol },
+                                });
+                            }}
                         >
                             {resolveLogo(pool?.token0?.id)}&nbsp;
                             {pool?.token0?.symbol}
-                        </div>
-                        <div
-                            className='token-with-logo'
-                            onClick={() =>
-                                setToken1(token0 ? '' : pool?.token0?.id)
+                        </button>
+                        <button
+                            className={classNames('token-with-logo', {
+                                active: isToken1Active,
+                                disabled:
+                                    isToken1Disabled ||
+                                    (token1Symbol === 'WETH' && disableWETH),
+                            })}
+                            disabled={
+                                isToken1Disabled ||
+                                (token1Symbol === 'WETH' && disableWETH)
                             }
+                            onClick={() => {
+                                if (
+                                    !isToken1Active &&
+                                    selectedSymbolCount === 2
+                                )
+                                    return;
+                                dispatch({
+                                    type: 'toggle',
+                                    payload: { sym: token1Symbol },
+                                });
+                            }}
                         >
                             {resolveLogo(pool?.token1?.id)}&nbsp;
                             {pool?.token1?.symbol}
-                        </div>
-                        <div className='token-with-logo'>
+                        </button>
+                        <button
+                            className={classNames('token-with-logo', {
+                                active: isTokenETHActive,
+                                disabled: isTokenETHDisabled,
+                            })}
+                            disabled={isTokenETHDisabled}
+                            onClick={() => {
+                                if (
+                                    !isTokenETHActive &&
+                                    selectedSymbolCount === 2
+                                )
+                                    return;
+                                dispatch({
+                                    type: 'toggle',
+                                    payload: { sym: 'ETH' },
+                                });
+                            }}
+                        >
                             {resolveLogo(ETH_ID)}&nbsp;
                             {'ETH'}
-                        </div>
+                        </button>
                     </Box>
                 </Box>
                 <br />
                 <Box display='flex' justifyContent='space-between'>
                     <Box width='48%'>
-                        <TokenWithBalance
-                            id={pool.token0.id}
-                            name={pool.token0.symbol}
-                            balance={balances?.[token0Symbol]?.balance}
-                            decimals={balances?.[token0Symbol]?.decimals}
-                        />
+                        {selectedSymbol0 && (
+                            <TokenWithBalance
+                                id={state[selectedSymbol0].id}
+                                name={selectedSymbol0}
+                                balance={balances?.[selectedSymbol0]?.balance}
+                                decimals={balances?.[selectedSymbol0]?.decimals}
+                            />
+                        )}
                         <br />
-                        <TokenWithBalance
-                            id={pool.token1.id}
-                            name={pool.token1.symbol}
-                            balance={balances?.[token1Symbol]?.balance}
-                            decimals={balances?.[token1Symbol]?.decimals}
-                        />
+                        {selectedSymbol1 && (
+                            <TokenWithBalance
+                                id={state[selectedSymbol1].id}
+                                name={selectedSymbol1}
+                                balance={balances?.[selectedSymbol1]?.balance}
+                                decimals={balances?.[selectedSymbol1]?.decimals}
+                            />
+                        )}
                     </Box>
                     <Box width='48%'>
-                        <TokenInput
-                            token={token0Symbol}
-                            amount={token0Amount}
-                            updateAmount={setToken0Amount}
-                            handleTokenRatio={() => {
-                                return '';
-                            }}
-                            balances={balances}
-                            twoSide={false}
-                        />
+                        {selectedSymbol0 && (
+                            <TokenInput
+                                token={selectedSymbol0}
+                                amount={state[selectedSymbol0].amount}
+                                updateAmount={(amt: string) => {
+                                    dispatch({
+                                        type: 'update-amount',
+                                        payload: {
+                                            sym: selectedSymbol0,
+                                            amount: amt,
+                                        },
+                                    });
+                                }}
+                                handleTokenRatio={() => {
+                                    return '';
+                                }}
+                                balances={balances}
+                                twoSide={false}
+                            />
+                        )}
                         <br />
-                        <TokenInput
-                            token={token1Symbol}
-                            amount={token1Amount}
-                            updateAmount={setToken1Amount}
-                            handleTokenRatio={() => {
-                                return '';
-                            }}
-                            balances={balances}
-                            twoSide={true}
-                        />
+                        {selectedSymbol1 && (
+                            <TokenInput
+                                token={selectedSymbol1}
+                                amount={state[selectedSymbol1].amount}
+                                updateAmount={(amt: string) => {
+                                    dispatch({
+                                        type: 'update-amount',
+                                        payload: {
+                                            sym: selectedSymbol1,
+                                            amount: amt,
+                                        },
+                                    });
+                                }}
+                                handleTokenRatio={() => {
+                                    return '';
+                                }}
+                                balances={balances}
+                                twoSide={true}
+                            />
+                        )}
                     </Box>
                 </Box>
                 <br />

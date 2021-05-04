@@ -106,9 +106,18 @@
         }
     }
 
-    .token-business {
-        .token-select {
-            border: 1px solid red;
+    .token-select {
+        button {
+            background: var(--bgDefault);
+        }
+        .active {
+            background: var(--objDefault);
+        }
+        .disabled {
+            color: var(--faceDisabled);
+            &:hover {
+                background: var(--bgDefault);
+            }
         }
     }
 
@@ -123,7 +132,7 @@
         margin-left: 1rem;
         &:hover {
             cursor: pointer;
-            background: var(--objDefault);
+            // border: 1px solid var(--borderPrimary);
         }
         img {
             height: 2rem;
