@@ -19,6 +19,7 @@ import { compactHash } from 'util/formats';
 import { WalletBalances } from 'types/states';
 import { useWallet } from 'hooks/use-wallet';
 import { useMarketData } from 'hooks';
+import { LiquidityActionButton } from 'components/add-liquidity/liquidity-action-button';
 import { EthGasPrices } from '@sommelier/shared-types';
 import { PoolOverview } from 'hooks/data-fetchers';
 import { debug } from 'util/debug';
@@ -47,30 +48,26 @@ export const AddLiquidityV3 = ({
     const token1Symbol = pool?.token1?.symbol ?? '';
 
     // State here is used to compute what tokens are being used to add liquidity with.
-
-    // one-side or not
-    // token0 id symbol amount
-    // token1 id symbol amount
     const initialState: Record<string, any> = {
         [token0Symbol]: {
             id: pool?.token0?.id,
             name: pool?.token0?.name,
             symbol: pool?.token0?.symbol,
-            amount: 0,
+            amount: '',
             selected: false,
         },
         [token1Symbol]: {
             id: pool?.token1?.id,
             name: pool?.token1?.name,
             symbol: pool?.token1?.symbol,
-            amount: 0,
+            amount: '',
             selected: false,
         },
         ETH: {
             id: ETH_ID,
             symbol: 'ETH',
             name: 'Ethereum',
-            amount: 0,
+            amount: '',
             selected: true,
         },
         selectedTokens: ['ETH'],
@@ -117,8 +114,10 @@ export const AddLiquidityV3 = ({
 
     // const [token, setToken] = useState('ETH');
     // TODO calculate price impact
-    const { selectedGasPrice, slippageTolerance } = useContext(LiquidityContext);
-    let currentGasPrice: (number | null) = null;
+    const { selectedGasPrice, slippageTolerance } = useContext(
+        LiquidityContext
+    );
+    let currentGasPrice: number | null = null;
     if (gasPrices && selectedGasPrice) {
         currentGasPrice = gasPrices[selectedGasPrice];
     }
@@ -128,7 +127,9 @@ export const AddLiquidityV3 = ({
         prices: [number, number];
         ticks: [number, number];
     }>({ prices: [0, 0], ticks: [0, 0] });
-    const [expectedAmounts, setExpectedAmounts] = useState<[BigNumber, BigNumber]>([new BigNumber(0), new BigNumber(0)]);
+    const [expectedAmounts, setExpectedAmounts] = useState<
+        [BigNumber, BigNumber]
+    >([new BigNumber(0), new BigNumber(0)]);
     const { wallet } = useWallet();
 
     let provider: ethers.providers.Web3Provider | null = null;
@@ -148,10 +149,13 @@ export const AddLiquidityV3 = ({
     debug.marketData = marketData;
     debug.indicators = indicators;
 
-    // returns a tuple [token0, token1];
+
     const getTokensWithAmounts = () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return tokenInputState.selectedTokens.map((symbol: string) => tokenInputState[symbol]);
+        return tokenInputState.selectedTokens.map(
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            (symbol: string) => tokenInputState[symbol]
+        );
     };
 
     debug.selectedTokens = getTokensWithAmounts();
@@ -197,7 +201,9 @@ export const AddLiquidityV3 = ({
             );
 
             console.log('THIS IS STATE', tokenInputState);
-            const totalAmount = parseFloat(tokenInputState[selectedToken].amount);
+            const totalAmount = parseFloat(
+                tokenInputState[selectedToken].amount
+            );
             console.log('THIS IS TOTAL AMOUNT', totalAmount);
             let expectedBaseAmount: BigNumber, expectedQuoteAmount: BigNumber;
 
@@ -219,11 +225,13 @@ export const AddLiquidityV3 = ({
                     // );
 
                     // expectedQuoteAmount = new BigNumber(expectedOutput.toFixed());
-                    expectedQuoteAmount = expectedBaseAmount.times(currentPrice);
+                    expectedQuoteAmount = expectedBaseAmount.times(
+                        currentPrice
+                    );
                 } else {
                     // selected token is quote
                     expectedQuoteAmount = new BigNumber(totalAmount).div(2);
-                    
+
                     // TODO: reintroduce once we have per-tick liquidity
                     // const quoteAmountInBaseUnits = ethers.utils
                     //     .parseUnits(
@@ -237,9 +245,10 @@ export const AddLiquidityV3 = ({
                     // );
 
                     // expectedBaseAmount = new BigNumber(expectedOutput.toFixed());
-                    expectedBaseAmount = expectedQuoteAmount.times(1 / currentPrice);
+                    expectedBaseAmount = expectedQuoteAmount.times(
+                        1 / currentPrice
+                    );
                 }
-
             } else if (selectedToken === pool.token0.symbol) {
                 // selected token is base
                 expectedBaseAmount = new BigNumber(totalAmount).div(2);
@@ -275,12 +284,16 @@ export const AddLiquidityV3 = ({
                 // );
 
                 // expectedBaseAmount = new BigNumber(expectedOutput.toFixed());
-                expectedBaseAmount = expectedQuoteAmount.times(1 / currentPrice);
+                expectedBaseAmount = expectedQuoteAmount.times(
+                    1 / currentPrice
+                );
             }
 
             setExpectedAmounts([expectedBaseAmount, expectedQuoteAmount]);
 
-            const expectedQuoteAmountNoSlippage = expectedBaseAmount.times(currentPrice);
+            const expectedQuoteAmountNoSlippage = expectedBaseAmount.times(
+                currentPrice
+            );
             const priceImpact = new BigNumber(expectedQuoteAmountNoSlippage)
                 .minus(expectedQuoteAmount.toFixed(8))
                 .div(expectedQuoteAmountNoSlippage)
@@ -334,7 +347,6 @@ export const AddLiquidityV3 = ({
 
     if (!pool) return null;
 
-
     const doAddLiquidity = async () => {
         if (!pool || !provider || !indicators) return;
         if (!currentGasPrice) {
@@ -361,18 +373,21 @@ export const AddLiquidityV3 = ({
 
         debug.contract = addLiquidityContract;
 
-        const isEthAdd = tokenInputState.selectedTokens.length == 1 &&
+        const isEthAdd =
+            tokenInputState.selectedTokens.length == 1 &&
             tokenInputState.selectedTokens[0] === 'ETH';
 
         const fnName = isEthAdd
-                ? 'addLiquidityEthForUniV3'
-                : 'addLiquidityForUniV3';
+            ? 'addLiquidityEthForUniV3'
+            : 'addLiquidityForUniV3';
         const tokenId = 0;
         const [expectedBaseAmount, expectedQuoteAmount] = expectedAmounts;
 
         let expectedQuoteAmountNoSlippage: BigNumber;
         if (tokenInputState.selectedTokens.length === 1) {
-            expectedQuoteAmountNoSlippage = expectedBaseAmount.times(currentPrice);
+            expectedQuoteAmountNoSlippage = expectedBaseAmount.times(
+                currentPrice
+            );
         } else {
             expectedQuoteAmountNoSlippage = expectedQuoteAmount;
         }
@@ -393,27 +408,29 @@ export const AddLiquidityV3 = ({
                 expectedBaseAmount.toFixed(Number(pool.token0.decimals)),
                 pool.token0.decimals
             )
-            .toString()
+            .toString();
 
         const baseAmount1Desired = ethers.utils
             .parseUnits(
-                expectedQuoteAmountNoSlippage.toFixed(Number(pool.token1.decimals)),
+                expectedQuoteAmountNoSlippage.toFixed(
+                    Number(pool.token1.decimals)
+                ),
                 pool.token1.decimals
             )
-            .toString()
-            
+            .toString();
+
         const baseAmount0Min = ethers.utils
             .parseUnits(
                 amount0Min.toFixed(Number(pool.token0.decimals)),
                 pool.token0.decimals
             )
-            .toString()
+            .toString();
         const baseAmount1Min = ethers.utils
             .parseUnits(
                 amount1Min.toFixed(Number(pool.token0.decimals)),
                 pool.token1.decimals
             )
-            .toString()
+            .toString();
 
         const mintParams = [
             token0, // token0
@@ -436,38 +453,44 @@ export const AddLiquidityV3 = ({
         // approve DAI. TODO: Make this approval separate
         for (const tokenSymbol of tokenInputState.selectedTokens) {
             if (tokenSymbol === 'ETH') continue;
-            const erc20Contract = new ethers.Contract(tokenInputState[tokenSymbol].id, erc20Abi, signer);
+            const erc20Contract = new ethers.Contract(
+                tokenInputState[tokenSymbol].id,
+                erc20Abi,
+                signer
+            );
 
-            const amountDesired = tokenSymbol === pool.token0.symbol ? baseAmount0Desired : baseAmount1Desired;
-    
+            const amountDesired =
+                tokenSymbol === pool.token0.symbol
+                    ? baseAmount0Desired
+                    : baseAmount1Desired;
+
             const baseApproveAmount = ethers.utils
-                .parseUnits(
-                    (parseInt(amountDesired, 10) * 100).toString(),
-                    18
-                )
+                .parseUnits((parseInt(amountDesired, 10) * 100).toString(), 18)
                 .toString();
-    
+
             // Call the contract and sign
             let approvalEstimate: ethers.BigNumber;
-    
+
             try {
                 approvalEstimate = await erc20Contract.estimateGas.approve(
                     addLiquidityContractAddress,
                     baseApproveAmount,
                     { gasPrice: baseGasPrice }
                 );
-    
+
                 // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
-                approvalEstimate = approvalEstimate.add(approvalEstimate.div(3));
+                approvalEstimate = approvalEstimate.add(
+                    approvalEstimate.div(3)
+                );
             } catch (err) {
                 // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
                 console.error(
                     `Could not estimate gas fees: ${err.message as string}`
                 );
-    
+
                 approvalEstimate = ethers.BigNumber.from('1000000');
             }
-    
+
             // Approve the add liquidity contract to spend entry tokens
             const {
                 hash: approveHash,
@@ -476,10 +499,10 @@ export const AddLiquidityV3 = ({
                 baseApproveAmount,
                 { gasPrice: baseGasPrice, gasLimit: approvalEstimate }
             );
-    
+
             // setApprovalState('pending');
             toastWarn(`Approving tx ${compactHash(approveHash)}`);
-    
+
             await provider.waitForTransaction(approveHash);
         }
 
@@ -489,7 +512,9 @@ export const AddLiquidityV3 = ({
 
         let baseMsgValue = ethers.utils.parseUnits('0.005', 18);
         if (tokenInputState.selectedTokens.includes('ETH')) {
-            const ethAmount = ethers.utils.parseEther(tokenInputState['ETH'].amount);
+            const ethAmount = ethers.utils.parseEther(
+                tokenInputState['ETH'].amount
+            );
             baseMsgValue = baseMsgValue.add(ethAmount);
         }
 
@@ -499,12 +524,14 @@ export const AddLiquidityV3 = ({
         let gasEstimate: ethers.BigNumber;
 
         try {
-            gasEstimate = await addLiquidityContract.estimateGas[
-                fnName
-            ](tokenId, mintParams, {
-                gasPrice: baseGasPrice,
-                value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
-            });
+            gasEstimate = await addLiquidityContract.estimateGas[fnName](
+                tokenId,
+                mintParams,
+                {
+                    gasPrice: baseGasPrice,
+                    value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
+                }
+            );
 
             // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
             gasEstimate = gasEstimate.add(gasEstimate.div(3));
@@ -512,7 +539,9 @@ export const AddLiquidityV3 = ({
             // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
             console.error(`Could not estimate gas: ${err.message as string}`);
 
-            toastError('Could not estimate gas for this transaction. Check your parameters or try a different pool.');
+            toastError(
+                'Could not estimate gas for this transaction. Check your parameters or try a different pool.'
+            );
             return;
         }
 
@@ -543,6 +572,7 @@ export const AddLiquidityV3 = ({
     const selectedSymbol0 = tokenInputState.selectedTokens[0];
     const selectedSymbol1 = tokenInputState.selectedTokens[1];
     const disableWETH = tokenInputState['ETH'].selected;
+
     return (
         <>
             <div className='add-v3-container'>
@@ -551,7 +581,7 @@ export const AddLiquidityV3 = ({
                     justifyContent='space-between'
                     alignItems='center'
                 >
-                    <div>Input Token(s) 2 max</div>
+                    <div>Select 1 or 2 token(s)</div>
                     <Box display='flex' className='token-select'>
                         <button
                             className={classNames('token-with-logo', {
@@ -755,9 +785,11 @@ export const AddLiquidityV3 = ({
                 </div>
                 <br />
                 <div>
-                    <button className='btn-addl' onClick={doAddLiquidity}>
-                        Add Liquidity
-                    </button>
+                    <LiquidityActionButton
+                        tokenInputState={tokenInputState}
+                        onClick={() => doAddLiquidity()}
+                        balances={balances}
+                    />
                 </div>
             </div>
         </>
