@@ -9,6 +9,9 @@
         }
     ],
     "description": "Data tools for DeFi LPs",
+    "engines": {
+        "node": ">=14 <=15"
+    },
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
