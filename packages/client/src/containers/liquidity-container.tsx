@@ -1,6 +1,7 @@
 import {
     useState,
     useContext,
+    useEffect,
     createContext,
     Dispatch,
     SetStateAction,
@@ -73,6 +74,12 @@ const TransactionSettings = ({
     const { currentGasPrice, setCurrentGasPrice } = useContext(
         LiquidityContext
     );
+
+    useEffect(() => {
+        if (gasPrices && !currentGasPrice && setCurrentGasPrice) {
+            setCurrentGasPrice(gasPrices.fast);
+        }
+    }, [gasPrices, setCurrentGasPrice]);
 
     // TODO show loader only for prices
     if (!gasPrices) return <ThreeDots height='1rem' />;
@@ -151,7 +158,6 @@ export const LiquidityContainer = ({
     const balances = useBalance({
         pool,
     });
-    console.log('gas ', currentGasPrice);
     debug.poolId = poolId;
     debug.balances = balances;
 

@@ -155,7 +155,6 @@ export const AddLiquidityV3 = ({
 
     useEffect(() => {
         if (!pool) {
-            console.log('NO POOL');
             return;
         }
 

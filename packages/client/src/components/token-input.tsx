@@ -12,7 +12,7 @@ const toBalanceStr = (token: string, balances: WalletBalances): string => {
             balance || 0,
             parseInt(balances[token]?.decimals || '0', 10)
         )
-    ).toFixed(7);
+    ).toFixed();
 };
 
 type TokenInputProps = {
