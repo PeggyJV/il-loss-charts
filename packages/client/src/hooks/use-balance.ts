@@ -5,6 +5,7 @@ import { WalletBalances } from 'types/states';
 import { PoolOverview } from 'hooks/data-fetchers';
 import { useWallet } from 'hooks/use-wallet';
 import { poolSymbol } from 'util/formats';
+import config from 'config';
 const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
 const EXCHANGE_REMOVE_ABI_ADDRESS =
     '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';
@@ -22,6 +23,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
     }
 
     const [balances, setBalances] = useState<WalletBalances>({});
+    const EXCHANGE_ADD_V3_ABI_ADDRESS: string = config.networks[wallet.network || '1']?.contracts?.ADD_LIQUIDITY_V3 || '';
 
     useEffect(() => {
         // get balances of both tokens
@@ -69,7 +71,9 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                         erc20Abi
                     ).connect(provider);
 
-                    const targetAddress = EXCHANGE_ADD_ABI_ADDRESS;
+                    const targetAddress = EXCHANGE_ADD_V3_ABI_ADDRESS;
+                        
+
 
                     try {
                         const allowance: ethers.BigNumber = await token.allowance(
@@ -79,9 +83,11 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                         return allowance;
                     } catch (e) {
                         console.error(
-                            `Could not get allowance of contract ${targetAddress} on behalf of ${
+                            `Could not get allowance of contract ${
+                                targetAddress 
+                            } on behalf of ${
                                 wallet?.account ?? ''
-                            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                             } for token ${tokenAddress}`
                         );
                         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -115,7 +121,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                         console.error(
                             `Could not get two-sided allowance of contract ${targetAddress} on behalf of ${
                                 wallet?.account ?? ''
-                            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                             } for token ${tokenAddress}`
                         );
                         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -154,7 +160,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                     balance: ethBalance,
                     decimals: '18',
                     allowance: {
-                        [EXCHANGE_ADD_ABI_ADDRESS]: ethers.BigNumber.from(0),
+                        [EXCHANGE_ADD_V3_ABI_ADDRESS]: ethers.BigNumber.from(0),
                         [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: ethers.BigNumber.from(
                             0
                         ),
@@ -166,7 +172,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                     balance: token0Balance,
                     decimals: pool.token0.decimals,
                     allowance: {
-                        [EXCHANGE_ADD_ABI_ADDRESS]: token0Allowance,
+                        [EXCHANGE_ADD_V3_ABI_ADDRESS]: token0Allowance,
                         [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: addTwoToken0Allowance,
                     },
                 },
@@ -176,7 +182,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                     balance: token1Balance,
                     decimals: pool.token0.decimals,
                     allowance: {
-                        [EXCHANGE_ADD_ABI_ADDRESS]: token1Allowance,
+                        [EXCHANGE_ADD_V3_ABI_ADDRESS]: token1Allowance,
                         [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: addTwoToken1Allowance,
                     },
                 },
