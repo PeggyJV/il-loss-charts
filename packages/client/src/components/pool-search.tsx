@@ -102,7 +102,6 @@ export function PoolSearch({
                         {...params}
                         className='pair-search-text'
                         style={{
-                            border: '1px solid var(--borderPrimary)',
                             borderRadius: '2px',
                             fontWeight: 400,
                             textTransform: 'uppercase',

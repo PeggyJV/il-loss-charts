@@ -603,7 +603,7 @@ export const AddLiquidityV3 = ({
                                 });
                             }}
                         >
-                            {resolveLogo(pool?.token0?.id)}&nbsp;
+                            {/* {resolveLogo(pool?.token0?.id)}&nbsp; */}
                             {pool?.token0?.symbol}
                         </button>
                         <button
@@ -629,7 +629,7 @@ export const AddLiquidityV3 = ({
                                 });
                             }}
                         >
-                            {resolveLogo(pool?.token1?.id)}&nbsp;
+                            {/* {resolveLogo(pool?.token1?.id)}&nbsp; */}
                             {pool?.token1?.symbol}
                         </button>
                         <button
@@ -650,7 +650,7 @@ export const AddLiquidityV3 = ({
                                 });
                             }}
                         >
-                            {resolveLogo(ETH_ID)}&nbsp;
+                            {/* {resolveLogo(ETH_ID)}&nbsp; */}
                             {'ETH'}
                         </button>
                     </Box>
