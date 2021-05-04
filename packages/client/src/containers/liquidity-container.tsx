@@ -73,8 +73,8 @@ const TransactionSettings = ({
 
     // TODO show loader only for prices
     const isStandardActive = selectedGasPrice === GasPriceSelection.Standard;
-    const isNormalActive = selectedGasPrice === GasPriceSelection.Fast;
-    const isFastActive = selectedGasPrice === GasPriceSelection.Fastest;
+    const isFastActive = selectedGasPrice === GasPriceSelection.Fast;
+    const isFastestActive = selectedGasPrice === GasPriceSelection.Fastest;
 
     return (
         <>
@@ -98,24 +98,24 @@ const TransactionSettings = ({
                             <span>Standard {gasPrices?.standard ?? <ThreeDots width="24px" />} Gwei</span>
                         </div>
                         <div
-                            className={classNames({ active: isNormalActive })}
-                            onClick={() => setSelectedGasPrice(GasPriceSelection.Fast)}
-                        >
-                            {isNormalActive && (
-                                <FontAwesomeIcon icon={faCheckCircle} />
-                            )}
-                            <span>Normal {gasPrices?.fast ?? <ThreeDots width="24px"/>} Gwei</span>
-                        </div>
-                        <div
                             className={classNames({ active: isFastActive })}
-                            onClick={() =>
-                                setSelectedGasPrice(GasPriceSelection.Fastest)
-                            }
+                            onClick={() => setSelectedGasPrice(GasPriceSelection.Fast)}
                         >
                             {isFastActive && (
                                 <FontAwesomeIcon icon={faCheckCircle} />
                             )}
-                            <span>Fast {gasPrices?.fastest ?? <ThreeDots width="24px" />} Gwei</span>
+                            <span>Fast {gasPrices?.fast ?? <ThreeDots width="24px"/>} Gwei</span>
+                        </div>
+                        <div
+                            className={classNames({ active: isFastestActive })}
+                            onClick={() =>
+                                setSelectedGasPrice(GasPriceSelection.Fastest)
+                            }
+                        >
+                            {isFastestActive && (
+                                <FontAwesomeIcon icon={faCheckCircle} />
+                            )}
+                            <span>Fastest {gasPrices?.fastest ?? <ThreeDots width="24px" />} Gwei</span>
                         </div>
                     </div>
                     <div className='transaction-settings'>

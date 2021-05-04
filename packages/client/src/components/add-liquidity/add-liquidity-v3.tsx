@@ -200,11 +200,9 @@ export const AddLiquidityV3 = ({
                 []
             );
 
-            console.log('THIS IS STATE', tokenInputState);
             const totalAmount = parseFloat(
                 tokenInputState[selectedToken].amount
             );
-            console.log('THIS IS TOTAL AMOUNT', totalAmount);
             let expectedBaseAmount: BigNumber, expectedQuoteAmount: BigNumber;
 
             if (selectedToken === 'ETH') {
@@ -451,8 +449,16 @@ export const AddLiquidityV3 = ({
             .toString();
 
         // approve DAI. TODO: Make this approval separate
-        for (const tokenSymbol of tokenInputState.selectedTokens) {
-            if (tokenSymbol === 'ETH') continue;
+        for (const tokenSymbol of [pool.token0.symbol, pool.token1.symbol]) {
+            // IF WETH, check if ETH is selected - if not, approve WETH
+            // IF NOT WETH, approve
+            if (tokenSymbol === 'WETH') {
+                const selectedTokens = tokenInputState.selectedTokens;
+                if (selectedTokens.length === 1 && selectedTokens[0] === 'ETH') {
+                    continue;
+                }
+            }
+
             const erc20Contract = new ethers.Contract(
                 tokenInputState[tokenSymbol].id,
                 erc20Abi,
@@ -464,9 +470,8 @@ export const AddLiquidityV3 = ({
                     ? baseAmount0Desired
                     : baseAmount1Desired;
 
-            const baseApproveAmount = ethers.utils
-                .parseUnits((parseInt(amountDesired, 10) * 100).toString(), 18)
-                .toString();
+            const baseApproveAmount = new BigNumber(amountDesired).times(100).toFixed();
+            console.log('THIS IS APPROVE AMOUNT', baseApproveAmount);
 
             // Call the contract and sign
             let approvalEstimate: ethers.BigNumber;
@@ -488,7 +493,10 @@ export const AddLiquidityV3 = ({
                     `Could not estimate gas fees: ${err.message as string}`
                 );
 
-                approvalEstimate = ethers.BigNumber.from('1000000');
+                toastError(
+                    'Could not estimate gas for this transaction. Check your parameters or try a different pool.'
+                );
+                return;
             }
 
             // Approve the add liquidity contract to spend entry tokens
