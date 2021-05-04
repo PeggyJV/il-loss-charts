@@ -79,7 +79,7 @@
         width: 100%;
         // font-weight: 600;
         border: 1px solid var(--objPositiveAlt);
-        border-radius: 2px;
+        border-radius: 4px;
         background: var(--objPositive);
         &:hover,
         :active,
@@ -95,8 +95,18 @@
     .btn-negative {
         background: var(--bgDefault);
         border: 1px solid var(--borderAccent);
-        &:hover,:active,:focus {
+        &:hover,
+        :active,
+        :focus {
             background: var(--bgDefault);
+        }
+    }
+
+    .no-hover {
+        &:hover,
+        :active,
+        :focus {
+            background: var(--objPositive);
         }
     }
 

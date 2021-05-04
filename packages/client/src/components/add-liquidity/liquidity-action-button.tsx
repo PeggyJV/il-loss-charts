@@ -4,15 +4,17 @@ import BigNumber from 'bignumber.js';
 import { WalletBalances } from 'types/states';
 import { ethers } from 'ethers';
 import { useWallet } from 'hooks/use-wallet';
-
+import { Rings } from 'react-loading-icons';
 export const LiquidityActionButton = ({
     tokenInputState,
     onClick,
     balances,
+    pendingApproval,
 }: {
     tokenInputState: any;
     onClick: () => void;
     balances: WalletBalances;
+    pendingApproval: boolean;
 }): JSX.Element => {
     // const [isDisabled, setIsDisabled] = useState(disabled);
     const [buttonState, setButtonState] = useState('Add Liquidity');
@@ -21,7 +23,12 @@ export const LiquidityActionButton = ({
     useEffect(() => {
         const numOfTokens = tokenInputState?.selectedTokens?.length ?? 0;
 
-        if(!wallet?.account) {
+        if (pendingApproval) {
+            setButtonState('pendingApproval');
+            return;
+        }
+
+        if (!wallet?.account) {
             setButtonState('connectWallet');
             return;
         }
@@ -61,19 +68,30 @@ export const LiquidityActionButton = ({
         }
 
         setButtonState('addLiquidity');
-    }, [balances, tokenInputState, wallet?.account]);
+    }, [balances, pendingApproval, tokenInputState, wallet?.account]);
 
     switch (buttonState) {
-        case 'connectWallet': 
-        return (
-            <button
-                disabled={true}
-                onClick={onClick}
-                className={classNames('btn-addl', 'btn-negative')}
-            >
-                {'Connect Wallet'}
-            </button>
-        );
+        case 'pendingApproval':
+            return (
+                <button
+                    disabled={true}
+                    onClick={onClick}
+                    className={classNames('btn-addl', 'no-hover')}
+                >
+                    <Rings width='24px' height='24px' />
+                    {' Approving '}
+                </button>
+            );
+        case 'connectWallet':
+            return (
+                <button
+                    disabled={true}
+                    onClick={onClick}
+                    className={classNames('btn-addl', 'btn-negative')}
+                >
+                    {'Connect Wallet'}
+                </button>
+            );
         case 'selectTokens':
             return (
                 <button
@@ -111,7 +129,7 @@ export const LiquidityActionButton = ({
                     onClick={onClick}
                     className={classNames('btn-addl')}
                 >
-                    {'Add Liquidity'}
+                    {' Add Liquidity'}
                 </button>
             );
         default:
@@ -121,7 +139,8 @@ export const LiquidityActionButton = ({
                     onClick={onClick}
                     className={classNames('btn-addl', 'btn-negative')}
                 >
-                    {'Awaiting Details ...'}
+                    <Rings width='24px' height='24px' />
+                    {' Awaiting Details'}
                 </button>
             );
     }

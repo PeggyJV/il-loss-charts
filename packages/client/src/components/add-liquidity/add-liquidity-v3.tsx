@@ -41,7 +41,7 @@ export const AddLiquidityV3 = ({
     gasPrices,
 }: Props): JSX.Element | null => {
     const [priceImpact, setPriceImpact] = useState('0');
-
+    const [pendingApproval, setPendingApproval] = useState(false);
     const token0 = pool?.token0?.id ?? '';
     const token1 = pool?.token1?.id ?? '';
     const token0Symbol = pool?.token0?.symbol ?? '';
@@ -492,6 +492,7 @@ export const AddLiquidityV3 = ({
             }
 
             // Approve the add liquidity contract to spend entry tokens
+            setPendingApproval(true);
             const {
                 hash: approveHash,
             } = await erc20Contract.approve(
@@ -504,6 +505,7 @@ export const AddLiquidityV3 = ({
             toastWarn(`Approving tx ${compactHash(approveHash)}`);
 
             await provider.waitForTransaction(approveHash);
+            setPendingApproval(false);
         }
 
         console.log('THIS IS MINT PARAMS');
@@ -787,6 +789,7 @@ export const AddLiquidityV3 = ({
                 <div>
                     <LiquidityActionButton
                         tokenInputState={tokenInputState}
+                        pendingApproval={pendingApproval}
                         onClick={() => doAddLiquidity()}
                         balances={balances}
                     />
