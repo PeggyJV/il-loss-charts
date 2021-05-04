@@ -14,7 +14,7 @@ import erc20Abi from 'constants/abis/erc20.json';
 import addLiquidityAbi from 'constants/abis/uniswap_v3_add_liquidity.json';
 import { LiquidityContext } from 'containers/liquidity-container';
 import { TokenInput } from 'components/token-input';
-import { toastSuccess, toastWarn } from 'util/toasters';
+import { toastSuccess, toastWarn, toastError } from 'util/toasters';
 import { compactHash } from 'util/formats';
 // import { Grid } from 'react-loading-icons';
 import { WalletBalances } from 'types/states';
@@ -270,8 +270,6 @@ export const AddLiquidityV3 = ({
                 expectedBaseAmount = expectedQuoteAmount.times(1 / currentPrice);
             }
 
-            console.log('EXPECTED BASE AMOUNT', expectedBaseAmount.toFixed());
-            console.log('EXPECTED QUOTE AMOUNT', expectedQuoteAmount.toFixed());
             setExpectedAmounts([expectedBaseAmount, expectedQuoteAmount]);
 
             const expectedQuoteAmountNoSlippage = expectedBaseAmount.times(currentPrice);
@@ -355,8 +353,10 @@ export const AddLiquidityV3 = ({
 
         debug.contract = addLiquidityContract;
 
-        const fnName =
-            token0 === 'ETH'
+        const isEthAdd = tokenInputState.selectedTokens.length == 1 &&
+            tokenInputState.selectedTokens[0] === 'ETH';
+
+        const fnName = isEthAdd
                 ? 'addLiquidityEthForUniV3'
                 : 'addLiquidityForUniV3';
         const tokenId = 0;
@@ -421,91 +421,92 @@ export const AddLiquidityV3 = ({
             Math.floor(Date.now() / 1000) + 86400000, // deadline
         ];
 
-        // approve DAI. TODO: Make this approval separate
-        const daiContract = new ethers.Contract(token1, erc20Abi, signer);
-
-        const baseApproveAmount = ethers.utils
-            .parseUnits(
-                (parseInt(baseAmount1Desired, 10) * 100).toString(),
-                18
-            )
-            .toString();
         const baseGasPrice = ethers.utils
             .parseUnits(currentGasPrice.toString(), 9)
             .toString();
 
-        // Call the contract and sign
-        let approvalEstimate: ethers.BigNumber;
+        // approve DAI. TODO: Make this approval separate
+        for (const tokenSymbol of tokenInputState.selectedTokens) {
+            if (tokenSymbol === 'ETH') continue;
+            const erc20Contract = new ethers.Contract(tokenInputState[tokenSymbol].id, erc20Abi, signer);
 
-        try {
-            approvalEstimate = await daiContract.estimateGas.approve(
+            const amountDesired = tokenSymbol === pool.token0.symbol ? baseAmount0Desired : baseAmount1Desired;
+    
+            const baseApproveAmount = ethers.utils
+                .parseUnits(
+                    (parseInt(amountDesired, 10) * 100).toString(),
+                    18
+                )
+                .toString();
+    
+            // Call the contract and sign
+            let approvalEstimate: ethers.BigNumber;
+    
+            try {
+                approvalEstimate = await erc20Contract.estimateGas.approve(
+                    addLiquidityContractAddress,
+                    baseApproveAmount,
+                    { gasPrice: baseGasPrice }
+                );
+    
+                // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
+                approvalEstimate = approvalEstimate.add(approvalEstimate.div(3));
+            } catch (err) {
+                // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
+                console.error(
+                    `Could not estimate gas fees: ${err.message as string}`
+                );
+    
+                approvalEstimate = ethers.BigNumber.from('1000000');
+            }
+    
+            // Approve the add liquidity contract to spend entry tokens
+            const {
+                hash: approveHash,
+            } = await erc20Contract.approve(
                 addLiquidityContractAddress,
                 baseApproveAmount,
-                { gasPrice: baseGasPrice }
+                { gasPrice: baseGasPrice, gasLimit: approvalEstimate }
             );
-
-            // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
-            approvalEstimate = approvalEstimate.add(approvalEstimate.div(3));
-        } catch (err) {
-            // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
-            console.error(
-                `Could not estimate gas fees: ${err.message as string}`
-            );
-
-            approvalEstimate = ethers.BigNumber.from('1000000');
+    
+            // setApprovalState('pending');
+            toastWarn(`Approving tx ${compactHash(approveHash)}`);
+    
+            await provider.waitForTransaction(approveHash);
         }
-
-        // Approve the add liquidity contract to spend entry tokens
-        const {
-            hash: approveHash,
-        } = await daiContract.approve(
-            addLiquidityContractAddress,
-            baseApproveAmount,
-            { gasPrice: baseGasPrice, gasLimit: approvalEstimate }
-        );
-
-        // setApprovalState('pending');
-        toastWarn(`Approving tx ${compactHash(approveHash)}`);
-
-        await provider.waitForTransaction(approveHash);
 
         console.log('THIS IS MINT PARAMS');
         console.log(mintParams);
         console.log('FN NAME', fnName);
 
-        const decimals = parseInt(balances[token0]?.decimals || '0', 10);
-        if (decimals === 0) {
-            throw new Error(
-                `Do not have decimal units for ${decimals} - unsafe, cannot proceed`
-            );
+        let baseMsgValue = ethers.utils.parseUnits('0.005', 18);
+        if (tokenInputState.selectedTokens.includes('ETH')) {
+            const ethAmount = ethers.utils.parseEther(tokenInputState['ETH'].amount);
+            baseMsgValue = baseMsgValue.add(ethAmount);
         }
 
-        let baseMsgValue = ethers.utils.parseUnits('0.005', 18);
-        if (token0 === 'ETH') {
-            baseMsgValue = baseMsgValue.add(baseAmount0Desired);
-        }
         const value = baseMsgValue.toString();
 
         // Call the contract and sign
-        // let gasEstimate: ethers.BigNumber;
+        let gasEstimate: ethers.BigNumber;
 
-        // try {
-        //     gasEstimate = await addLiquidityContract.estimateGas[
-        //         fnName
-        //     ](tokenId, mintParams, {
-        //         gasPrice: baseGasPrice,
-        //         value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
-        //     });
+        try {
+            gasEstimate = await addLiquidityContract.estimateGas[
+                fnName
+            ](tokenId, mintParams, {
+                gasPrice: baseGasPrice,
+                value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
+            });
 
-        //     // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
-        //     gasEstimate = gasEstimate.add(gasEstimate.div(3));
-        // } catch (err) {
-        //     // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
-        //     console.error(`Could not estimate gas: ${err.message as string}`);
+            // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
+            gasEstimate = gasEstimate.add(gasEstimate.div(3));
+        } catch (err) {
+            // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
+            console.error(`Could not estimate gas: ${err.message as string}`);
 
-        //     toastError('Could not estimate gas for this transaction. Check your parameters or try a different pool.');
-        //     return;
-        // }
+            toastError('Could not estimate gas for this transaction. Check your parameters or try a different pool.');
+            return;
+        }
 
         const { hash } = await addLiquidityContract[fnName](
             tokenId,
