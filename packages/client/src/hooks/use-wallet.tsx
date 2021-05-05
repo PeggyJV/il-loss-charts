@@ -1,5 +1,11 @@
 import { NetworkIds } from '@sommelier/shared-types';
-import { useEffect, useState, createContext, useContext } from 'react';
+import {
+    useEffect,
+    useState,
+    useCallback,
+    createContext,
+    useContext,
+} from 'react';
 import Cookies from 'universal-cookie';
 
 // import WalletConnectProvider from '@walletconnect/web3-provider';
@@ -43,56 +49,64 @@ export const WalletProvider = ({
 }: {
     children: JSX.Element;
 }): JSX.Element => {
+
     const ethereum = (window as any).ethereum;
     // const availableProviders = {
     //     metamask: ethereum?.isMetaMask,
     //     walletconnect: true,
     // };
     // Try to read wallet from cookies
-    const walletFromCookie: Partial<Wallet> = cookies.get('current_wallet');
-
-    let initialWalletState: Wallet = {
+    const initialWalletState: Wallet = {
         account: null,
         provider: null,
         providerName: null,
         network: null,
     };
-    if (
-        walletFromCookie &&
-        walletFromCookie.account &&
-        walletFromCookie.providerName
-    ) {
-        if (walletFromCookie.providerName === 'metamask') {
-            initialWalletState.account = walletFromCookie.account;
-            initialWalletState.providerName = walletFromCookie.providerName;
-            initialWalletState.provider = (window as any).ethereum;
-            initialWalletState.network = ethereum.networkVersion;
-        }
-        // } else if (
-        //     // Create walletconnect session if wallet connect
-        //     walletFromCookie.providerName === 'walletconnect' &&
-        //     !wcConnector.connected
-        // ) {
-        //     // TODO inject provider
-        //     void wcConnector.createSession();
-        // }
-    } else {
-        if (walletFromCookie) {
-            console.warn(
-                `Tried to load wallet from cookie, but it was not correctly formed.`
-            );
-        }
+    const [wallet, setWallet] = useState<Wallet>(initialWalletState);
 
-        initialWalletState = {
+    useEffect(() => {
+        const walletFromCookie: Partial<Wallet> = cookies.get('current_wallet');
+        if (
+            walletFromCookie &&
+            walletFromCookie.account &&
+            walletFromCookie.providerName
+        ) {
+            if (walletFromCookie.providerName === 'metamask') {
+                const provider = (window as any).ethereum;
+                const network = ethereum.networkVersion;
+                setWallet({ ...walletFromCookie, network, provider } as Wallet);
+            }
+            // } else if (
+            //     // Create walletconnect session if wallet connect
+            //     walletFromCookie.providerName === 'walletconnect' &&
+            //     !wcConnector.connected
+            // ) {
+            //     // TODO inject provider
+            //     void wcConnector.createSession();
+            // }
+        } else {
+            if (walletFromCookie) {
+                console.warn(
+                    `Tried to load wallet from cookie, but it was not correctly formed.`
+                );
+            }
+        }
+    }, [ethereum.networkVersion]);
+
+    const [error, setError] = useState<Error | null>(null);
+
+    const disconnectWallet = useCallback(() => {
+        mixpanel.track('wallet:disconnect', {
+            providerName: wallet.providerName,
+        });
+        setWallet({
             account: null,
             providerName: null,
             provider: null,
             network: null,
-        };
-    }
-
-    const [wallet, setWallet] = useState<Wallet>(initialWalletState);
-    const [error, setError] = useState<Error | null>(null);
+        });
+        cookies.remove('current_wallet');
+    }, [wallet.providerName]);
 
     // Subscribe to updates (do this before calling connection in case we load from cookies)
     useEffect(() => {
@@ -141,8 +155,7 @@ export const WalletProvider = ({
                 ethereum.removeListener('networkChanged', handleNetworkChange);
             };
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [disconnectWallet, ethereum, wallet]);
 
     const connectMetaMask = async () => {
         if (!ethereum) return;
@@ -173,20 +186,7 @@ export const WalletProvider = ({
         }
     };
 
-    const disconnectWallet = () => {
-        mixpanel.track('wallet:disconnect', {
-            providerName: wallet.providerName,
-        });
-        setWallet({
-            account: null,
-            providerName: null,
-            provider: null,
-            network: null,
-        });
-        cookies.remove('current_wallet');
-    };
-
-    // re-set cookie when wallet state changes
+    //re-set cookie when wallet state changes
     useEffect(() => {
         try {
             if (wallet && wallet.account) {
@@ -209,6 +209,7 @@ export const WalletProvider = ({
         }
     }, [wallet]);
 
+
     return (
         <WalletContext.Provider
             value={{
@@ -227,12 +228,3 @@ export const WalletProvider = ({
 export const useWallet = (): WalletContextType => {
     return useContext(WalletContext) as WalletContextType;
 };
-// return {
-//         ethereum,
-//         wallet,
-//         connectMetaMask,
-//         connectWalletConnect,
-//         disconnectWallet,
-//         error,
-//         availableProviders,
-//     };
