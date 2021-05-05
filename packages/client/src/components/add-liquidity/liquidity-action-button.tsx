@@ -10,11 +10,13 @@ export const LiquidityActionButton = ({
     onClick,
     balances,
     pendingApproval,
+    pendingBounds,
 }: {
     tokenInputState: any;
     onClick: () => void;
     balances: WalletBalances;
     pendingApproval: boolean;
+    pendingBounds: boolean;
 }): JSX.Element => {
     // const [isDisabled, setIsDisabled] = useState(disabled);
     const [buttonState, setButtonState] = useState('Add Liquidity');
@@ -67,8 +69,12 @@ export const LiquidityActionButton = ({
             }
         }
 
+        if(pendingBounds) {
+            setButtonState('pendingBounds');
+            return;
+        }
         setButtonState('addLiquidity');
-    }, [balances, pendingApproval, tokenInputState, wallet?.account]);
+    }, [balances, pendingApproval, pendingBounds, tokenInputState, wallet?.account]);
 
     switch (buttonState) {
         case 'pendingApproval':
@@ -76,7 +82,7 @@ export const LiquidityActionButton = ({
                 <button
                     disabled={true}
                     onClick={onClick}
-                    className={classNames('btn-addl', 'no-hover')}
+                    className={classNames('btn-addl', 'no-hover', 'warn')}
                 >
                     <Rings width='24px' height='24px' />
                     {' Approving '}
@@ -122,6 +128,17 @@ export const LiquidityActionButton = ({
                     {'Insufficient Funds'}
                 </button>
             );
+        case 'pendingBounds': 
+        return (
+            <button
+                disabled={true}
+                onClick={onClick}
+                className={classNames('btn-addl', 'no-hover', 'warn')}
+            >
+                <Rings width='24px' height='24px' />
+                {' Calculating Range '}
+            </button>
+        );
         case 'addLiquidity':
             return (
                 <button
