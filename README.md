@@ -74,7 +74,7 @@ You'll need access to the subgraph instance and the [gcloud sdk](https://cloud.g
 
 ```bash
 gcloud auth login # only need to login once
-gcloud beta compute ssh --zone "us-west1-b" "graph-node-1"  --project "peggyjv-services" -- -NL 8000:localhost:8000
+gcloud beta compute ssh --zone "us-west1-b" "graph-node-mainnet-1-bhtp"  --project "peggyjv-services" -- -NL 8000:localhost:8000
 ```
 
 This will setup an ssh tunnel from your local @ port 8000 to the subgraph running on the instance @ port 8000
