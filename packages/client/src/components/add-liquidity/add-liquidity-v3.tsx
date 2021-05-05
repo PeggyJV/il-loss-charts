@@ -3,7 +3,13 @@ import { useState, useContext, useEffect, useReducer } from 'react';
 import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
 import { Price, Token, TokenAmount } from '@uniswap/sdk-core';
-import { FeeAmount, Pool, Position, priceToClosestTick, tickToPrice } from '@uniswap/v3-sdk';
+import {
+    FeeAmount,
+    Pool,
+    Position,
+    priceToClosestTick,
+    tickToPrice,
+} from '@uniswap/v3-sdk';
 import { resolveLogo } from 'components/token-with-logo';
 import { TokenWithBalance } from 'components/token-with-balance';
 import './add-liquidity-v3.scss';
@@ -15,6 +21,7 @@ import addLiquidityAbi from 'constants/abis/uniswap_v3_add_liquidity.json';
 import { LiquidityContext } from 'containers/liquidity-container';
 import { TokenInput } from 'components/token-input';
 import { toastSuccess, toastWarn, toastError } from 'util/toasters';
+import { ThreeDots } from 'react-loading-icons';
 import { compactHash } from 'util/formats';
 import { WalletBalances } from 'types/states';
 import { useWallet } from 'hooks/use-wallet';
@@ -35,8 +42,8 @@ type BoundsState = {
     prices: [number, number];
     ticks: [number, number];
     ticksFromPrice?: [Price, Price];
-    position?: Position
-}
+    position?: Position;
+};
 
 export type Sentiment = 'bullish' | 'bearish' | 'neutral';
 
@@ -130,10 +137,11 @@ export const AddLiquidityV3 = ({
     }
 
     const [sentiment, setSentiment] = useState<Sentiment>('neutral');
-    const [bounds, setBounds] = useState<BoundsState>({ 
-        prices: [0, 0], 
-        ticks: [0, 0]
+    const [bounds, setBounds] = useState<BoundsState>({
+        prices: [0, 0],
+        ticks: [0, 0],
     });
+    const [pendingBounds, setPendingBounds] = useState<boolean>(true);
     const [expectedAmounts, setExpectedAmounts] = useState<
         [BigNumber, BigNumber]
     >([new BigNumber(0), new BigNumber(0)]);
@@ -155,7 +163,6 @@ export const AddLiquidityV3 = ({
     );
     debug.marketData = marketData;
     debug.indicators = indicators;
-
 
     const getTokensWithAmounts = () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -233,9 +240,7 @@ export const AddLiquidityV3 = ({
                     // );
 
                     // expectedQuoteAmount = new BigNumber(expectedOutput.toFixed());
-                    expectedQuoteAmount = expectedBaseAmount.div(
-                        currentPrice
-                    );
+                    expectedQuoteAmount = expectedBaseAmount.div(currentPrice);
                 } else {
                     // selected token is quote
                     expectedQuoteAmount = new BigNumber(totalAmount).div(2);
@@ -292,9 +297,7 @@ export const AddLiquidityV3 = ({
                 // );
 
                 // expectedBaseAmount = new BigNumber(expectedOutput.toFixed());
-                expectedBaseAmount = expectedQuoteAmount.times(
-                   currentPrice
-                );
+                expectedBaseAmount = expectedQuoteAmount.times(currentPrice);
             }
 
             setExpectedAmounts([expectedBaseAmount, expectedQuoteAmount]);
@@ -314,7 +317,7 @@ export const AddLiquidityV3 = ({
 
             if (indicators) {
                 const indicator = indicators[SELECTED_INDICATOR_NAME];
-                const [lowerBound, upperBound] = indicator.bounds[sentiment];                
+                const [lowerBound, upperBound] = indicator.bounds[sentiment];
 
                 // Convert to lower tick and upper ticks
                 const lowerBoundPrice = new Price(
@@ -322,35 +325,55 @@ export const AddLiquidityV3 = ({
                     quoteTokenCurrency,
                     ethers.utils
                         .parseUnits(
-                            new BigNumber(lowerBound).toFixed(quoteTokenCurrency.decimals),
+                            new BigNumber(lowerBound).toFixed(
+                                quoteTokenCurrency.decimals
+                            ),
                             quoteTokenCurrency.decimals
                         )
                         .toString(),
-                    ethers.utils.parseUnits('1', quoteTokenCurrency.decimals).toString(),
+                    ethers.utils
+                        .parseUnits('1', quoteTokenCurrency.decimals)
+                        .toString()
                 );
                 let lowerBoundTick = priceToClosestTick(lowerBoundPrice);
-                lowerBoundTick -= (lowerBoundTick % uniPool.tickSpacing);
+                lowerBoundTick -= lowerBoundTick % uniPool.tickSpacing;
 
                 const upperBoundPrice = new Price(
                     baseTokenCurrency,
                     quoteTokenCurrency,
                     ethers.utils
                         .parseUnits(
-                            new BigNumber(upperBound).toFixed(quoteTokenCurrency.decimals),
+                            new BigNumber(upperBound).toFixed(
+                                quoteTokenCurrency.decimals
+                            ),
                             quoteTokenCurrency.decimals
                         )
                         .toString(),
-                    ethers.utils.parseUnits('1', quoteTokenCurrency.decimals).toString(),
+                    ethers.utils
+                        .parseUnits('1', quoteTokenCurrency.decimals)
+                        .toString()
                 );
                 let upperBoundTick = priceToClosestTick(upperBoundPrice);
-                upperBoundTick -= (upperBoundTick % uniPool.tickSpacing);
+                upperBoundTick -= upperBoundTick % uniPool.tickSpacing;
 
-                const sortedTicks = ([lowerBoundTick, upperBoundTick].sort((a, b) => a - b) as [number, number])
-                const priceLower = tickToPrice(baseTokenCurrency, quoteTokenCurrency, sortedTicks[0]);
-                const priceUpper = tickToPrice(baseTokenCurrency, quoteTokenCurrency, sortedTicks[1]);
+                const sortedTicks = [lowerBoundTick, upperBoundTick].sort(
+                    (a, b) => a - b
+                ) as [number, number];
+                const priceLower = tickToPrice(
+                    baseTokenCurrency,
+                    quoteTokenCurrency,
+                    sortedTicks[0]
+                );
+                const priceUpper = tickToPrice(
+                    baseTokenCurrency,
+                    quoteTokenCurrency,
+                    sortedTicks[1]
+                );
                 const baseAmount0 = ethers.utils
                     .parseUnits(
-                        expectedBaseAmount.toFixed(Number(pool.token0.decimals)),
+                        expectedBaseAmount.toFixed(
+                            Number(pool.token0.decimals)
+                        ),
                         pool.token0.decimals
                     )
                     .toString();
@@ -370,7 +393,7 @@ export const AddLiquidityV3 = ({
                     tickLower: sortedTicks[0],
                     tickUpper: sortedTicks[1],
                     amount0: baseAmount0,
-                    amount1: baseAmount1
+                    amount1: baseAmount1,
                 });
 
                 (window as any).position = position;
@@ -379,8 +402,9 @@ export const AddLiquidityV3 = ({
                     prices: [lowerBound, upperBound],
                     ticks: sortedTicks,
                     ticksFromPrice: [priceLower, priceUpper],
-                    position
+                    position,
                 });
+                setPendingBounds(false);
             }
         };
 
@@ -433,9 +457,14 @@ export const AddLiquidityV3 = ({
             100
         );
 
-
-        console.log('EXPECTED BASE', expectedBaseAmount.toFixed(Number(pool.token0.decimals)))
-        console.log('EXPECTED QUOTE', expectedQuoteAmountNoSlippage.toFixed(Number(pool.token1.decimals)))
+        console.log(
+            'EXPECTED BASE',
+            expectedBaseAmount.toFixed(Number(pool.token0.decimals))
+        );
+        console.log(
+            'EXPECTED QUOTE',
+            expectedQuoteAmountNoSlippage.toFixed(Number(pool.token1.decimals))
+        );
 
         const baseAmount0Desired = ethers.utils
             .parseUnits(
@@ -496,7 +525,10 @@ export const AddLiquidityV3 = ({
             // IF NOT WETH, approve
             if (tokenSymbol === 'WETH') {
                 const selectedTokens = tokenInputState.selectedTokens;
-                if (selectedTokens.length === 1 && selectedTokens[0] === 'ETH') {
+                if (
+                    selectedTokens.length === 1 &&
+                    selectedTokens[0] === 'ETH'
+                ) {
                     continue;
                 }
             }
@@ -512,7 +544,9 @@ export const AddLiquidityV3 = ({
                     ? baseAmount0Desired
                     : baseAmount1Desired;
 
-            const baseApproveAmount = new BigNumber(amountDesired).times(100).toFixed();
+            const baseApproveAmount = new BigNumber(amountDesired)
+                .times(100)
+                .toFixed();
 
             // Call the contract and sign
             let approvalEstimate: ethers.BigNumber;
@@ -542,19 +576,28 @@ export const AddLiquidityV3 = ({
 
             // Approve the add liquidity contract to spend entry tokens
             setPendingApproval(true);
-            const {
-                hash: approveHash,
-            } = await erc20Contract.approve(
-                addLiquidityContractAddress,
-                baseApproveAmount,
-                { gasPrice: baseGasPrice, gasLimit: approvalEstimate }
-            );
+            let approveHash;
+            try {
+                const {
+                    hash,
+                } = await erc20Contract.approve(
+                    addLiquidityContractAddress,
+                    baseApproveAmount,
+                    { gasPrice: baseGasPrice, gasLimit: approvalEstimate }
+                );
+                approveHash = hash;
+            } catch (e) {
+                setPendingApproval(false);
+                return;
+            }
 
             // setApprovalState('pending');
-            toastWarn(`Approving tx ${compactHash(approveHash)}`);
+            if (approveHash) {
+                toastWarn(`Approving tx ${compactHash(approveHash)}`);
 
-            await provider.waitForTransaction(approveHash);
-            setPendingApproval(false);
+                await provider.waitForTransaction(approveHash);
+                setPendingApproval(false);
+            }
         }
 
         let baseMsgValue = ethers.utils.parseUnits('0.005', 18);
@@ -814,7 +857,11 @@ export const AddLiquidityV3 = ({
                         <div>Liquidity Range</div>
                         <div>
                             <span className='face-positive'>
-                                {bounds.prices[0]} to {bounds.prices[1]}
+                                {pendingBounds ? (
+                                    <ThreeDots width='24px' height='10px' />
+                                ) : (
+                                    `${bounds.prices[0]} to ${bounds.prices[1]}`
+                                )}
                             </span>
                         </div>
                     </Box>
@@ -837,6 +884,7 @@ export const AddLiquidityV3 = ({
                         pendingApproval={pendingApproval}
                         onClick={() => doAddLiquidity()}
                         balances={balances}
+                        pendingBounds={pendingBounds}
                     />
                 </div>
             </div>

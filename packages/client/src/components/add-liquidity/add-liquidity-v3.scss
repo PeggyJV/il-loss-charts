@@ -110,6 +110,16 @@
         }
     }
 
+    .warn {
+        background: var(--objWarn);
+        &:hover,
+        :active,
+        :focus {
+            background: var(--objWarn);
+        }
+    }
+
+
     .sentiment {
         > div {
             padding: 0.25rem 0.5rem;
