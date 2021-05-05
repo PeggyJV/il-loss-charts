@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { ButtonGroup, Modal } from 'react-bootstrap';
 import classNames from 'classnames';
@@ -14,7 +14,7 @@ import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { usePairDataOverview } from 'hooks/use-pair-data-overview';
 import AddLiquidity from 'components/add-liquidity';
 import RemoveLiquidity from 'components/remove-liquidity';
-import { PendingTxContext, PendingTx } from 'app';
+import { usePendingTx, PendingTx } from 'hooks/use-pending-tx';
 import { useBalance } from 'hooks/use-balance-v2';
 import { debug } from 'util/debug';
 
@@ -41,7 +41,7 @@ function ManageLiquidityModal({
         positionData,
         setPositionData,
     ] = useState<LPPositionData<string> | null>(null);
-    const { setPendingTx } = useContext(PendingTxContext);
+    const { setPendingTx } = usePendingTx();
     let provider: ethers.providers.Web3Provider | null = null;
 
     if (wallet.provider) {

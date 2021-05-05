@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useContext } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
     Container,
     Row,
@@ -14,7 +14,7 @@ import { Combobox } from 'react-widgets';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
 import { compactHash } from 'util/formats';
-import { PendingTxContext, PendingTx } from 'app';
+import { usePendingTx, PendingTx } from 'hooks/use-pending-tx';
 import mixpanel from 'util/mixpanel';
 import classNames from 'classnames';
 import erc20Abi from 'constants/abis/erc20.json';
@@ -67,7 +67,7 @@ function RemoveLiquidity({
         'needed'
     );
     const [txSubmitted, setTxSubmitted] = useState(false);
-    const { setPendingTx } = useContext(PendingTxContext);
+    const { setPendingTx } = usePendingTx();
     const resetForm = () => {
         setExitToken('ETH');
         setSlippageTolerance(3.0);
