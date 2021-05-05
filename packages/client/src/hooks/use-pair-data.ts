@@ -35,6 +35,7 @@ export default function usePairData(
             // Fetch pair overview when pair ID changes
             // Default to createdAt date if LP date not set
             const { data: newPair, error } = await Uniswap.getPairOverview(
+                '1',
                 pairId
             );
 
@@ -60,8 +61,8 @@ export default function usePairData(
                     { data: historicalDailyData, error: dailyDataError },
                     { data: historicalHourlyData, error: hourlyDataError },
                 ] = await Promise.all([
-                    Uniswap.getHistoricalDailyData(pairId, pairCreatedAt),
-                    Uniswap.getHistoricalHourlyData(pairId, twoWeeksAgo),
+                    Uniswap.getHistoricalDailyData('1', pairId, pairCreatedAt),
+                    Uniswap.getHistoricalHourlyData('1', pairId, twoWeeksAgo),
                 ]);
 
                 debug.hourlyData = historicalHourlyData;
@@ -147,7 +148,7 @@ export default function usePairData(
                 { data: latestSwaps, error: swapsErrors },
                 { data: mintsAndBurns, error: mintBurnErrors },
             ] = await Promise.all([
-                Uniswap.getLatestSwaps(pairId),
+                Uniswap.getLatestSwaps('1', pairId),
                 Uniswap.getMintsAndBurns(pairId),
             ]);
 

@@ -73,7 +73,7 @@ export const WalletProvider = ({
         ) {
             if (walletFromCookie.providerName === 'metamask') {
                 const provider = (window as any).ethereum;
-                const network = ethereum.networkVersion;
+                const network = ethereum.networkVersion || '1';
                 setWallet({ ...walletFromCookie, network, provider } as Wallet);
             }
             // } else if (
@@ -91,7 +91,7 @@ export const WalletProvider = ({
                 );
             }
         }
-    }, [ethereum.networkVersion]);
+    }, [ethereum?.networkVersion]);
 
     const [error, setError] = useState<Error | null>(null);
 
@@ -126,7 +126,7 @@ export const WalletProvider = ({
                         account,
                         providerName: 'metamask',
                         provider: (window as any).ethereum,
-                        network: ethereum.networkVersion,
+                        network: ethereum.networkVersion || '1',
                     };
 
                     setWallet(walletObj);
@@ -168,7 +168,7 @@ export const WalletProvider = ({
             account,
             providerName: 'metamask',
             provider: (window as any).ethereum,
-            network: (window as any).ethereum.networkVersion,
+            network: (window as any).ethereum.networkVersion || '1',
         };
 
         setWallet(walletObj);

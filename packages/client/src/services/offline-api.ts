@@ -8,6 +8,7 @@ import {
     UniswapDailyData,
     UniswapHourlyData,
     LPPositionData,
+    NetworkIds
 } from '@sommelier/shared-types';
 
 import initialData from 'constants/initialData.json';
@@ -16,12 +17,14 @@ type ApiResponse<T> = { data?: T; error?: string };
 
 export class UniswapApiFetcher {
     static async getPairOverview(
+        network: NetworkIds,
         pairId: string
     ): Promise<ApiResponse<IUniswapPair>> {
         return Promise.resolve({ data: initialData.pairData as IUniswapPair });
     }
 
     static async getLatestSwaps(
+        network: NetworkIds,
         pairId: string
     ): Promise<ApiResponse<UniswapSwap[]>> {
         return Promise.resolve({ data: initialData.swaps as UniswapSwap[] });
@@ -46,6 +49,7 @@ export class UniswapApiFetcher {
     }
 
     static async getTopPairs(
+        network: NetworkIds,
         count = 1000
     ): Promise<ApiResponse<IUniswapPair[]>> {
         return Promise.resolve({ data: initialData.allPairs as IUniswapPair[] });
@@ -92,6 +96,7 @@ export class UniswapApiFetcher {
     }
 
     static async getHistoricalDailyData(
+        network: NetworkIds,
         pairId: string,
         startDate: Date,
         endDate = new Date()
@@ -102,6 +107,7 @@ export class UniswapApiFetcher {
     }
 
     static async getHistoricalHourlyData(
+        network: NetworkIds,
         pairId: string,
         startDate: Date,
         endDate = new Date()
