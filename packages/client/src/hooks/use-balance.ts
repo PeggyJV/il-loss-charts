@@ -180,7 +180,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                     id: pool.token1.id,
                     symbol: pool.token1.symbol,
                     balance: token1Balance,
-                    decimals: pool.token0.decimals,
+                    decimals: pool.token1.decimals,
                     allowance: {
                         [EXCHANGE_ADD_V3_ABI_ADDRESS]: token1Allowance,
                         [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: addTwoToken1Allowance,
