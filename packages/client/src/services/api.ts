@@ -6,10 +6,14 @@ import {
     UniswapDailyData,
     UniswapHourlyData,
     LPPositionData,
-    LPStats
+    LPStats,
+    NetworkIds
 } from '@sommelier/shared-types';
 
 import { UniswapApiFetcher as OfflineFetcher } from 'services/offline-api';
+
+import config from 'config'
+import { Network } from '@sommelier/shared-types/src/bitquery';
 
 type ApiResponse<T> = { data?: T; error?: string };
 
@@ -26,37 +30,45 @@ const shouldRetryError = (error: string) => {
 }
 
 export class UniswapApiFetcher extends OfflineFetcher {
+    static _getNetworkName(network: NetworkIds): string {
+        return config.networks[network].name;
+    }
+
     static async getPairOverview(
+        network: NetworkIds,
         pairId: string
     ): Promise<ApiResponse<IUniswapPair>> {
-        if (useOffline) return OfflineFetcher.getPairOverview(pairId);
+        if (useOffline) return OfflineFetcher.getPairOverview(network, pairId);
+        const networkName = UniswapApiFetcher._getNetworkName(network);
 
-        const response = await fetch(`/api/v1/rinkeby/pools/${pairId}`);
+        const response = await fetch(`/api/v1/${networkName}/pools/${pairId}`);
         const { data, error } = await (response.json() as Promise<
             ApiResponse<IUniswapPair>
         >);
 
         if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            return UniswapApiFetcher.getPairOverview(pairId);
+            return UniswapApiFetcher.getPairOverview(network, pairId);
         }
 
         return { data, error };
     }
 
     static async getLatestSwaps(
+        network: NetworkIds,
         pairId: string
     ): Promise<ApiResponse<UniswapSwap[]>> {
-        if (useOffline) return OfflineFetcher.getLatestSwaps(pairId);
+        if (useOffline) return OfflineFetcher.getLatestSwaps(network, pairId);
+        const networkName = UniswapApiFetcher._getNetworkName(network);
 
-        const response = await fetch(`/api/v1/rinkeby/pools/${pairId}/swaps`);
+        const response = await fetch(`/api/v1/${networkName}/pools/${pairId}/swaps`);
         const { data, error } = await (response.json() as Promise<
             ApiResponse<UniswapSwap[]>
         >);
 
         if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            return UniswapApiFetcher.getLatestSwaps(pairId);
+            return UniswapApiFetcher.getLatestSwaps(network, pairId);
         }
 
         return { data, error };
@@ -87,18 +99,20 @@ export class UniswapApiFetcher extends OfflineFetcher {
     }
 
     static async getTopPairs(
+        network: NetworkIds,
         count = 1000
     ): Promise<ApiResponse<IUniswapPair[]>> {
-        if (useOffline) return OfflineFetcher.getTopPairs(count);
+        if (useOffline) return OfflineFetcher.getTopPairs(network, count);
+        const networkName = UniswapApiFetcher._getNetworkName(network);
 
-        const response = await fetch(`/api/v1/rinkeby/pools?count=${count}`);
+        const response = await fetch(`/api/v1/${networkName}/pools?count=${count}`);
         const { data, error } = await (response.json() as Promise<
             ApiResponse<IUniswapPair[]>
         >);
 
         if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            return UniswapApiFetcher.getTopPairs(count);
+            return UniswapApiFetcher.getTopPairs(network, count);
         }
 
         return { data, error };
@@ -107,7 +121,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
     static async getTopV2Pairs(
         count = 1000
     ): Promise<ApiResponse<IUniswapPair[]>> {
-        if (useOffline) return OfflineFetcher.getTopPairs(count);
+        if (useOffline) return OfflineFetcher.getTopPairs('1', count);
 
         const response = await fetch(`/api/v1/uniswap/pairs?count=${count}`);
         const { data, error } = await (response.json() as Promise<
@@ -116,7 +130,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
 
         if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            return UniswapApiFetcher.getTopPairs(count);
+            return UniswapApiFetcher.getTopV2Pairs(count);
         }
 
         return { data, error };
@@ -185,19 +199,23 @@ export class UniswapApiFetcher extends OfflineFetcher {
     }
 
     static async getHistoricalDailyData(
+        network: NetworkIds,
         pairId: string,
         startDate: Date,
         endDate = new Date()
     ): Promise<ApiResponse<UniswapDailyData[]>> {
         if (useOffline)
             return OfflineFetcher.getHistoricalDailyData(
+                network,
                 pairId,
                 startDate,
                 endDate
             );
 
+        const networkName = UniswapApiFetcher._getNetworkName(network);
+
         const response = await fetch(
-            `/api/v1/rinkeby/pools/${pairId}/historical/daily?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+            `/api/v1/${networkName}/pools/${pairId}/historical/daily?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
         );
         const { data, error } = await (response.json() as Promise<
             ApiResponse<UniswapDailyData[]>
@@ -206,6 +224,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
         if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             return UniswapApiFetcher.getHistoricalDailyData(
+                network,
                 pairId,
                 startDate,
                 endDate
@@ -216,19 +235,23 @@ export class UniswapApiFetcher extends OfflineFetcher {
     }
 
     static async getHistoricalHourlyData(
+        network: NetworkIds,
         pairId: string,
         startDate: Date,
         endDate = new Date()
     ): Promise<ApiResponse<UniswapHourlyData[]>> {
         if (useOffline)
             return OfflineFetcher.getHistoricalHourlyData(
+                network,
                 pairId,
                 startDate,
                 endDate
             );
 
+        const networkName = UniswapApiFetcher._getNetworkName(network);
+
         const response = await fetch(
-            `/api/v1/rinkeby/pools/${pairId}/historical/hourly?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+            `/api/v1/${networkName}/pools/${pairId}/historical/hourly?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
         );
         const { data, error } = await (response.json() as Promise<
             ApiResponse<UniswapHourlyData[]>
@@ -237,6 +260,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
         if (error && shouldRetryError(error)) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             return UniswapApiFetcher.getHistoricalHourlyData(
+                network,
                 pairId,
                 startDate,
                 endDate

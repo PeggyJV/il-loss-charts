@@ -1,7 +1,7 @@
 import express from 'express';
 import { Request } from 'express';
 
-import cacheMiddleware from 'api/middlewares/cache';
+// import cacheMiddleware from 'api/middlewares/cache';
 
 import UniswapFetcher from 'services/uniswap';
 import EthBlockFetcher from 'services/eth-blocks';
@@ -523,45 +523,45 @@ class UniswapController {
 export default express
     .Router()
     .get('/ethPrice', wrapRequest(UniswapController.getEthPrice))
-    .get('/market', wrapRequest(UniswapController.getMarketStats))
+    // .get('/market', wrapRequest(UniswapController.getMarketStats))
     .get('/pairs', wrapRequest(UniswapController.getTopPairs))
-    .get(
-        '/pairs/performance/daily',
-        cacheMiddleware(300),
-        wrapRequest(UniswapController.getDailyTopPerformingPairs)
-    )
-    .get(
-        '/pairs/performance/weekly',
-        cacheMiddleware(300),
-        wrapRequest(UniswapController.getWeeklyTopPerformingPairs)
-    )
+    // .get(
+    //     '/pairs/performance/daily',
+    //     cacheMiddleware(300),
+    //     wrapRequest(UniswapController.getDailyTopPerformingPairs)
+    // )
+    // .get(
+    //     '/pairs/performance/weekly',
+    //     cacheMiddleware(300),
+    //     wrapRequest(UniswapController.getWeeklyTopPerformingPairs)
+    // )
     .get('/pairs/:id', wrapRequest(UniswapController.getPairOverview))
-    .get(
-        '/pairs/:id/swaps',
-        cacheMiddleware(60),
-        wrapRequest(UniswapController.getSwapsForPair)
-    )
-    .get(
-        '/pairs/:id/addremove',
-        cacheMiddleware(60),
-        wrapRequest(UniswapController.getMintsAndBurnsForPair)
-    )
-    .get(
-        '/pairs/:id/historical/daily',
-        wrapRequest(UniswapController.getHistoricalDailyData)
-    )
-    .get(
-        '/pairs/:id/historical/hourly',
-        wrapRequest(UniswapController.getHistoricalHourlyData)
-    )
-    .get('/pairs/:id/stats', wrapRequest(UniswapController.getPairStats))
-    .get(
-        '/positions/:address',
-        cacheMiddleware(60),
-        wrapRequest(UniswapController.getLiquidityPositions)
-    )
-    .get(
-        '/positions/:address/stats',
-        cacheMiddleware(300),
-        wrapRequest(UniswapController.getLiquidityPositionStats)
-    );
+    // .get(
+    //     '/pairs/:id/swaps',
+    //     cacheMiddleware(60),
+    //     wrapRequest(UniswapController.getSwapsForPair)
+    // )
+    // .get(
+    //     '/pairs/:id/addremove',
+    //     cacheMiddleware(60),
+    //     wrapRequest(UniswapController.getMintsAndBurnsForPair)
+    // )
+    // .get(
+    //     '/pairs/:id/historical/daily',
+    //     wrapRequest(UniswapController.getHistoricalDailyData)
+    // )
+    // .get(
+    //     '/pairs/:id/historical/hourly',
+    //     wrapRequest(UniswapController.getHistoricalHourlyData)
+    // )
+    // .get('/pairs/:id/stats', wrapRequest(UniswapController.getPairStats))
+    // .get(
+    //     '/positions/:address',
+    //     cacheMiddleware(60),
+    //     wrapRequest(UniswapController.getLiquidityPositions)
+    // )
+    // .get(
+    //     '/positions/:address/stats',
+    //     cacheMiddleware(300),
+    //     wrapRequest(UniswapController.getLiquidityPositionStats)
+    // );

@@ -10,6 +10,7 @@ import { Box } from '@material-ui/core';
 import { AddLiquidityV3 } from 'components/add-liquidity/add-liquidity-v3';
 import { useBalance } from 'hooks/use-balance';
 import { usePoolOverview } from 'hooks/data-fetchers';
+import { useWallet } from 'hooks/use-wallet';
 import { debug } from 'util/debug';
 import { EthGasPrices } from '@sommelier/shared-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -133,7 +134,8 @@ export const LiquidityContainer = ({
     gasPrices: EthGasPrices | null;
 }): JSX.Element => {
     const [poolId, setPoolId] = useState<string | null>(null);
-    const { data: pool } = usePoolOverview('rinkeby', poolId);
+    const { wallet } = useWallet();
+    const { data: pool } = usePoolOverview(wallet.network, poolId);
     const [slippageTolerance, setSlippageTolerance] = useState(3.0);
     const [selectedGasPrice, setSelectedGasPrice] = useState<GasPriceSelection>(GasPriceSelection.Fast);
     const balances = useBalance({

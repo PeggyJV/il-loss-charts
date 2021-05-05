@@ -41,7 +41,7 @@ export default function usePrefetch(
                     const {
                         data: newPair,
                         error,
-                    } = await Uniswap.getPairOverview(pairId);
+                    } = await Uniswap.getPairOverview('1', pairId);
 
                     if (error) {
                         console.error(
@@ -72,11 +72,12 @@ export default function usePrefetch(
                             { data: lpStats, error: lpStatsError },
                         ] = await Promise.all([
                             Uniswap.getHistoricalDailyData(
+                                '1', 
                                 pairId,
                                 pairCreatedAt
                             ),
-                            Uniswap.getHistoricalHourlyData(pairId, oneWeekAgo),
-                            Uniswap.getLatestSwaps(pairId),
+                            Uniswap.getHistoricalHourlyData('1', pairId, oneWeekAgo),
+                            Uniswap.getLatestSwaps('1', pairId),
                             Uniswap.getMintsAndBurns(pairId),
                             Uniswap.getPairStats(
                                 pairId,

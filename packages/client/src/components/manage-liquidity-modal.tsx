@@ -35,7 +35,7 @@ function ManageLiquidityModal({
 }): JSX.Element | null {
     const [mode, setMode] = useState<'add' | 'remove'>('add');
     
-    const pairData = usePairDataOverview(pairId);
+    const pairData = usePairDataOverview(pairId, wallet.network || '1');
       
     const [
         positionData,
@@ -208,15 +208,5 @@ function ManageLiquidityModal({
         </Modal>
     );
 }
-
-ManageLiquidityModal.propTypes = {
-    show: PropTypes.bool.isRequired,
-    setShow: PropTypes.func.isRequired,
-    wallet: PropTypes.shape({
-        account: PropTypes.string,
-        providerName: PropTypes.string,
-        provider: PropTypes.object,
-    }).isRequired,
-};
 
 export default ManageLiquidityModal;
