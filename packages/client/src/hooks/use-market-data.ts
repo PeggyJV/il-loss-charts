@@ -83,6 +83,7 @@ export const useMarketData = (
                 baseTokenId ?? ''
             }&quoteToken=${quoteTokenId ?? ''}`
         );
+        if(!response.ok) throw Error('failed to fetch market data')
         const data = await (response.json() as Promise<DexTrade>);
         return data;
     };
@@ -107,6 +108,7 @@ export const useMarketData = (
                 baseTokenId ?? ''
             }&quoteToken=${quoteTokenId ?? ''}`
         );
+        if (!response.ok) throw Error('failed to fetch indicators');
         const data = await (response.json() as Promise<IndicatorsMap>);
         return data;
     };

@@ -164,7 +164,7 @@ export const AddLiquidityV3 = ({
         marketData?.quotePrice ?? parseFloat(pool?.token0Price || '0');
 
     useEffect(() => {
-        if (!pool) {
+        if (!pool || !indicators) {
             return;
         }
 
