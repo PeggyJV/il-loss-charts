@@ -3,7 +3,7 @@ import { useState, useContext, useEffect, useReducer } from 'react';
 import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
 import { Price, Token, TokenAmount } from '@uniswap/sdk-core';
-import { FeeAmount, Pool, priceToClosestTick } from '@uniswap/v3-sdk';
+import { FeeAmount, Pool, Position, priceToClosestTick, tickToPrice } from '@uniswap/v3-sdk';
 import { resolveLogo } from 'components/token-with-logo';
 import { TokenWithBalance } from 'components/token-with-balance';
 import './add-liquidity-v3.scss';
@@ -30,6 +30,13 @@ type Props = {
     pool: PoolOverview | null;
     gasPrices: EthGasPrices | null;
 };
+
+type BoundsState = {
+    prices: [number, number];
+    ticks: [number, number];
+    ticksFromPrice?: [Price, Price];
+    position?: Position
+}
 
 export type Sentiment = 'bullish' | 'bearish' | 'neutral';
 
@@ -123,10 +130,10 @@ export const AddLiquidityV3 = ({
     }
 
     const [sentiment, setSentiment] = useState<Sentiment>('neutral');
-    const [bounds, setBounds] = useState<{
-        prices: [number, number];
-        ticks: [number, number];
-    }>({ prices: [0, 0], ticks: [0, 0] });
+    const [bounds, setBounds] = useState<BoundsState>({ 
+        prices: [0, 0], 
+        ticks: [0, 0]
+    });
     const [expectedAmounts, setExpectedAmounts] = useState<
         [BigNumber, BigNumber]
     >([new BigNumber(0), new BigNumber(0)]);
@@ -160,8 +167,7 @@ export const AddLiquidityV3 = ({
 
     debug.selectedTokens = getTokensWithAmounts();
     const SELECTED_INDICATOR_NAME = 'bollingerEMANormalBand';
-    const currentPrice =
-        marketData?.quotePrice ?? parseFloat(pool?.token0Price || '0');
+    const currentPrice = parseFloat(pool?.token0Price || '0');
 
     useEffect(() => {
         if (!pool || !indicators) {
@@ -203,6 +209,10 @@ export const AddLiquidityV3 = ({
             const totalAmount = parseFloat(
                 tokenInputState[selectedToken].amount
             );
+            if (Number.isNaN(totalAmount) || !totalAmount) {
+                return;
+            }
+
             let expectedBaseAmount: BigNumber, expectedQuoteAmount: BigNumber;
 
             if (selectedToken === 'ETH') {
@@ -304,26 +314,7 @@ export const AddLiquidityV3 = ({
 
             if (indicators) {
                 const indicator = indicators[SELECTED_INDICATOR_NAME];
-                const [lowerBound, upperBound] = indicator.bounds[sentiment];
-                console.log('THIS BOUNDS', lowerBound, upperBound);
-                
-                // // SET DIFFERENT BOUNDS TO TEST THEORY
-                // const lowerBound = currentPrice * 0.9;
-                // const upperBound = currentPrice * 1.1;
-
-                // const c = new Price(
-                //     baseTokenCurrency,
-                //     quoteTokenCurrency,
-                //     ethers.utils
-                //         .parseUnits(
-                //             currentPrice.toString(),
-                //             quoteTokenCurrency.decimals
-                //         )
-                //         .toString(),
-                //     ethers.utils.parseUnits('1', quoteTokenCurrency.decimals).toString(),
-                // );
-
-                // console.log('CURRENT TICK', priceToClosestTick(c));
+                const [lowerBound, upperBound] = indicator.bounds[sentiment];                
 
                 // Convert to lower tick and upper ticks
                 const lowerBoundPrice = new Price(
@@ -337,8 +328,9 @@ export const AddLiquidityV3 = ({
                         .toString(),
                     ethers.utils.parseUnits('1', quoteTokenCurrency.decimals).toString(),
                 );
-                const lowerBoundTick = priceToClosestTick(lowerBoundPrice);
-                // console.log('THIS IS LOWER BOUND PRICE', lowerBoundPrice.toFixed(18), lowerBoundTick);
+                let lowerBoundTick = priceToClosestTick(lowerBoundPrice);
+                lowerBoundTick -= (lowerBoundTick % uniPool.tickSpacing);
+
                 const upperBoundPrice = new Price(
                     baseTokenCurrency,
                     quoteTokenCurrency,
@@ -350,15 +342,44 @@ export const AddLiquidityV3 = ({
                         .toString(),
                     ethers.utils.parseUnits('1', quoteTokenCurrency.decimals).toString(),
                 );
-                const upperBoundTick = priceToClosestTick(upperBoundPrice);
-                // console.log('THIS IS UPPER BOUND PRICE', upperBoundPrice.toFixed(18), upperBoundTick);
+                let upperBoundTick = priceToClosestTick(upperBoundPrice);
+                upperBoundTick -= (upperBoundTick % uniPool.tickSpacing);
 
-                
+                const sortedTicks = ([lowerBoundTick, upperBoundTick].sort((a, b) => a - b) as [number, number])
+                const priceLower = tickToPrice(baseTokenCurrency, quoteTokenCurrency, sortedTicks[0]);
+                const priceUpper = tickToPrice(baseTokenCurrency, quoteTokenCurrency, sortedTicks[1]);
+                const baseAmount0 = ethers.utils
+                    .parseUnits(
+                        expectedBaseAmount.toFixed(Number(pool.token0.decimals)),
+                        pool.token0.decimals
+                    )
+                    .toString();
+
+                const baseAmount1 = ethers.utils
+                    .parseUnits(
+                        expectedQuoteAmount.toFixed(
+                            Number(pool.token1.decimals)
+                        ),
+                        pool.token1.decimals
+                    )
+                    .toString();
+
+                console.log('THIS IS TICKS', sortedTicks);
+                const position = Position.fromAmounts({
+                    pool: uniPool,
+                    tickLower: sortedTicks[0],
+                    tickUpper: sortedTicks[1],
+                    amount0: baseAmount0,
+                    amount1: baseAmount1
+                });
+
+                (window as any).position = position;
 
                 setBounds({
                     prices: [lowerBound, upperBound],
-                    // prices: [lowerBoundPrice.toFixed(), upperBoundPrice.toFixed()],
-                    ticks: [lowerBoundTick, upperBoundTick],
+                    ticks: sortedTicks,
+                    ticksFromPrice: [priceLower, priceUpper],
+                    position
                 });
             }
         };
@@ -369,7 +390,7 @@ export const AddLiquidityV3 = ({
     if (!pool) return null;
 
     const doAddLiquidity = async () => {
-        if (!pool || !provider || !indicators) return;
+        if (!pool || !provider || !indicators || !bounds.position) return;
         if (!currentGasPrice) {
             throw new Error('Gas price not selected.');
         }
@@ -411,12 +432,7 @@ export const AddLiquidityV3 = ({
         const slippageRatio = new BigNumber(slippageTolerance as number).div(
             100
         );
-        const amount0Min = new BigNumber(expectedBaseAmount).times(
-            new BigNumber(1).minus(slippageRatio)
-        );
-        const amount1Min = new BigNumber(expectedQuoteAmountNoSlippage).times(
-            new BigNumber(1).minus(slippageRatio)
-        );
+
 
         console.log('EXPECTED BASE', expectedBaseAmount.toFixed(Number(pool.token0.decimals)))
         console.log('EXPECTED QUOTE', expectedQuoteAmountNoSlippage.toFixed(Number(pool.token1.decimals)))
@@ -437,41 +453,29 @@ export const AddLiquidityV3 = ({
             )
             .toString();
 
-        const baseAmount0Min = ethers.utils
-            .parseUnits(
-                amount0Min.toFixed(Number(pool.token0.decimals)),
-                pool.token0.decimals
-            )
-            .toString();
-        const baseAmount1Min = ethers.utils
-            .parseUnits(
-                amount1Min.toFixed(Number(pool.token0.decimals)),
-                pool.token1.decimals
-            )
-            .toString();
+        const mintAmount0 = bounds.position.mintAmounts.amount0.toString();
+        const mintAmount1 = bounds.position.mintAmounts.amount1.toString();
 
-        // const mintParams = [
-        //     token0, // token0
-        //     token1, // token1
-        //     Number(pool.feeTier), // feeTier
-        //     bounds.ticks[0], // tickLower
-        //     bounds.ticks[1], // tickUpper
-        //     baseAmount0Desired, // amount0Desired
-        //     baseAmount1Desired, // amount1Desired
-        //     baseAmount0Min, // amount0Min
-        //     baseAmount1Min, // amount1Min
-        //     wallet.account, // recipient
-        //     Math.floor(Date.now() / 1000) + 86400000, // deadline
-        // ];
+        // TODO: Come back to this. The min amounts don't represent min tokens
+        // in the pool, but min deltas. Needs a closer look.
+        // const amount0Min = new BigNumber(mintAmount0).times(
+        //     new BigNumber(1).minus(slippageRatio)
+        // ).times(0.2);
+        // const amount1Min = new BigNumber(mintAmount1).times(
+        //     new BigNumber(1).minus(slippageRatio)
+        // ).times(0.2);
+
+        // const baseAmount0Min = amount0Min.toFixed(0);
+        // const baseAmount1Min = amount1Min.toFixed(0);
 
         const mintParams = [
             token0, // token0
             token1, // token1
             pool.feeTier, // feeTier
-            75490, // tickLower
-            77810, // tickUpper
-            baseAmount0Desired, // amount0Desired
-            baseAmount1Desired, // amount1Desired
+            bounds.position.tickLower, // tickLower
+            bounds.position.tickUpper, // tickUpper
+            mintAmount0, // amount0Desired
+            mintAmount1, // amount1Desired
             0,
             0,
             wallet.account, // recipient
@@ -490,12 +494,12 @@ export const AddLiquidityV3 = ({
         for (const tokenSymbol of [pool.token0.symbol, pool.token1.symbol]) {
             // IF WETH, check if ETH is selected - if not, approve WETH
             // IF NOT WETH, approve
-            // if (tokenSymbol === 'WETH') {
-            //     const selectedTokens = tokenInputState.selectedTokens;
-            //     if (selectedTokens.length === 1 && selectedTokens[0] === 'ETH') {
-            //         continue;
-            //     }
-            // }
+            if (tokenSymbol === 'WETH') {
+                const selectedTokens = tokenInputState.selectedTokens;
+                if (selectedTokens.length === 1 && selectedTokens[0] === 'ETH') {
+                    continue;
+                }
+            }
 
             const erc20Contract = new ethers.Contract(
                 tokenInputState[tokenSymbol].id,
@@ -565,8 +569,6 @@ export const AddLiquidityV3 = ({
 
         // Call the contract and sign
         let gasEstimate: ethers.BigNumber;
-
-        console.log('THIS IS MSG VALUE', value);
 
         try {
             gasEstimate = await addLiquidityContract.estimateGas[fnName](
