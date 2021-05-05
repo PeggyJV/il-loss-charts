@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response, RequestHandler } from 'express';
+import { Request, Response, RequestHandler } from 'express';
 
 // eslint-disable-next-line no-unused-vars
 type RouteHandler = (
@@ -11,12 +11,12 @@ type RouteHandler = (
 export default function catchAsyncRoute(
     controllerFn: RouteHandler
 ): RequestHandler {
-    return async (req: Request, res: Response, next: NextFunction) => {
+    return async (req: Request, res: Response) => {
         try {
             const result = await controllerFn(req, res);
             return res.json(result);
         } catch (err) {
-            next(err);
+            res.status(err.status).send(err);
         }
     };
 }
