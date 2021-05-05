@@ -199,7 +199,7 @@ p {
 
 .app {
     display: flex;
-    background: var(--bgMain);
+    background: var(--bgDeep);
     color: var(--facePrimary);
 }
 
@@ -207,9 +207,7 @@ p {
     width: calc(100% - 200px);
     padding: 2rem;
     min-height: 100vh;
-    border-right: 1px solid var(--bgDeep);
-    border-left: 1px solid var(--bgDeep);
-    background: var(--bgMain);
+    background: var(--bgDeep);
     margin: 0 auto;
     // box-shadow: 0 0 10px 1px var(--bgDeep);
 }
@@ -1064,13 +1062,13 @@ th .caret-4-desc:after {
     width: 10rem;
     height: 2rem;
     max-height: 2rem;
-    margin-top: 0.25rem;
+    margin-top: 0.15rem;
     position: absolute;
     right: 250px;
     padding: 4px 10px;
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-    background: var(--bgDeep);
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    background: var(--bgDefault);
     // border: 1px solid var(--borderMain);
     color: var(--faceSecondary);
     -webkit-transition: max-height 1s;
@@ -1090,7 +1088,7 @@ th .caret-4-desc:after {
         font-weight: 600;
     }
     &:hover {
-        background: var(--bgContainer);
+        background: var(--bgDefault);
         -webkit-transition: background 0.1s linear;
         -moz-transition: background 0.1s linear;
         -ms-transition: background 0.1s linear;
