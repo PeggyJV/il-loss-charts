@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
     Row,
     Col,
@@ -11,7 +11,7 @@ import { Box } from '@material-ui/core';
 
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
-import { PendingTxContext, PendingTx } from 'app';
+import { usePendingTx, PendingTx } from 'hooks/use-pending-tx';
 import { compactHash } from 'util/formats';
 import { TokenInput } from 'components/token-input';
 import { WalletBalance } from 'components/wallet-balance';
@@ -97,7 +97,7 @@ function AddLiquidity({
     //     parseInt(balances[entryToken]?.decimals || '0', 10)
     // );
 
-    const { setPendingTx } = useContext(PendingTxContext);
+    const { setPendingTx } = usePendingTx();
 
     const resetForm = () => {
         setTokenOne('ETH');

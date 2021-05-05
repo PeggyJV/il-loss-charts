@@ -25,6 +25,7 @@ import { ThreeDots } from 'react-loading-icons';
 import { compactHash } from 'util/formats';
 import { WalletBalances } from 'types/states';
 import { useWallet } from 'hooks/use-wallet';
+import { usePendingTx, PendingTx } from 'hooks/use-pending-tx';
 import { useMarketData } from 'hooks';
 import { LiquidityActionButton } from 'components/add-liquidity/liquidity-action-button';
 import { EthGasPrices } from '@sommelier/shared-types';
@@ -56,6 +57,7 @@ export const AddLiquidityV3 = ({
 }: Props): JSX.Element | null => {
     const [priceImpact, setPriceImpact] = useState('0');
     const [pendingApproval, setPendingApproval] = useState(false);
+    const { setPendingTx } = usePendingTx();
     const token0 = pool?.token0?.id ?? '';
     const token1 = pool?.token1?.id ?? '';
     const token0Symbol = pool?.token0?.symbol ?? '';
@@ -409,7 +411,7 @@ export const AddLiquidityV3 = ({
         };
 
         void getPriceImpact();
-    }, [tokenInputState, sentiment, indicators]);
+    }, [tokenInputState, sentiment, indicators, pool, wallet.network, currentPrice]);
 
     if (!pool) return null;
 
@@ -576,7 +578,7 @@ export const AddLiquidityV3 = ({
 
             // Approve the add liquidity contract to spend entry tokens
             setPendingApproval(true);
-            let approveHash;
+            let approveHash: string | undefined;
             try {
                 const {
                     hash,
@@ -594,9 +596,28 @@ export const AddLiquidityV3 = ({
             // setApprovalState('pending');
             if (approveHash) {
                 toastWarn(`Approving tx ${compactHash(approveHash)}`);
-
+                setPendingTx &&
+                    setPendingTx(
+                        (state: PendingTx): PendingTx =>
+                            ({
+                                approval: [...state.approval, approveHash],
+                                confirm: [...state.confirm],
+                            } as PendingTx)
+                    );
                 await provider.waitForTransaction(approveHash);
                 setPendingApproval(false);
+                setPendingTx &&
+                    setPendingTx(
+                        (state: PendingTx): PendingTx =>
+                            ({
+                                approval: [
+                                    ...state.approval.filter(
+                                        (h) => h != approveHash
+                                    ),
+                                ],
+                                confirm: [...state.confirm],
+                            } as PendingTx)
+                    );
             }
         }
 
@@ -643,8 +664,52 @@ export const AddLiquidityV3 = ({
                 value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
             }
         );
+        toastWarn(`Confirming tx ${compactHash(hash)}`);
+        setPendingTx &&
+            setPendingTx(
+                (state: PendingTx): PendingTx =>
+                    ({
+                        approval: [...state.approval],
+                        confirm: [...state.confirm, hash],
+                    } as PendingTx)
+            );
+        if (provider) {
+            const txStatus: ethers.providers.TransactionReceipt = await provider.waitForTransaction(
+                hash
+            );
 
-        toastSuccess(`Submitted: ${compactHash(hash)}`);
+            const { status } = txStatus;
+
+            if (status === 1) {
+                toastSuccess(`Confirmed tx ${compactHash(hash)}`);
+                setPendingTx &&
+                    setPendingTx(
+                        (state: PendingTx): PendingTx =>
+                            ({
+                                approval: [...state.approval],
+                                confirm: [
+                                    ...state.approval.filter(
+                                        (hash) => hash !== hash
+                                    ),
+                                ],
+                            } as PendingTx)
+                    );
+            } else {
+                toastError(`Rejected tx ${compactHash(hash)}`);
+                setPendingTx &&
+                    setPendingTx(
+                        (state: PendingTx): PendingTx =>
+                            ({
+                                approval: [...state.approval],
+                                confirm: [
+                                    ...state.approval.filter(
+                                        (hash) => hash !== hash
+                                    ),
+                                ],
+                            } as PendingTx)
+                    );
+            }
+        }
     };
 
     // if (!pool || !pool?.token0 || !pool?.token1) return null;

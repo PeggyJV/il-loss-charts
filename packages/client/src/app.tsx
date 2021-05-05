@@ -6,15 +6,12 @@ import { ErrorBoundary } from 'react-error-boundary';
 import {
     useState,
     useEffect,
-    ReactElement,
-    createContext,
-    Dispatch,
-    SetStateAction,
+    ReactElement
 } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { useEthGasPrices } from 'hooks';
-
+import {PendingTxProvider} from 'hooks/use-pending-tx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LandingContainer from 'containers/landing-container';
@@ -23,24 +20,6 @@ import { PageError, ModalError } from 'components/page-error';
 
 import { WalletProvider } from 'hooks/use-wallet';
 
-export type PendingTx = {
-    approval: Array<string>;
-    confirm: Array<string>;
-};
-type PendingTxContext = {
-    pendingTx: PendingTx;
-    setPendingTx: Dispatch<SetStateAction<PendingTx>>;
-};
-
-const defaultPendingContext = {
-    pendingTx: {
-        approval: [],
-        confirm: [],
-    },
-};
-export const PendingTxContext = createContext<Partial<PendingTxContext>>(
-    defaultPendingContext
-);
 
 function App(): ReactElement {
     // ------------------ Initial Mount - API calls for first render ------------------
@@ -56,10 +35,7 @@ function App(): ReactElement {
     const [showConnectWallet, setShowConnectWallet] = useState(false);
 
     // subscribe to the hook, will propogate to the nearest boundary
-    const [pendingTx, setPendingTx] = useState<PendingTx>({
-        approval: [],
-        confirm: [],
-    });
+    
     const queryClient = new QueryClient();
     // useErrorHandler(error);
     useEffect(() => {
@@ -116,9 +92,7 @@ function App(): ReactElement {
                             className={classNames('app', 'dark')}
                             id='app-wrap'
                         >
-                            <PendingTxContext.Provider
-                                value={{ pendingTx, setPendingTx }}
-                            >
+                            <PendingTxProvider>
                                 <div className='app-body' id='app-body'>
                                     <>
                                         <ErrorBoundary
@@ -147,7 +121,7 @@ function App(): ReactElement {
                                         </ErrorBoundary>
                                     </>
                                 </div>
-                            </PendingTxContext.Provider>
+                            </PendingTxProvider>
                         </div>
                     </Router>
                 </QueryClientProvider>

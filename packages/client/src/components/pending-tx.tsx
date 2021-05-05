@@ -1,11 +1,11 @@
-import { useContext, ReactElement } from 'react';
-import { PendingTxContext } from 'app';
+import { ReactElement } from 'react';
+import { usePendingTx } from 'hooks/use-pending-tx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 
 // TODO Make a scroll UI component
 const PendingTx = (): ReactElement => {
-    const { pendingTx } = useContext(PendingTxContext);
+    const { pendingTx } = usePendingTx();
 
     const awaitingApproval = pendingTx?.approval.length ?? 0;
     const awaitingConfirm = pendingTx?.confirm.length ?? 0;
