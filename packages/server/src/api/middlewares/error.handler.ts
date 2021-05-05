@@ -20,11 +20,13 @@ export default function errorHandler(
         const error = `Validation Error: ${details?.message ?? ''}`;
 
         res.status(400).json({ error });
+        return;
     }
 
     // only forward errors that we intentionally created
     if (err instanceof HTTPError) {
-        res.status(err.status).json({ error: err.message });
+       res.status(err.status).json({ error: err.message });
+       return;
     }
 
     // all other errors should be a 500

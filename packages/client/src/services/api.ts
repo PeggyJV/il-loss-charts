@@ -41,7 +41,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
         if (useOffline) return OfflineFetcher.getPairOverview(network, pairId);
         const networkName = UniswapApiFetcher._getNetworkName(network);
 
-        const response = await fetch(`/api/v1/${networkName}/pools/${pairId}`);
+        const response = await fetch(`/api/v1/ss${networkName}/pools/${pairId}`);
         const { data, error } = await (response.json() as Promise<
             ApiResponse<IUniswapPair>
         >);
