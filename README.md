@@ -68,6 +68,17 @@ The `server` package uses [OpenAPI](https://github.com/PeggyJV/il-loss-charts) f
 
 The documentation source is at `packages/server/src/docs/api.yml`. When adding a new API route, make sure to update this file. The server uses [Express OpenAPI Validator](https://www.npmjs.com/package/express-openapi-validator) so if your route is not correctly documented, it will not be validated correctly and will not work as expected.
 
+## Connecting to the Mainnet Subgraph node locally
+
+You'll need access to the subgraph instance and the [gcloud sdk](https://cloud.google.com/sdk/docs/install) installed.
+
+```bash
+gcloud auth login # only need to login once
+gcloud beta compute ssh --zone "us-west1-b" "graph-node-1"  --project "peggyjv-services" -- -NL 8000:localhost:8000
+```
+
+This will setup an ssh tunnel from your local @ port 8000 to the subgraph running on the instance @ port 8000
+
 ## TODOs
 
 You can see all TODOs for this repo in the [Issues](https://github.com/PeggyJV/il-loss-charts/issues) section. Feel free to submit any suggestion as an issue!
