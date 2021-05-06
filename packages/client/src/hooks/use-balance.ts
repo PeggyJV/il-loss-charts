@@ -109,7 +109,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                         erc20Abi
                     ).connect(provider);
 
-                    const targetAddress = EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS;
+                    const targetAddress = EXCHANGE_ADD_V3_ABI_ADDRESS;
 
                     try {
                         const allowance: ethers.BigNumber = await token.allowance(
@@ -173,7 +173,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                     decimals: pool.token0.decimals,
                     allowance: {
                         [EXCHANGE_ADD_V3_ABI_ADDRESS]: token0Allowance,
-                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: addTwoToken0Allowance,
+                        [EXCHANGE_ADD_V3_ABI_ADDRESS]: addTwoToken0Allowance,
                     },
                 },
                 [pool.token1.symbol]: {
@@ -183,7 +183,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                     decimals: pool.token1.decimals,
                     allowance: {
                         [EXCHANGE_ADD_V3_ABI_ADDRESS]: token1Allowance,
-                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: addTwoToken1Allowance,
+                        [EXCHANGE_ADD_V3_ABI_ADDRESS]: addTwoToken1Allowance,
                     },
                 },
                 currentPair: {
