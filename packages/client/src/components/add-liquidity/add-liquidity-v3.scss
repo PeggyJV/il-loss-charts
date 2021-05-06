@@ -110,7 +110,7 @@
         }
     }
 
-    .warn {
+    .btn-warn {
         background: var(--objWarn);
         &:hover,
         :active,
@@ -119,6 +119,13 @@
         }
     }
 
+    .well-warn {
+        border: 1px solid var(--objWarn);
+        border-radius: 4px;
+        padding: 1rem;
+        background: var(--objWarn);
+        color: var(--faceDeep);
+    }
 
     .sentiment {
         > div {
