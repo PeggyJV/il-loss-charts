@@ -2,7 +2,6 @@ import { celebrate, Joi, Segments } from 'celebrate';
 import { Request, Router } from 'express';
 import { endOfDay, subDays } from 'date-fns';
 
-import { UpstreamMissingPoolDataError } from 'api/util/errors';
 import validateEthAddress from 'api/util/validate-eth-address';
 import cacheMiddleware from 'api/middlewares/cache';
 import BitqueryFetcher from 'services/bitquery/fetcher';
@@ -70,12 +69,6 @@ async function getPoolIndicators(
         startDate,
         endDate
     );
-
-    // couldn't get any market data for these tokens
-    if (marketData.length === 0) {
-        throw UpstreamMissingPoolDataError;
-    }
-
     const poolIndicators = indicators.getAllIndicators(marketData);
 
     return { marketData, indicators: poolIndicators };
