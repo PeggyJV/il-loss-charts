@@ -62,6 +62,7 @@ export const AddLiquidityV3 = ({
     const token1 = pool?.token1?.id ?? '';
     const token0Symbol = pool?.token0?.symbol ?? '';
     const token1Symbol = pool?.token1?.symbol ?? '';
+    const [warning, setWarning] = useState({status: true, message: 'Warning placeholder'});
 
     // State here is used to compute what tokens are being used to add liquidity with.
     const initialState: Record<string, any> = {
@@ -109,15 +110,20 @@ export const AddLiquidityV3 = ({
                           (symbol: string) => symbol !== sym
                       )
                     : [...state.selectedTokens, sym];
-                
+
                 // Ensure ordering of selected symbols
-                [pool!.token0.symbol, pool!.token1.symbol].forEach((pairSymbol) => {
-                    if (selectedSymbols.includes(pairSymbol)) {
-                        orderedSymbols.push(pairSymbol);
-                    } else if (pairSymbol === 'WETH' && selectedSymbols.includes('ETH')) {
-                        orderedSymbols.push('ETH');
+                [pool!.token0.symbol, pool!.token1.symbol].forEach(
+                    (pairSymbol) => {
+                        if (selectedSymbols.includes(pairSymbol)) {
+                            orderedSymbols.push(pairSymbol);
+                        } else if (
+                            pairSymbol === 'WETH' &&
+                            selectedSymbols.includes('ETH')
+                        ) {
+                            orderedSymbols.push('ETH');
+                        }
                     }
-                });
+                );
 
                 return {
                     ...state,
@@ -218,9 +224,12 @@ export const AddLiquidityV3 = ({
         );
 
         return { baseTokenCurrency, quoteTokenCurrency, uniPool };
-    }
+    };
 
-    const handleTokenRatio = (selectedToken: string, selectedAmount: string) => {
+    const handleTokenRatio = (
+        selectedToken: string,
+        selectedAmount: string
+    ) => {
         const totalAmount = selectedAmount;
 
         if (Number.isNaN(totalAmount) || !totalAmount || !pool) {
@@ -237,9 +246,7 @@ export const AddLiquidityV3 = ({
             } else {
                 // selected token is quote
                 expectedQuoteAmount = new BigNumber(totalAmount);
-                expectedBaseAmount = expectedQuoteAmount.times(
-                    currentPrice
-                );
+                expectedBaseAmount = expectedQuoteAmount.times(currentPrice);
             }
         } else if (selectedToken === pool.token0.symbol) {
             // selected token is base
@@ -253,7 +260,11 @@ export const AddLiquidityV3 = ({
 
         setExpectedAmounts([expectedBaseAmount, expectedQuoteAmount]);
 
-        const { baseTokenCurrency, quoteTokenCurrency, uniPool } = getUniSDKInstances();
+        const {
+            baseTokenCurrency,
+            quoteTokenCurrency,
+            uniPool,
+        } = getUniSDKInstances();
 
         debug.indicators = indicators;
 
@@ -313,18 +324,14 @@ export const AddLiquidityV3 = ({
             );
             const baseAmount0 = ethers.utils
                 .parseUnits(
-                    expectedBaseAmount.toFixed(
-                        Number(pool.token0.decimals)
-                    ),
+                    expectedBaseAmount.toFixed(Number(pool.token0.decimals)),
                     pool.token0.decimals
                 )
                 .toString();
 
             const baseAmount1 = ethers.utils
                 .parseUnits(
-                    expectedQuoteAmount.toFixed(
-                        Number(pool.token1.decimals)
-                    ),
+                    expectedQuoteAmount.toFixed(Number(pool.token1.decimals)),
                     pool.token1.decimals
                 )
                 .toString();
@@ -348,25 +355,35 @@ export const AddLiquidityV3 = ({
             setPendingBounds(false);
 
             // Change position to match mint amounts
-            if (position.mintAmounts.amount0.toString() === '0' && position.mintAmounts.amount1.toString() === '0') {
+            if (
+                position.mintAmounts.amount0.toString() === '0' &&
+                position.mintAmounts.amount1.toString() === '0'
+            ) {
                 return;
             }
 
-            const newAmount0 = new BigNumber(ethers.utils.formatUnits(
-                position.mintAmounts.amount0.toString(),
-                pool.token0.decimals
-            ));
+            const newAmount0 = new BigNumber(
+                ethers.utils.formatUnits(
+                    position.mintAmounts.amount0.toString(),
+                    pool.token0.decimals
+                )
+            );
 
-            const newAmount1 = new BigNumber(ethers.utils.formatUnits(
-                position.mintAmounts.amount1.toString(),
-                pool.token1.decimals
-            ));
+            const newAmount1 = new BigNumber(
+                ethers.utils.formatUnits(
+                    position.mintAmounts.amount1.toString(),
+                    pool.token1.decimals
+                )
+            );
 
-            const updatedToken = selectedToken === pool.token0.symbol ? 'token0' : 'token1';
+            const updatedToken =
+                selectedToken === pool.token0.symbol ? 'token0' : 'token1';
             const otherToken = updatedToken === 'token0' ? 'token1' : 'token0';
 
-            let updatedAmount = updatedToken === 'token0' ? newAmount0 : newAmount1;
-            let otherAmount = updatedToken === 'token0' ? newAmount1 : newAmount0;
+            let updatedAmount =
+                updatedToken === 'token0' ? newAmount0 : newAmount1;
+            let otherAmount =
+                updatedToken === 'token0' ? newAmount1 : newAmount0;
 
             // Need to scale up certain amounts based on output of position. Position.fromAmounts
             // assumes you have the 'maximum' of each token. So if we update one token our liquidity
@@ -399,7 +416,7 @@ export const AddLiquidityV3 = ({
                 });
             }
         }
-    }
+    };
 
     useEffect(() => {
         if (!pool || !indicators) {
@@ -407,7 +424,6 @@ export const AddLiquidityV3 = ({
         }
 
         const getPriceImpact = () => {
-
             const [expectedBaseAmount, expectedQuoteAmount] = expectedAmounts;
 
             const expectedQuoteAmountNoSlippage = expectedBaseAmount.times(
@@ -421,7 +437,11 @@ export const AddLiquidityV3 = ({
 
             setPriceImpact(priceImpact);
 
-            const { baseTokenCurrency, quoteTokenCurrency, uniPool } = getUniSDKInstances();
+            const {
+                baseTokenCurrency,
+                quoteTokenCurrency,
+                uniPool,
+            } = getUniSDKInstances();
 
             debug.indicators = indicators;
 
@@ -516,19 +536,26 @@ export const AddLiquidityV3 = ({
                 setPendingBounds(false);
 
                 // Change position to match mint amounts
-                if (position.mintAmounts.amount0.toString() === '0' && position.mintAmounts.amount1.toString() === '0') {
+                if (
+                    position.mintAmounts.amount0.toString() === '0' &&
+                    position.mintAmounts.amount1.toString() === '0'
+                ) {
                     return;
                 }
 
-                const newAmount0 = new BigNumber(ethers.utils.formatUnits(
-                    position.mintAmounts.amount0.toString(),
-                    pool.token0.decimals
-                )).toFixed();
+                const newAmount0 = new BigNumber(
+                    ethers.utils.formatUnits(
+                        position.mintAmounts.amount0.toString(),
+                        pool.token0.decimals
+                    )
+                ).toFixed();
 
-                const newAmount1 = new BigNumber(ethers.utils.formatUnits(
-                    position.mintAmounts.amount1.toString(),
-                    pool.token1.decimals
-                )).toFixed();
+                const newAmount1 = new BigNumber(
+                    ethers.utils.formatUnits(
+                        position.mintAmounts.amount1.toString(),
+                        pool.token1.decimals
+                    )
+                ).toFixed();
 
                 dispatch({
                     type: 'update-amount',
@@ -546,7 +573,8 @@ export const AddLiquidityV3 = ({
                     },
                 });
 
-                const ethAmount = pool.token0.symbol === 'WETH' ? newAmount0 : newAmount1;
+                const ethAmount =
+                    pool.token0.symbol === 'WETH' ? newAmount0 : newAmount1;
 
                 dispatch({
                     type: 'update-amount',
@@ -589,8 +617,7 @@ export const AddLiquidityV3 = ({
 
         debug.contract = addLiquidityContract;
 
-        const isEthAdd =
-            tokenInputState.selectedTokens.includes('ETH');
+        const isEthAdd = tokenInputState.selectedTokens.includes('ETH');
 
         const fnName = isEthAdd
             ? 'addLiquidityEthForUniV3'
@@ -606,21 +633,28 @@ export const AddLiquidityV3 = ({
         //     100
         // );
 
-
         const symbol0 = tokenInputState.selectedTokens[0];
         const symbol1 = tokenInputState.selectedTokens[1];
 
-        console.log(
-            'EXPECTED BASE',
-            tokenInputState[symbol0].amount
-        );
-        console.log(
-            'EXPECTED QUOTE',
-            tokenInputState[symbol1].amount
-        );
+        console.log('EXPECTED BASE', tokenInputState[symbol0].amount);
+        console.log('EXPECTED QUOTE', tokenInputState[symbol1].amount);
 
-        const mintAmount0 = ethers.utils.parseUnits(new BigNumber(tokenInputState[symbol0].amount).toFixed(parseInt(pool.token0.decimals)), pool.token0.decimals).toString();
-        const mintAmount1 = ethers.utils.parseUnits(new BigNumber(tokenInputState[symbol1].amount).toFixed(parseInt(pool.token1.decimals)), pool.token1.decimals).toString();
+        const mintAmount0 = ethers.utils
+            .parseUnits(
+                new BigNumber(tokenInputState[symbol0].amount).toFixed(
+                    parseInt(pool.token0.decimals)
+                ),
+                pool.token0.decimals
+            )
+            .toString();
+        const mintAmount1 = ethers.utils
+            .parseUnits(
+                new BigNumber(tokenInputState[symbol1].amount).toFixed(
+                    parseInt(pool.token1.decimals)
+                ),
+                pool.token1.decimals
+            )
+            .toString();
 
         console.log('MINT AMOUNTS', mintAmount0, mintAmount1);
 
@@ -662,11 +696,10 @@ export const AddLiquidityV3 = ({
         for (const tokenSymbol of [pool.token0.symbol, pool.token1.symbol]) {
             // IF WETH, check if ETH is selected - if not, approve WETH
             // IF NOT WETH, approve
+
             if (tokenSymbol === 'WETH') {
                 const selectedTokens = tokenInputState.selectedTokens;
-                if (
-                    selectedTokens.includes('ETH')
-                ) {
+                if (selectedTokens.includes('ETH')) {
                     continue;
                 }
             }
@@ -678,13 +711,22 @@ export const AddLiquidityV3 = ({
             );
 
             const amountDesired =
-                tokenSymbol === pool.token0.symbol
-                    ? mintAmount0
-                    : mintAmount1;
+                tokenSymbol === pool.token0.symbol ? mintAmount0 : mintAmount1;
 
             const baseApproveAmount = new BigNumber(amountDesired)
                 .times(100)
                 .toFixed();
+
+            const tokenAmount = new BigNumber(amountDesired);
+            const tokenAllowance = ethers.utils.formatUnits(
+                balances?.[tokenSymbol]?.allowance?.[
+                    addLiquidityContractAddress
+                ],
+                18
+            );
+
+            // skip approval on allowance
+            if (tokenAmount.lt(new BigNumber(tokenAllowance))) continue;
 
             // Call the contract and sign
             let approvalEstimate: ethers.BigNumber;
@@ -1039,6 +1081,8 @@ export const AddLiquidityV3 = ({
                         📈 Bullish
                     </div>
                 </Box>
+                <br />
+                {warning?.status && <div className='well-warn'>{warning?.message}</div>}
                 <br />
                 <div className='preview'>
                     <Box display='flex' justifyContent='space-between'>

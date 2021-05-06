@@ -82,7 +82,7 @@ export const LiquidityActionButton = ({
                 <button
                     disabled={true}
                     onClick={onClick}
-                    className={classNames('btn-addl', 'no-hover', 'warn')}
+                    className={classNames('btn-addl', 'no-hover', 'btn-warn')}
                 >
                     <Rings width='24px' height='24px' />
                     {' Approving '}
@@ -133,7 +133,7 @@ export const LiquidityActionButton = ({
             <button
                 disabled={true}
                 onClick={onClick}
-                className={classNames('btn-addl', 'no-hover', 'warn')}
+                className={classNames('btn-addl', 'no-hover', 'btn-warn')}
             >
                 <Rings width='24px' height='24px' />
                 {' Calculating Range '}
