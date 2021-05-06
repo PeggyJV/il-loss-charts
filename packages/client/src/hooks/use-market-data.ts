@@ -1,6 +1,8 @@
 import { useQuery } from 'react-query';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
 import {
+    errors as codedErrors,
+    CodedError,
     IUniswapPair,
     IToken,
     NetworkIds,
@@ -83,7 +85,11 @@ export const useMarketData = (
                 baseTokenId ?? ''
             }&quoteToken=${quoteTokenId ?? ''}`
         );
-        if(!response.ok) throw Error('failed to fetch market data')
+
+        if (!response.ok) {
+            const { error } = await response.json();
+            throw getCodedError(error, 'Failed to fetch market data.');
+        }
         const data = await (response.json() as Promise<DexTrade>);
         return data;
     };
@@ -108,20 +114,51 @@ export const useMarketData = (
                 baseTokenId ?? ''
             }&quoteToken=${quoteTokenId ?? ''}`
         );
-        if (!response.ok) throw Error('failed to fetch indicators');
+
+        if (!response.ok) {
+            const { error } = await response.json();
+            throw getCodedError(error, 'Failed to fetch indicators.');
+        }
+
         const data = await (response.json() as Promise<IndicatorsMap>);
         return data;
     };
 
     const { data: newPair } = useQuery(
         ['marketData', baseToken?.id, quoteToken?.id],
-        () => fetchPairData(baseToken, quoteToken)
+        () => fetchPairData(baseToken, quoteToken),
+        { retry }
     );
 
     const { data: indicators } = useQuery(
         ['indicators', baseToken?.id, quoteToken?.id],
-        () => fetchIndicators(baseToken, quoteToken)
+        () => fetchIndicators(baseToken, quoteToken),
+        { retry }
     );
 
     return { newPair, ...indicators };
 };
+
+// TODO: move to a util for rethrowing coded errors?
+function getCodedError(error: { code?: number } | undefined, fallbackMsg: string): Error | CodedError {
+    const codedError = codedErrors[error?.code ?? ''];
+    if (codedError) {
+        // TODO: Something is up with the type of CodedError when importing
+        const err: Error = (codedError as any);
+        return err;
+    }
+
+    return new Error(fallbackMsg);
+}
+
+function retry(count: number, error: Error | CodedError) {
+    if (error instanceof CodedError) {
+        const { code } = error;
+        const shouldRetry = code !== codedErrors.UpstreamError.code
+            && code !== codedErrors.UpstreamMissingPoolDataError.code;
+
+        return shouldRetry;
+    }
+
+    return count < 1;
+}

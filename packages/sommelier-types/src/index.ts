@@ -153,9 +153,10 @@ export interface ICodedError {
     code: number;
     message: string;
     toString: () => string;
+    clone: () => CodedError;
 }
 
-class CodedError extends Error implements ICodedError {
+export class CodedError extends Error implements ICodedError {
     public code: number;
     public message: string;
 
@@ -168,6 +169,10 @@ class CodedError extends Error implements ICodedError {
 
     toString(): string {
         return `Error ${this.code}: ${this.message}`;
+    }
+
+    clone(): CodedError {
+        return new CodedError(this.code, this.message);
     }
 }
 

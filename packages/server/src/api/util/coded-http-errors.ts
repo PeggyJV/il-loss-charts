@@ -10,7 +10,7 @@ export class CodedHTTPError extends Error {
     public status: number;
     public code: number;
     public message: string;
-    public details: string | undefined;
+    public details: string;
 
     constructor(status: number, error: ICodedError | ErrorShape, details?: string) {
         super(error.message);
@@ -18,7 +18,7 @@ export class CodedHTTPError extends Error {
         this.status = status;
         this.code = error.code;
         this.message = error.message;
-        this.details = details;
+        this.details = details ?? '';
     }
 
     toString(): string {
@@ -29,7 +29,7 @@ export class CodedHTTPError extends Error {
         return {
             code: this.code,
             message: this.message,
-            details: this.details ?? '',
+            details: this.details,
         }
     }
 
