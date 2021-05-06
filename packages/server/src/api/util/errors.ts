@@ -15,8 +15,10 @@ export class HTTPError extends Error {
                     this.message = 'Bad Request';
                     break;
                 case 401:
-                case 403:
                     this.message = 'Unauthorized';
+                    break;
+                case 403:
+                    this.message = 'Forbidden';
                     break;
                 case 404:
                     this.message = 'Not Found';
