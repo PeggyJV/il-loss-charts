@@ -5,7 +5,6 @@ import BigNumber from 'bignumber.js';
 
 const toBalanceStr = (token: string, balances: WalletBalances): string => {
     const balance = balances[token]?.balance;
-    console.log(balance.toString());
 
     return new BigNumber(
         ethers.utils.formatUnits(

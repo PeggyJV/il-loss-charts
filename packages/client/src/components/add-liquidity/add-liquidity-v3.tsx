@@ -345,25 +345,37 @@ export const AddLiquidityV3 = ({
             const newAmount0 = new BigNumber(ethers.utils.formatUnits(
                 position.mintAmounts.amount0.toString(),
                 pool.token0.decimals
-            )).toFixed();
+            ));
 
             const newAmount1 = new BigNumber(ethers.utils.formatUnits(
                 position.mintAmounts.amount1.toString(),
                 pool.token1.decimals
-            )).toFixed();
-
-            console.log('GOING TO DISPATCH', newAmount0, newAmount1);
+            ));
 
             const updatedToken = selectedToken === pool.token0.symbol ? 'token0' : 'token1';
             const otherToken = updatedToken === 'token0' ? 'token1' : 'token0';
-            const updatedAmount = updatedToken === 'token0' ? newAmount0 : newAmount1;
-            const otherAmount = updatedToken === 'token0' ? newAmount1 : newAmount0;
+
+            let updatedAmount = updatedToken === 'token0' ? newAmount0 : newAmount1;
+            let otherAmount = updatedToken === 'token0' ? newAmount1 : newAmount0;
+
+            // Need to scale up certain amounts based on output of position. Position.fromAmounts
+            // assumes you have the 'maximum' of each token. So if we update one token our liquidity
+            // is less heavily weighted towards, we won't have enough of the other token. So we need to
+            // scale it up.
+
+            if (updatedAmount.lt(new BigNumber(selectedAmount))) {
+                // We ended up with less, so we need to scale up
+                const scale = new BigNumber(selectedAmount).div(updatedAmount);
+
+                updatedAmount = updatedAmount.times(scale);
+                otherAmount = otherAmount.times(scale);
+            }
 
             dispatch({
                 type: 'update-amount',
                 payload: {
                     sym: pool[otherToken].symbol,
-                    amount: otherAmount,
+                    amount: otherAmount.toFixed(),
                 },
             });
 
@@ -372,7 +384,7 @@ export const AddLiquidityV3 = ({
                     type: 'update-amount',
                     payload: {
                         sym: 'ETH',
-                        amount: otherAmount,
+                        amount: otherAmount.toFixed(),
                     },
                 });
             }
@@ -507,8 +519,6 @@ export const AddLiquidityV3 = ({
                     position.mintAmounts.amount1.toString(),
                     pool.token1.decimals
                 )).toFixed(6);
-
-                console.log('GOING TO DISPATCH', newAmount0, newAmount1);
 
                 dispatch({
                     type: 'update-amount',
