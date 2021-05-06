@@ -10,6 +10,7 @@ import './pair-search.scss';
 import { resolveLogo } from 'components/token-with-logo';
 import { Box } from '@material-ui/core';
 import { poolSymbol, PoolLike } from 'util/formats';
+import BigNumber from 'bignumber.js';
 
 import { TopPool, useTopPools } from 'hooks/data-fetchers';
 import { ThreeDots } from 'react-loading-icons';
@@ -42,21 +43,10 @@ export function PoolSearch({
         return <ThreeDots height='1rem' />;
     }
 
-    // function sorter(a: UniswapPair, b: UniswapPair) {
-    //     const pairAReserve = parseInt(a?.volumeUSD);
-    //     const pairBReserve = parseInt(b?.volumeUSD);
-
-    //     if (pairAReserve > pairBReserve) return -1;
-
-    //     if (pairBReserve > pairAReserve) return 1;
-
-    //     return 0;
-    // }
-
     const poolFilter = (options: TopPool[], { inputValue }: any) =>
         matchSorter(options, inputValue, {
             keys: ['token0.symbol', 'token1.symbol', poolSymbol],
-        }).slice(0, 50);
+        }).sort(poolSortByVolume).slice(0, 50);
 
     const renderPoolWithLogo = (pool: TopPool) => (
         <div className='pair-option-with-logo'>
@@ -121,3 +111,13 @@ function poolOptionLabel(pool: PoolLike): string {
 }
 
 export default PoolSearch;
+
+// TODO: converting then sorting is about 15x slower than pre converting and sorting
+// We should re-evaluate converting some fields to big number right off the request
+// See the big-number-compare benchmark
+function poolSortByVolume(a: TopPool, b: TopPool) {
+    const volA = new BigNumber(a.volumeUSD);
+    const volB = new BigNumber(b.volumeUSD);
+
+    return volB.comparedTo(volA);
+}
