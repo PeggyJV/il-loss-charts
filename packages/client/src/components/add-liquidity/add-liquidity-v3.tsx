@@ -760,7 +760,7 @@ export const AddLiquidityV3 = ({
         let baseMsgValue = ethers.utils.parseUnits('0.005', 18);
         if (tokenInputState.selectedTokens.includes('ETH')) {
             const ethAmount = ethers.utils.parseEther(
-                tokenInputState['ETH'].amount
+                new BigNumber(tokenInputState['ETH'].amount).toFixed(18)
             );
             baseMsgValue = baseMsgValue.add(ethAmount);
         }
