@@ -8,7 +8,7 @@ import {
 import fetch from 'cross-fetch';
 import { getBitquerySdk } from 'services/util/apollo-client';
 import { DexTrade } from 'services/bitquery/generated-types';
-import { HTTPError } from 'api/util/errors';
+import { UpstreamError, UpstreamMissingPoolDataError } from 'api/util/errors';
 
 import { format, endOfDay, startOfDay, subDays } from 'date-fns';
 
@@ -44,15 +44,10 @@ export default class BitqueryFetcher {
 
     static async getLastDayOHLC(baseTokenId: string, quoteTokenId: string): Promise<DexTrade> {
         // Calculate start Date and endDate
-        const endDate = BitqueryFetcher.formatDate(endOfDay(new Date()));
-        const startDate = BitqueryFetcher.formatDate(subDays(startOfDay(new Date()), 1));
+        const endDate = endOfDay(new Date());
+        const startDate = subDays(startOfDay(new Date()), 1);
 
-        const result = await sdk.getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate });
-        const dexTrades = result?.ethereum?.dexTrades;
-
-        if (dexTrades == null) {
-            throw new HTTPError(404, 'Could not get daily OHLC data.')
-        }
+        const dexTrades = await BitqueryFetcher.getPeriodDailyOHLC(baseTokenId, quoteTokenId, startDate, endDate);
 
         return dexTrades[0];
     }
@@ -63,12 +58,7 @@ export default class BitqueryFetcher {
         const endDate = BitqueryFetcher.formatDate(endOfDay(new Date()));
         const startDate = BitqueryFetcher.formatDate(subDays(startOfDay(new Date()), 7));
 
-        const result = await sdk.getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate });
-        const dexTrades = result?.ethereum?.dexTrades;
-        
-        if (dexTrades == null) {
-            throw new HTTPError(404, 'Could not get weekly OHLC data.')
-        }
+        const dexTrades = await getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate });
 
         const weeklyOHLC = { ...dexTrades[0] };
 
@@ -97,14 +87,31 @@ export default class BitqueryFetcher {
         const endDate = BitqueryFetcher.formatDate(end);
         const startDate = BitqueryFetcher.formatDate(start);
 
-        const result = await sdk.getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate });
-        const dexTrades = result?.ethereum?.dexTrades;
-
-        if (dexTrades == null) {
-            throw new HTTPError(404, `Could not get OHLC data for period ${startDate}-${endDate}.`);
-        }
-
-        return dexTrades;
+        return getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate });
     }
 
+}
+
+type OHLCParams = {
+    baseTokenId: string,
+    quoteTokenId: string,
+    startDate: string,
+    endDate: string,
+}
+async function getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate }: OHLCParams) {
+    let result;
+    try {
+        result = await sdk.getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate });
+    } catch (error) {
+        // eslint-ignore-next-line
+        console.error('Bitquery:', error.message);
+        throw UpstreamError;
+    }
+
+    const dexTrades = result?.ethereum?.dexTrades;
+    if (dexTrades == null || dexTrades.length === 0) {
+        throw UpstreamMissingPoolDataError;
+    }
+
+    return dexTrades;
 }
