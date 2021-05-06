@@ -70,23 +70,23 @@ export const AddLiquidityV3 = ({
             name: pool?.token0?.name,
             symbol: pool?.token0?.symbol,
             amount: '',
-            selected: false,
+            selected: true,
         },
         [token1Symbol]: {
             id: pool?.token1?.id,
             name: pool?.token1?.name,
             symbol: pool?.token1?.symbol,
             amount: '',
-            selected: false,
+            selected: true,
         },
         ETH: {
             id: ETH_ID,
             symbol: 'ETH',
             name: 'Ethereum',
             amount: '',
-            selected: true,
+            selected: false,
         },
-        selectedTokens: ['ETH'],
+        selectedTokens: [token0Symbol, token1Symbol],
         isWETHSelected:
             pool?.token0?.symbol === 'WETH' || pool?.token1?.symbol === 'WETH',
     };
@@ -736,7 +736,7 @@ export const AddLiquidityV3 = ({
                     justifyContent='space-between'
                     alignItems='center'
                 >
-                    <div>Select 1 or 2 token(s)</div>
+                    <div>Select 2 tokens</div>
                     <Box display='flex' className='token-select'>
                         <button
                             className={classNames('token-with-logo', {
