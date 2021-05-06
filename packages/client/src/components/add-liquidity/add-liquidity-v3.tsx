@@ -606,17 +606,23 @@ export const AddLiquidityV3 = ({
         //     100
         // );
 
+
+        const symbol0 = tokenInputState.selectedTokens[0];
+        const symbol1 = tokenInputState.selectedTokens[1];
+
         console.log(
             'EXPECTED BASE',
-            expectedBaseAmount.toFixed(Number(pool.token0.decimals))
+            tokenInputState[symbol0].amount
         );
         console.log(
             'EXPECTED QUOTE',
-            expectedQuoteAmountNoSlippage.toFixed(Number(pool.token1.decimals))
+            tokenInputState[symbol1].amount
         );
 
-        const mintAmount0 = bounds.position.mintAmounts.amount0.toString();
-        const mintAmount1 = bounds.position.mintAmounts.amount1.toString();
+        const mintAmount0 = ethers.utils.parseUnits(new BigNumber(tokenInputState[symbol0].amount).toFixed(parseInt(pool.token0.decimals)), pool.token0.decimals).toString();
+        const mintAmount1 = ethers.utils.parseUnits(new BigNumber(tokenInputState[symbol1].amount).toFixed(parseInt(pool.token1.decimals)), pool.token1.decimals).toString();
+
+        console.log('MINT AMOUNTS', mintAmount0, mintAmount1);
 
         // TODO: Come back to this. The min amounts don't represent min tokens
         // in the pool, but min deltas. Needs a closer look.
@@ -659,8 +665,7 @@ export const AddLiquidityV3 = ({
             if (tokenSymbol === 'WETH') {
                 const selectedTokens = tokenInputState.selectedTokens;
                 if (
-                    selectedTokens.length === 1 &&
-                    selectedTokens[0] === 'ETH'
+                    selectedTokens.includes('ETH')
                 ) {
                     continue;
                 }
