@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { HTTPError } from 'api/util/errors';
 import { CelebrateError } from 'celebrate';
+
+import { CodedHTTPError, HTTPError, ValidationError } from 'api/util/errors';
 
 const internalError = 'Internal Server Error';
 
@@ -12,26 +13,41 @@ export default function errorHandler(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     next: NextFunction
 ): void {
-    // continue
-    if (err == null) next();
+    // continue if no error
+    if (err == null) { next(); }
 
-    if (err instanceof CelebrateError) {
-        const details = err.details.get('query') ?? err.details.get('params');
-        const error = `Validation Error: ${details?.message ?? ''}`;
+    // Coded HTTP Errors
+    else if (err instanceof CodedHTTPError) {
+        // respond with error json body
+        res.status(err.status).json({
+            error: err.toObject(),
+        })
+    }
 
-        res.status(400).json({ error });
-        return;
+    // Validation Errors via Celebrate
+    else if (err instanceof CelebrateError) {
+        // Get Celebrate Validation Error Text
+        const error = err.details.get('query') ?? err.details.get('params');
+        const details = error?.message ?? '';
+
+        // Clone a validation error so we can set details
+        const validationError = ValidationError.clone();
+        validationError.setDetails(details);
+
+        // respond with error json body
+        res.status(400).json({ error: validationError.toObject() });
     }
 
     // only forward errors that we intentionally created
-    if (err instanceof HTTPError) {
-       res.status(err.status).json({ error: err.message });
-       return;
+    else if (err instanceof HTTPError) {
+        res.status(err.status).json({ error: err.message });
     }
 
     // all other errors should be a 500
-    res.status(500).json({ error: internalError });
+    else {
+        res.status(500).json({ error: internalError });
 
-    // let us know about these 500s
-    console.warn(`Internal Server Error: ${err.stack ?? err.message}`);
+        // let us know about these 500s
+        console.warn(`Internal Server Error: ${err.stack ?? err.message}`);
+    }
 }
