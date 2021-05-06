@@ -55,10 +55,10 @@ export default class BitqueryFetcher {
     static async getLastWeekOHLC(baseTokenId: string, quoteTokenId: string): Promise<DexTrade> {
         // Calculate start Date and endDate
         // Todo make this weekly
-        const endDate = BitqueryFetcher.formatDate(endOfDay(new Date()));
-        const startDate = BitqueryFetcher.formatDate(subDays(startOfDay(new Date()), 7));
+        const endDate = endOfDay(new Date());
+        const startDate = subDays(startOfDay(new Date()), 7);
 
-        const dexTrades = await getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate });
+        const dexTrades = await BitqueryFetcher.getPeriodDailyOHLC(baseTokenId, quoteTokenId, startDate, endDate);
 
         const weeklyOHLC = { ...dexTrades[0] };
 
@@ -87,31 +87,21 @@ export default class BitqueryFetcher {
         const endDate = BitqueryFetcher.formatDate(end);
         const startDate = BitqueryFetcher.formatDate(start);
 
-        return getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate });
+        let result;
+        try {
+            result = await sdk.getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate });
+        } catch (error) {
+            // eslint-ignore-next-line
+            console.error('Bitquery:', error.message);
+            throw UpstreamError;
+        }
+
+        const dexTrades = result?.ethereum?.dexTrades;
+        if (dexTrades == null || dexTrades.length === 0) {
+            throw UpstreamMissingPoolDataError;
+        }
+
+        return dexTrades;
     }
 
-}
-
-type OHLCParams = {
-    baseTokenId: string,
-    quoteTokenId: string,
-    startDate: string,
-    endDate: string,
-}
-async function getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate }: OHLCParams) {
-    let result;
-    try {
-        result = await sdk.getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate });
-    } catch (error) {
-        // eslint-ignore-next-line
-        console.error('Bitquery:', error.message);
-        throw UpstreamError;
-    }
-
-    const dexTrades = result?.ethereum?.dexTrades;
-    if (dexTrades == null || dexTrades.length === 0) {
-        throw UpstreamMissingPoolDataError;
-    }
-
-    return dexTrades;
 }
