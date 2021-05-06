@@ -98,6 +98,7 @@ export const AddLiquidityV3 = ({
         let sym: string;
         let amt: string;
         let selectedSymbols: Array<string>;
+        const orderedSymbols: Array<string> = [];
         // eslint-disable-next-line no-debugger
         switch (action.type) {
             case 'toggle':
@@ -108,10 +109,19 @@ export const AddLiquidityV3 = ({
                           (symbol: string) => symbol !== sym
                       )
                     : [...state.selectedTokens, sym];
+                
+                // Ensure ordering of selected symbols
+                [pool!.token0.symbol, pool!.token1.symbol].forEach((pairSymbol) => {
+                    if (selectedSymbols.includes(pairSymbol)) {
+                        orderedSymbols.push(pairSymbol);
+                    } else if (pairSymbol === 'WETH' && selectedSymbols.includes('ETH')) {
+                        orderedSymbols.push('ETH');
+                    }
+                });
 
                 return {
                     ...state,
-                    selectedTokens: selectedSymbols,
+                    selectedTokens: orderedSymbols,
                     [sym]: { ...state[sym], selected: !state[sym].selected },
                 };
             case 'update-amount':
@@ -513,12 +523,12 @@ export const AddLiquidityV3 = ({
                 const newAmount0 = new BigNumber(ethers.utils.formatUnits(
                     position.mintAmounts.amount0.toString(),
                     pool.token0.decimals
-                )).toFixed(6);
+                )).toFixed();
 
                 const newAmount1 = new BigNumber(ethers.utils.formatUnits(
                     position.mintAmounts.amount1.toString(),
                     pool.token1.decimals
-                )).toFixed(6);
+                )).toFixed();
 
                 dispatch({
                     type: 'update-amount',
