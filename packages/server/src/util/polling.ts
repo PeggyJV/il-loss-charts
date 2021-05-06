@@ -68,15 +68,20 @@ class PollingUtil extends EventEmitter {
         const argsArr = (args || '').split(',');
 
         const latestTopicData = this.latestTopicData;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const interval: NodeJS.Timeout = <any>setInterval(() => {
+        function pollAndEmit() {
             queryFn(...argsArr).then((latest: unknown) => {
                 // cache the latest topic data so we can return immediately on subscribe
                 latestTopicData.set(topic, latest);
 
                 return topicEmitter.emit('data', latest)
             });
-        }, intervalMs);
+        }
+        // immediate fetch data and emit
+        pollAndEmit();
+
+        // start polling
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const interval: NodeJS.Timeout = <any>setInterval(pollAndEmit, intervalMs);
 
         // Unref prevents the interval from blocking app shutdown
         interval.unref();
