@@ -36,7 +36,7 @@ const getIndicatorsValidator = celebrate({
 });
 
 // GET /marketData/daily
-function getPoolDailyOHLC(
+async function getPoolDailyOHLC(
     req: Request<unknown, unknown, unknown, GetMarketDataQuery>
 ) {
     const { baseToken, quoteToken } = req.query;
@@ -44,8 +44,8 @@ function getPoolDailyOHLC(
     return BitqueryFetcher.getLastDayOHLC(baseToken, quoteToken);
 }
 
-// GET /marketData/daily
-function getPoolWeeklyOHLC(
+// GET /marketData/weekly
+async function getPoolWeeklyOHLC(
     req: Request<unknown, unknown, unknown, GetMarketDataQuery>
 ) {
     const { baseToken, quoteToken } = req.query;
@@ -53,7 +53,7 @@ function getPoolWeeklyOHLC(
     return BitqueryFetcher.getLastWeekOHLC(baseToken, quoteToken);
 }
 
-// GET /marketData/daily
+// GET /marketData/indicators
 async function getPoolIndicators(
     req: Request<unknown, unknown, unknown, GetIndicatorsQuery>
 ) {

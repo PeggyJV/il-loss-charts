@@ -1,3 +1,5 @@
+export * from './coded-http-errors';
+
 // TODO Error codes
 export class HTTPError extends Error {
     status = 500;
@@ -14,6 +16,9 @@ export class HTTPError extends Error {
                     break;
                 case 401:
                     this.message = 'Unauthorized';
+                    break;
+                case 403:
+                    this.message = 'Forbidden';
                     break;
                 case 404:
                     this.message = 'Not Found';

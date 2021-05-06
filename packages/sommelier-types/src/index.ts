@@ -147,3 +147,48 @@ export type NetworkIds = '1' | '4' | '5' | '3' | '42';
 // Utility
 export type ArrayElement<ArrayType extends readonly unknown[]> = 
   ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
+
+// TODO rename this package to shared and clean up import / exports
+export interface ICodedError {
+    code: number;
+    message: string;
+    toString: () => string;
+}
+
+class CodedError extends Error implements ICodedError {
+    public code: number;
+    public message: string;
+
+    constructor(code: number, message: string) {
+        super(message);
+
+        this.code = code;
+        this.message = message;
+    }
+
+    toString(): string {
+        return `Error ${this.code}: ${this.message}`;
+    }
+}
+
+const ValidationError = new CodedError(100, 'Could not validate parameters.');
+const UpstreamError = new CodedError(1000, 'Encountered error with upstream service.')
+const UpstreamMissingPoolDataError = new CodedError(1001, 'Upstream service missing data for pool.');
+
+// Object with every coded error
+const codedErrors = {
+    UpstreamError,
+    UpstreamMissingPoolDataError,
+    ValidationError,
+};
+
+// TODO: i want to be able to import '@sommelier/shared/errors'
+export const errors = Object.entries(codedErrors).reduce((codes: Record<string, CodedError>, error: [string, CodedError]) => {
+    const [errorName, codedError] = error;
+    const code = codedError.code.toString();
+
+    codes[errorName] = codedError;
+    codes[code] = codedError;
+
+    return codes;
+}, {});
