@@ -21,8 +21,8 @@ const config = appConfig.memoizerRedis;
 // which is not straight forward becaouse redis ttl is in ms and cache control in s
 const memoConfig = {
     getEthPrice: { ttl: minuteMs * 1 },
-    getPoolOverview: { ttl: minuteMs * 6 },
-    getTopPools: { ttl: minuteMs * 6 }, // 6 minutes, the cache warmer updates every 5
+    getPoolOverview: { ttl: minuteMs * 5 },
+    getTopPools: { ttl: minuteMs * 5 },
     getHistoricalDailyData: { ttl: hourMs * 1 },
     getHistoricalHourlyData: { ttl: hourMs * 1 },
 };
