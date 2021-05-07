@@ -590,7 +590,7 @@ export const AddLiquidityV3 = ({
         };
 
         getPriceImpact();
-    }, [sentiment, indicators, pool, wallet.network, currentPrice]);
+    }, [sentiment, pool, wallet.network, currentPrice]);
 
     if (!pool) return null;
 
