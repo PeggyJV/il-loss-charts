@@ -74,7 +74,7 @@ async function getPoolIndicators(
     return { marketData, indicators: poolIndicators };
 }
 
-const cacheConfig = { maxAge: 2, sMaxAge: 5, public: true, mustRevalidate: true };
+const cacheConfig = { maxAge: 15, sMaxAge: 300, public: true, mustRevalidate: true };
 export default Router()
     .get(
         '/daily',
