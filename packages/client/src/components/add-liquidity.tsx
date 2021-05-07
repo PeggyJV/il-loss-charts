@@ -907,6 +907,7 @@ function AddLiquidity({
                         Max
                     </button> */}
                 <TokenInput
+                    disabled={false}
                     token={tokenOne}
                     amount={tokenOneAmount}
                     updateAmount={setTokenOneAmount}
@@ -919,6 +920,7 @@ function AddLiquidity({
                 {showTwoSide()}
                 {twoSide && (
                     <TokenInput
+                        disabled={false}
                         token={tokenTwo}
                         amount={tokenTwoAmount}
                         updateAmount={setTokenTwoAmount}

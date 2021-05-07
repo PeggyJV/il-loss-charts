@@ -1,4 +1,5 @@
 
+import classNames from 'classnames';
 import { ethers } from 'ethers';
 import { WalletBalances } from 'types/states';
 import BigNumber from 'bignumber.js';
@@ -21,6 +22,7 @@ type TokenInputProps = {
     handleTokenRatio: (token: string, amount: string) => void;
     balances: WalletBalances;
     twoSide: boolean;
+    disabled: boolean
 };
 export const TokenInput = ({
     token,
@@ -29,11 +31,12 @@ export const TokenInput = ({
     handleTokenRatio,
     balances,
     twoSide,
+    disabled
 }: TokenInputProps): JSX.Element => (
-    <div className='token-input'>
+    <div className={classNames({ 'token-input': true, disabled })}>
         <button
             className=''
-            disabled={!balances?.[token]}
+            disabled={!balances?.[token] || disabled}
             onClick={() => {
                 updateAmount(toBalanceStr(token, balances));
                 handleTokenRatio(token, toBalanceStr(token, balances));
@@ -45,6 +48,7 @@ export const TokenInput = ({
         <input
             placeholder='Enter Amount'
             value={amount}
+            disabled={disabled}
             onChange={(e) => {
                 const val = e.target.value;
 

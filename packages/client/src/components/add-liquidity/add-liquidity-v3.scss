@@ -255,3 +255,11 @@
 .sentiment-button + .sentiment-button {
     margin-left: 1em;
 }
+
+.well-warn.out-of-range {
+    font-size: 0.8em;
+}
+
+.token-input.disabled {
+    opacity: 0.5;
+}
