@@ -36,7 +36,7 @@ class ExpressServer {
         app.use(poweredByMiddleware);
         app.use(cookieParser(process.env.SESSION_SECRET));
 
-        app.use('/static/css', express.static(`${clientRoot}/build/static`, {
+        app.use('/static', express.static(`${clientRoot}/build/static`, {
             maxAge: '30d',
             immutable: true,  // these files never change and can be cached for 1y
         }));
