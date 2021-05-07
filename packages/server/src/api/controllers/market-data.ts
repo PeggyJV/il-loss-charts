@@ -74,22 +74,23 @@ async function getPoolIndicators(
     return { marketData, indicators: poolIndicators };
 }
 
+const cacheConfig = { maxAge: 20, sMaxAge: 300, public: true, mustRevalidate: true };
 export default Router()
     .get(
         '/daily',
         cacheMiddleware(300),
         getMarketDataValidator,
-        catchAsyncRoute(getPoolDailyOHLC)
+        catchAsyncRoute(getPoolDailyOHLC, cacheConfig)
     )
     .get(
         '/weekly',
         cacheMiddleware(300),
         getMarketDataValidator,
-        catchAsyncRoute(getPoolWeeklyOHLC)
+        catchAsyncRoute(getPoolWeeklyOHLC, cacheConfig)
     )
     .get(
         '/indicators',
         cacheMiddleware(300),
         getIndicatorsValidator,
-        catchAsyncRoute(getPoolIndicators)
+        catchAsyncRoute(getPoolIndicators, cacheConfig)
     );

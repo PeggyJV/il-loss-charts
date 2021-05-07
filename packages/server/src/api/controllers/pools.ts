@@ -134,10 +134,37 @@ async function getHistoricalHourlyData(req: Request<PoolPath, unknown, unknown, 
 }
 
 const route = Router();
-route.get('/:network/ethPrice', networkValidator, catchAsyncRoute(getEthPrice));
-route.get('/:network/pools', getTopPoolsValidator, catchAsyncRoute(getTopPools));
-route.get('/:network/pools/:poolId', poolIdValidator, catchAsyncRoute(getPoolOverview));
-route.get('/:network/pools/:poolId/historical/daily', getHistoricalDataValidator, catchAsyncRoute(getHistoricalDailyData));
-route.get('/:network/pools/:poolId/historical/hourly', getHistoricalDataValidator, catchAsyncRoute(getHistoricalHourlyData));
+const cacheConfig = { public: true, mustRevalidate: true };
+route.get(
+  '/:network/ethPrice',
+  networkValidator,
+  catchAsyncRoute(getEthPrice, { maxAge: 5, sMaxAge: 60, ...cacheConfig }),
+);
+
+route.get(
+  '/:network/pools',
+  getTopPoolsValidator,
+  // sMaxAge != memoizer ttl here because we have the cache warmer, we want the cdn to revalidate more often
+  catchAsyncRoute(getTopPools, { maxAge: 20, sMaxAge: 60, ...cacheConfig }),
+);
+
+route.get(
+  '/:network/pools/:poolId',
+  poolIdValidator,
+  // sMaxAge != memoizer ttl here because we have the cache warmer, we want the cdn to revalidate more often
+  catchAsyncRoute(getPoolOverview, { maxAge: 20, sMaxAge: 60, ...cacheConfig })
+);
+
+route.get(
+  '/:network/pools/:poolId/historical/daily',
+  getHistoricalDataValidator,
+  catchAsyncRoute(getHistoricalDailyData, { maxAge: 5 * 60, sMaxAge: 60 * 60, ...cacheConfig })
+);
+
+route.get(
+  '/:network/pools/:poolId/historical/hourly',
+  getHistoricalDataValidator,
+  catchAsyncRoute(getHistoricalHourlyData, { maxAge: 5 * 60, sMaxAge: 60 * 60, ...cacheConfig })
+);
 
 export default route;
