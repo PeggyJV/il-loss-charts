@@ -620,6 +620,7 @@ export const AddLiquidityV3 = ({
         const fnName = isEthAdd
             ? 'addLiquidityEthForUniV3'
             : 'addLiquidityForUniV3';
+                
         const tokenId = 0;
         const [expectedBaseAmount, expectedQuoteAmount] = expectedAmounts;
 
@@ -801,7 +802,7 @@ export const AddLiquidityV3 = ({
             }
         }
 
-        let baseMsgValue = ethers.utils.parseUnits('0.005', 18);
+        let baseMsgValue = ethers.utils.parseUnits('0', 18);
         if (tokenInputState.selectedTokens.includes('ETH')) {
             const ethAmount = ethers.utils.parseEther(
                 new BigNumber(tokenInputState['ETH'].amount).toFixed(18)
@@ -833,6 +834,7 @@ export const AddLiquidityV3 = ({
             toastError(
                 'Could not estimate gas for this transaction. Check your parameters or try a different pool.'
             );
+
             return;
         }
 
@@ -1125,6 +1127,7 @@ export const AddLiquidityV3 = ({
                 <br />
                 <div>
                     <LiquidityActionButton
+                        disabledInput={disabledInput}
                         tokenInputState={tokenInputState}
                         pendingApproval={pendingApproval}
                         onClick={() => doAddLiquidity()}

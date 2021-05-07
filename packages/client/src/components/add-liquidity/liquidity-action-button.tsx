@@ -11,16 +11,20 @@ export const LiquidityActionButton = ({
     balances,
     pendingApproval,
     pendingBounds,
+    disabledInput
 }: {
     tokenInputState: any;
     onClick: () => void;
     balances: WalletBalances;
     pendingApproval: boolean;
     pendingBounds: boolean;
+    disabledInput: string[] | null;
 }): JSX.Element => {
     // const [isDisabled, setIsDisabled] = useState(disabled);
     const [buttonState, setButtonState] = useState('Add Liquidity');
     const { wallet } = useWallet();
+
+    const isDisabled = (symbol: string) => disabledInput && disabledInput.includes(symbol);
 
     useEffect(() => {
         const numOfTokens = tokenInputState?.selectedTokens?.length ?? 0;
@@ -42,13 +46,13 @@ export const LiquidityActionButton = ({
 
         for (let i = 0; i < numOfTokens; i++) {
             const symbol = tokenInputState?.selectedTokens[i];
-            if (!tokenInputState[symbol].amount) {
+            if (!tokenInputState[symbol].amount && !isDisabled(symbol)) {
                 setButtonState('enterAmount');
                 return;
             }
             const tokenAmount = new BigNumber(tokenInputState[symbol].amount);
 
-            if (!tokenAmount || tokenAmount.lte(0)) {
+            if ((!tokenAmount || tokenAmount.lte(0)) && !isDisabled(symbol)) {
                 setButtonState('enterAmount');
                 return;
             }
