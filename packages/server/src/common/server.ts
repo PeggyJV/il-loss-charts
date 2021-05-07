@@ -1,4 +1,4 @@
-import express, { Application } from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import routes from 'routes';
 import path from 'path';
 import bodyParser from 'body-parser';
@@ -10,8 +10,8 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import Mixpanel from 'mixpanel';
 
-import errorHandler from '../api/middlewares/error.handler';
 import * as OpenApiValidator from 'express-openapi-validator';
+import { errorHandler, poweredByMiddleware } from '../api/middlewares';
 
 import config from 'config';
 
@@ -30,26 +30,22 @@ class ExpressServer {
         const clientRoot = path.normalize(__dirname + '/../../../client');
         app.set('appPath', root + 'client');
 
+        // logging, should be first middleware
         app.use(morgan('dev'));
 
-        app.use(
-            bodyParser.json({ limit: config.requestLimit })
-        );
-        app.use(
-            bodyParser.urlencoded({
-                extended: true,
-                limit: config.requestLimit,
-            })
-        );
-        app.use(
-            bodyParser.text({ limit: config.requestLimit })
-        );
+        app.use(poweredByMiddleware);
         app.use(cookieParser(process.env.SESSION_SECRET));
-        app.use(express.static(`${root}/public`));
-        app.use(express.static(`${clientRoot}/build`));
+
+        app.use('/static', express.static(`${clientRoot}/build/static`, {
+            maxAge: '30d',
+            immutable: true,  // these files never change and can be cached for 1y
+        }));
+        app.use(express.static(`${clientRoot}/build`, {
+            maxAge: '1m', // index.html should be revalidated much more frequently
+        }));
 
         // Catch all
-        app.use(function (req, res, next) {
+        app.use(function (req: Request, res: Response, next: NextFunction) {
             if (req.url.includes('api')) return next();
 
             mixpanel?.track('server:page_load', { ip: req.ip });
@@ -59,11 +55,22 @@ class ExpressServer {
     }
 
     router(routes: (app: Application) => void): ExpressServer {
+        app.use(
+            bodyParser.urlencoded({
+                extended: true,
+                limit: config.requestLimit,
+            })
+        );
+        app.use(
+            bodyParser.text({ limit: config.requestLimit })
+        );
+
         routes(app);
         app.use(errorHandler);
         return this;
     }
 
+    // not being used for now
     mountExplorer(): void {
         const apiSpec = path.join(__dirname, '../docs/api.yml');
         let apiDoc;
@@ -75,7 +82,7 @@ class ExpressServer {
 
         if (apiDoc) {
             app.use('/api/explorer', swaggerUi.serve, swaggerUi.setup(apiDoc));
-            app.use(config.openApiSpec, express.static(apiSpec));
+            app.use(config.openApiSpec, express.static(apiSpec, { maxAge: '1h' }));
 
              const validateResponses = config.enableResponseValidation;
             app.use(

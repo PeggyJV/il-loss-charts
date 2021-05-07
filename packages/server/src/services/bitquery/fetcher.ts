@@ -93,12 +93,12 @@ export default class BitqueryFetcher {
         } catch (error) {
             // eslint-ignore-next-line
             console.error('Bitquery:', error.message);
-            throw UpstreamError;
+            throw UpstreamError.clone();
         }
 
         const dexTrades = result?.ethereum?.dexTrades;
         if (dexTrades == null || dexTrades.length === 0) {
-            throw UpstreamMissingPoolDataError;
+            throw UpstreamMissingPoolDataError.clone();
         }
 
         return dexTrades;
