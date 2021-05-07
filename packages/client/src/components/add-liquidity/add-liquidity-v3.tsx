@@ -272,8 +272,6 @@ export const AddLiquidityV3 = ({
             
             const { newAmount0, newAmount1 } = bounds;
 
-            // console.log('NEW AMOUNTS', newAmount0.toFixed(), newAmount1.toFixed())
-
             const updatedToken =
                 selectedToken === pool.token0.symbol ? 'token0' : 'token1';
             const otherToken = updatedToken === 'token0' ? 'token1' : 'token0';
@@ -289,18 +287,12 @@ export const AddLiquidityV3 = ({
             // scale it up.
 
             if (updatedAmount.lt(new BigNumber(selectedAmount))) {
-                // console.log('SCALING UP')s
                 // We ended up with less, so we need to scale up
                 const scale = new BigNumber(selectedAmount).div(updatedAmount);
 
                 updatedAmount = updatedAmount.times(scale);
                 otherAmount = otherAmount.times(scale);
             }
-
-            // console.log('paylod', {
-            //     sym: pool[otherToken].symbol,
-            //     amount: otherAmount.toFixed(),
-            // });
 
             dispatch({
                 type: 'update-amount',
@@ -414,14 +406,6 @@ export const AddLiquidityV3 = ({
             sortedTicks[1]
         );
 
-        // console.log('BASE', expectedBaseAmount.toFixed(
-        //     Number(pool.token0.decimals)
-        // ),
-        // pool.token0.decimals);
-        // console.log('QUOTE', expectedQuoteAmount.toFixed(
-        //     Number(pool.token1.decimals)
-        // ),
-        // pool.token1.decimals);
         const baseAmount0 = ethers.utils
             .parseUnits(
                 expectedBaseAmount.toFixed(
@@ -439,14 +423,6 @@ export const AddLiquidityV3 = ({
                 pool.token1.decimals
             )
             .toString();
-
-        // console.log('STARTING POS', {
-        //     pool: uniPool,
-        //     tickLower: sortedTicks[0],
-        //     tickUpper: sortedTicks[1],
-        //     amount0: baseAmount0,
-        //     amount1: baseAmount1,
-        // });
 
         const position = Position.fromAmounts({
             pool: uniPool,
@@ -511,11 +487,6 @@ export const AddLiquidityV3 = ({
                 pool.token0.decimals
             )
         );
-
-        // console.log('FORMATTED', position.mintAmounts.amount1.toString(), ethers.utils.formatUnits(
-        //     position.mintAmounts.amount1.toString(),
-        //     pool.token1.decimals
-        // ))
 
         const newAmount1 = new BigNumber(
             ethers.utils.formatUnits(
@@ -679,15 +650,13 @@ export const AddLiquidityV3 = ({
             Math.floor(Date.now() / 1000) + 86400000, // deadline
         ];
 
-        console.log('THIS IS MINT PARAMS');
-        console.log(mintParams);
-        console.log('FN NAME', fnName);
+        debug.mintParams = mintParams;
+        debug.fnName = fnName;
 
         const baseGasPrice = ethers.utils
             .parseUnits(currentGasPrice.toString(), 9)
             .toString();
 
-        // approve DAI. TODO: Make this approval separate
         for (const tokenSymbol of [pool.token0.symbol, pool.token1.symbol]) {
             // IF WETH, check if ETH is selected - if not, approve WETH
             // IF NOT WETH, approve
