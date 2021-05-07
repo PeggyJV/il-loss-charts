@@ -40,8 +40,15 @@ class ExpressServer {
             maxAge: '30d',
             immutable: true,  // these files never change and can be cached for 1y
         }));
-        app.use(express.static(`${clientRoot}/build`, {
+
+        // this must be set before the root /build directory or it will not take effect
+        app.use('/index.html', express.static(`${clientRoot}/build/index.html`, {
             maxAge: '1m', // index.html should be revalidated much more frequently
+        }));
+
+        // if we change these files we'll have to invalidate the cache in gcp console
+        app.use(express.static(`${clientRoot}/build`, {
+            maxAge: '30d', // index.html should be revalidated much more frequently
         }));
 
         // Catch all
