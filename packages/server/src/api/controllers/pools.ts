@@ -10,7 +10,7 @@ import { Request, Router } from 'express';
 import { EthNetwork } from '@sommelier/shared-types';
 
 import { HTTPError } from 'api/util/errors';
-import { UniswapV3Fetchers } from 'services/uniswap-v3';
+import { memoConfig, UniswapV3Fetchers } from 'services/uniswap-v3';
 import {
   GetEthPriceResult,
   GetPoolDailyDataResult,
@@ -135,7 +135,8 @@ async function getHistoricalHourlyData(req: Request<PoolPath, unknown, unknown, 
 
 const route = Router();
 const cacheConfig = { public: true, mustRevalidate: true };
-const poolConfig = { maxAge: 10, sMaxAge: 60, ...cacheConfig };
+// sMaxAge: 5 min in seconds
+const poolConfig = { maxAge: 10, sMaxAge: memoConfig.getTopPools.ttl / 1000, ...cacheConfig };
 // TODO: Revisit
 const historyConfig = { maxAge: 5 * 60, sMaxAge: 60 * 60, ... cacheConfig };
 route.get(

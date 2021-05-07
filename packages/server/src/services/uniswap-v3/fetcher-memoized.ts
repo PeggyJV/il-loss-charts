@@ -19,7 +19,7 @@ const config = appConfig.memoizerRedis;
 // TODO: Move this to config and review TTLs
 // TODO: Make this automatically update cache control settings
 // which is not straight forward becaouse redis ttl is in ms and cache control in s
-const memoConfig = {
+export const memoConfig = {
     getEthPrice: { ttl: minuteMs * 1 },
     getPoolOverview: { ttl: minuteMs * 5 },
     getTopPools: { ttl: minuteMs * 5 },
