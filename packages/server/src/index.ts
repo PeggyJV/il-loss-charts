@@ -7,8 +7,6 @@ import config from 'config';
 function startServer() {
     const port = parseInt(config.port);
 
-    // TODO: figure out why YAML.load during mountExplorer breaks when running jest and start with tests
-    server.mountExplorer();
     server.listen(port);
 
     if (!server.httpServer) {

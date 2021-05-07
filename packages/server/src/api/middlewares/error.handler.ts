@@ -6,7 +6,7 @@ import { CodedHTTPError, HTTPError, ValidationError } from 'api/util/errors';
 const internalError = 'Internal Server Error';
 
 // eslint-disable-next-line no-unused-vars, no-shadow
-export default function errorHandler(
+export function errorHandler(
     err: Error | HTTPError | CelebrateError,
     req: Request,
     res: Response,
