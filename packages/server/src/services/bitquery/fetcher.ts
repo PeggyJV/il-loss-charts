@@ -82,7 +82,10 @@ export default class BitqueryFetcher {
         return weeklyOHLC;
     }
 
-    static async getPeriodDailyOHLC(baseTokenId: string, quoteTokenId: string, start: Date, end: Date): Promise<DexTrade[]> {
+    static async getPeriodDailyOHLC(baseTokenId: string, quoteTokenId: string, start: Date | number, end: Date | number): Promise<DexTrade[]> {
+        end = typeof end === 'number' ? new Date(end) : end;
+        start = typeof start === 'number' ? new Date(start) : start;
+
         // Calculate start Date and endDate
         const endDate = BitqueryFetcher.formatDate(end);
         const startDate = BitqueryFetcher.formatDate(start);

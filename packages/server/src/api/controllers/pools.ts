@@ -10,7 +10,7 @@ import { Request, Router } from 'express';
 import { EthNetwork } from '@sommelier/shared-types';
 
 import { HTTPError } from 'api/util/errors';
-import { UniswapV3Fetchers } from 'services/uniswap-v3';
+import { memoConfig, UniswapV3Fetchers } from 'services/uniswap-v3';
 import {
   GetEthPriceResult,
   GetPoolDailyDataResult,
@@ -134,10 +134,41 @@ async function getHistoricalHourlyData(req: Request<PoolPath, unknown, unknown, 
 }
 
 const route = Router();
-route.get('/:network/ethPrice', networkValidator, catchAsyncRoute(getEthPrice));
-route.get('/:network/pools', getTopPoolsValidator, catchAsyncRoute(getTopPools));
-route.get('/:network/pools/:poolId', poolIdValidator, catchAsyncRoute(getPoolOverview));
-route.get('/:network/pools/:poolId/historical/daily', getHistoricalDataValidator, catchAsyncRoute(getHistoricalDailyData));
-route.get('/:network/pools/:poolId/historical/hourly', getHistoricalDataValidator, catchAsyncRoute(getHistoricalHourlyData));
+const cacheConfig = { public: true, mustRevalidate: true };
+// sMaxAge: 5 min in seconds
+const poolConfig = { maxAge: 10, sMaxAge: memoConfig.getTopPools.ttl / 1000, ...cacheConfig };
+// TODO: Revisit
+const historyConfig = { maxAge: 5 * 60, sMaxAge: 60 * 60, ... cacheConfig };
+route.get(
+  '/:network/ethPrice',
+  networkValidator,
+  catchAsyncRoute(getEthPrice, poolConfig),
+);
+
+route.get(
+  '/:network/pools',
+  getTopPoolsValidator,
+  // sMaxAge != memoizer ttl here because we have the cache warmer, we want the cdn to revalidate more often
+  catchAsyncRoute(getTopPools, poolConfig),
+);
+
+route.get(
+  '/:network/pools/:poolId',
+  poolIdValidator,
+  // sMaxAge != memoizer ttl here because we have the cache warmer, we want the cdn to revalidate more often
+  catchAsyncRoute(getPoolOverview, poolConfig)
+);
+
+route.get(
+  '/:network/pools/:poolId/historical/daily',
+  getHistoricalDataValidator,
+  catchAsyncRoute(getHistoricalDailyData, historyConfig)
+);
+
+route.get(
+  '/:network/pools/:poolId/historical/hourly',
+  getHistoricalDataValidator,
+  catchAsyncRoute(getHistoricalHourlyData, historyConfig)
+);
 
 export default route;

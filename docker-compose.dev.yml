@@ -25,6 +25,7 @@ services:
       - PORT=4000
       - REDIS_URL=cache_dev
       - REDIS_PORT=6380
+      - NODE_ENV=staging
 
   redis_dev:
     image: redis:alpine

@@ -14,11 +14,15 @@ import redis from 'util/redis';
 
 const config = appConfig.memoizerRedis;
 
+// If these are changed, you must update the sMaxAge value configured
+// when mounting the route
 // TODO: Move this to config and review TTLs
-const memoConfig = {
+// TODO: Make this automatically update cache control settings
+// which is not straight forward becaouse redis ttl is in ms and cache control in s
+export const memoConfig = {
     getEthPrice: { ttl: minuteMs * 1 },
-    getPoolOverview: { ttl: minuteMs * 6 },
-    getTopPools: { ttl: minuteMs * 6 }, // 6 minutes, the cache warmer updates every 5
+    getPoolOverview: { ttl: minuteMs * 5 },
+    getTopPools: { ttl: minuteMs * 5 },
     getHistoricalDailyData: { ttl: hourMs * 1 },
     getHistoricalHourlyData: { ttl: hourMs * 1 },
 };
