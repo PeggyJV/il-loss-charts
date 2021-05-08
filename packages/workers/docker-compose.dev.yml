@@ -9,3 +9,5 @@ services:
       - REDIS_URL=127.0.0.1
       - REDIS_PORT=6380
       - NODE_ENV=staging
+      - TOP_POOL_COUNT=5
+      - V3_SUBGRAPH_URL="http://graph-node-mainnet.us-west1.gcp.somm.network:8080/subgraphs/name/sommelier/uniswap-v3"
