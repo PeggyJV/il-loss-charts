@@ -22,13 +22,13 @@ COPY . /app/
 ENV GENERATE_SOURCEMAP=false
 
 # Run separately to take advantage of caching when only one package is changed
-WORKDIR /app/il-loss-charts/packages/sommelier-types
+WORKDIR /app/packages/sommelier-types
 RUN yarn build
-WORKDIR /app/il-loss-charts/packages/server
+WORKDIR /app/packages/server
 RUN yarn build
-WORKDIR /app/il-loss-charts/packages/workers
+WORKDIR /app/packages/workers
 RUN yarn build
 
 WORKDIR /app
-ENTRYPOINT ["/app/il-loss-charts/worker-entrypoint.sh"]
+ENTRYPOINT ["/app/worker-entrypoint.sh"]
 CMD ["sh"]
