@@ -4,7 +4,7 @@ FROM node:14
 WORKDIR /app
 
 RUN apt-get update
-RUN apt-get install vim
+RUN apt-get install -y vim
 RUN apt-get install -y cron
 
 RUN yarn global add lerna
