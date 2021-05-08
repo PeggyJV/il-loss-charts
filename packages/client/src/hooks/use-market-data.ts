@@ -84,6 +84,8 @@ export const useMarketData = (
             `/api/v1/marketData/daily?baseToken=${
                 baseTokenId ?? ''
             }&quoteToken=${quoteTokenId ?? ''}`
+            // if we start setting the days param here, dynamic or static
+            // we will need to update the cache warmer PERIOD_DAYS value
         );
 
         if (!response.ok) {

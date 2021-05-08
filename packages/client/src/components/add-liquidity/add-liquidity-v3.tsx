@@ -176,8 +176,8 @@ export const AddLiquidityV3 = ({
     // const token1 = pool?.token1?.id ?? '';
 
     const { newPair: marketData, indicators } = useMarketData(
-        pool?.token1,
-        pool?.token0,
+        pool?.token1, // Order here matters, you must update the cache worker to use the correct baseToken
+        pool?.token0, // Order here matters, update cahce worker with the correct quoteToken if changing
         wallet.network
     );
     debug.marketData = marketData;

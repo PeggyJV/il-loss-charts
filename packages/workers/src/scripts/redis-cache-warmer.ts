@@ -1,11 +1,14 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions, @typescript-eslint/ban-ts-comment */
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client/core';
+import { endOfDay, startOfDay, subDays } from 'date-fns';
 import dotenv from 'dotenv';
 import fetch from 'cross-fetch';
 import Redis from 'ioredis';
 
 import {
+    _getPeriodIndicators,
     apolloClients,
+    BitqueryFetcher,
     memoizer,
     UniswapV3Fetcher,
 } from '@sommelier/data-service';
@@ -16,7 +19,7 @@ dotenv.config();
 // configure apollo
 const uri =
     process.env.V3_SUBGRAPH_URL ||
-    'http://35.197.14.14:8000/subgraphs/name/sommelier/uniswap-v3-2';
+    'http://localhost:8000/subgraphs/name/sommelier/uniswap-v3';
 const link = new HttpLink({ uri, fetch });
 const cache = new InMemoryCache();
 const client = new ApolloClient({ link, cache });
@@ -34,25 +37,18 @@ const redisConfig = {
 };
 const redis = new Redis(redisConfig);
 
-// cache config
-const cacheTimeoutStr =
-    process.env.CACHE_TIMEOUT_TOP_POOLS ?? (1000 * 60 * 6).toString(); // 6 min
-const cacheTimeoutMs = parseInt(cacheTimeoutStr, 10);
-const network = process.env.CACHE_WARMER_NETWORK ?? 'rinkeby';
 
 // memoizer config
 const memoConfig = {
     lockTimeout: 1000 * 30, // attempt to acquire lock for 30 seconds
     lockRetry: 50, // spin on lock every 50ms
-    ttl: cacheTimeoutMs,
 };
-const memo = memoizer(redis, { keyPrefix: network });
 const v3Fetcher = new UniswapV3Fetcher(sdk);
-const getTopPools = memo(v3Fetcher.getTopPools.bind(v3Fetcher), memoConfig);
-const getPoolOverview = memo(
-    v3Fetcher.getPoolOverview.bind(v3Fetcher),
-    memoConfig
-);
+const getTopPools = v3Fetcher.getTopPools.bind(v3Fetcher);
+
+const bqMemo = memoizer(redis, { ttl: 1000 * 60 * 60 * 1, ...memoConfig }) // 1hr
+const getPeriodIndicators = bqMemo(_getPeriodIndicators);
+const getLastDayOHLC = bqMemo(BitqueryFetcher.getLastDayOHLC.bind(BitqueryFetcher));
 
 // This script is meant to be scheduled and run on an interval by cron.
 // We want to keep the top pools query cache warmed up on mainnet at all times
@@ -63,42 +59,61 @@ const count = 1000;
 const sort = 'volumeUSD';
 
 // number of top pools to keep warm
-const poolCountStr = process.env.TOP_POOL_COUNT ?? '10';
+const poolCountStr = process.env.TOP_POOL_COUNT ?? '40';
 const poolCount = parseInt(poolCountStr, 10);
 
-export default async function run(): Promise<void> {
+export async function run(): Promise<void> {
     // this function already validates null and length 0 pools
     // it will also throw on error, so only valid data will be cached
     console.log('Fetching Top Pools and updating cache');
     console.time('update-top-pools-elapsed');
 
-    const topPools = await getTopPools.forceUpdate(count, sort);
+    const topPools = await getTopPools(count, sort);
     console.timeEnd('update-top-pools-elapsed');
-
-    if (topPools == null) {
-        // we were unable to get a lock, throw and log error
-        throw new Error('Unable to get lock to update top pool');
-    }
-
     console.log(`Fetched Top Pools, count: ${topPools.length}`);
 
     const top = topPools.slice(0, poolCount);
     const topSymbols = top.map(poolName);
 
-    console.log(`Updating pool data for top ${poolCount} pools ${topSymbols}`);
-    for (const pool of top) {
-        const poolId = `${poolName(pool)}-${pool.id}`;
-        console.time(`update-pool-${poolId}-elapsed`);
-
-        // must pass undefined to match signature of original call
-        const result = await getPoolOverview.forceUpdate(pool.id, undefined);
-        console.timeEnd(`update-pool-${poolId}-elapsed`);
-
-        if (result == null) {
-            // we were unable to get a lock, log error
-            console.error(`Could not update cache for pool: ${poolId}`);
-        }
+    // chunk pools in groups of 5
+    const chunks = chunk(top, 5);
+    for (const chunk of chunks) {
+        await Promise.all(chunk.map(updatePoolCache));
     }
+}
+// this needs to stay in lockstep with the default days for the /marketData/indicators routte
+const periodDaysStr = process.env.PERIOD_DAYS ?? '19';
+const periodDays = parseInt(periodDaysStr, 10);
+
+async function updatePoolCache(pool: any) {
+    const name = poolName(pool);
+    const baseToken = pool.token1.id;
+    const quoteToken = pool.token0.id;
+    console.log(`Updating pool ${name} - base: ${baseToken} - quote: ${quoteToken}`);
+
+    console.time(`update-pool-daily-${name}`);
+    try {
+        // TODO: remove daily data fetch after client refactor
+        // get daily data
+        await getLastDayOHLC.forceUpdate(baseToken, quoteToken);
+    } catch (error) {
+        console.error(`Unable to get lock to update daily data: ${name}: ${error.message ?? ''}`);
+    }
+    console.timeEnd(`update-pool-daily-${name}`);
+
+    // calculate period for fetching indicators, must be same as client code
+    const now = new Date();
+    const endDate = endOfDay(now).getTime();
+    const startDate = startOfDay(subDays(now, periodDays)).getTime();
+
+    console.time(`update-pool-indicators-${name}`);
+    try {
+        await getPeriodIndicators.forceUpdate(baseToken, quoteToken, startDate, endDate);
+    } catch (error) {
+        console.error(`Unable to get lock to update indicator data: ${name} - ${error.message ?? ''}`);
+
+    }
+    console.timeEnd(`update-pool-indicators-${name}`);
 }
 
 function poolName(pool: any) {
@@ -112,8 +127,20 @@ function poolName(pool: any) {
     return `${token0.symbol || ''}-${token1.symbol || ''}`;
 }
 
-void (async function () {
-    await run();
+function chunk (a: Array<any>, size: number): Array<Array<any>> {
+    if (Array.length === 0) return [];
 
-    process.exit();
-})();
+    const chunks: Array<Array<any>> = [[]];
+
+    for (const el of a) {
+        let chunk = chunks[chunks.length - 1];
+        if (chunk.length === size) {
+            chunk = [];
+            chunks.push(chunk);
+        }
+
+        chunk.push(el);
+    }
+
+    return chunks;
+}
