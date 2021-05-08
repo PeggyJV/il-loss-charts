@@ -227,6 +227,93 @@ export const AddLiquidityV3 = ({
         return { baseTokenCurrency, quoteTokenCurrency, uniPool };
     };
 
+    const getBoundPricesAndTicks = (indicators: { [indicatorName: string]: LiquidityBand }) => {
+        const {
+            baseTokenCurrency,
+            quoteTokenCurrency,
+            uniPool,
+        } = getUniSDKInstances();
+
+        (window as any).uni = { baseTokenCurrency, quoteTokenCurrency, uniPool };
+        (window as any).bounds = bounds;
+
+        debug.indicators = indicators;
+
+        const indicator = indicators[SELECTED_INDICATOR_NAME];
+        const [lowerBound, upperBound] = indicator.bounds[sentiment];
+
+        const lowerBoundNumerator = ethers.utils
+            .parseUnits(
+                new BigNumber(lowerBound).toFixed(
+                    baseTokenCurrency.decimals
+                ),
+                baseTokenCurrency.decimals
+            )
+            .toString();
+
+        const lowerBoundDenominator = ethers.utils
+            .parseUnits('1', quoteTokenCurrency.decimals)
+            .toString();
+
+        // Convert to lower tick and upper ticks
+        const lowerBoundPrice = new Price(
+            baseTokenCurrency,
+            quoteTokenCurrency,
+            lowerBoundNumerator,
+            lowerBoundDenominator
+        );
+
+        (window as any).lowerBoundPrice = lowerBoundPrice;
+
+        let lowerBoundTick = priceToClosestTick(lowerBoundPrice);
+        lowerBoundTick -= lowerBoundTick % uniPool.tickSpacing;
+
+        const upperBoundNumerator = ethers.utils
+            .parseUnits(
+                new BigNumber(upperBound).toFixed(
+                    baseTokenCurrency.decimals
+                ),
+                baseTokenCurrency.decimals
+            )
+            .toString();
+
+        const upperBoundDenominator = ethers.utils
+            .parseUnits('1', quoteTokenCurrency.decimals)
+            .toString();
+
+        const upperBoundPrice = new Price(
+            baseTokenCurrency,
+            quoteTokenCurrency,
+            upperBoundNumerator,
+            upperBoundDenominator
+        );
+
+        (window as any).upperBoundPrice = upperBoundPrice;
+
+        let upperBoundTick = priceToClosestTick(upperBoundPrice);
+        upperBoundTick -= upperBoundTick % uniPool.tickSpacing;
+
+        const sortedTicks = [lowerBoundTick, upperBoundTick].sort(
+            (a, b) => a - b
+        ) as [number, number];
+        const priceLower = tickToPrice(
+            baseTokenCurrency,
+            quoteTokenCurrency,
+            sortedTicks[0]
+        );
+        const priceUpper = tickToPrice(
+            baseTokenCurrency,
+            quoteTokenCurrency,
+            sortedTicks[1]
+        );
+
+        return {
+            prices: [lowerBound, upperBound] as [number, number],
+            ticks: sortedTicks,
+            ticksFromPrice: [priceLower, priceUpper] as [Price, Price]
+        };
+    }
+
     const handleTokenRatio = (
         selectedToken: string,
         selectedAmount: string
@@ -336,75 +423,13 @@ export const AddLiquidityV3 = ({
         (window as any).uni = { baseTokenCurrency, quoteTokenCurrency, uniPool };
         (window as any).bounds = bounds;
 
-        debug.indicators = indicators;
+        const {
+            prices,
+            ticks,
+            ticksFromPrice
+        } = getBoundPricesAndTicks(indicators);
 
-        const indicator = indicators[SELECTED_INDICATOR_NAME];
-        const [lowerBound, upperBound] = indicator.bounds[sentiment];
-
-        const lowerBoundNumerator = ethers.utils
-            .parseUnits(
-                new BigNumber(lowerBound).toFixed(
-                    baseTokenCurrency.decimals
-                ),
-                baseTokenCurrency.decimals
-            )
-            .toString();
-        
-        const lowerBoundDenominator = ethers.utils
-            .parseUnits('1', quoteTokenCurrency.decimals)
-            .toString();
-
-        // Convert to lower tick and upper ticks
-        const lowerBoundPrice = new Price(
-            baseTokenCurrency,
-            quoteTokenCurrency,
-            lowerBoundNumerator,
-            lowerBoundDenominator
-        );
-
-        (window as any).lowerBoundPrice = lowerBoundPrice;
-
-        let lowerBoundTick = priceToClosestTick(lowerBoundPrice);
-        lowerBoundTick -= lowerBoundTick % uniPool.tickSpacing;
-
-        const upperBoundNumerator = ethers.utils
-            .parseUnits(
-                new BigNumber(upperBound).toFixed(
-                    baseTokenCurrency.decimals
-                ),
-                baseTokenCurrency.decimals
-            )
-            .toString();
-
-        const upperBoundDenominator = ethers.utils
-            .parseUnits('1', quoteTokenCurrency.decimals)
-            .toString();
-
-        const upperBoundPrice = new Price(
-            baseTokenCurrency,
-            quoteTokenCurrency,
-            upperBoundNumerator,
-            upperBoundDenominator
-        );
-
-        (window as any).upperBoundPrice = upperBoundPrice;
-
-        let upperBoundTick = priceToClosestTick(upperBoundPrice);
-        upperBoundTick -= upperBoundTick % uniPool.tickSpacing;
-
-        const sortedTicks = [lowerBoundTick, upperBoundTick].sort(
-            (a, b) => a - b
-        ) as [number, number];
-        const priceLower = tickToPrice(
-            baseTokenCurrency,
-            quoteTokenCurrency,
-            sortedTicks[0]
-        );
-        const priceUpper = tickToPrice(
-            baseTokenCurrency,
-            quoteTokenCurrency,
-            sortedTicks[1]
-        );
+        const [lowerBound, upperBound] = prices;
 
         const baseAmount0 = ethers.utils
             .parseUnits(
@@ -426,8 +451,8 @@ export const AddLiquidityV3 = ({
 
         const position = Position.fromAmounts({
             pool: uniPool,
-            tickLower: sortedTicks[0],
-            tickUpper: sortedTicks[1],
+            tickLower: ticks[0],
+            tickUpper: ticks[1],
             amount0: baseAmount0,
             amount1: baseAmount1,
         });
@@ -435,11 +460,12 @@ export const AddLiquidityV3 = ({
         (window as any).position = position;
 
         setBounds({
-            prices: [lowerBound, upperBound],
-            ticks: sortedTicks,
-            ticksFromPrice: [priceLower, priceUpper],
+            prices,
+            ticks,
+            ticksFromPrice,
             position,
         });
+
         setPendingBounds(false);
 
         if (currentPrice < lowerBound || currentPrice > upperBound) {
@@ -504,6 +530,14 @@ export const AddLiquidityV3 = ({
     }
 
     useEffect(() => {
+        if (indicators) {
+            const bounds = getBoundPricesAndTicks(indicators);
+            setBounds(bounds);
+            setPendingBounds(false);
+        }
+    }, [indicators]);
+
+    useEffect(() => {
         if (!pool || !indicators) {
             return;
         }
@@ -556,7 +590,7 @@ export const AddLiquidityV3 = ({
         };
 
         getPriceImpact();
-    }, [sentiment, indicators, pool, wallet.network, currentPrice]);
+    }, [sentiment, pool, wallet.network, currentPrice]);
 
     if (!pool) return null;
 
