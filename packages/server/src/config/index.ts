@@ -1,12 +1,15 @@
+import 'common/env';
 import { RecursivePartial } from 'types/shared';
 import defaultConfig from './default';
 import production from './production';
+import staging from './staging';
 import test from './test';
 
 import AppConfig, { Environments } from 'types/app-config';
 
 const configEnvs: Partial<{ [env in Environments]: RecursivePartial<AppConfig> }> = {
     production,
+    staging,
     test,
 };
 
@@ -18,5 +21,11 @@ const activeConfig: AppConfig = Object.assign(
     defaultConfig,
     configEnvs[CURRENT_ENV] ?? {}
 );
+
+// log for debugging purposes
+if (CURRENT_ENV !== 'production') {
+    console.log('CURRENT_ENV', CURRENT_ENV)
+    console.log(JSON.stringify(activeConfig, null, 2));
+}
 
 export default activeConfig;
