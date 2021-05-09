@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { CelebrateError } from 'celebrate';
-import createError from 'http-errors';
 
 import { CodedHTTPError, HTTPError, ValidationError } from 'api/util/errors';
 
@@ -45,7 +44,8 @@ export function errorHandler(
     }
 
     // handle express http errors
-    else if (createError.isHttpError(err)) {
+    // TODO [http-errors@>=1.8.0]: use createError.isHttpError(err);
+    else if (typeof (err as any).status === 'number' || typeof (err as any).statusCode === 'number') {
         // pass to default error handler
         next(err);
     }
