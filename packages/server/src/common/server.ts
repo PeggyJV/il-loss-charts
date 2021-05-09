@@ -11,7 +11,7 @@ import YAML from 'yamljs';
 import Mixpanel from 'mixpanel';
 
 import * as OpenApiValidator from 'express-openapi-validator';
-import { errorHandler, poweredByMiddleware } from '../api/middlewares';
+import * as middleware from '../api/middlewares';
 
 import config from 'config';
 
@@ -33,7 +33,8 @@ class ExpressServer {
         // logging, should be first middleware
         app.use(morgan('dev'));
 
-        app.use(poweredByMiddleware);
+        app.use(middleware.poweredBy);
+        app.use(middleware.requestContext);
         app.use(cookieParser(process.env.SESSION_SECRET));
 
         app.use('/static', express.static(`${clientRoot}/build/static`, {
@@ -73,7 +74,7 @@ class ExpressServer {
         );
 
         routes(app);
-        app.use(errorHandler);
+        app.use(middleware.errorHandler);
         return this;
     }
 
