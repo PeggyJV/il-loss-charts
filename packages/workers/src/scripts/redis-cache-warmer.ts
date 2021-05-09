@@ -86,7 +86,7 @@ const periodDaysStr = process.env.PERIOD_DAYS ?? '19';
 const periodDays = parseInt(periodDaysStr, 10);
 
 async function updatePoolCache(pool: any) {
-    const name = poolName(pool);
+    const name = poolId(pool);
     const baseToken = pool.token1.id;
     const quoteToken = pool.token0.id;
     console.log(`Updating pool ${name} - base: ${baseToken} - quote: ${quoteToken}`);
@@ -125,6 +125,16 @@ function poolName(pool: any) {
     const { token0, token1 } = pool;
 
     return `${token0.symbol || ''}-${token1.symbol || ''}`;
+}
+
+function poolId(pool: any) {
+    if (!pool || !pool.token0 || !pool.token1) {
+        console.error(`Could not get pool name for: ${JSON.stringify(pool)}`);
+        return '';
+    }
+
+    const { token0, token1 } = pool;
+    return `${poolName(pool)}-${token0.id}-${token1.id}`;
 }
 
 function chunk (a: Array<any>, size: number): Array<Array<any>> {

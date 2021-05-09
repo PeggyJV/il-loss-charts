@@ -134,7 +134,7 @@ async function getHistoricalHourlyData(req: Request<PoolPath, unknown, unknown, 
 }
 
 const route = Router();
-const cacheConfig = { public: true, proxyRevalidate: true };
+const cacheConfig = { public: true };
 // sMaxAge: 5 min in seconds
 const poolConfig = { maxAge: 30, sMaxAge: memoConfig.getTopPools.ttl / 1000, ...cacheConfig };
 // TODO: Revisit

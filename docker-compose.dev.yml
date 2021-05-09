@@ -25,7 +25,6 @@ services:
     environment:
       - REDIS_URL=redis_app
       - REDIS_PORT=6380
-      - TOP_POOL_COUNT=5
       - WORKER_CACHE_WARMER=true
       - WORKER_CACHE_WARMER_CRON="*/5 * * * *"
 
