@@ -65,27 +65,35 @@ const poolCount = parseInt(poolCountStr, 10);
 export async function run(): Promise<void> {
     console.log('Fetching Top Pools and updating cache');
     // track token pairs we've warmed
-    const updated: Set<string> = new Set();
+    const filter: Set<string> = new Set();
 
     const topPools = await getTopPools(count, sort);
     console.log(`Fetched Top Pools, count: ${topPools.length}`);
 
-    const top = topPools.slice(0, poolCount);
+    const top = topPools.slice(0, poolCount)
+        .filter((pool: any) => {
+            const name = poolId(pool);
+            if (filter.has(name)) {
+                return false;
+            }
+
+            filter.add(name);
+            return true;
+        });
 
     // chunk pools in groups of 5
     const chunks = chunk(top, 5);
     for (const chunk of chunks) {
-        await Promise.all(chunk.map(async (pool) => updatePoolCache(pool, updated)));
+        await Promise.all(chunk.map(async (pool) => updatePoolCache(pool)));
     }
 }
 // this needs to stay in lockstep with the default days for the /marketData/indicators routte
 const periodDaysStr = process.env.PERIOD_DAYS ?? '19';
 const periodDays = parseInt(periodDaysStr, 10);
 
-async function updatePoolCache(pool: any, updated: Set<string>) {
+async function updatePoolCache(pool: any) {
     const name = poolId(pool);
     // bail if we've already updated market data for this token pair
-    if (updated.has(name)) return;
 
     const baseToken = pool.token1.id;
     const quoteToken = pool.token0.id;
@@ -132,7 +140,7 @@ function poolId(pool: any) {
     }
 
     const { token0, token1 } = pool;
-    return `${poolName(pool)}-${token0.id.substr(-5)}-${token1.id.substr(-5)}`;
+    return `${poolName(pool)}-${token0.id.substr(-8)}-${token1.id.substr(-8)}`;
 }
 
 function chunk (a: Array<any>, size: number): Array<Array<any>> {
