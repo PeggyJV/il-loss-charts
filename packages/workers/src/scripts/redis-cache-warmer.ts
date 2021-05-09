@@ -64,6 +64,8 @@ const poolCount = parseInt(poolCountStr, 10);
 
 export async function run(): Promise<void> {
     console.log('Fetching Top Pools and updating cache');
+    // track token pairs we've warmed
+    const updated: Set<string> = new Set();
 
     const topPools = await getTopPools(count, sort);
     console.log(`Fetched Top Pools, count: ${topPools.length}`);
@@ -73,15 +75,18 @@ export async function run(): Promise<void> {
     // chunk pools in groups of 5
     const chunks = chunk(top, 5);
     for (const chunk of chunks) {
-        await Promise.all(chunk.map(updatePoolCache));
+        await Promise.all(chunk.map(async (pool) => updatePoolCache(pool, updated)));
     }
 }
 // this needs to stay in lockstep with the default days for the /marketData/indicators routte
 const periodDaysStr = process.env.PERIOD_DAYS ?? '19';
 const periodDays = parseInt(periodDaysStr, 10);
 
-async function updatePoolCache(pool: any) {
+async function updatePoolCache(pool: any, updated: Set<string>) {
     const name = poolId(pool);
+    // bail if we've already updated market data for this token pair
+    if (updated.has(name)) return;
+
     const baseToken = pool.token1.id;
     const quoteToken = pool.token0.id;
 
@@ -102,6 +107,7 @@ async function updatePoolCache(pool: any) {
     try {
         console.log(`Fetching Indicators: ${name}`)
         await getPeriodIndicators.forceUpdate(baseToken, quoteToken, startDate, endDate);
+        updated.add(name);
     } catch (error) {
         console.error(`Unable to update indicator data: ${name} - ${error.message ?? ''}`);
 
