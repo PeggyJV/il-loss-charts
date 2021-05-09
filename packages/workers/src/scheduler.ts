@@ -8,12 +8,6 @@ import { run as runRedisCacheWarmer } from './scripts/redis-cache-warmer';
 
 dotenv.config();
 
-// log for debugging purposes
-if (process.env.NODE_ENV !== 'production') {
-    console.log('CURRENT_ENV', CURRENT_ENV)
-    console.log(JSON.stringify(activeConfig, null, 2));
-}
-
 const PORT = 8080;
 const CRON_EVERY_HOUR = '0 * * * *';
 
