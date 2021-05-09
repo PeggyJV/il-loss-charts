@@ -63,17 +63,12 @@ const poolCountStr = process.env.TOP_POOL_COUNT ?? '40';
 const poolCount = parseInt(poolCountStr, 10);
 
 export async function run(): Promise<void> {
-    // this function already validates null and length 0 pools
-    // it will also throw on error, so only valid data will be cached
     console.log('Fetching Top Pools and updating cache');
-    console.time('update-top-pools-elapsed');
 
     const topPools = await getTopPools(count, sort);
-    console.timeEnd('update-top-pools-elapsed');
     console.log(`Fetched Top Pools, count: ${topPools.length}`);
 
     const top = topPools.slice(0, poolCount);
-    const topSymbols = top.map(poolName);
 
     // chunk pools in groups of 5
     const chunks = chunk(top, 5);
@@ -89,31 +84,28 @@ async function updatePoolCache(pool: any) {
     const name = poolId(pool);
     const baseToken = pool.token1.id;
     const quoteToken = pool.token0.id;
-    console.log(`Updating pool ${name} - base: ${baseToken} - quote: ${quoteToken}`);
 
-    console.time(`update-pool-daily-${name}`);
     try {
+        console.log(`Fetching Daily: ${name}`)
         // TODO: remove daily data fetch after client refactor
         // get daily data
         await getLastDayOHLC.forceUpdate(baseToken, quoteToken);
     } catch (error) {
-        console.error(`Unable to get lock to update daily data: ${name}: ${error.message ?? ''}`);
+        console.error(`Unable to update daily data: ${name}: ${error.message ?? ''}`);
     }
-    console.timeEnd(`update-pool-daily-${name}`);
 
     // calculate period for fetching indicators, must be same as client code
     const now = new Date();
     const endDate = endOfDay(now).getTime();
     const startDate = startOfDay(subDays(now, periodDays)).getTime();
 
-    console.time(`update-pool-indicators-${name}`);
     try {
+        console.log(`Fetching Indicators: ${name}`)
         await getPeriodIndicators.forceUpdate(baseToken, quoteToken, startDate, endDate);
     } catch (error) {
-        console.error(`Unable to get lock to update indicator data: ${name} - ${error.message ?? ''}`);
+        console.error(`Unable to update indicator data: ${name} - ${error.message ?? ''}`);
 
     }
-    console.timeEnd(`update-pool-indicators-${name}`);
 }
 
 function poolName(pool: any) {
@@ -134,7 +126,7 @@ function poolId(pool: any) {
     }
 
     const { token0, token1 } = pool;
-    return `${poolName(pool)}-${token0.id}-${token1.id}`;
+    return `${poolName(pool)}-${token0.id.substr(0,5)}-${token1.id.substr(0,5)}`;
 }
 
 function chunk (a: Array<any>, size: number): Array<Array<any>> {
