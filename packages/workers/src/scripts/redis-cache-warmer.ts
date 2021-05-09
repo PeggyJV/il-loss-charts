@@ -126,7 +126,7 @@ function poolId(pool: any) {
     }
 
     const { token0, token1 } = pool;
-    return `${poolName(pool)}-${token0.id.substr(0,5)}-${token1.id.substr(0,5)}`;
+    return `${poolName(pool)}-${token0.id.substr(-5)}-${token1.id.substr(-5)}`;
 }
 
 function chunk (a: Array<any>, size: number): Array<Array<any>> {
