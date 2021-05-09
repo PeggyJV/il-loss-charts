@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import Mixpanel from 'mixpanel';
+import mime from 'mime-types';
 
 import * as OpenApiValidator from 'express-openapi-validator';
 import * as middleware from '../api/middlewares';
@@ -41,14 +42,15 @@ class ExpressServer {
             immutable: true,  // these files never change and can be cached for 1y
         }));
 
-        // this must be set before the root /build directory or it will not take effect
-        app.use('/index.html', express.static(`${clientRoot}/build/index.html`, {
-            maxAge: '1m', // index.html should be revalidated much more frequently
-        }));
-
         // if we change these files we'll have to invalidate the cache in gcp console
         app.use(express.static(`${clientRoot}/build`, {
             maxAge: '30d', // index.html should be revalidated much more frequently
+            setHeaders: (res: Response, path: string) => {
+                // html like index.html should be revalidated often
+                if (mime.lookup(path) === 'text/html') {
+                    res.setHeader('Cache-Control', 'public, max-age=60');
+                }
+            }
         }));
 
         // Catch all
