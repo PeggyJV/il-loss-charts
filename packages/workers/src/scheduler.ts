@@ -14,6 +14,7 @@ const CRON_EVERY_HOUR = '0 * * * *';
 let tgAlertsEnabled = process.env.WORKER_TG_ALERTS ?? 'false';
 tgAlertsEnabled = JSON.parse(tgAlertsEnabled);
 
+console.log(`Telegram Alerts Enabled: ${tgAlertsEnabled}`);
 if (tgAlertsEnabled) {
     cron.schedule(CRON_EVERY_HOUR, () => {
         void runTgAlerts();
@@ -22,6 +23,8 @@ if (tgAlertsEnabled) {
 
 let discordAlertsEnabled = process.env.WORKER_DISCORD_ALERTS ?? 'false';
 discordAlertsEnabled = JSON.parse(discordAlertsEnabled);
+
+console.log(`Discord Alerts Enabled: ${discordAlertsEnabled}`);
 if (discordAlertsEnabled) {
     cron.schedule(CRON_EVERY_HOUR, () => {
         void runDiscordAlerts();
@@ -31,6 +34,8 @@ if (discordAlertsEnabled) {
 const cacheWarmerCron = process.env.WORKER_CACHE_WARMER_CRON ?? CRON_EVERY_HOUR;
 let cacheWarmerEnabled = process.env.WORKER_CACHE_WARMER ?? 'false';
 cacheWarmerEnabled = JSON.parse(cacheWarmerEnabled);
+
+console.log(`Redis Cache Warmer Enabled: ${cacheWarmerEnabled}`);
 if (cacheWarmerEnabled) {
     cron.schedule(cacheWarmerCron, () => {
         void runRedisCacheWarmer();
