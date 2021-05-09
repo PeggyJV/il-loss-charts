@@ -34,7 +34,6 @@ class ExpressServer {
         app.use(morgan('dev'));
 
         app.use(middleware.poweredBy);
-        app.use(middleware.requestContext);
         app.use(cookieParser(process.env.SESSION_SECRET));
 
         app.use('/static', express.static(`${clientRoot}/build/static`, {
