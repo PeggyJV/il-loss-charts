@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { CelebrateError } from 'celebrate';
+import createError from 'http-errors';
 
 import { CodedHTTPError, HTTPError, ValidationError } from 'api/util/errors';
 
@@ -41,6 +42,12 @@ export function errorHandler(
     // only forward errors that we intentionally created
     else if (err instanceof HTTPError) {
         res.status(err.status).json({ error: err.message });
+    }
+
+    // handle express http errors
+    else if (createError.isHttpError(err)) {
+        // pass to default error handler
+        next(err);
     }
 
     // all other errors should be a 500
