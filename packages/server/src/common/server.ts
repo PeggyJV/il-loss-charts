@@ -33,6 +33,7 @@ class ExpressServer {
 
         // logging, should be first middleware
         app.use(morgan('dev'));
+        app.use(middleware.logger())
 
         app.use(middleware.poweredBy);
         app.use(cookieParser(process.env.SESSION_SECRET));
