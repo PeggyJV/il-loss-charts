@@ -115,7 +115,6 @@ async function updatePoolCache(pool: any) {
     try {
         console.log(`Fetching Indicators: ${name}`)
         await getPeriodIndicators.forceUpdate(baseToken, quoteToken, startDate, endDate);
-        updated.add(name);
     } catch (error) {
         console.error(`Unable to update indicator data: ${name} - ${error.message ?? ''}`);
 
