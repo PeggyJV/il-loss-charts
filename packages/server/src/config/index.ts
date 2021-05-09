@@ -22,10 +22,4 @@ const activeConfig: AppConfig = Object.assign(
     configEnvs[CURRENT_ENV] ?? {}
 );
 
-// log for debugging purposes
-if (CURRENT_ENV !== 'production') {
-    console.log('CURRENT_ENV', CURRENT_ENV)
-    console.log(JSON.stringify(activeConfig, null, 2));
-}
-
 export default activeConfig;
