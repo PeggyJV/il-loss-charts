@@ -70,7 +70,8 @@ export async function run(): Promise<void> {
     const topPools = await getTopPools(count, sort);
     console.log(`Fetched Top Pools, count: ${topPools.length}`);
 
-    const top = topPools.slice(0, poolCount)
+    const top = topPools.slice(0, poolCount * 5) // get more than we need
+        // filter duplicate token pairs out
         .filter((pool: any) => {
             const name = poolId(pool);
             if (filter.has(name)) {
@@ -79,7 +80,7 @@ export async function run(): Promise<void> {
 
             filter.add(name);
             return true;
-        });
+        }).slice(0, poolCount); // get what we need
 
     // chunk pools in groups of 5
     const chunks = chunk(top, 5);
