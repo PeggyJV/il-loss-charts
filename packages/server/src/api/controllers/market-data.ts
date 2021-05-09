@@ -99,7 +99,7 @@ async function getPoolIndicators(
     return result;
 }
 
-const cacheConfig = { maxAge: 60, sMaxAge: memoTTLMs / 1000, public: true, mustRevalidate: true };
+const cacheConfig = { maxAge: 60, sMaxAge: memoTTLMs / 1000, public: true, proxyRevalidate: true };
 export default Router()
     .get(
         '/daily',
