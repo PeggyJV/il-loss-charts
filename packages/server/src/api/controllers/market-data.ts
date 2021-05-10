@@ -71,6 +71,7 @@ async function getPoolWeeklyOHLC(
 
 // GET /marketData/indicators
 const getPeriodIndicators = memoize(_getPeriodIndicators);
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function _getPeriodIndicators(baseToken: string, quoteToken: string, startDate: number, endDate: number) {
     const marketData = await BitqueryFetcher.getPeriodDailyOHLC(
         baseToken,
