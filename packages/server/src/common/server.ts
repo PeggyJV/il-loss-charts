@@ -4,7 +4,6 @@ import path from 'path';
 import bodyParser from 'body-parser';
 import http from 'http';
 import os from 'os';
-import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
@@ -32,7 +31,6 @@ class ExpressServer {
         app.set('appPath', root + 'client');
 
         // logging, should be first middleware
-        app.use(morgan('dev'));
         app.use(middleware.logger())
 
         app.use(middleware.poweredBy);
