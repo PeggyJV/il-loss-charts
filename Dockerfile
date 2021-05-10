@@ -1,9 +1,13 @@
-# Dockerfile
+# Dockerfile, not used for production
 FROM node:14
 
 WORKDIR /app
 
+RUN apt-get update
+RUN apt-get install -y vim
+
 RUN yarn global add lerna
+RUN yarn global add pm2
 
 COPY package.json lerna.json yarn.lock /app/
 COPY packages/sommelier-types/package.json /app/packages/sommelier-types/package.json

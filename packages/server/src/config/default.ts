@@ -1,6 +1,9 @@
 import AppConfig from 'types/app-config';
 
 const config: AppConfig = {
+    server: {
+        host: 'http://localhost:3000',
+    },
     redis: {
         host: process.env.REDIS_URL || '127.0.0.1',
         port: process.env.REDIS_PORT
@@ -14,7 +17,7 @@ const config: AppConfig = {
     uniswap: {
         v3: {
             networks: {
-                mainnet: 'http://localhost:8000/subgraphs/name/sommelier/uniswap-v3',
+                mainnet: process.env.V3_SUBGRAPH_URL ?? 'http://localhost:8000/subgraphs/name/sommelier/uniswap-v3',
                 rinkeby: 'http://35.197.14.14:8000/subgraphs/name/sommelier/uniswap-v3-2',
                 goerli: 'http://35.197.14.14:8000/subgraphs/name/sommelier/uniswap-v3-2',
                 ropsten: 'http://35.197.14.14:8000/subgraphs/name/sommelier/uniswap-v3-2',

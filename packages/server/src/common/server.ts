@@ -4,14 +4,14 @@ import path from 'path';
 import bodyParser from 'body-parser';
 import http from 'http';
 import os from 'os';
-import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import Mixpanel from 'mixpanel';
+import mime from 'mime-types';
 
 import * as OpenApiValidator from 'express-openapi-validator';
-import { errorHandler, poweredByMiddleware } from '../api/middlewares';
+import * as middleware from '../api/middlewares';
 
 import config from 'config';
 
@@ -31,9 +31,9 @@ class ExpressServer {
         app.set('appPath', root + 'client');
 
         // logging, should be first middleware
-        app.use(morgan('dev'));
+        app.use(middleware.logger())
 
-        app.use(poweredByMiddleware);
+        app.use(middleware.poweredBy);
         app.use(cookieParser(process.env.SESSION_SECRET));
 
         app.use('/static', express.static(`${clientRoot}/build/static`, {
@@ -41,14 +41,15 @@ class ExpressServer {
             immutable: true,  // these files never change and can be cached for 1y
         }));
 
-        // this must be set before the root /build directory or it will not take effect
-        app.use('/index.html', express.static(`${clientRoot}/build/index.html`, {
-            maxAge: '1m', // index.html should be revalidated much more frequently
-        }));
-
         // if we change these files we'll have to invalidate the cache in gcp console
         app.use(express.static(`${clientRoot}/build`, {
             maxAge: '30d', // index.html should be revalidated much more frequently
+            setHeaders: (res: Response, path: string) => {
+                // html like index.html should be revalidated often
+                if (mime.lookup(path) === 'text/html') {
+                    res.setHeader('Cache-Control', 'public, max-age=60');
+                }
+            }
         }));
 
         // Catch all
@@ -73,7 +74,7 @@ class ExpressServer {
         );
 
         routes(app);
-        app.use(errorHandler);
+        app.use(middleware.errorHandler);
         return this;
     }
 

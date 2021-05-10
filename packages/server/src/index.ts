@@ -1,8 +1,6 @@
-import 'common/env';
 import server from 'common/server';
 import WebsocketServer from 'ws/server';
 import config from 'config';
-
 
 function startServer() {
     const port = parseInt(config.port);
@@ -32,9 +30,13 @@ import * as apolloClients from 'services/util/apollo-client';
 import { calculateMarketStats } from 'util/calculate-stats';
 import { UniswapV3Fetcher } from 'services/uniswap-v3/fetcher'
 import UniswapFetcher from 'services/uniswap';
+import BitqueryFetcher from 'services/bitquery/fetcher';
+import { _getPeriodIndicators } from 'api/controllers/market-data';
 
 export {
+    _getPeriodIndicators,
     apolloClients,
+    BitqueryFetcher,
     calculateMarketStats,
     memoizer,
     UniswapFetcher,

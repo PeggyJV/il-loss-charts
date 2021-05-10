@@ -1,11 +1,14 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions, @typescript-eslint/ban-ts-comment */
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client/core';
+import { endOfDay, startOfDay, subDays } from 'date-fns';
 import dotenv from 'dotenv';
 import fetch from 'cross-fetch';
 import Redis from 'ioredis';
 
 import {
+    _getPeriodIndicators,
     apolloClients,
+    BitqueryFetcher,
     memoizer,
     UniswapV3Fetcher,
 } from '@sommelier/data-service';
@@ -16,7 +19,7 @@ dotenv.config();
 // configure apollo
 const uri =
     process.env.V3_SUBGRAPH_URL ||
-    'http://35.197.14.14:8000/subgraphs/name/sommelier/uniswap-v3-2';
+    'http://localhost:8000/subgraphs/name/sommelier/uniswap-v3';
 const link = new HttpLink({ uri, fetch });
 const cache = new InMemoryCache();
 const client = new ApolloClient({ link, cache });
@@ -34,25 +37,18 @@ const redisConfig = {
 };
 const redis = new Redis(redisConfig);
 
-// cache config
-const cacheTimeoutStr =
-    process.env.CACHE_TIMEOUT_TOP_POOLS ?? (1000 * 60 * 6).toString(); // 6 min
-const cacheTimeoutMs = parseInt(cacheTimeoutStr, 10);
-const network = process.env.CACHE_WARMER_NETWORK ?? 'rinkeby';
 
 // memoizer config
 const memoConfig = {
     lockTimeout: 1000 * 30, // attempt to acquire lock for 30 seconds
     lockRetry: 50, // spin on lock every 50ms
-    ttl: cacheTimeoutMs,
 };
-const memo = memoizer(redis, { keyPrefix: network });
 const v3Fetcher = new UniswapV3Fetcher(sdk);
-const getTopPools = memo(v3Fetcher.getTopPools.bind(v3Fetcher), memoConfig);
-const getPoolOverview = memo(
-    v3Fetcher.getPoolOverview.bind(v3Fetcher),
-    memoConfig
-);
+const getTopPools = v3Fetcher.getTopPools.bind(v3Fetcher);
+
+const bqMemo = memoizer(redis, { ttl: 1000 * 60 * 60 * 1, ...memoConfig }) // 1hr
+const getPeriodIndicators = bqMemo(_getPeriodIndicators);
+const getLastDayOHLC = bqMemo(BitqueryFetcher.getLastDayOHLC.bind(BitqueryFetcher));
 
 // This script is meant to be scheduled and run on an interval by cron.
 // We want to keep the top pools query cache warmed up on mainnet at all times
@@ -63,41 +59,66 @@ const count = 1000;
 const sort = 'volumeUSD';
 
 // number of top pools to keep warm
-const poolCountStr = process.env.TOP_POOL_COUNT ?? '10';
+const poolCountStr = process.env.TOP_POOL_COUNT ?? '40';
 const poolCount = parseInt(poolCountStr, 10);
 
-export default async function run(): Promise<void> {
-    // this function already validates null and length 0 pools
-    // it will also throw on error, so only valid data will be cached
+export async function run(): Promise<void> {
     console.log('Fetching Top Pools and updating cache');
-    console.time('update-top-pools-elapsed');
+    // track token pairs we've warmed
+    const filter: Set<string> = new Set();
 
-    const topPools = await getTopPools.forceUpdate(count, sort);
-    console.timeEnd('update-top-pools-elapsed');
-
-    if (topPools == null) {
-        // we were unable to get a lock, throw and log error
-        throw new Error('Unable to get lock to update top pool');
-    }
-
+    const topPools = await getTopPools(count, sort);
     console.log(`Fetched Top Pools, count: ${topPools.length}`);
 
-    const top = topPools.slice(0, poolCount);
-    const topSymbols = top.map(poolName);
+    const top = topPools.slice(0, poolCount * 5) // get more than we need
+        // filter duplicate token pairs out
+        .filter((pool: any) => {
+            const name = poolId(pool);
+            if (filter.has(name)) {
+                return false;
+            }
 
-    console.log(`Updating pool data for top ${poolCount} pools ${topSymbols}`);
-    for (const pool of top) {
-        const poolId = `${poolName(pool)}-${pool.id}`;
-        console.time(`update-pool-${poolId}-elapsed`);
+            filter.add(name);
+            return true;
+        }).slice(0, poolCount); // get what we need
 
-        // must pass undefined to match signature of original call
-        const result = await getPoolOverview.forceUpdate(pool.id, undefined);
-        console.timeEnd(`update-pool-${poolId}-elapsed`);
+    // chunk pools in groups of 5
+    const chunks = chunk(top, 5);
+    for (const chunk of chunks) {
+        await Promise.all(chunk.map(async (pool) => updatePoolCache(pool)));
+    }
+}
+// this needs to stay in lockstep with the default days for the /marketData/indicators routte
+const periodDaysStr = process.env.PERIOD_DAYS ?? '19';
+const periodDays = parseInt(periodDaysStr, 10);
 
-        if (result == null) {
-            // we were unable to get a lock, log error
-            console.error(`Could not update cache for pool: ${poolId}`);
-        }
+async function updatePoolCache(pool: any) {
+    const name = poolId(pool);
+    // bail if we've already updated market data for this token pair
+
+    const baseToken = pool.token1.id;
+    const quoteToken = pool.token0.id;
+
+    try {
+        console.log(`Fetching Daily: ${name}`)
+        // TODO: remove daily data fetch after client refactor
+        // get daily data
+        await getLastDayOHLC.forceUpdate(baseToken, quoteToken);
+    } catch (error) {
+        console.error(`Unable to update daily data: ${name}: ${error.message ?? ''}`);
+    }
+
+    // calculate period for fetching indicators, must be same as client code
+    const now = new Date();
+    const endDate = endOfDay(now).getTime();
+    const startDate = startOfDay(subDays(now, periodDays)).getTime();
+
+    try {
+        console.log(`Fetching Indicators: ${name}`)
+        await getPeriodIndicators.forceUpdate(baseToken, quoteToken, startDate, endDate);
+    } catch (error) {
+        console.error(`Unable to update indicator data: ${name} - ${error.message ?? ''}`);
+
     }
 }
 
@@ -112,8 +133,30 @@ function poolName(pool: any) {
     return `${token0.symbol || ''}-${token1.symbol || ''}`;
 }
 
-void (async function () {
-    await run();
+function poolId(pool: any) {
+    if (!pool || !pool.token0 || !pool.token1) {
+        console.error(`Could not get pool name for: ${JSON.stringify(pool)}`);
+        return '';
+    }
 
-    process.exit();
-})();
+    const { token0, token1 } = pool;
+    return `${poolName(pool)}-${token0.id.substr(-8)}-${token1.id.substr(-8)}`;
+}
+
+function chunk (a: Array<any>, size: number): Array<Array<any>> {
+    if (Array.length === 0) return [];
+
+    const chunks: Array<Array<any>> = [[]];
+
+    for (const el of a) {
+        let chunk = chunks[chunks.length - 1];
+        if (chunk.length === size) {
+            chunk = [];
+            chunks.push(chunk);
+        }
+
+        chunk.push(el);
+    }
+
+    return chunks;
+}

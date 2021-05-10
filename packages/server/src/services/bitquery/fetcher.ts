@@ -30,7 +30,24 @@ const authMiddleware = new ApolloLink((operation, forward) => {
     return forward(operation);
 })
 
-const cache = new InMemoryCache();
+const cache = new InMemoryCache({
+    typePolicies: {
+        Ethereum: {
+            merge: false,
+        },
+        DexTrade: {
+            keyFields: [
+                'date',
+                'exchangeName',
+                'timeInterval',
+                'baseCurrency',
+                ['address'],
+                'quoteCurrency',
+                ['address'],
+            ]
+        }
+    }
+});
 const client = new ApolloClient({ 
     link: concat(authMiddleware, httpLink), 
     cache 

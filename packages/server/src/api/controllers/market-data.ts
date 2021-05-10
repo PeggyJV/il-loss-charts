@@ -16,7 +16,7 @@ import redis from 'util/redis';
 
 // configure memoizer
 const config = appConfig.memoizerRedis;
-const memoTTLMs = minuteMs * 5
+const memoTTLMs = minuteMs * 5;
 const memoize = memoizer(redis, { ttl: memoTTLMs, enabled: config.enabled });
 
 // GET /pools
@@ -42,7 +42,8 @@ const getIndicatorsValidator = celebrate({
         quoteToken: Joi.string()
             .custom(validateEthAddress, 'Validate Token Address')
             .required(),
-        days: Joi.number().integer().min(1).max(100).default(19),
+        // stay in lockstep with cache warmer, revist when we make this a variable api
+        days: Joi.number().integer().min(19).max(19).default(19),
     }),
 });
 
@@ -70,7 +71,8 @@ async function getPoolWeeklyOHLC(
 
 // GET /marketData/indicators
 const getPeriodIndicators = memoize(_getPeriodIndicators);
-async function _getPeriodIndicators(baseToken: string, quoteToken: string, startDate: number, endDate: number) {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export async function _getPeriodIndicators(baseToken: string, quoteToken: string, startDate: number, endDate: number) {
     const marketData = await BitqueryFetcher.getPeriodDailyOHLC(
         baseToken,
         quoteToken,
@@ -85,8 +87,11 @@ async function _getPeriodIndicators(baseToken: string, quoteToken: string, start
 async function getPoolIndicators(
     req: Request<unknown, unknown, unknown, GetIndicatorsQuery>
 ) {
-    const { baseToken, quoteToken, days } = req.query;
+    const { baseToken, quoteToken } = req.query;
+    // TODO: config
+    const days = 19; // stay in lockstep with cache warmer
 
+    // if this logic changes, we must update the cache warmer worker
     const now = new Date();
     const endDate = endOfDay(now).getTime();
     const startDate = startOfDay(subDays(now, days)).getTime();
@@ -95,7 +100,7 @@ async function getPoolIndicators(
     return result;
 }
 
-const cacheConfig = { maxAge: 15, sMaxAge: memoTTLMs / 1000, public: true, mustRevalidate: true };
+const cacheConfig = { maxAge: 60, sMaxAge: memoTTLMs / 1000, public: true };
 export default Router()
     .get(
         '/daily',

@@ -1,35 +1,36 @@
 version: "3.1"
 services:
-  # nginx:
-  #   image: nginx:latest
-  #   container_name: nginx
-  #   ports:
-  #     - "8000:80"
-  #     - "443"
-  #   volumes:
-  #     - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default
-  #     - ./docker/nginx/nginx.conf:/etc/nginx/sites-available/default
-  #   links:
-  #     - app
-
-  app_dev:
-    image: sommelier_dev
+  somm_app:
+    image: somm_app
     build: .
-    container_name: sommelier_app_dev
+    container_name: somm_app
     links:
-      - redis_dev
+      - redis_app
     ports:
       - "4000:4000"
     env_file: ./.env
     environment:
       - PORT=4000
-      - REDIS_URL=cache_dev
+      - REDIS_URL=redis_app
       - REDIS_PORT=6380
-      - NODE_ENV=staging
 
-  redis_dev:
+  somm_worker:
+    image: somm_app
+    build: .
+    container_name: somm_worker
+    command: ["pm2-runtime", "packages/workers/dist/scheduler.js"]
+    links:
+      - redis_app
+    env_file: ./.env
+    environment:
+      - REDIS_URL=redis_app
+      - REDIS_PORT=6380
+      - WORKER_CACHE_WARMER=true
+      - WORKER_CACHE_WARMER_CRON="*/5 * * * *"
+
+  redis_app:
     image: redis:alpine
-    container_name: cache_dev
-    command: ["redis-server", "--bind", "redis_dev", "--port", "6380"]
+    container_name: redis_app
+    command: ["redis-server", "--bind", "redis_app", "--port", "6380"]
     ports:
       - "6380:6380"

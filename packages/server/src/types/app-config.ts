@@ -1,6 +1,9 @@
 export type Environments = 'production' | 'development' | 'test' | 'staging';
 
 export default interface AppConfig {
+    server: {
+        host: string,
+    },
     redis: {
         host: string,
         port: number,

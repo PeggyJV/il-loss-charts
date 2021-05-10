@@ -9,6 +9,7 @@ export type CacheControl = {
     maxAge?: number, // seconds
     sMaxAge?: number,
     mustRevalidate?: boolean,
+    proxyRevalidate?: boolean,
 }
 
 export function setCacheControl(res: Response, options: CacheControl): void {
@@ -26,10 +27,11 @@ const optionToName: Record<string, string> = {
     maxAge: 'max-age',
     sMaxAge: 's-maxage',
     mustRevalidate: 'must-revalidate',
+    proxyRevalidate: 'proxy-revalidate',
 };
 
 const validCacheability: Array<keyof CacheControl> = ['public', 'noStore'];
-const validDirectives: Array<keyof CacheControl> = ['maxAge', 'sMaxAge', 'mustRevalidate'];
+const validDirectives: Array<keyof CacheControl> = ['maxAge', 'sMaxAge', 'mustRevalidate', 'proxyRevalidate'];
 
 export function makeDirective(options: CacheControl): string | undefined {
     const keys = Object.keys(options);

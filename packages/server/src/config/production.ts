@@ -2,6 +2,9 @@ import AppConfig from 'types/app-config';
 import { RecursivePartial } from 'types/shared';
 
 const config: RecursivePartial<AppConfig> = {
+    server: {
+        host: 'https://app.sommelier.finance',
+    },
     redis: {
         host: '10.5.80.12',
         port: 6379
