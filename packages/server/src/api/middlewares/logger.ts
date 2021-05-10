@@ -76,7 +76,7 @@ function jsonFormat(tokens: Tokens, req: Request, res: Response): string {
     const statusNum = Number.isNaN(status) ? -1 : status;
 
     const length = parseInt(res.get('content-length'), 10);
-    const contentLength = Number.isNaN(length) ? length : tokens['res'](req, res, 'content-length');
+    const contentLength = Number.isNaN(length) ? tokens['res'](req, res, 'content-length') : length;
 
 
     return JSON.stringify({
