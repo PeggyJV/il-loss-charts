@@ -46,8 +46,7 @@ export function errorHandler(
     // handle express http errors
     // TODO [http-errors@>=1.8.0]: use createError.isHttpError(err);
     else if (typeof (err as any).status === 'number' || typeof (err as any).statusCode === 'number') {
-        // pass to default error handler
-        next(err);
+        res.status((err as any).status ?? (err as any).statusCode).json({ error: err.message });
     }
 
     // all other errors should be a 500
@@ -56,5 +55,7 @@ export function errorHandler(
 
         // let us know about these 500s
         console.warn(`Internal Server Error: ${err.stack ?? err.message}`);
+
+        // stack trace to sentry
     }
 }
