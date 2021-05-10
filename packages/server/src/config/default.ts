@@ -1,6 +1,9 @@
 import AppConfig from 'types/app-config';
 
 const config: AppConfig = {
+    server: {
+        host: 'http://localhost:3000',
+    },
     redis: {
         host: process.env.REDIS_URL || '127.0.0.1',
         port: process.env.REDIS_PORT

@@ -3,6 +3,9 @@ import AppConfig from 'types/app-config';
 import { RecursivePartial } from 'types/shared';
 
 const config: RecursivePartial<AppConfig> = {
+    server: {
+        host: 'https://dev.sommelier.finance',
+    },
     uniswap: {
         v3: {
             networks: {

@@ -1,5 +1,14 @@
 import { Request, Response } from 'express';
+import { URL } from 'url';
 import morgan, { TokenIndexer, } from 'morgan';
+
+import config from 'config';
+
+const { host } = config.server;
+
+morgan.token('pathname', function getPathname(req: Request): string {
+    return new URL(req.originalUrl, host).pathname;
+});
 
 morgan.token('cdn-id', function getCdnStatus(req: Request): string {
     const [id] = getCdnHeader(req);
@@ -29,12 +38,12 @@ morgan.token('lb-ip', function getLbIp(req: Request): string {
 });
 
 morgan.token('geo', function getGeo(req: Request): string {
-    return req.header('X-Client-Geo') ?? '-';
+    return req.get('X-Client-Geo') ?? '-';
 });
 
 const traceHeader = 'X-Cloud-Trace-Context';
 morgan.token('trace-context', function getTraceContext(req: Request): string {
-    return req.header(traceHeader) ?? '-';
+    return req.get(traceHeader) ?? '-';
 });
 
 morgan.token('instance-id', function getInstanceId(): string {
@@ -45,22 +54,38 @@ morgan.token('instance-id', function getInstanceId(): string {
 type Tokens = TokenIndexer<Request, Response>;
 
 function getForwardedFor(req: Request) {
-    const forwarded = req.header('X-Forwarded-For') ?? '-';
+    const forwarded = req.get('X-Forwarded-For') ?? '-';
     return forwarded.split(',');
 }
 
 function getCdnHeader(req: Request) {
-    const status = req.header('X-Cdn-Status') ?? '-';
+    const status = req.get('X-Cdn-Status') ?? '-';
     return status.split(',');
 }
 
+const floatRex = /^(\d|\.)+$/;
 function jsonFormat(tokens: Tokens, req: Request, res: Response): string {
+    // token getters are only valid for strings
+    // convert response time to a number for datadog
+    const responseTime = tokens['response-time'](req, res) ?? '-1';
+    // parseFloat will convert '123nan' -> 123
+    const responseTimeMs = floatRex.test(responseTime) ? parseFloat(responseTime) : -1;
+
+    // convert status to a number
+    const status = parseInt(tokens['status'](req, res) ?? '-1', 10);
+    const statusNum = Number.isNaN(status) ? -1 : status;
+
+    const length = parseInt(res.get('content-length'), 10);
+    const contentLength = Number.isNaN(length) ? length : tokens['res'](req, res, 'content-length');
+
+
     return JSON.stringify({
         'method': tokens['method'](req, res),
-        'path': tokens['url'](req, res),
-        'status': tokens['status'](req, res),
-        'responseTime': tokens['response-time'](req, res),
-        'contentLength': tokens['res'](req, res, 'content-length'),
+        'path': tokens['pathname'](req, res),
+        'query': req.query,
+        'status': statusNum,
+        'responseTime': responseTimeMs,
+        'contentLength': contentLength,
         'clientIp': tokens['client-ip'](req, res),
         'userAgent': tokens['user-agent'](req, res),
         'referrer': tokens['referrer'](req, res),
@@ -83,7 +108,7 @@ let count = 1;
 
 function skip(req: Request): boolean {
     // skip healthchecks from google only, lb hc requests wont have trace context headers
-    const trace = req.header(traceHeader);
+    const trace = req.get(traceHeader);
     if (req.url === hcRoute && trace == null) {
         // log once a minute
         if (count === maxCount) {
