@@ -76,9 +76,20 @@ function jsonFormat(tokens: Tokens, req: Request, res: Response): string {
 
 const hcRoute = '/api/v1/healthcheck';
 
+let count = 0;
 function skip(req: Request): boolean {
     // skip healthchecks from google only, lb hc requests wont have trace context headers
-    if (req.url === hcRoute && req.header(traceHeader) === '-') { return true; }
+    if (req.url === hcRoute && req.header(traceHeader) === '-') {
+        // log once a minute
+        // TODO: configure
+        if (count > 6) {
+            count = 0;
+            return false;
+        }
+        count = count = 1;
+        return true;
+    }
+
     return false;
 }
 
