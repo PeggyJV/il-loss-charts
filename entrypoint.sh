@@ -19,5 +19,6 @@ mkdir -p /var/log/app
 touch "$APP_LOG"
 touch "$APP_ERR_LOG"
 
+/bin/bash /dd-agent-install.sh
 /bin/bash /dd-agent-init-v2.sh
 pm2-runtime ecosystem.config.js --only app-server
