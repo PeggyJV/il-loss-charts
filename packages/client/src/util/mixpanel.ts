@@ -35,20 +35,24 @@ class MixpanelWrapper {
     }
 }
 
-const mixpanel = new MixpanelWrapper();
-export default mixpanel;
+const mix = new MixpanelWrapper();
+export default mix;
 
 export function trackPoolSelected(pool: PoolLike) {
-    mixpanel.track('pool:selected', {
+    mix.track('pool:selected', {
         name: poolName(pool),
     })
 }
 
 export function trackSentimentInteraction(pool: PoolLike, sentiment: Sentiment) {
-    mixpanel.track('pool:sentiment-selected', {
+    mix.track('pool:sentiment-selected', {
         name: poolName(pool),
         sentiment,
     })
+}
+
+export function trackPoolSearch() {
+    mix.track('pool:search-started', {})
 }
 
 function poolName(pool: PoolLike): string {
