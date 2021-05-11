@@ -10,9 +10,12 @@ export ALCHEMY_API_KEY=$(gcloud secrets versions access latest --secret=ALCHEMY_
 export TELEGRAM_BOT_TOKEN=$(gcloud secrets versions access latest --secret=TELEGRAM_BOT_TOKEN)
 export DISCORD_BOT_TOKEN=$(gcloud secrets versions access latest --secret=DISCORD_BOT_TOKEN)
 export ETHPLORER_API_KEY=$(gcloud secrets versions access latest --secret=ETHPLORER_API_KEY)
-export BITQUERY_API_KEY=$(gcloud secrets versions access latest --secret=BITQUERY_API_KEY)
+export BITQUERY_API_KEY=$(gcloud secrets versions access latest --secret=APP_PROD_BITQUERY_API_KEY)
 
 export REDIS_AUTH=$(gcloud secrets versions access latest --secret=REDIS_AUTH)
+export REDIS_URL=$(gcloud secrets versions access latest --secret=APP_PROD_REDIS_URL)
+
+export V3_SUBGRAPH_URL=$(gcloud secrets versions access latest --secret=APP_PROD_V3_SUBGRAPH_URL)
 
 mkdir -p /var/log/app
 

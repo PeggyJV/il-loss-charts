@@ -12,9 +12,11 @@ export DISCORD_BOT_TOKEN=$(gcloud secrets versions access latest --secret=DISCOR
 export ETHPLORER_API_KEY=$(gcloud secrets versions access latest --secret=ETHPLORER_KEY)
 export MIXPANEL_SECRET=$(gcloud secrets versions access latest --secret=MIXPANEL_SECRET)
 export SOMM_STATS_BOT_TOKEN=$(gcloud secrets versions access latest --secret=SOMM_STATS_BOT_TOKEN)
+export BITQUERY_API_KEY=$(gcloud secrets versions access latest --secret=APP_PROD_BITQUERY_API_KEY)
 
 export REDIS_AUTH=$(gcloud secrets versions access latest --secret=REDIS_AUTH)
 export REDIS_URL=$(gcloud secrets versions access latest --secret=APP_PROD_REDIS_URL)
+
 export V3_SUBGRAPH_URL=$(gcloud secrets versions access latest --secret=APP_PROD_V3_SUBGRAPH_URL)
 
 mkdir -p /var/log/app
