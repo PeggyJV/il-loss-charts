@@ -20,5 +20,5 @@ mkdir -p /var/log/app
 touch "$APP_LOG"
 touch "$APP_ERR_LOG"
 
-/bin/bash /dd-agent-init-v2.sh
+/bin/bash /dd-agent-init.sh
 pm2-runtime /app/il-loss-charts/ecosystem.config.js --only app-worker
