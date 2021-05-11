@@ -6,13 +6,15 @@ WORKDIR /app
 RUN apt-get update
 RUN apt-get install -y vim
 
-COPY ./etc /etc
 # Datadog Agent
-# RUN chmod +x /etc/dd-agent-init-v2.sh
-# RUN chmod +x /etc/dd-agent-install.sh
-# RUN /etc/dd-agent-install.sh
-# ENV APP_LOG="/var/log/app/out.log"
-# ENV APP_ERR_LOG="/var/log/app/err.log"
+# COPY ./etc /etc
+# COPY ./etc/dd-agent-install.sh /
+# COPY ./etc/dd-agent-init-v2.sh /
+# RUN /bin/bash /dd-agent-install.sh
+
+# Set nodejs app log paths
+ENV APP_LOG="/var/log/app/out.log"
+ENV APP_ERR_LOG="/var/log/app/err.log"
 
 RUN yarn global add lerna
 RUN yarn global add pm2

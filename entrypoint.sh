@@ -16,10 +16,8 @@ export REDIS_AUTH=$(gcloud secrets versions access latest --secret=REDIS_AUTH)
 
 mkdir -p /var/log/app
 
-if [[ -f "$APP_LOG" ]]; then
-  touch "$APP_LOG"
-  touch "$APP_ERR_LOG"
-fi
+touch "$APP_LOG"
+touch "$APP_ERR_LOG"
 
 /dd-agent-init-v2.sh
 pm2-runtime ecosystem.config.js --only app-server
