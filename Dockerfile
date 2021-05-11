@@ -6,6 +6,14 @@ WORKDIR /app
 RUN apt-get update
 RUN apt-get install -y vim
 
+COPY ./etc /etc
+# Datadog Agent
+# RUN chmod +x /etc/dd-agent-init-v2.sh
+# RUN chmod +x /etc/dd-agent-install.sh
+# RUN /etc/dd-agent-install.sh
+# ENV APP_LOG="/var/log/app/out.log"
+# ENV APP_ERR_LOG="/var/log/app/err.log"
+
 RUN yarn global add lerna
 RUN yarn global add pm2
 
@@ -34,4 +42,4 @@ RUN yarn build
 EXPOSE 3001
 
 WORKDIR /app
-CMD ["yarn", "prod"]
+CMD ["sh"]
