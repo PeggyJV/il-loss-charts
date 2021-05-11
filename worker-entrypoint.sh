@@ -15,4 +15,10 @@ export SOMM_STATS_BOT_TOKEN=$(gcloud secrets versions access latest --secret=SOM
 
 export REDIS_AUTH=$(gcloud secrets versions access latest --secret=REDIS_AUTH)
 
-pm2-runtime packages/workers/dist/scheduler.js
+mkdir -p /var/log/app
+
+touch "$APP_LOG"
+touch "$APP_ERR_LOG"
+
+/bin/bash /dd-agent-init-v2.sh
+pm2-runtime ecosystem.config.js --only app-worker

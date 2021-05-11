@@ -125,3 +125,6 @@ dist
 
 # JetBrains IDE files
 .idea
+
+# cloudbuild
+/etc

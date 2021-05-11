@@ -4,6 +4,9 @@ services:
     image: somm_app
     build: .
     container_name: somm_app
+    # Run with datadog agent
+    # entrypoint: ["/app/entrypoint.sh"]
+    command: ["pm2-runtime", "packages/server/dist/index.js"]
     links:
       - redis_app
     ports:
@@ -18,6 +21,8 @@ services:
     image: somm_app
     build: .
     container_name: somm_worker
+    # Run with datadog agent
+    # entrypoint: ["/app/worker-entrypoint.sh"]
     command: ["pm2-runtime", "packages/workers/dist/scheduler.js"]
     links:
       - redis_app
