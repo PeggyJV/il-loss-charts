@@ -8,6 +8,8 @@ const config: RecursivePartial<AppConfig> = {
     redis: {
         host: '10.5.80.12',
         port: 6379,
+        db: 0,
+        password: process.env.REDIS_AUTH ?? '',
     },
     uniswap: {
         v3: {
