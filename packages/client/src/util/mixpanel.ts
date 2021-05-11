@@ -1,5 +1,9 @@
 import mixpanel from 'mixpanel-browser';
 
+import { poolSymbol, PoolLike } from 'util/formats';
+
+import type { Sentiment } from 'components/add-liquidity/add-liquidity-v3';
+
 type TrackingArgs = [string, any];
 
 class MixpanelWrapper {
@@ -31,4 +35,23 @@ class MixpanelWrapper {
     }
 }
 
-export default new MixpanelWrapper();
+const mixpanel = new MixpanelWrapper();
+export default mixpanel;
+
+export function trackPoolSelected(pool: PoolLike) {
+    mixpanel.track('pool:selected', {
+        name: poolName(pool),
+    })
+}
+
+export function trackSentimentInteraction(pool: PoolLike, sentiment: Sentiment) {
+    mixpanel.track('pool:sentiment-selected', {
+        name: poolName(pool),
+        sentiment,
+    })
+}
+
+function poolName(pool: PoolLike): string {
+    // Warning, changing the name in the future will affect mixpanel analytics
+    return poolSymbol(pool, '-');
+}

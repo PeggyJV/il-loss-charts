@@ -35,6 +35,7 @@ import { LiquidityActionButton } from 'components/add-liquidity/liquidity-action
 import { EthGasPrices, LiquidityBand } from '@sommelier/shared-types';
 import { PoolOverview } from 'hooks/data-fetchers';
 import { debug } from 'util/debug';
+import { trackSentimentInteraction } from 'util/mixpanel';
 import classNames from 'classnames';
 
 type Props = {
@@ -1494,7 +1495,10 @@ export const AddLiquidityV3 = ({
                             'sentiment-button': true,
                             active: sentiment === 'bearish',
                         })}
-                        onClick={() => setSentiment('bearish')}
+                        onClick={() => {
+                            setSentiment('bearish')
+                            trackSentimentInteraction(pool, 'bearish');
+                        }}
                     >
                         📉 Bearish
                     </div>
@@ -1503,7 +1507,10 @@ export const AddLiquidityV3 = ({
                             'sentiment-button': true,
                             active: sentiment === 'neutral',
                         })}
-                        onClick={() => setSentiment('neutral')}
+                        onClick={() => {
+                            setSentiment('neutral')
+                            trackSentimentInteraction(pool, 'neutral');
+                        }}
                     >
                         Neutral
                     </div>
@@ -1512,7 +1519,10 @@ export const AddLiquidityV3 = ({
                             'sentiment-button': true,
                             active: sentiment === 'bullish',
                         })}
-                        onClick={() => setSentiment('bullish')}
+                        onClick={() => {
+                            setSentiment('bullish')
+                            trackSentimentInteraction(pool, 'bullish');
+                        }}
                     >
                         📈 Bullish
                     </div>

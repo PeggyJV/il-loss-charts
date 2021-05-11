@@ -1,7 +1,7 @@
 # Dockerfile, not used for production
 FROM node:14
 
-WORKDIR /app/il-loss-charts
+WORKDIR /app
 
 RUN apt-get update
 RUN apt-get install -y vim
@@ -24,6 +24,8 @@ COPY packages/sommelier-types/package.json /app/il-loss-charts/packages/sommelie
 COPY packages/server/package.json /app/il-loss-charts/packages/server/package.json
 COPY packages/workers/package.json /app/il-loss-charts/packages/workers/package.json
 COPY packages/client/package.json /app/il-loss-charts/packages/client/package.json
+
+WORKDIR /app/il-loss-charts
 
 RUN yarn install --frozen-lockfile --non-interactive --silent --production=false
 
