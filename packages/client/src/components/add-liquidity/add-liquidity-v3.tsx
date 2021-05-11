@@ -10,6 +10,7 @@ import {
     Position,
     priceToClosestTick,
     tickToPrice,
+    TickMath
 } from '@uniswap/v3-sdk';
 import { resolveLogo } from 'components/token-with-logo';
 import { TokenWithBalance } from 'components/token-with-balance';
@@ -254,29 +255,40 @@ export const AddLiquidityV3 = ({
         const indicator = indicators[SELECTED_INDICATOR_NAME];
         const [lowerBound, upperBound] = indicator.bounds[sentiment];
 
-        const lowerBoundNumerator = ethers.utils
-            .parseUnits(
-                new BigNumber(lowerBound).toFixed(baseTokenCurrency.decimals),
-                baseTokenCurrency.decimals
-            )
-            .toString();
+        debug.lowerBound = lowerBound;
+        debug.upperBound = upperBound;
 
-        const lowerBoundDenominator = ethers.utils
-            .parseUnits('1', quoteTokenCurrency.decimals)
-            .toString();
+        let lowerBoundTick: number;
 
-        // Convert to lower tick and upper ticks
-        const lowerBoundPrice = new Price(
-            baseTokenCurrency,
-            quoteTokenCurrency,
-            lowerBoundNumerator,
-            lowerBoundDenominator
-        );
-
-        (window as any).lowerBoundPrice = lowerBoundPrice;
-
-        let lowerBoundTick = priceToClosestTick(lowerBoundPrice);
-        lowerBoundTick -= lowerBoundTick % uniPool.tickSpacing;
+        if (lowerBound > 0) {    
+            const lowerBoundNumerator = ethers.utils
+                .parseUnits(
+                    new BigNumber(lowerBound).toFixed(
+                        baseTokenCurrency.decimals
+                    ),
+                    baseTokenCurrency.decimals
+                )
+                .toString();
+    
+            const lowerBoundDenominator = ethers.utils
+                .parseUnits('1', quoteTokenCurrency.decimals)
+                .toString();
+    
+            // Convert to lower tick and upper ticks
+            const lowerBoundPrice = new Price(
+                baseTokenCurrency,
+                quoteTokenCurrency,
+                lowerBoundNumerator,
+                lowerBoundDenominator
+            );
+    
+            (window as any).lowerBoundPrice = lowerBoundPrice;
+    
+            lowerBoundTick = priceToClosestTick(lowerBoundPrice);
+            lowerBoundTick -= lowerBoundTick % uniPool.tickSpacing;
+        } else {
+            lowerBoundTick = TickMath.MIN_TICK;
+        }
 
         const upperBoundNumerator = ethers.utils
             .parseUnits(
