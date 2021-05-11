@@ -52,7 +52,7 @@ type BoundsState = {
 
 export type Sentiment = 'bullish' | 'bearish' | 'neutral';
 
-const ETH_ID = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+const ETH_ID = config.ethAddress;
 
 export const AddLiquidityV3 = ({
     pool,

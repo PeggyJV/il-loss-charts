@@ -1,4 +1,5 @@
 import { IUniswapPair } from '@sommelier/shared-types';
+import config from 'config';
 
 import logoMappings from 'constants/trustwallet-mappings.json';
 import { Pair } from 'constants/prop-types';
@@ -38,6 +39,16 @@ function TokenWithLogo(side: 'left' | 'right'): ({ item: pair }: { item: IUniswa
 TokenWithLogo.displayName = 'TokenWithLogo';
 
 export function resolveLogo(addressLower?: string): JSX.Element {
+    if (addressLower?.toLowerCase() === config.ethAddress.toLowerCase()) {
+        // Show ETH logo
+        const imgUrl = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png`;
+        return (
+            <span>
+                <img src={imgUrl} alt='🍇' />
+            </span>
+        );
+    }
+
     let address: string | undefined = undefined;
 
     if (addressLower && addressLower in logoMappings) {

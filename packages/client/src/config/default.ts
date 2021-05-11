@@ -34,6 +34,7 @@ const config: AppConfig = {
             name: 'kovan',
         },
     },
+    ethAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 };
 
 export default config;
