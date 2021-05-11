@@ -10,6 +10,7 @@ const config: AppConfig = {
             ? parseInt(process.env.REDIS_PORT, 10)
             : 6379,
         db: 0,
+        password: process.env.REDIS_AUTH ?? '',
     },
     memoizerRedis: {
         enabled: true,

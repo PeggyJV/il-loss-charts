@@ -14,6 +14,8 @@ export MIXPANEL_SECRET=$(gcloud secrets versions access latest --secret=MIXPANEL
 export SOMM_STATS_BOT_TOKEN=$(gcloud secrets versions access latest --secret=SOMM_STATS_BOT_TOKEN)
 
 export REDIS_AUTH=$(gcloud secrets versions access latest --secret=REDIS_AUTH)
+export REDIS_URL=$(gcloud secrets versions access latest --secret=APP_PROD_REDIS_URL)
+export V3_SUBGRAPH_URL=$(gcloud secrets versions access latest --secret=APP_PROD_V3_SUBGRAPH_URL)
 
 mkdir -p /var/log/app
 
