@@ -7,7 +7,7 @@ const config: RecursivePartial<AppConfig> = {
     },
     redis: {
         host: '10.5.80.12',
-        port: 6379
+        port: 6379,
     },
     uniswap: {
         v3: {

@@ -30,11 +30,15 @@ const sdk = apolloClients.getUniswapV3Sdk(client);
 // configure redis
 const redisPort = process.env.REDIS_PORT ?? '6379';
 const redisDb = process.env.REDIS_DB ?? '0';
-const redisConfig = {
+const redisPw = process.env.REDIS_AUTH ?? '';
+let redisConfig: Record<string, any> = {
     host: process.env.REDIS_URL ?? '127.0.0.1',
     port: parseInt(redisPort, 10),
     db: parseInt(redisDb, 10),
 };
+if (redisPw != null && redisPw.length > 0) {
+    redisConfig = { ...redisConfig, password: redisPw };
+}
 const redis = new Redis(redisConfig);
 
 

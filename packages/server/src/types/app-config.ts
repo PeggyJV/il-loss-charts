@@ -8,6 +8,7 @@ export default interface AppConfig {
         host: string,
         port: number,
         db: number,
+        password: string,
     },
     memoizerRedis: {
         enabled: boolean,
