@@ -1,6 +1,7 @@
 import mixpanel from 'mixpanel-browser';
 
 import { poolSymbol, PoolLike } from 'util/formats';
+import { BoundsState, TokenAmount } from 'types/states';
 
 import type { Sentiment } from 'components/add-liquidity/add-liquidity-v3';
 
@@ -38,20 +39,30 @@ class MixpanelWrapper {
 const mix = new MixpanelWrapper();
 export default mix;
 
-export function trackPoolSelected(pool: PoolLike) {
+export function trackPoolSelected(pool: PoolLike): void {
     mix.track('pool:selected', {
         name: poolName(pool),
     })
 }
 
-export function trackSentimentInteraction(pool: PoolLike, sentiment: Sentiment) {
+export function trackSentimentInteraction(pool: PoolLike, sentiment: Sentiment): void {
     mix.track('pool:sentiment-selected', {
         name: poolName(pool),
         sentiment,
     })
 }
 
-export function trackPoolSearch() {
+export function trackAddLiquidityTx(pool: PoolLike, sentiment: Sentiment, bounds: BoundsState, type: string, amounts: Record<string, TokenAmount>): void {
+    mix.track('pool:add-liquidity', {
+        name: poolName(pool),
+        type,
+        sentiment,
+        bounds: { prices: bounds.prices, ticks: bounds.ticks },
+        amounts
+    })
+}
+
+export function trackPoolSearch(): void {
     mix.track('pool:search-started', {})
 }
 
