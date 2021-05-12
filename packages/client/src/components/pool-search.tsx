@@ -66,7 +66,7 @@ export function PoolSearch({
     };
 
     return (
-        <Box>
+        <Box flexGrow='1'>
             <Autocomplete
                 id='all-pairs'
                 options={pools}

@@ -23,7 +23,7 @@ import { LiquidityContext } from 'containers/liquidity-container';
 import { TokenInput } from 'components/token-input';
 import { toastSuccess, toastWarn, toastError } from 'util/toasters';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faBan } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faBan, faExchangeAlt } from '@fortawesome/free-solid-svg-icons';
 import { ThreeDots } from 'react-loading-icons';
 import { compactHash } from 'util/formats';
 import { WalletBalances } from 'types/states';
@@ -70,7 +70,7 @@ export const AddLiquidityV3 = ({
         status: boolean;
         message?: JSX.Element;
     }>({ status: false, message: <p>Warning placeholder</p> });
-
+    const [isFlipped, setIsFlipped] = useState<boolean>(false);
     // State here is used to compute what tokens are being used to add liquidity with.
     const initialState: Record<string, any> = {
         [token0Symbol]: {
@@ -1067,7 +1067,9 @@ export const AddLiquidityV3 = ({
                                 }}
                             >
                                 <FontAwesomeIcon
-                                    icon={isToken0Disabled ?faBan : faCheckCircle}
+                                    icon={
+                                        isToken0Disabled ? faBan : faCheckCircle
+                                    }
                                 />
                             </button>
                             <div style={{ flexGrow: 1 }}>
@@ -1141,7 +1143,11 @@ export const AddLiquidityV3 = ({
                                     });
                                 }}
                             >
-                                <FontAwesomeIcon icon={isToken1Disabled ? faBan : faCheckCircle} />
+                                <FontAwesomeIcon
+                                    icon={
+                                        isToken1Disabled ? faBan : faCheckCircle
+                                    }
+                                />
                             </button>
                             <div style={{ flexGrow: 1 }}>
                                 <TokenWithBalance
@@ -1227,8 +1233,23 @@ export const AddLiquidityV3 = ({
                         <div>Current Price</div>
                         <div>
                             <span className='face-deep'>
-                                {currentPrice} {pool.token0.symbol} per{' '}
-                                {pool.token1.symbol}
+                                {isFlipped ? 1 / currentPrice : currentPrice}{' '}
+                                {isFlipped
+                                    ? pool.token1.symbol
+                                    : pool.token0.symbol}
+                                <span
+                                    onClick={() => setIsFlipped(!isFlipped)}
+                                    style={{
+                                        cursor: 'pointer',
+                                        color: 'var(--objAccentAlt)',
+                                        padding: '0.5rem'
+                                    }}
+                                >
+                                    <FontAwesomeIcon icon={faExchangeAlt} />
+                                </span>
+                                {isFlipped
+                                    ? pool.token0.symbol
+                                    : pool.token1.symbol}
                             </span>
                         </div>
                     </Box>
@@ -1239,7 +1260,7 @@ export const AddLiquidityV3 = ({
                                 {pendingBounds ? (
                                     <ThreeDots width='24px' height='10px' />
                                 ) : (
-                                    `${bounds.prices[0]} to ${bounds.prices[1]}`
+                                    isFlipped ? `${1 / bounds.prices[0]} t0 ${1 / bounds.prices[0]}` : `${bounds.prices[0]} to ${bounds.prices[1]}`
                                 )}
                             </span>
                         </div>

@@ -57,12 +57,15 @@ const SearchHeader = ({
                 alignItems='center'
                 className='search-header'
             >
-                <div style={{fontSize: '1', color: 'var(--faceDeep)'}}>{'Search Pairings'}</div>
-                <div className='transaction-settings'>
-                    <FontAwesomeIcon icon={faCog} />
+                <div style={{ fontSize: '1', color: 'var(--faceDeep)' }}>
+                    {'Search Pairings'}
                 </div>
+                &nbsp;
+                <PoolSearch setPoolId={setPoolId} />
+                {/* <div className='transaction-settings'>
+                    <FontAwesomeIcon icon={faCog} />
+                </div> */}
             </Box>
-            <PoolSearch setPoolId={setPoolId} />
         </>
     );
 };

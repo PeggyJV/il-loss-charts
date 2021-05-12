@@ -5,7 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@100;400;600&family=Source+Sans+Pro&display=swap');
 
 html {
-    font-size: 16px;
+    font-size: 13px;
 }
 
 body {
@@ -204,12 +204,17 @@ p {
     background: linear-gradient(
         153deg,
         rgba(33, 1, 58, 0.9066001400560224) 29%,
-        rgba(13, 131, 167, 0.8953956582633054) 70%,
-        rgba(148, 4, 152, 0.8785889355742297) 98%
+        rgba(13, 131, 167, 0.8953956582633054) 60%,
+        rgba(87, 4, 113, 0.8785889355742297) 78%
     );
+    // background: linear-gradient(
+    //     153deg,
+    //     rgba(33, 1, 58, 0.9066) 29%,
+    //     rgb(13 131 167 / 50%) 54%,
+    //     rgb(82 2 84 / 88%) 78%
+    // );
 
     // , rgb(53 1 93 / 91%) 29%, rgb(13 131 167 / 90%) 70%, rgb(148 4 152 / 88%) 98%);
-
 }
 
 .app-body {

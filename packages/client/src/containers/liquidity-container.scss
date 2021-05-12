@@ -1,5 +1,5 @@
 .liquidity-container {
-    width: 650px;
+    min-width: 550px;
     // background: radial-gradient(var(--bgDefault), var(--bgPrimary));
     background: linear-gradient(142deg, var(--bgDefault), var(--bgPrimary));
     border: 1px solid var(--borderDefault);
@@ -8,9 +8,6 @@
     border-radius: 16px;
     > div {
         padding: 1.25rem 1rem;
-    }
-    > div:first-child {
-      border-bottom: 1px solid var(--borderDefault);
     }
 }
 
