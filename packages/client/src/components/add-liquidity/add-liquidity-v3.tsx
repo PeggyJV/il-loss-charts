@@ -863,7 +863,7 @@ export const AddLiquidityV3 = ({
 
                 // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
                 approvalEstimate = approvalEstimate.add(
-                    approvalEstimate
+                    approvalEstimate.div(3)
                 );
             } catch (err) {
                 // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
@@ -1123,7 +1123,7 @@ export const AddLiquidityV3 = ({
 
                 // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
                 approvalEstimate = approvalEstimate.add(
-                    approvalEstimate
+                    approvalEstimate.div(3)
                 );
             } catch (err) {
                 // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
