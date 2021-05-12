@@ -1,6 +1,8 @@
 import { LiquidityBand } from '@sommelier/shared-types';
 import { DexTrade } from 'services/bitquery/generated-types';
 
+const pos = (val: number) => Math.max(0, val);
+
 export function getAllIndicators(marketData: DexTrade[]): { [indicatorName: string]: LiquidityBand } {
     return {
         bollingerSMANormalBand: { 
@@ -9,7 +11,7 @@ export function getAllIndicators(marketData: DexTrade[]): { [indicatorName: stri
         },
         bollingerSMAWideBand: {
             ...getSMABollingerBands(marketData, 2.5), 
-            indicatorName: 'bollingerSMANormalBand'
+            indicatorName: 'bollingerSMAWideBand'
         },
         bollingerEMANormalBand: {
             ...getEMABollingerBands(marketData),
@@ -17,7 +19,7 @@ export function getAllIndicators(marketData: DexTrade[]): { [indicatorName: stri
         },
         bollingerEMAWideBand: {
             ...getEMABollingerBands(marketData, 2.5),
-            indicatorName: 'bollingerEMANormalBand'
+            indicatorName: 'bollingerEMAWideBand'
         }
     }
 }
@@ -34,9 +36,9 @@ export function getEMABollingerBands(marketData: DexTrade[], numStdDevs = 2): Li
         indicatorName: 'BollingerBand',
         currentPrice: marketData[0].quotePrice,
         bounds: {
-            bullish: [ma - boundTerm, ma + (boundTerm * 1.5)],
-            neutral: [ma - boundTerm, ma + boundTerm],
-            bearish: [ma - (boundTerm * 1.5), ma + boundTerm],
+            bullish: [pos(ma - boundTerm), ma + (boundTerm * 1.5)],
+            neutral: [pos(ma - boundTerm), ma + boundTerm],
+            bearish: [pos(ma - (boundTerm * 1.5)), ma + boundTerm],
         }
     };
 }
@@ -53,9 +55,9 @@ export function getSMABollingerBands(marketData: DexTrade[], numStdDevs = 2): Li
         indicatorName: 'BollingerBand',
         currentPrice: marketData[0].quotePrice,
         bounds: {
-            bullish: [ma - boundTerm, ma + (boundTerm * 1.5)],
-            neutral: [ma - boundTerm, ma + boundTerm],
-            bearish: [ma - (boundTerm * 1.5), ma + boundTerm],
+            bullish: [pos(ma - boundTerm), ma + (boundTerm * 1.5)],
+            neutral: [pos(ma - boundTerm), ma + boundTerm],
+            bearish: [pos(ma - (boundTerm * 1.5)), ma + boundTerm],
         }
     };
 }
