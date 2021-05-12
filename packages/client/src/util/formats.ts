@@ -11,6 +11,9 @@ const usdFormatter = new Intl.NumberFormat('en-US', {
 
 export const formatUSD = (val: string | number): string => usdFormatter.format(parseFloat(val.toString()));
 
+export const formatAddress = (val: string): string => {
+    return `${val.substring(0,6)}...${val.substring(val.length - 5)}`
+}
 export const compactHash = (val = ''): string => {
     if(val.length !== 66){
         return val.substring(0, 6).concat('... ');
