@@ -86,68 +86,62 @@ const TransactionSettings = ({
     const isFastestActive = selectedGasPrice === GasPriceSelection.Fastest;
 
     return (
-        <>
+        <div style={{ padding: '1rem', paddingTop: '0' }}>
+            <p style={{ marginBottom: '1rem' }}>Select Transaction Speed</p>
             {setSelectedGasPrice && (
                 <Box
                     display='flex'
                     alignItems='center'
                     justifyContent='space-between'
+                    className='transaction-speed'
                 >
-                    <div>Speed</div>
-                    <div className='transaction-speed'>
-                        <div
-                            className={classNames({ active: isStandardActive })}
-                            onClick={() =>
-                                setSelectedGasPrice(GasPriceSelection.Standard)
-                            }
-                        >
-                            {isStandardActive && (
-                                <FontAwesomeIcon icon={faCheckCircle} />
-                            )}
-                            <span>
-                                Standard{' '}
-                                {gasPrices?.standard ?? (
-                                    <ThreeDots width='24px' />
-                                )}{' '}
-                                Gwei
-                            </span>
-                        </div>
-                        <div
-                            className={classNames({ active: isFastActive })}
-                            onClick={() =>
-                                setSelectedGasPrice(GasPriceSelection.Fast)
-                            }
-                        >
-                            {isFastActive && (
-                                <FontAwesomeIcon icon={faCheckCircle} />
-                            )}
-                            <span>
-                                Fast{' '}
-                                {gasPrices?.fast ?? <ThreeDots width='24px' />}{' '}
-                                Gwei
-                            </span>
-                        </div>
-                        <div
-                            className={classNames({ active: isFastestActive })}
-                            onClick={() =>
-                                setSelectedGasPrice(GasPriceSelection.Fastest)
-                            }
-                        >
-                            {isFastestActive && (
-                                <FontAwesomeIcon icon={faCheckCircle} />
-                            )}
-                            <span>
-                                Fastest{' '}
-                                {gasPrices?.fastest ?? (
-                                    <ThreeDots width='24px' />
-                                )}{' '}
-                                Gwei
-                            </span>
-                        </div>
+                    <div
+                        className={classNames({ active: isStandardActive })}
+                        onClick={() =>
+                            setSelectedGasPrice(GasPriceSelection.Standard)
+                        }
+                    >
+                        {isStandardActive && (
+                            <FontAwesomeIcon icon={faCheckCircle} />
+                        )}
+                        <span>
+                            Standard{' '}
+                            {gasPrices?.standard ?? <ThreeDots width='24px' />}{' '}
+                            Gwei
+                        </span>
+                    </div>
+                    <div
+                        className={classNames({ active: isFastActive })}
+                        onClick={() =>
+                            setSelectedGasPrice(GasPriceSelection.Fast)
+                        }
+                    >
+                        {isFastActive && (
+                            <FontAwesomeIcon icon={faCheckCircle} />
+                        )}
+                        <span>
+                            Fast {gasPrices?.fast ?? <ThreeDots width='24px' />}{' '}
+                            Gwei
+                        </span>
+                    </div>
+                    <div
+                        className={classNames({ active: isFastestActive })}
+                        onClick={() =>
+                            setSelectedGasPrice(GasPriceSelection.Fastest)
+                        }
+                    >
+                        {isFastestActive && (
+                            <FontAwesomeIcon icon={faCheckCircle} />
+                        )}
+                        <span>
+                            Fastest{' '}
+                            {gasPrices?.fastest ?? <ThreeDots width='24px' />}{' '}
+                            Gwei
+                        </span>
                     </div>
                 </Box>
             )}
-        </>
+        </div>
     );
 };
 
