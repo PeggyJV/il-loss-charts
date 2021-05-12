@@ -33,12 +33,23 @@ function LandingContainer({
             <div className='main-header-container'>
                 <div className='nav-button-container'>
                     <h5 className='logo-title'>
-                        SOMMELIER{' '}
+                        PAIRINGS
+                        <span
+                            style={{
+                                fontFamily: 'cursive',
+                                fontSize: '1rem',
+                                color: 'var(--faceSecondary)',
+                                fontStyle: 'italic',
+                                padding: '0 0.5rem',
+                            }}
+                        >
+                            by
+                        </span>
                         <span style={{ color: 'var(--faceAccent)' }}>
-                            PAIRINGS
+                            SOMMELIER
                         </span>
                     </h5>
-                    {/* <TelegramCTA /> */}
+                    <TelegramCTA />
                 </div>
                 <div className='wallet-combo'>
                     {wallet?.account && <PendingTx />}
