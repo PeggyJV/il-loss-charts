@@ -232,7 +232,7 @@ p {
 .logo-title {
     font-family: 'Barlow Condensed';
     font-weight: 800;
-    color: var(--facePrimary);
+    color: var(--faceDeep);
     font-size: 2rem;
 }
 .centered {
@@ -248,8 +248,9 @@ p {
 
 .telegram-cta {
     font-size: 1rem;
+    color: var(--facePrimary);
     a {
-        color: var(--faceAccentAlt);
+        color: var(--facePrimary);
         // font-weight: bold;
         &:hover {
             text-decoration: underline;
