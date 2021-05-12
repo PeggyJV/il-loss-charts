@@ -946,7 +946,7 @@ export const AddLiquidityV3 = ({
             );
 
             // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
-            gasEstimate = gasEstimate.add(gasEstimate);
+            gasEstimate = gasEstimate.add(gasEstimate.div(2));
         } catch (err) {
             // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
             console.error(`Could not estimate gas: ${err.message as string}`);
@@ -963,6 +963,7 @@ export const AddLiquidityV3 = ({
             mintParams,
             {
                 gasPrice: baseGasPrice,
+                gasLimit: gasEstimate,
                 value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
             }
         );
@@ -1203,7 +1204,7 @@ export const AddLiquidityV3 = ({
             });
 
             // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
-            gasEstimate = gasEstimate.add(gasEstimate);
+            gasEstimate = gasEstimate.add(gasEstimate.div(2));
         } catch (err) {
             // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
             console.error(`Could not estimate gas: ${err.message as string}`);
@@ -1222,6 +1223,7 @@ export const AddLiquidityV3 = ({
             mintParams,
             {
                 gasPrice: baseGasPrice,
+                gasLimit: gasEstimate,
                 value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
             }
         );
