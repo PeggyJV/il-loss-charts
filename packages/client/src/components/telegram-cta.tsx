@@ -3,7 +3,8 @@ export const TelegramCTA = (): JSX.Element => {
         <div className='telegram-cta'>
             <p>
                 <a href='https://t.me/getsomm' target='_blank' rel='noreferrer'>
-                    🍷 JOIN OUR COMMUNITY
+                    {/* 🍷 JOIN OUR COMMUNITY */}
+                    Join our community
                 </a>
             </p>
         </div>

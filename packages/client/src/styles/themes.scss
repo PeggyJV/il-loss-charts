@@ -11,13 +11,15 @@
     --objDefault: var(--purple80);
     --objPrimary: var(--purple70);
     --objSecondary: var(--purple60);
-    --objPositive: var(--green80);
-    --objPositiveAlt: var(--green90);
-    --objNegative: var(--red80);
-    --objNegativeAlt: var(--red90);
+    --objPositive: var(--green70);
+    --objPositiveAlt: var(--green60);
+    --objNegative: var(--red70);
+    --objNegativeAlt: var(--red60);
     --objAccent: var(--jam60);
     --objAccentAlt: var(--bubble60);
     --objWarn: var(--yellow60);
+    --objDisabled: var(--mono100);
+    --objDisabledAlt: var(--mono90);
 
     // --borderDeep: var(--purple100);
     --borderDefault: var(--purple80);
@@ -32,8 +34,8 @@
     --facePrimary: var(--mono40);
     --faceSecondary: var(--mono70);
     --faceDisabled: var(--mono80);
-    --faceAccent: var(--jam30);
-    --faceAccentAlt: var(--bubble30);
+    --faceAccent: var(--jam50);
+    --faceAccentAlt: var(--bubble50);
     --facePositive: var(--green30);
     --facePositiveAlt: var(--green40);
     --faceNegative: var(--red30);

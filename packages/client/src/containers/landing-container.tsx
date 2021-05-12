@@ -17,11 +17,7 @@ function LandingContainer({
     setShowConnectWallet: (wallet: boolean) => void;
     gasPrices: EthGasPrices | null;
 }): JSX.Element {
-    
-    const {wallet} = useWallet();
-    
-
-    
+    const { wallet } = useWallet();
 
     const showWalletModal = () => setShowConnectWallet(true);
     useEffect(() => {
@@ -36,16 +32,32 @@ function LandingContainer({
         <div>
             <div className='main-header-container'>
                 <div className='nav-button-container'>
-                    <h5 className='logo-title'>SOMMELIER FINANCE</h5>
-                    <TelegramCTA />
+                    <h5 className='logo-title'>
+                        SOMMELIER{' '}
+                        <span style={{ color: 'var(--faceAccent)' }}>
+                            PAIRINGS
+                        </span>
+                    </h5>
+                    {/* <TelegramCTA /> */}
                 </div>
                 <div className='wallet-combo'>
                     {wallet?.account && <PendingTx />}
                     <ConnectWalletButton onClick={showWalletModal} />
                 </div>
             </div>
-            <Box display='flex' justifyContent='space-around'>
-            <LiquidityContainer gasPrices={gasPrices}/>
+            <Box
+                display='flex'
+                flexDirection='column'
+                alignItems='center'
+                justifyContent='space-around'
+            >
+                <div style={{ fontSize: '2rem' }}>
+                    The easiest way to add liquidity to{' '}
+                    <span style={{ color: 'var(--faceAccent)' }}>UNISWAP</span>{' '}
+                    <span style={{ color: 'var(--faceAccentAlt)' }}>V3</span>
+                </div>
+                <br />
+                <LiquidityContainer gasPrices={gasPrices} />
             </Box>
         </div>
     );

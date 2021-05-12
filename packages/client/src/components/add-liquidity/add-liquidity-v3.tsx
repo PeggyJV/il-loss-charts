@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { useState, useContext, useEffect, useReducer } from 'react';
 
 import BigNumber from 'bignumber.js';
@@ -21,6 +22,8 @@ import addLiquidityAbi from 'constants/abis/uniswap_v3_add_liquidity.json';
 import { LiquidityContext } from 'containers/liquidity-container';
 import { TokenInput } from 'components/token-input';
 import { toastSuccess, toastWarn, toastError } from 'util/toasters';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckCircle, faBan } from '@fortawesome/free-solid-svg-icons';
 import { ThreeDots } from 'react-loading-icons';
 import { compactHash } from 'util/formats';
 import { WalletBalances } from 'types/states';
@@ -63,7 +66,10 @@ export const AddLiquidityV3 = ({
     const token0Symbol = pool?.token0?.symbol ?? '';
     const token1Symbol = pool?.token1?.symbol ?? '';
     const [disabledInput, setDisabledInput] = useState<string[] | null>(null);
-    const [warning, setWarning] = useState<{ status: boolean, message?: JSX.Element }>({ status: false, message: <p>Warning placeholder</p> });
+    const [warning, setWarning] = useState<{
+        status: boolean;
+        message?: JSX.Element;
+    }>({ status: false, message: <p>Warning placeholder</p> });
 
     // State here is used to compute what tokens are being used to add liquidity with.
     const initialState: Record<string, any> = {
@@ -182,7 +188,7 @@ export const AddLiquidityV3 = ({
     );
     debug.marketData = marketData;
     debug.indicators = indicators;
-
+    debug.tokenInputState = tokenInputState;
     const getTokensWithAmounts = () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return tokenInputState.selectedTokens.map(
@@ -227,14 +233,20 @@ export const AddLiquidityV3 = ({
         return { baseTokenCurrency, quoteTokenCurrency, uniPool };
     };
 
-    const getBoundPricesAndTicks = (indicators: { [indicatorName: string]: LiquidityBand }) => {
+    const getBoundPricesAndTicks = (indicators: {
+        [indicatorName: string]: LiquidityBand;
+    }) => {
         const {
             baseTokenCurrency,
             quoteTokenCurrency,
             uniPool,
         } = getUniSDKInstances();
 
-        (window as any).uni = { baseTokenCurrency, quoteTokenCurrency, uniPool };
+        (window as any).uni = {
+            baseTokenCurrency,
+            quoteTokenCurrency,
+            uniPool,
+        };
         (window as any).bounds = bounds;
 
         debug.indicators = indicators;
@@ -244,9 +256,7 @@ export const AddLiquidityV3 = ({
 
         const lowerBoundNumerator = ethers.utils
             .parseUnits(
-                new BigNumber(lowerBound).toFixed(
-                    baseTokenCurrency.decimals
-                ),
+                new BigNumber(lowerBound).toFixed(baseTokenCurrency.decimals),
                 baseTokenCurrency.decimals
             )
             .toString();
@@ -270,9 +280,7 @@ export const AddLiquidityV3 = ({
 
         const upperBoundNumerator = ethers.utils
             .parseUnits(
-                new BigNumber(upperBound).toFixed(
-                    baseTokenCurrency.decimals
-                ),
+                new BigNumber(upperBound).toFixed(baseTokenCurrency.decimals),
                 baseTokenCurrency.decimals
             )
             .toString();
@@ -310,9 +318,9 @@ export const AddLiquidityV3 = ({
         return {
             prices: [lowerBound, upperBound] as [number, number],
             ticks: sortedTicks,
-            ticksFromPrice: [priceLower, priceUpper] as [Price, Price]
+            ticksFromPrice: [priceLower, priceUpper] as [Price, Price],
         };
-    }
+    };
 
     const handleTokenRatio = (
         selectedToken: string,
@@ -351,12 +359,15 @@ export const AddLiquidityV3 = ({
         debug.indicators = indicators;
 
         if (indicators) {
-            const bounds = handleBounds(pool, indicators, [expectedBaseAmount, expectedQuoteAmount]);
+            const bounds = handleBounds(pool, indicators, [
+                expectedBaseAmount,
+                expectedQuoteAmount,
+            ]);
 
             if (!bounds) {
                 return;
             }
-            
+
             const { newAmount0, newAmount1 } = bounds;
 
             const updatedToken =
@@ -399,18 +410,18 @@ export const AddLiquidityV3 = ({
                 });
             }
         }
-        
     };
 
-    const handleBounds = (pool: PoolOverview, indicators: { [indicatorName: string]: LiquidityBand }, expectedAmounts: [BigNumber, BigNumber]) => {
+    const handleBounds = (
+        pool: PoolOverview,
+        indicators: { [indicatorName: string]: LiquidityBand },
+        expectedAmounts: [BigNumber, BigNumber]
+    ) => {
         if (!pool) return;
 
         const [expectedBaseAmount, expectedQuoteAmount] = expectedAmounts;
 
-        if (
-            expectedBaseAmount.eq(0) &&
-            expectedQuoteAmount.eq(0)
-        ) {
+        if (expectedBaseAmount.eq(0) && expectedQuoteAmount.eq(0)) {
             return;
         }
 
@@ -420,31 +431,29 @@ export const AddLiquidityV3 = ({
             uniPool,
         } = getUniSDKInstances();
 
-        (window as any).uni = { baseTokenCurrency, quoteTokenCurrency, uniPool };
+        (window as any).uni = {
+            baseTokenCurrency,
+            quoteTokenCurrency,
+            uniPool,
+        };
         (window as any).bounds = bounds;
 
-        const {
-            prices,
-            ticks,
-            ticksFromPrice
-        } = getBoundPricesAndTicks(indicators);
+        const { prices, ticks, ticksFromPrice } = getBoundPricesAndTicks(
+            indicators
+        );
 
         const [lowerBound, upperBound] = prices;
 
         const baseAmount0 = ethers.utils
             .parseUnits(
-                expectedBaseAmount.toFixed(
-                    Number(pool.token0.decimals)
-                ),
+                expectedBaseAmount.toFixed(Number(pool.token0.decimals)),
                 pool.token0.decimals
             )
             .toString();
 
         const baseAmount1 = ethers.utils
             .parseUnits(
-                expectedQuoteAmount.toFixed(
-                    Number(pool.token1.decimals)
-                ),
+                expectedQuoteAmount.toFixed(Number(pool.token1.decimals)),
                 pool.token1.decimals
             )
             .toString();
@@ -469,28 +478,34 @@ export const AddLiquidityV3 = ({
         setPendingBounds(false);
 
         if (currentPrice < lowerBound || currentPrice > upperBound) {
-            const singleSideSymbol = currentPrice < lowerBound ? pool.token1.symbol : pool.token0.symbol;
-            const disabledSymbols = singleSideSymbol === pool.token0.symbol ? [pool.token1.symbol] : [pool.token0.symbol];
+            const singleSideSymbol =
+                currentPrice < lowerBound
+                    ? pool.token1.symbol
+                    : pool.token0.symbol;
+            const disabledSymbols =
+                singleSideSymbol === pool.token0.symbol
+                    ? [pool.token1.symbol]
+                    : [pool.token0.symbol];
 
             if (disabledSymbols[0] === 'WETH') {
                 disabledSymbols.push('ETH');
             }
 
-            setWarning({ 
+            setWarning({
                 status: true,
                 message: (
                     <p>
                         Warning: the current price of this pair does not fall
-                        within the suggested liquidity range. This can happen
-                        in volatile markets. 
-                        <br /><br />
-                        If you still want to add liquidity,
-                        your initial position will be composed entirely of {singleSideSymbol}.
-                        Your token allocation will start to rebalance once the price
-                        comes within range.
+                        within the suggested liquidity range. This can happen in
+                        volatile markets.
+                        <br />
+                        <br />
+                        If you still want to add liquidity, your initial
+                        position will be composed entirely of {singleSideSymbol}
+                        . Your token allocation will start to rebalance once the
+                        price comes within range.
                     </p>
-
-                )
+                ),
             });
 
             setDisabledInput(disabledSymbols);
@@ -525,9 +540,11 @@ export const AddLiquidityV3 = ({
             pool.token0.symbol === 'WETH' ? newAmount0 : newAmount1;
 
         return {
-            newAmount0, newAmount1, ethAmount
-        }
-    }
+            newAmount0,
+            newAmount1,
+            ethAmount,
+        };
+    };
 
     useEffect(() => {
         if (indicators) {
@@ -554,9 +571,12 @@ export const AddLiquidityV3 = ({
                 .times(100)
                 .toFixed();
 
-            setPriceImpact(priceImpact);  
+            setPriceImpact(priceImpact);
 
-            const bounds = handleBounds(pool, indicators, [expectedBaseAmount, expectedQuoteAmount]);
+            const bounds = handleBounds(pool, indicators, [
+                expectedBaseAmount,
+                expectedQuoteAmount,
+            ]);
 
             if (!bounds) {
                 return;
@@ -625,7 +645,7 @@ export const AddLiquidityV3 = ({
         const fnName = isEthAdd
             ? 'addLiquidityEthForUniV3'
             : 'addLiquidityForUniV3';
-                
+
         const tokenId = 0;
         const [expectedBaseAmount, expectedQuoteAmount] = expectedAmounts;
 
@@ -656,7 +676,6 @@ export const AddLiquidityV3 = ({
                 pool.token1.decimals
             )
             .toString();
-
 
         // TODO: Come back to this. The min amounts don't represent min tokens
         // in the pool, but min deltas. Needs a closer look.
@@ -729,7 +748,7 @@ export const AddLiquidityV3 = ({
                     ],
                     balances?.[tokenSymbol]?.decimals
                 );
-    
+
                 // skip approval on allowance
                 if (new BigNumber(baseTokenAmount).lt(tokenAllowance)) continue;
             }
@@ -909,93 +928,21 @@ export const AddLiquidityV3 = ({
     const isTokenETHDisabled =
         !isTokenETHActive &&
         (selectedSymbolCount === 2 || tokenInputState['WETH']?.selected);
-    const selectedSymbol0 = tokenInputState.selectedTokens[0];
-    const selectedSymbol1 = tokenInputState.selectedTokens[1];
+    // const selectedSymbol0 = tokenInputState.selectedTokens[0];
+    // const selectedSymbol1 = tokenInputState.selectedTokens[1];
     const disableWETH = tokenInputState['ETH'].selected;
+    const isWETHPair = token0Symbol === 'WETH' || token1Symbol === 'WETH';
 
     return (
         <>
             <div className='add-v3-container'>
+                <p>Select 1 or 2 token(s)</p>
                 <Box
                     display='flex'
-                    justifyContent='space-between'
-                    alignItems='center'
+                    flexDirection='column'
+                    className='token-control-container'
                 >
-                    <div>Select 2 tokens</div>
-                    <Box display='flex' className='token-select'>
-                        <button
-                            className={classNames('token-with-logo', {
-                                active: isToken0Active,
-                                disabled:
-                                    isToken0Disabled ||
-                                    (token0Symbol === 'WETH' && disableWETH),
-                            })}
-                            disabled={
-                                isToken0Disabled ||
-                                (token0Symbol === 'WETH' && disableWETH)
-                            }
-                            onClick={() => {
-                                dispatch({
-                                    type: 'toggle',
-                                    payload: { sym: token0Symbol },
-                                });
-                            }}
-                        >
-                            {resolveLogo(pool?.token0?.id)}&nbsp;
-                            {pool?.token0?.symbol}
-                        </button>
-                        <button
-                            className={classNames('token-with-logo', {
-                                active: isToken1Active,
-                                disabled:
-                                    isToken1Disabled ||
-                                    (token1Symbol === 'WETH' && disableWETH),
-                            })}
-                            disabled={
-                                isToken1Disabled ||
-                                (token1Symbol === 'WETH' && disableWETH)
-                            }
-                            onClick={() => {
-                                if (
-                                    !isToken1Active &&
-                                    selectedSymbolCount === 2
-                                )
-                                    return;
-                                dispatch({
-                                    type: 'toggle',
-                                    payload: { sym: token1Symbol },
-                                });
-                            }}
-                        >
-                            {resolveLogo(pool?.token1?.id)}&nbsp;
-                            {pool?.token1?.symbol}
-                        </button>
-                        <button
-                            className={classNames('token-with-logo', {
-                                active: isTokenETHActive,
-                                disabled: isTokenETHDisabled,
-                            })}
-                            disabled={isTokenETHDisabled}
-                            onClick={() => {
-                                if (
-                                    !isTokenETHActive &&
-                                    selectedSymbolCount === 2
-                                )
-                                    return;
-                                dispatch({
-                                    type: 'toggle',
-                                    payload: { sym: 'ETH' },
-                                });
-                            }}
-                        >
-                            {resolveLogo(ETH_ID)}&nbsp;
-                            {'ETH'}
-                        </button>
-                    </Box>
-                </Box>
-                <br />
-                <Box display='flex' justifyContent='space-between'>
-                    <Box width='48%'>
+                    {/* <Box width='48%'>
                         {selectedSymbol0 && (
                             <TokenWithBalance
                                 id={tokenInputState[selectedSymbol0].id}
@@ -1013,47 +960,225 @@ export const AddLiquidityV3 = ({
                                 decimals={balances?.[selectedSymbol1]?.decimals}
                             />
                         )}
+                    </Box> */}
+                    {isWETHPair && (
+                        <Box
+                            display='flex'
+                            justifyContent='space-between'
+                            className={classNames('token-input-control', {
+                                active: isTokenETHActive,
+                                inactive: !isTokenETHActive,
+                            })}
+                        >
+                            <Box
+                                display='flex'
+                                justifyContent='flex-start'
+                                flexGrow='1'
+                            >
+                                <button
+                                    className={classNames('btn-default', {
+                                        active: isTokenETHActive,
+                                    })}
+                                    disabled={isTokenETHDisabled}
+                                    onClick={() => {
+                                        if (
+                                            !isTokenETHActive &&
+                                            selectedSymbolCount === 2
+                                        )
+                                            return;
+                                        dispatch({
+                                            type: 'toggle',
+                                            payload: { sym: 'ETH' },
+                                        });
+                                    }}
+                                >
+                                    <FontAwesomeIcon
+                                        icon={
+                                            isTokenETHDisabled
+                                                ? faBan
+                                                : faCheckCircle
+                                        }
+                                    />
+                                </button>
+                                <div style={{ flexGrow: 1 }}>
+                                    <TokenWithBalance
+                                        id={tokenInputState['ETH']?.id}
+                                        name={'ETH'}
+                                        balance={balances?.['ETH']?.balance}
+                                        decimals={'18'}
+                                        disabled={isTokenETHDisabled}
+                                    />
+                                </div>
+                            </Box>
+                            <TokenInput
+                                token={'ETH'}
+                                // we update ETH tokenInputState with whatever WETH amounts to
+                                // dont show it in the UI if inactive
+                                amount={
+                                    isTokenETHActive
+                                        ? tokenInputState['ETH'].amount
+                                        : ''
+                                }
+                                updateAmount={(amt: string) => {
+                                    dispatch({
+                                        type: 'update-amount',
+                                        payload: {
+                                            sym: 'ETH',
+                                            amount: amt,
+                                        },
+                                    });
+                                }}
+                                handleTokenRatio={handleTokenRatio}
+                                balances={balances}
+                                disabled={
+                                    disabledInput?.includes('ETH') ||
+                                    !isTokenETHActive
+                                }
+                                twoSide={true}
+                            />
+                        </Box>
+                    )}
+                    <Box
+                        display='flex'
+                        justifyContent='space-between'
+                        className={classNames('token-input-control', {
+                            active: isToken0Active,
+                            inactive: !isToken0Active,
+                        })}
+                    >
+                        <Box
+                            display='flex'
+                            justifyContent='flex-start'
+                            flexGrow='1'
+                        >
+                            <button
+                                className={classNames('btn-default', {
+                                    active: isToken0Active,
+                                })}
+                                disabled={
+                                    isToken0Disabled ||
+                                    (token0Symbol === 'WETH' && disableWETH)
+                                }
+                                onClick={() => {
+                                    dispatch({
+                                        type: 'toggle',
+                                        payload: { sym: token0Symbol },
+                                    });
+                                }}
+                            >
+                                <FontAwesomeIcon
+                                    icon={isToken0Disabled ?faBan : faCheckCircle}
+                                />
+                            </button>
+                            <div style={{ flexGrow: 1 }}>
+                                <TokenWithBalance
+                                    id={tokenInputState[token0Symbol].id}
+                                    name={token0Symbol}
+                                    balance={balances?.[token0Symbol]?.balance}
+                                    decimals={
+                                        balances?.[token0Symbol]?.decimals
+                                    }
+                                    disabled={isToken0Disabled}
+                                />
+                            </div>
+                        </Box>
+
+                        <TokenInput
+                            token={token0Symbol}
+                            amount={
+                                isToken0Active
+                                    ? tokenInputState[token0Symbol].amount
+                                    : ''
+                            }
+                            updateAmount={(amt: string) => {
+                                dispatch({
+                                    type: 'update-amount',
+                                    payload: {
+                                        sym: token0Symbol,
+                                        amount: amt,
+                                    },
+                                });
+                            }}
+                            handleTokenRatio={handleTokenRatio}
+                            balances={balances}
+                            disabled={
+                                disabledInput?.includes(token0Symbol) ||
+                                !isToken0Active
+                            }
+                            twoSide={true}
+                        />
                     </Box>
-                    <Box width='48%'>
-                        {selectedSymbol0 && (
-                            <TokenInput
-                                token={selectedSymbol0}
-                                amount={tokenInputState[selectedSymbol0].amount}
-                                updateAmount={(amt: string) => {
+                    <Box
+                        display='flex'
+                        justifyContent='space-between'
+                        className={classNames('token-input-control', {
+                            active: isToken1Active,
+                            inactive: !isToken1Active,
+                        })}
+                    >
+                        <Box
+                            display='flex'
+                            justifyContent='flex-start'
+                            flexGrow='1'
+                        >
+                            <button
+                                className={classNames('btn-default', {
+                                    active: isToken1Active,
+                                })}
+                                disabled={
+                                    isToken1Disabled ||
+                                    (token1Symbol === 'WETH' && disableWETH)
+                                }
+                                onClick={() => {
+                                    if (
+                                        !isToken1Active &&
+                                        selectedSymbolCount === 2
+                                    )
+                                        return;
                                     dispatch({
-                                        type: 'update-amount',
-                                        payload: {
-                                            sym: selectedSymbol0,
-                                            amount: amt,
-                                        },
+                                        type: 'toggle',
+                                        payload: { sym: token1Symbol },
                                     });
                                 }}
-                                handleTokenRatio={handleTokenRatio}
-                                balances={balances}
-                                disabled={disabledInput?.includes(selectedSymbol0) || false}
-                                twoSide={true}
-                            />
-                        )}
-                        <br />
-                        {selectedSymbol1 && (
-                            <TokenInput
-                                token={selectedSymbol1}
-                                amount={tokenInputState[selectedSymbol1].amount}
-                                updateAmount={(amt: string) => {
-                                    dispatch({
-                                        type: 'update-amount',
-                                        payload: {
-                                            sym: selectedSymbol1,
-                                            amount: amt,
-                                        },
-                                    });
-                                }}
-                                handleTokenRatio={handleTokenRatio}
-                                balances={balances}
-                                disabled={disabledInput?.includes(selectedSymbol1) || false}
-                                twoSide={true}
-                            />
-                        )}
+                            >
+                                <FontAwesomeIcon icon={isToken1Disabled ? faBan : faCheckCircle} />
+                            </button>
+                            <div style={{ flexGrow: 1 }}>
+                                <TokenWithBalance
+                                    id={tokenInputState[token1Symbol].id}
+                                    name={token1Symbol}
+                                    balance={balances?.[token1Symbol]?.balance}
+                                    decimals={
+                                        balances?.[token1Symbol]?.decimals
+                                    }
+                                    disabled={isToken1Disabled}
+                                />
+                            </div>
+                        </Box>
+                        <TokenInput
+                            token={token1Symbol}
+                            amount={
+                                isToken1Active
+                                    ? tokenInputState[token1Symbol].amount
+                                    : ''
+                            }
+                            updateAmount={(amt: string) => {
+                                dispatch({
+                                    type: 'update-amount',
+                                    payload: {
+                                        sym: token1Symbol,
+                                        amount: amt,
+                                    },
+                                });
+                            }}
+                            handleTokenRatio={handleTokenRatio}
+                            balances={balances}
+                            disabled={
+                                disabledInput?.includes(token1Symbol) ||
+                                !isToken1Active
+                            }
+                            twoSide={true}
+                        />
                     </Box>
                 </Box>
                 <br />
@@ -1091,7 +1216,11 @@ export const AddLiquidityV3 = ({
                     </div>
                 </Box>
                 <br />
-                {warning?.status && <div className='well-warn out-of-range'>{warning?.message}</div>}
+                {warning?.status && (
+                    <div className='well-warn out-of-range'>
+                        {warning?.message}
+                    </div>
+                )}
                 <br />
                 <div className='preview'>
                     <Box display='flex' justifyContent='space-between'>

@@ -201,15 +201,23 @@ p {
     display: flex;
     background: var(--bgDeep);
     color: var(--facePrimary);
+    background: linear-gradient(
+        153deg,
+        rgba(33, 1, 58, 0.9066001400560224) 29%,
+        rgba(13, 131, 167, 0.8953956582633054) 70%,
+        rgba(148, 4, 152, 0.8785889355742297) 98%
+    );
+
+    // , rgb(53 1 93 / 91%) 29%, rgb(13 131 167 / 90%) 70%, rgb(148 4 152 / 88%) 98%);
+
 }
 
 .app-body {
     width: calc(100% - 200px);
     padding: 2rem;
     min-height: 100vh;
-    background: var(--bgDeep);
+    // background: var(--bgDeep);
     margin: 0 auto;
-    // box-shadow: 0 0 10px 1px var(--bgDeep);
 }
 
 .page-title {
@@ -230,14 +238,14 @@ p {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
 }
 
 .telegram-cta {
     font-size: 1rem;
     a {
         color: var(--faceAccentAlt);
-        font-weight: bold;
+        // font-weight: bold;
         &:hover {
             text-decoration: underline;
         }

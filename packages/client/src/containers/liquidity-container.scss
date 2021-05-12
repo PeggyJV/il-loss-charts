@@ -1,9 +1,16 @@
 .liquidity-container {
     width: 650px;
-    background: var(--bgDefault);
-    border: 1px solid var(--borderPrimary);
+    // background: radial-gradient(var(--bgDefault), var(--bgPrimary));
+    background: linear-gradient(142deg, var(--bgDefault), var(--bgPrimary));
+    border: 1px solid var(--borderDefault);
+    box-shadow: 0 0 70px 1px #e5e3f541;
+
+    border-radius: 16px;
     > div {
-        padding: 1.5rem 1rem;
+        padding: 1.25rem 1rem;
+    }
+    > div:first-child {
+      border-bottom: 1px solid var(--borderDefault);
     }
 }
 
@@ -35,7 +42,7 @@
 }
 
 .transaction-settings {
-    padding: 0.3rem;
+    padding: 0.1rem 0.3rem;
     border: 1px solid var(--borderPrimary);
     border-radius: 4px;
     // margin: 0 0.5rem;
