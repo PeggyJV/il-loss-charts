@@ -5,7 +5,9 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    p { margin-bottom: 1rem;}
+    p {
+        margin-bottom: 1rem;
+    }
     // justify-content: space-between;
     // font-family: 'Barlow Condensed';
     // }
@@ -160,8 +162,13 @@
     }
 
     .token-control-container {
+        // border: 1px solid var(--borderSecondary);
+        padding: 0.75rem 0.75rem;
+        background: var(--bgDefault);
+        border-radius: 4px;
+        padding-bottom: 0;
         > div {
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
         button.btn-default {
             padding: 1rem 1.25rem;
@@ -257,7 +264,7 @@
             color: var(--faceDeep);
             padding: 0.2rem 0.5rem;
             border-radius: 4px;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             // border: 1px solid var(--borderDefault);
             // background: var(--objDefault);
             // &:hover {

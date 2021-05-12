@@ -25,10 +25,10 @@ const useStyles = makeStyles(() => ({
 const CssTextField = withStyles({
     root: {
         '& .MuiInput-underline:after': {
-            border: 0,
+            border: '1px solid var(--borderAccentAlt)',
         },
         '&:hover .MuiInput-underline:after': {
-            border: 0,
+            border: '1px solid var(--borderAccentAlt)',
         },
     },
 })(TextField);
@@ -92,7 +92,7 @@ export function PoolSearch({
                         {...params}
                         className='pair-search-text'
                         style={{
-                            border: '1px solid var(--borderPrimary)',
+                            border: '1px solid var(--borderDefault)',
                             borderRadius: '2px',
                             fontWeight: 400,
                             textTransform: 'uppercase',
