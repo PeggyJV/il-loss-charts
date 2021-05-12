@@ -201,11 +201,19 @@ p {
     display: flex;
     background: var(--bgDeep);
     color: var(--facePrimary);
+    // background: linear-gradient(
+    //     153deg,
+    //     rgba(33, 1, 58, 0.9066001400560224) 29%,
+    //     rgba(13, 131, 167, 0.8953956582633054) 60%,
+    //     rgba(87, 4, 113, 0.8785889355742297) 78%
+    // );
+    background: rgb(32, 9, 88);
     background: linear-gradient(
-        153deg,
-        rgba(33, 1, 58, 0.9066001400560224) 29%,
-        rgba(13, 131, 167, 0.8953956582633054) 60%,
-        rgba(87, 4, 113, 0.8785889355742297) 78%
+        222deg,
+        #030107 0%,
+        #8708dcc7 60%,
+        #430263 80%,
+        rgba(0, 213, 255, 0.632) 100%
     );
     // background: linear-gradient(
     //     153deg,
