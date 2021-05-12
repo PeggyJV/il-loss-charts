@@ -20,45 +20,36 @@ import {
 } from 'util/calculate-stats';
 
 import redis from 'util/redis';
-import { wrapWithCache, keepCachePopulated } from 'util/redis-data-cache';
+import memoizer from 'util/memoizer-redis';
+import appConfig from 'config';
+
+const config = appConfig.memoizerRedis;
+const memoize = memoizer(redis, { enabled: config.enabled });
 
 // TODO - error handling for e.g. eth address that does not match a pair
 
 // Controllers should parse query/body, validate params, and pass to service to do the work.
 
-const getTopPairs = wrapWithCache(redis, UniswapFetcher.getTopPools, 300, true);
-const getCurrentTopPerformingPairs = wrapWithCache(
-    redis,
+const ttl5min = { ttl: 300 * 1000 };
+const getTopPairs = memoize(UniswapFetcher.getTopPools, ttl5min);
+const getPoolOverview = memoize(UniswapFetcher.getPoolOverview, ttl5min);
+const getCurrentTopPerformingPairs = memoize(
     UniswapFetcher.getCurrentTopPerformingPools,
-    300,
-    true
+    ttl5min,
 );
-const getEthPrice = wrapWithCache(redis, UniswapFetcher.getEthPrice, 60, true);
-const getHistoricalDailyData = wrapWithCache(
-    redis,
+const getEthPrice = memoize(UniswapFetcher.getEthPrice, ttl5min);
+const getHistoricalDailyData = memoize(
     UniswapFetcher.getHistoricalDailyData,
-    3600,
-    true
+    { ttl: 3600 * 1000 },
 );
-const getHistoricalHourlyData = wrapWithCache(
-    redis,
+const getHistoricalHourlyData = memoize(
     UniswapFetcher.getHistoricalHourlyData,
-    300,
-    true
+    ttl5min,
 );
-const getFirstBlockAfter = wrapWithCache(
-    redis,
+const getFirstBlockAfter = memoize(
     EthBlockFetcher.getFirstBlockAfter,
-    10000,
-    false
+    { ttl: 10000 * 1000 },
 );
-
-// Start off keeping cache populated
-void keepCachePopulated(redis, UniswapFetcher.getTopPools, [
-    undefined,
-    'volumeUSD',
-    true,
-]);
 
 class UniswapController {
     static async getTopPairs(req: Request) {
@@ -78,6 +69,7 @@ class UniswapController {
             'volumeUSD',
             true
         );
+
         return topPairs;
     }
 
@@ -141,19 +133,6 @@ class UniswapController {
         const statsByReturn = [...marketStats].sort(
             (a, b) => b.pctReturn - a.pctReturn
         );
-
-        // Pre-cache stats for the daily top 10
-        statsByReturn.slice(0, 10).forEach((pair) => {
-            // Things to populate:
-            // - overview
-            // - daily data (up to current day)
-            // - hourly data (up to current hour)
-
-            void keepCachePopulated(redis, UniswapFetcher.getPoolOverview, [
-                pair.id,
-            ]);
-            // void keepCachePopulated(redis, UniswapFetcher.getHistoricalDailyData, [pair.id]);
-        });
 
         return statsByReturn;
     }
@@ -256,13 +235,6 @@ class UniswapController {
             (a, b) => b.pctReturn - a.pctReturn
         );
 
-        // Pre-cache stats for the daily top 10
-        statsByReturn.slice(0, 10).forEach((pair) => {
-            void keepCachePopulated(redis, UniswapFetcher.getPoolOverview, [
-                pair.id,
-            ]);
-        });
-
         return statsByReturn;
     }
 
@@ -273,7 +245,7 @@ class UniswapController {
         if (!validId)
             throw new HTTPError(400, `'id' must be a valid ETH address.`);
 
-        const pairData = await UniswapFetcher.getPoolOverview(pairId);
+        const pairData: IUniswapPair = await getPoolOverview(pairId);
         return pairData;
     }
 
@@ -522,9 +494,17 @@ class UniswapController {
 
 export default express
     .Router()
-    .get('/ethPrice', wrapRequest(UniswapController.getEthPrice))
+    .get('/ethPrice', wrapRequest(UniswapController.getEthPrice, {
+        public: true,
+        maxAge: 5,
+        sMaxAge: 20,
+    }))
     // .get('/market', wrapRequest(UniswapController.getMarketStats))
-    .get('/pairs', wrapRequest(UniswapController.getTopPairs))
+    .get('/pairs', wrapRequest(UniswapController.getTopPairs, {
+        public: true,
+        maxAge: 15,
+        sMaxAge: 60,
+    }))
     // .get(
     //     '/pairs/performance/daily',
     //     cacheMiddleware(300),
@@ -535,7 +515,11 @@ export default express
     //     cacheMiddleware(300),
     //     wrapRequest(UniswapController.getWeeklyTopPerformingPairs)
     // )
-    .get('/pairs/:id', wrapRequest(UniswapController.getPairOverview))
+    .get('/pairs/:id', wrapRequest(UniswapController.getPairOverview, {
+        public: true,
+        maxAge: 15,
+        sMaxAge: 60,
+    }))
     // .get(
     //     '/pairs/:id/swaps',
     //     cacheMiddleware(60),

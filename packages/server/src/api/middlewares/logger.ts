@@ -59,7 +59,7 @@ function getForwardedFor(req: Request) {
 }
 
 function getCdnHeader(req: Request) {
-    const status = req.get('X-Cdn-Status') ?? '-';
+    const status = req.get('X-Cdn-Cache-Status') ?? '-';
     return status.split(',');
 }
 
