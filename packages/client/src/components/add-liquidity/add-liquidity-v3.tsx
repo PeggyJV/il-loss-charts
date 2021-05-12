@@ -420,6 +420,14 @@ export const AddLiquidityV3 = ({
                         amount: otherAmount.toFixed(),
                     },
                 });
+            } else if (selectedToken === 'ETH') {
+                dispatch({
+                    type: 'update-amount',
+                    payload: {
+                        sym: 'WETH',
+                        amount: updatedAmount.toFixed(),
+                    },
+                });
             }
         }
     };
@@ -564,7 +572,7 @@ export const AddLiquidityV3 = ({
             setBounds(bounds);
             setPendingBounds(false);
         }
-    }, [indicators]);
+    }, [indicators, sentiment]);
 
     useEffect(() => {
         if (!pool || !indicators) {
@@ -585,6 +593,7 @@ export const AddLiquidityV3 = ({
 
             setPriceImpact(priceImpact);
 
+            console.log('GONNA HANDLE BOUNDS AGAIN')
             const bounds = handleBounds(pool, indicators, [
                 expectedBaseAmount,
                 expectedQuoteAmount,
@@ -631,6 +640,66 @@ export const AddLiquidityV3 = ({
         if (!currentGasPrice) {
             throw new Error('Gas price not selected.');
         }
+
+        let hash: string | undefined;
+        if (tokenInputState.selectedTokens.length === 1) {
+            hash = await doOneSidedAdd();
+        } else {
+            hash = await doTwoSidedAdd();
+        }
+
+        if (hash) {
+            toastWarn(`Confirming tx ${compactHash(hash)}`);
+            setPendingTx &&
+                setPendingTx(
+                    (state: PendingTx): PendingTx =>
+                        ({
+                            approval: [...state.approval],
+                            confirm: [...state.confirm, hash],
+                        } as PendingTx)
+                );
+            if (provider) {
+                const txStatus: ethers.providers.TransactionReceipt = await provider.waitForTransaction(
+                    hash
+                );
+    
+                const { status } = txStatus;
+    
+                if (status === 1) {
+                    toastSuccess(`Confirmed tx ${compactHash(hash)}`);
+                    setPendingTx &&
+                        setPendingTx(
+                            (state: PendingTx): PendingTx =>
+                                ({
+                                    approval: [...state.approval],
+                                    confirm: [
+                                        ...state.approval.filter(
+                                            (hash) => hash !== hash
+                                        ),
+                                    ],
+                                } as PendingTx)
+                        );
+                } else {
+                    toastError(`Rejected tx ${compactHash(hash)}`);
+                    setPendingTx &&
+                        setPendingTx(
+                            (state: PendingTx): PendingTx =>
+                                ({
+                                    approval: [...state.approval],
+                                    confirm: [
+                                        ...state.approval.filter(
+                                            (hash) => hash !== hash
+                                        ),
+                                    ],
+                                } as PendingTx)
+                        );
+                }
+            }
+        }
+    };
+
+    const doTwoSidedAdd = async (): Promise<string | undefined> => {
+        if (!pool || !provider || !indicators || !bounds.position || !currentGasPrice) return;
 
         const addLiquidityContractAddress =
             config.networks[wallet.network || '1']?.contracts?.ADD_LIQUIDITY_V3;
@@ -756,7 +825,262 @@ export const AddLiquidityV3 = ({
 
                 const tokenAllowance = ethers.utils.formatUnits(
                     balances?.[tokenSymbol]?.allowance?.[
-                        addLiquidityContractAddress
+                    addLiquidityContractAddress
+                    ],
+                    balances?.[tokenSymbol]?.decimals
+                );
+
+                // skip approval on allowance
+                console.log('THIS IS ALLOWANCE', tokenSymbol, tokenAllowance)
+                if (new BigNumber(baseTokenAmount).lt(tokenAllowance)) continue;
+            }
+
+            // Call the contract and sign
+            let approvalEstimate: ethers.BigNumber;
+
+            try {
+                approvalEstimate = await erc20Contract.estimateGas.approve(
+                    addLiquidityContractAddress,
+                    baseApproveAmount,
+                    { gasPrice: baseGasPrice }
+                );
+
+                // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
+                approvalEstimate = approvalEstimate.add(
+                    approvalEstimate.div(3)
+                );
+            } catch (err) {
+                // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
+                console.error(
+                    `Could not estimate gas fees: ${err.message as string}`
+                );
+
+                toastError(
+                    'Could not estimate gas for this transaction. Check your parameters or try a different pool.'
+                );
+                return;
+            }
+
+            // Approve the add liquidity contract to spend entry tokens
+            setPendingApproval(true);
+            let approveHash: string | undefined;
+            try {
+                const {
+                    hash,
+                } = await erc20Contract.approve(
+                    addLiquidityContractAddress,
+                    baseApproveAmount,
+                    { gasPrice: baseGasPrice, gasLimit: approvalEstimate }
+                );
+                approveHash = hash;
+            } catch (e) {
+                setPendingApproval(false);
+                return;
+            }
+
+            // setApprovalState('pending');
+            if (approveHash) {
+                toastWarn(`Approving tx ${compactHash(approveHash)}`);
+                setPendingTx &&
+                    setPendingTx(
+                        (state: PendingTx): PendingTx =>
+                        ({
+                            approval: [...state.approval, approveHash],
+                            confirm: [...state.confirm],
+                        } as PendingTx)
+                    );
+                await provider.waitForTransaction(approveHash);
+                setPendingApproval(false);
+                setPendingTx &&
+                    setPendingTx(
+                        (state: PendingTx): PendingTx =>
+                        ({
+                            approval: [
+                                ...state.approval.filter(
+                                    (h) => h != approveHash
+                                ),
+                            ],
+                            confirm: [...state.confirm],
+                        } as PendingTx)
+                    );
+            }
+        }
+
+        let baseMsgValue = ethers.utils.parseEther('0');
+        if (tokenInputState.selectedTokens.includes('ETH')) {
+            const ethAmount = ethers.utils.parseEther(
+                new BigNumber(tokenInputState['ETH'].amount).toFixed(18)
+            );
+            baseMsgValue = baseMsgValue.add(ethAmount);
+        }
+
+        const value = baseMsgValue.toString();
+
+        // Call the contract and sign
+        let gasEstimate: ethers.BigNumber;
+
+        try {
+            gasEstimate = await addLiquidityContract.estimateGas[fnName](
+                tokenId,
+                mintParams,
+                {
+                    gasPrice: baseGasPrice,
+                    value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
+                }
+            );
+
+            // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
+            gasEstimate = gasEstimate.add(gasEstimate.div(3));
+        } catch (err) {
+            // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
+            console.error(`Could not estimate gas: ${err.message as string}`);
+
+            toastError(
+                'Could not estimate gas for this transaction. Check your parameters or try a different pool.'
+            );
+
+            return;
+        }
+
+        const { hash } = await addLiquidityContract[fnName](
+            tokenId,
+            mintParams,
+            {
+                gasPrice: baseGasPrice,
+                value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
+            }
+        );
+
+        return hash as string;
+    };
+
+    const doOneSidedAdd = async (): Promise<string | undefined> => {
+        if (!pool || !provider || !indicators || !bounds.position || !currentGasPrice) return;
+
+        const addLiquidityContractAddress =
+            config.networks[wallet.network || '1']?.contracts?.ADD_LIQUIDITY_V3;
+
+        if (!addLiquidityContractAddress) {
+            throw new Error(
+                'Add liquidity contract not available on this network.'
+            );
+        }
+
+        // Create signer
+        const signer = provider.getSigner();
+        // Create read-write contract instance
+        const addLiquidityContract = new ethers.Contract(
+            addLiquidityContractAddress,
+            addLiquidityAbi,
+            signer
+        );
+
+        debug.contract = addLiquidityContract;
+
+        const [selectedToken] = tokenInputState.selectedTokens;
+        const tokenData = tokenInputState[selectedToken];
+
+        console.log("THIS IS TOKENDATA", selectedToken, tokenData)
+        console.log("INPUT STATE", tokenInputState);
+
+        const tokenId = 0;
+        let decimals = 18;
+        if (selectedToken === pool.token0.symbol) {
+            decimals = parseInt(pool.token0.decimals, 10);
+        } else if (selectedToken === pool.token1.symbol) {
+            decimals = parseInt(pool.token1.decimals, 10);
+        }
+        const mintAmountOneSide = ethers.utils
+            .parseUnits(
+                new BigNumber(tokenData.amount).toFixed(
+                    decimals
+                ),
+                decimals
+            )
+            .toString();
+
+        const mintAmount0 = ethers.utils
+            .parseUnits(
+                new BigNumber(tokenInputState[pool.token0.symbol].amount).toFixed(
+                    parseInt(pool.token0.decimals)
+                ),
+                pool.token0.decimals
+            )
+            .toString();
+        const mintAmount1 = ethers.utils
+            .parseUnits(
+                new BigNumber(tokenInputState[pool.token1.symbol].amount).toFixed(
+                    parseInt(pool.token1.decimals)
+                ),
+                pool.token1.decimals
+            )
+            .toString();
+
+        const minLiquidity = '1';
+        // TODO: Determine slippage once we know price impact of swaps
+        // const slippageRatio = new BigNumber(slippageTolerance as number).div(
+        //     100
+        // );
+        
+        // const slippageCoefficient = new BigNumber(1).minus(slippageRatio);
+
+        // const liquiditySquared = new BigNumber(mintAmount0).times(mintAmount1);
+        // const minLiquidity = liquiditySquared.times(slippageCoefficient).sqrt().toFixed(0);
+        // const baseMinLiquidity = ethers.utils.parseUnits()
+
+        const mintParams = [
+            pool.token0.id, // token0
+            pool.token1.id, // token1
+            pool.feeTier, // feeTier
+            bounds.position.tickLower, // tickLower
+            bounds.position.tickUpper, // tickUpper
+            minLiquidity, // amount0Desired
+            wallet.account, // recipient
+            Math.floor(Date.now() / 1000) + 86400000, // deadline
+        ];
+
+        debug.mintParams = mintParams;
+        console.log('MINT PARAMS', mintAmountOneSide, tokenData.id, mintParams);
+
+        const baseGasPrice = ethers.utils
+            .parseUnits(currentGasPrice.toString(), 9)
+            .toString();
+
+        for (const tokenSymbol of [pool.token0.symbol, pool.token1.symbol]) {
+            // IF WETH, check if ETH is selected - if not, approve WETH
+            // IF NOT WETH, approve
+
+            // if (tokenSymbol === 'WETH') {
+            //     const selectedTokens = tokenInputState.selectedTokens;
+            //     if (selectedTokens.includes('ETH')) {
+            //         continue;
+            //     }
+            // }
+
+            const erc20Contract = new ethers.Contract(
+                tokenInputState[tokenSymbol].id,
+                erc20Abi,
+                signer
+            );
+
+            const amountDesired =
+                tokenSymbol === pool.token0.symbol ? mintAmount0 : mintAmount1;
+
+            const baseApproveAmount = new BigNumber(amountDesired)
+                .times(100)
+                .toFixed();
+
+            const tokenAmount = new BigNumber(amountDesired);
+
+            if (balances?.[tokenSymbol]) {
+                const baseTokenAmount = ethers.utils.formatUnits(
+                    amountDesired,
+                    balances?.[tokenSymbol]?.decimals
+                );
+
+                const tokenAllowance = ethers.utils.formatUnits(
+                    balances?.[tokenSymbol]?.allowance?.[
+                    addLiquidityContractAddress
                     ],
                     balances?.[tokenSymbol]?.decimals
                 );
@@ -814,29 +1138,29 @@ export const AddLiquidityV3 = ({
                 setPendingTx &&
                     setPendingTx(
                         (state: PendingTx): PendingTx =>
-                            ({
-                                approval: [...state.approval, approveHash],
-                                confirm: [...state.confirm],
-                            } as PendingTx)
+                        ({
+                            approval: [...state.approval, approveHash],
+                            confirm: [...state.confirm],
+                        } as PendingTx)
                     );
                 await provider.waitForTransaction(approveHash);
                 setPendingApproval(false);
                 setPendingTx &&
                     setPendingTx(
                         (state: PendingTx): PendingTx =>
-                            ({
-                                approval: [
-                                    ...state.approval.filter(
-                                        (h) => h != approveHash
-                                    ),
-                                ],
-                                confirm: [...state.confirm],
-                            } as PendingTx)
+                        ({
+                            approval: [
+                                ...state.approval.filter(
+                                    (h) => h != approveHash
+                                ),
+                            ],
+                            confirm: [...state.confirm],
+                        } as PendingTx)
                     );
             }
         }
 
-        let baseMsgValue = ethers.utils.parseUnits('0', 18);
+        let baseMsgValue = ethers.utils.parseEther('0.005');
         if (tokenInputState.selectedTokens.includes('ETH')) {
             const ethAmount = ethers.utils.parseEther(
                 new BigNumber(tokenInputState['ETH'].amount).toFixed(18)
@@ -850,7 +1174,9 @@ export const AddLiquidityV3 = ({
         let gasEstimate: ethers.BigNumber;
 
         try {
-            gasEstimate = await addLiquidityContract.estimateGas[fnName](
+            gasEstimate = await addLiquidityContract.estimateGas['investTokenForUniPair'](
+                tokenData.id,
+                mintAmountOneSide,
                 tokenId,
                 mintParams,
                 {
@@ -872,7 +1198,9 @@ export const AddLiquidityV3 = ({
             return;
         }
 
-        const { hash } = await addLiquidityContract[fnName](
+        const { hash } = await addLiquidityContract['investTokenForUniPair'](
+            tokenData.id,
+            mintAmountOneSide,
             tokenId,
             mintParams,
             {
@@ -880,52 +1208,8 @@ export const AddLiquidityV3 = ({
                 value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
             }
         );
-        toastWarn(`Confirming tx ${compactHash(hash)}`);
-        setPendingTx &&
-            setPendingTx(
-                (state: PendingTx): PendingTx =>
-                    ({
-                        approval: [...state.approval],
-                        confirm: [...state.confirm, hash],
-                    } as PendingTx)
-            );
-        if (provider) {
-            const txStatus: ethers.providers.TransactionReceipt = await provider.waitForTransaction(
-                hash
-            );
 
-            const { status } = txStatus;
-
-            if (status === 1) {
-                toastSuccess(`Confirmed tx ${compactHash(hash)}`);
-                setPendingTx &&
-                    setPendingTx(
-                        (state: PendingTx): PendingTx =>
-                            ({
-                                approval: [...state.approval],
-                                confirm: [
-                                    ...state.approval.filter(
-                                        (hash) => hash !== hash
-                                    ),
-                                ],
-                            } as PendingTx)
-                    );
-            } else {
-                toastError(`Rejected tx ${compactHash(hash)}`);
-                setPendingTx &&
-                    setPendingTx(
-                        (state: PendingTx): PendingTx =>
-                            ({
-                                approval: [...state.approval],
-                                confirm: [
-                                    ...state.approval.filter(
-                                        (hash) => hash !== hash
-                                    ),
-                                ],
-                            } as PendingTx)
-                    );
-            }
-        }
+        return hash as string;
     };
 
     // if (!pool || !pool?.token0 || !pool?.token1) return null;
@@ -1272,7 +1556,7 @@ export const AddLiquidityV3 = ({
                                 {pendingBounds ? (
                                     <ThreeDots width='24px' height='10px' />
                                 ) : (
-                                    isFlipped ? `${1 / bounds.prices[0]} t0 ${1 / bounds.prices[0]}` : `${bounds.prices[0]} to ${bounds.prices[1]}`
+                                    isFlipped ? `${1 / bounds.prices[1]} t0 ${1 / bounds.prices[0]}` : `${bounds.prices[0]} to ${bounds.prices[1]}`
                                 )}
                             </span>
                         </div>
