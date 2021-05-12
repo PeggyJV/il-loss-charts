@@ -1,7 +1,7 @@
 import mixpanel from 'mixpanel-browser';
 
 import { poolSymbol, PoolLike } from 'util/formats';
-import { BoundsState, TokenAmount } from 'types/states';
+import { BoundsState, TokenInputAmount } from 'types/states';
 
 import type { Sentiment } from 'components/add-liquidity/add-liquidity-v3';
 
@@ -52,7 +52,7 @@ export function trackSentimentInteraction(pool: PoolLike, sentiment: Sentiment):
     })
 }
 
-export function trackAddLiquidityTx(pool: PoolLike, sentiment: Sentiment, bounds: BoundsState, type: string, amounts: Record<string, TokenAmount>): void {
+export function trackAddLiquidityTx(pool: PoolLike, sentiment: Sentiment, bounds: BoundsState, type: string, amounts: Record<string, TokenInputAmount>): void {
     mix.track('pool:add-liquidity', {
         name: poolName(pool),
         type,

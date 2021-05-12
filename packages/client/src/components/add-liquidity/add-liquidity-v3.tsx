@@ -27,7 +27,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faBan, faExchangeAlt } from '@fortawesome/free-solid-svg-icons';
 import { ThreeDots } from 'react-loading-icons';
 import { compactHash } from 'util/formats';
-import { WalletBalances, BoundsState, TokenAmount } from 'types/states';
+import { WalletBalances, BoundsState, TokenInputAmount } from 'types/states';
 import { useWallet } from 'hooks/use-wallet';
 import { usePendingTx, PendingTx } from 'hooks/use-pending-tx';
 import { useMarketData } from 'hooks';
@@ -67,7 +67,7 @@ export const AddLiquidityV3 = ({
     }>({ status: false, message: <p>Warning placeholder</p> });
     const [isFlipped, setIsFlipped] = useState<boolean>(false);
     // State here is used to compute what tokens are being used to add liquidity with.
-    const initialState: Record<string, TokenAmount> = {
+    const initialState: Record<string, any> = {
         [token0Symbol]: {
             id: pool?.token0?.id,
             name: pool?.token0?.name,
@@ -651,7 +651,7 @@ export const AddLiquidityV3 = ({
                 sentiment,
                 bounds,
                 addType,
-                getTokensWithAmounts()
+                getTokensWithAmounts() as Record<string, TokenInputAmount>
             );
 
             toastWarn(`Confirming tx ${compactHash(hash)}`);

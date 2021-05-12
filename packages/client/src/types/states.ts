@@ -15,6 +15,8 @@ import {
     Position,
 } from '@uniswap/v3-sdk';
 
+import { Price } from '@uniswap/sdk-core';
+
 import { ethers } from 'ethers';
 
 export interface AllPairsState {
@@ -115,7 +117,7 @@ export type BoundsState = {
     position?: Position;
 };
 
-export interface TokenAmount {
+export interface TokenInputAmount {
     id?: string;
     name?: string;
     symbol?: string;
