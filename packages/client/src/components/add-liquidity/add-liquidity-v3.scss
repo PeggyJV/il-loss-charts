@@ -1,10 +1,11 @@
 .add-v3-container {
     // width: 600px;
     position: relative;
-    background: var(--bgDefault);
+    // background: var(--bgDefault);
     padding: 0;
     display: flex;
     flex-direction: column;
+    p { margin-bottom: 1rem;}
     // justify-content: space-between;
     // font-family: 'Barlow Condensed';
     // }
@@ -158,6 +159,43 @@
         }
     }
 
+    .token-control-container {
+        > div {
+            margin-bottom: 1rem;
+        }
+        button.btn-default {
+            padding: 1rem 1.25rem;
+            outline: none;
+            box-shadow: none;
+            border: 0;
+            border-radius: 4px;
+            background: var(--bgDeep);
+            color: var(--faceDisabled);
+        }
+        button.active {
+            background: var(--bgDeep);
+            color: var(--objPositiveAlt);
+        }
+    }
+    .token-input-control {
+        border: 1px solid var(--borderDefault);
+    }
+    .token-input-control.active {
+        border: 1px solid var(--objPositiveAlt);
+        border-radius: 4px;
+        background: var(--bgDeep);
+    }
+    .token-input-control.inactive {
+        border: 1px solid var(--borderDefault);
+        border-radius: 4px;
+        background: var(--bgDeep);
+    }
+    .token-input-control.disable {
+        border: 1px solid var(--objDisabledAlt);
+        border-radius: 4px;
+        background: var(--objDisabled);
+    }
+
     .token-with-logo {
         display: inline-flex;
         align-items: center;
@@ -210,9 +248,9 @@
     }
 
     .token-with-balance {
-        border: 1px solid var(--borderDefault);
+        // border: 1px solid var(--borderDefault);
         padding: 0rem 1rem;
-        border-radius: 4px;
+        // border-radius: 4px;
         .token-logo {
             display: inline-flex;
             align-items: center;
@@ -234,11 +272,14 @@
                 font-size: 2rem;
             }
         }
+        .disable {
+            color: var(--faceDisabled);
+        }
         .balance {
             font-size: 0.8rem;
             // border: 1px solid red;
             .balance-string {
-                max-width: 125px;
+                max-width: 90px;
                 text-overflow: ellipsis;
                 overflow: hidden;
                 white-space: nowrap;

@@ -48,8 +48,8 @@ export function PoolSearch({
             keys: ['token0.symbol', 'token1.symbol', poolSymbol],
         }).sort(poolSortByVolume).slice(0, 50);
 
-    const renderPoolWithLogo = (pool: TopPool) => (
-        <div className='pair-option-with-logo'>
+    const renderPoolWithLogo = (pool: TopPool) => {
+        return (<div className='pair-option-with-logo'>
             <div className='pair'>
                 {resolveLogo(pool?.token0?.id)}&nbsp;&nbsp;
                 {pool?.token0?.symbol}
@@ -62,8 +62,8 @@ export function PoolSearch({
                 &nbsp;&nbsp;
                 {resolveLogo(pool?.token1?.id)}
             </div>
-        </div>
-    );
+        </div>)
+    };
 
     return (
         <Box>
@@ -84,7 +84,7 @@ export function PoolSearch({
                 }}
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 getOptionLabel={poolOptionLabel}
-                style={{ width: 400 }}
+                style={{ width: '100%' }}
                 filterOptions={poolFilter}
                 renderOption={renderPoolWithLogo}
                 renderInput={(params) => (
