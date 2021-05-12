@@ -3,6 +3,7 @@ dotenv.config();
 
 import BigNumber from 'bignumber.js';
 import Discord from "discord.js";
+import logger from '../logger';
 
 import { UniswapFetcher, calculateMarketStats } from '@sommelier/data-service';
 import {
@@ -11,13 +12,18 @@ import {
     MarketStats,
 } from '@sommelier/shared-types';
 
+const log = logger.child({ worker: 'il-alerts-discord' });
 
 const CHAT_ID = '814279129247514635';
 const client = new Discord.Client();
 
+function logError(e: Error) {
+    log.error({ error: e.message ?? '' });
+}
+
 function respond(channel: any, text: string) {
     (channel as Discord.TextChannel).send(text)
-    .catch(console.error);
+    .catch(logError);
 }
 
 const handleExit = () => {
@@ -34,7 +40,7 @@ export default function loginAndSetupAlerts(): void {
             throw new Error('Could not login to Discord.')
         }
 
-        console.log(`Logged in as ${client.user.tag}!`);
+        log.info({ msg: `Logged in as ${client.user.tag}` });
         void runDiscordAlerts();
     });
 }
@@ -50,11 +56,7 @@ async function runDiscordAlerts(): Promise<void> {
     try {
         topPairs = await UniswapFetcher.getCurrentTopPerformingPools(100);
     } catch (e) {
-        console.error(
-            `Aborting: could not fetch pairs for IL alerts: ${
-                e.message as string
-            }`
-        );
+        log.error({ msg: 'Aborting, could not fetch pairs for IL alerts', error: e.message ?? '' });
         return handleExit();
     }
 
@@ -63,7 +65,7 @@ async function runDiscordAlerts(): Promise<void> {
     const startDate = new Date(Date.now() - oneDayMs);
     const endDate = new Date();
 
-    console.log(`Testing impermanent loss for ${topPairs.length} pairs.`);
+    log.info(`Testing impermanent loss for ${topPairs.length} pairs`);
 
     // TODO: Save requests by only fetching first and last hour
     const historicalFetches = topPairs.map(
@@ -79,9 +81,7 @@ async function runDiscordAlerts(): Promise<void> {
     try {
         historicalData = await Promise.all(historicalFetches);
     } catch (e) {
-        console.error(
-            `Aborting: could not fetch historical data: ${e.message as string}`
-        );
+        log.error({ msg: 'Aborting, could not fetch historical data', error: e.message ?? '' });
         return handleExit();
     }
 
@@ -93,11 +93,7 @@ async function runDiscordAlerts(): Promise<void> {
             'hourly'
         );
     } catch (e) {
-        console.error(
-            `Aborting: could not fetch latest market stats: ${
-                e.message as string
-            }`
-        );
+        log.error({ msg: 'Aborting, could not fetch latest market stats', error: e.message ?? '' });
         return handleExit();
     }
 
@@ -124,19 +120,15 @@ async function runDiscordAlerts(): Promise<void> {
         msgs.push('https://app.sommelier.finance/pair?id=' + pair.id);
         msgs.push('');
 
-        console.log('Sent msg to channel for pair', pair.market);
+        log.info({ msg: 'Sent msg to channel for pair', pair: pair.market });
     });
 
     try {
         client.channels.fetch(CHAT_ID)
         .then(channel => respond(channel, msgs.join('\n')))
-        .catch(console.error);
+        .catch(logError);
     } catch (e) {
-        console.error(
-            `Aborting: error sending a message to Telegram: ${
-                e.message as string
-            }`
-        );
+        log.error({ msg: 'Aborting, error sending a msg to Telegram', error: e.message ?? '' });
         return handleExit();
     }
 }

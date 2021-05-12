@@ -3,6 +3,9 @@ dotenv.config();
 
 import TelegramBot from 'node-telegram-bot-api';
 import BigNumber from 'bignumber.js';
+import logger from '../logger';
+
+const log = logger.child({ worker: 'il-alerts' });
 
 import { UniswapFetcher, calculateMarketStats } from '@sommelier/data-service';
 import {
@@ -36,11 +39,10 @@ export default async function runAlertCheck(): Promise<void> {
     try {
         topPairs = await UniswapFetcher.getCurrentTopPerformingPools(100);
     } catch (e) {
-        console.error(
-            `Aborting: could not fetch pairs for IL alerts: ${
-                e.message as string
-            }`
-        );
+        log.error({
+            msg: 'Aborting, could not fetch pairs for IL alerts',
+            error: e.message ?? '',
+        });
         return handleExit();
     }
 
@@ -49,7 +51,7 @@ export default async function runAlertCheck(): Promise<void> {
     const startDate = new Date(Date.now() - oneDayMs);
     const endDate = new Date();
 
-    console.log(`Testing impermanent loss for ${topPairs.length} pairs.`);
+    log.info(`Testing impermanent loss for ${topPairs.length }pairs`);
 
     // TODO: Save requests by only fetching first and last hour
     const historicalFetches = topPairs.map(
@@ -65,9 +67,7 @@ export default async function runAlertCheck(): Promise<void> {
     try {
         historicalData = await Promise.all(historicalFetches);
     } catch (e) {
-        console.error(
-            `Aborting: could not fetch historical data: ${e.message as string}`
-        );
+        log.error({ msg: 'Aborting, could not fetch historical data', error: e.message ?? '' });
         return handleExit();
     }
 
@@ -79,11 +79,7 @@ export default async function runAlertCheck(): Promise<void> {
             'hourly'
         );
     } catch (e) {
-        console.error(
-            `Aborting: could not fetch latest market stats: ${
-                e.message as string
-            }`
-        );
+        log.error({ msg: 'Aborting, could not fetch latest market stats', error: e.message ?? '' });
         return handleExit();
     }
 
@@ -110,7 +106,7 @@ export default async function runAlertCheck(): Promise<void> {
         }</a> saw a ${returnStr}% return in the last 24 hours!`;
         // sommBot.sendMessage(CHAT_ID, msg, { parse_mode: 'HTML' });
         msgs.push(msg);
-        console.log('Sent msg to channel for pair', pair.market);
+        log.info({ msg: 'Set msg to channel for pair', pair: pair.market });
     });
 
     highIlPairs.forEach((pair) => {
@@ -129,7 +125,7 @@ export default async function runAlertCheck(): Promise<void> {
         }</a> saw a ${ilStr}% impermanent loss in the last 24 hours!`;
         // sommBot.sendMessage(CHAT_ID, msg, { parse_mode: 'HTML' });
         msgs.push(msg);
-        console.log('Sent msg to channel for pair', pair.market);
+        log.info({ msg: 'Set msg to channel for pair', pair: pair.market });
     });
 
     try {
@@ -137,11 +133,7 @@ export default async function runAlertCheck(): Promise<void> {
             parse_mode: 'HTML',
         });
     } catch (e) {
-        console.error(
-            `Aborting: error sending a message to Telegram: ${
-                e.message as string
-            }`
-        );
+        log.error({ msg: 'Aborting, error sending a msg to Telegram', error: e.message ?? '' });
         return handleExit();
     }
 

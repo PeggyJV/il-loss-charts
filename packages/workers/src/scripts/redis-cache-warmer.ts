@@ -4,6 +4,9 @@ import { endOfDay, startOfDay, subDays } from 'date-fns';
 import dotenv from 'dotenv';
 import fetch from 'cross-fetch';
 import Redis from 'ioredis';
+import logger from '../logger';
+
+const log = logger.child({ worker: 'redis-cache-warmer' });
 
 import {
     _getPeriodIndicators,
@@ -67,12 +70,11 @@ const poolCountStr = process.env.TOP_POOL_COUNT ?? '40';
 const poolCount = parseInt(poolCountStr, 10);
 
 export async function run(): Promise<void> {
-    console.log('Fetching Top Pools and updating cache');
     // track token pairs we've warmed
     const filter: Set<string> = new Set();
 
     const topPools = await getTopPools(count, sort);
-    console.log(`Fetched Top Pools, count: ${topPools.length}`);
+    log.info({ msg: 'Fetched top pools', count: topPools.length });
 
     const top = topPools.slice(0, poolCount * 5) // get more than we need
         // filter duplicate token pairs out
@@ -104,12 +106,12 @@ async function updatePoolCache(pool: any) {
     const quoteToken = pool.token0.id;
 
     try {
-        console.log(`Fetching Daily: ${name}`)
+        log.info({ msg: 'fetching daily data', pool: name, })
         // TODO: remove daily data fetch after client refactor
         // get daily data
         await getLastDayOHLC.forceUpdate(baseToken, quoteToken);
     } catch (error) {
-        console.error(`Unable to update daily data: ${name}: ${error.message ?? ''}`);
+        log.error({ msg: 'Unable to update daily data', pool: name, error: error.message ?? '' });
     }
 
     // calculate period for fetching indicators, must be same as client code
@@ -118,17 +120,16 @@ async function updatePoolCache(pool: any) {
     const startDate = startOfDay(subDays(now, periodDays)).getTime();
 
     try {
-        console.log(`Fetching Indicators: ${name}`)
+        log.info({ msg: 'fetching indicators', pool: name });
         await getPeriodIndicators.forceUpdate(baseToken, quoteToken, startDate, endDate);
     } catch (error) {
-        console.error(`Unable to update indicator data: ${name} - ${error.message ?? ''}`);
+        log.error({ msg: 'Unable to update indicator data', pool: name, error: error.message ?? '' });
 
     }
 }
 
 function poolName(pool: any) {
     if (!pool || !pool.token0 || !pool.token1) {
-        console.error(`Could not get pool name for: ${JSON.stringify(pool)}`);
         return '';
     }
 
@@ -139,7 +140,6 @@ function poolName(pool: any) {
 
 function poolId(pool: any) {
     if (!pool || !pool.token0 || !pool.token1) {
-        console.error(`Could not get pool name for: ${JSON.stringify(pool)}`);
         return '';
     }
 
