@@ -9,7 +9,12 @@ import PendingTx from 'components/pending-tx';
 // import { PoolSearch } from 'components/pool-search';
 import { LiquidityContainer } from 'containers/liquidity-container';
 import { Box } from '@material-ui/core';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    faDiscord,
+    faTwitter,
+    faTelegram,
+} from '@fortawesome/free-brands-svg-icons';
 function LandingContainer({
     setShowConnectWallet,
     gasPrices,
@@ -62,13 +67,39 @@ function LandingContainer({
                 alignItems='center'
                 justifyContent='space-around'
             >
-                <div style={{ fontSize: '2rem', textAlign: 'center' }}>
+                <div style={{ fontSize: '1.5rem', textAlign: 'center' }}>
                     The easiest way to add liquidity to{' '}
-                    <span style={{ color: 'var(--faceAccent)' }}>UNISWAP</span>{' '}
-                    <span style={{ color: 'var(--faceAccentAlt)' }}>V3</span>
+                    <span style={{ color: 'var(--faceAccent)' }}>Uniswap</span>{' '}
+                    <span style={{ color: 'var(--faceAccentAlt)' }}>v3</span>
                 </div>
                 <br />
                 <LiquidityContainer gasPrices={gasPrices} />
+            </Box>
+            <Box
+                display='flex'
+                alignItems='center'
+                className='footer-tab-container'
+            >
+                {/* <a href='https://t.me/getsomm' target='_blank' rel='noreferrer'>
+                    <FontAwesomeIcon icon={faTelegram} />
+                </a>
+                <a
+                    href='https://twitter.com/sommfinance'
+                    target='_blank'
+                    rel='noreferrer'
+                >
+                    <FontAwesomeIcon icon={faTwitter} />
+                </a> */}
+                <a
+                    className='support-tab'
+                    href='https://discord.gg/VXyUgtnbtv'
+                    target='_blank'
+                    rel='noreferrer'
+                >
+                    <FontAwesomeIcon icon={faDiscord} />
+                    &nbsp;
+                    <p>Support</p>
+                </a>
             </Box>
         </div>
     );

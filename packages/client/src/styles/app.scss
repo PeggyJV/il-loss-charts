@@ -201,11 +201,19 @@ p {
     display: flex;
     background: var(--bgDeep);
     color: var(--facePrimary);
+    // background: linear-gradient(
+    //     153deg,
+    //     rgba(33, 1, 58, 0.9066001400560224) 29%,
+    //     rgba(13, 131, 167, 0.8953956582633054) 60%,
+    //     rgba(87, 4, 113, 0.8785889355742297) 78%
+    // );
+    background: rgb(32, 9, 88);
     background: linear-gradient(
-        153deg,
-        rgba(33, 1, 58, 0.9066001400560224) 29%,
-        rgba(13, 131, 167, 0.8953956582633054) 60%,
-        rgba(87, 4, 113, 0.8785889355742297) 78%
+        222deg,
+        #030107 0%,
+        #8708dcc7 60%,
+        #430263 80%,
+        rgba(0, 213, 255, 0.632) 100%
     );
     // background: linear-gradient(
     //     153deg,
@@ -245,7 +253,33 @@ p {
     align-items: center;
     margin-bottom: 2rem;
 }
+.footer-tab-container {
+    position: fixed;
+    right: 10px;
+    color: var(--facePrimary);
+    bottom: 0;
+    display: flex;
 
+    > a {
+        // border: 1px solid red;
+        margin-right: 0.5rem;
+        color: var(--facePrimary);
+        border: 1px solid var(--bgDefault);
+        background: radial-gradient(var(--bgDefault), var(--bgPrimary));
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        border-top-right-radius: 4px;
+        border-top-left-radius: 4px;
+        &:hover {
+            color: var(--faceAccentAlt);
+        }
+    }
+    .support-tab {
+        align-items: center;
+        justify-content: space-between;
+        display: flex;
+    }
+}
 .telegram-cta {
     font-size: 1rem;
     color: var(--facePrimary);
@@ -525,33 +559,6 @@ p {
     }
 }
 
-.pair-option-with-logo {
-    display: flex;
-    align-items: center;
-    img {
-        height: 2rem;
-    }
-    .no-image:after {
-        content: '🍇';
-        font-size: 1.5rem;
-    }
-    .pair {
-        border: 1px solid var(--borderDefault);
-        width: 125px;
-        height: 50px;
-        background: var(--objDefault);
-        border-radius: 2px;
-        border: 1px solid var(--borderPrimary);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        line-height: 2rem;
-        font-size: 1rem;
-    }
-}
-
 .pair-volume-liquidity-stats {
     // border: 1px solid var(--borderMain);
     // background: var(--bgContainer);
@@ -758,7 +765,9 @@ p {
 .connect-wallet-modal-option {
     margin: 0.5em;
     height: 4em;
-    background: var(--bgAccentAlt);
+    background: var(--objAccent);
+    border: 0;
+    border-radius: 4px;
 }
 .connect-wallet-modal-header,
 .connect-wallet-modal-footer {
@@ -787,8 +796,7 @@ p {
     color: var(--facePrimary);
 }
 .connect-wallet-modal-option:hover {
-    border: 1px solid var(--borderAccent);
-    background: var(--bgAccentAlt);
+    border:1px solid var(--borderAccent);
 }
 .connect-wallet-modal .error-container {
     opacity: 0.7;
@@ -820,9 +828,9 @@ p {
 .connect-wallet-button {
     color: var(--faceDeep);
     width: 100%;
-    max-width: 250px;
+    max-width: 150px;
     max-height: 38px;
-    font-size: 0.8rem;
+    font-size: 1rem;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -831,7 +839,7 @@ p {
     border: 1px solid var(--borderAccent);
     border-radius: 0;
     padding: 0.5rem 1.25rem;
-    border-radius: 2px;
+    border-radius: 4px;
     width: 'fit-content';
     &:hover,
     :active,
@@ -1070,21 +1078,22 @@ th .caret-4-desc:after {
     justify-content: flex-end;
     position: relative;
     margin-left: 1rem;
+    width: 282px;
 }
 // SCROLL UI
 .scroll {
     width: 10rem;
-    height: 2rem;
-    max-height: 2rem;
-    margin-top: 0.15rem;
+    height: 35px;
+    // max-height: 2rem;
+    // margin-top: 0.12rem;
     position: absolute;
-    right: 250px;
-    padding: 4px 10px;
+    right: 150px;
+    padding: 8px 5px;
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
     background: var(--bgDefault);
     // border: 1px solid var(--borderMain);
-    color: var(--faceSecondary);
+    color: var(--facePrimary);
     -webkit-transition: max-height 1s;
     -moz-transition: max-height 1s;
     -ms-transition: max-height 1s;
@@ -1094,8 +1103,8 @@ th .caret-4-desc:after {
     overflow: hidden;
     cursor: pointer;
     .bullet {
-        padding: 5px 10px;
-        background: var(--bgWarn);
+        padding: 8px;
+        background: var(--objWarn);
         border-radius: 5px;
         font-size: 0.85rem;
         color: var(--faceDeep);
@@ -1108,8 +1117,8 @@ th .caret-4-desc:after {
         -ms-transition: background 0.1s linear;
         -o-transition: background 0.1s linear;
         transition: background 0.1s linear;
-        height: 200px;
-        max-height: 200px;
+        height: 150px;
+        max-height: 150px;
         overflow: scroll;
     }
     ul {

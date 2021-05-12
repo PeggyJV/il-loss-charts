@@ -17,7 +17,7 @@ const PendingTx = (): ReactElement => {
             <div>
                 <span>
                     <span className='bullet'>{totalPending}</span>
-                    &nbsp; &nbsp; Pending
+                    &nbsp;Pending
                 </span>
             </div>
             <ul>

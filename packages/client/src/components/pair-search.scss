@@ -4,15 +4,17 @@
     .MuiAutocomplete-paper {
         background: var(--bgDeep);
         color: var(--faceSecondary);
-        border: 1px solid var(--borderPrimary);
+        border: 1px solid var(--borderDefault);
         .MuiAutocomplete-listbox {
             .MuiAutocomplete-option {
-                padding: 0.85rem;
+                // padding: 0.85rem;
                 font-weight: 600;
                 // border-bottom: 1px solid var(--borderDefault);
                 &[data-focus='true'] {
                     color: var(--faceDeep);
-                    background: var(--objDefault);
+                    // border-left: 5px solid var(--borderAccentAlt);
+                    // border-right: 5px solid var(--borderAccentAlt);
+                    background: var(--objAccentAlt);
                     // border-bottom: 1px solid var(--borderPrimary);
                 }
             }
@@ -49,8 +51,35 @@
 #all-pairs {
     padding: 1rem;
     text-transform: uppercase;
-    &:active {
-        border: 1px solid red;
-    }
+    color: var(--faceDeep);
 }
 
+
+.pair-option-with-logo {
+    display: flex;
+    align-items: center;
+    img {
+        height: 2rem;
+    }
+    .no-image:after {
+        content: '🍇';
+        font-size: 1.5rem;
+    }
+    .pair {
+        // border: 1px solid var(--borderDefault);
+        color: var(--facePrimary);
+        min-width: 200px;
+        padding: 0.5rem 0.5rem;
+        background: var(--objDefault);
+        border-radius: 4px;
+        display: flex;
+        justify-content: flex-start;
+        white-space: nowrap;
+        align-items: center;
+        overflow: hidden;
+        font-size: 1rem;
+        &:hover {
+            background: var(--bgSecondary);
+        }
+    }
+}
