@@ -39,7 +39,7 @@ export const LiquidityActionButton = ({
             return;
         }
 
-        if (tokenInputState?.selectedTokens.length !== 2) {
+        if (tokenInputState?.selectedTokens.length === 0) {
             setButtonState('selectTokens');
             return;
         }
@@ -109,7 +109,7 @@ export const LiquidityActionButton = ({
                     onClick={onClick}
                     className={classNames('btn-addl', 'btn-negative')}
                 >
-                    {'Select (2) Tokens'}
+                    {'Select Tokens'}
                 </button>
             );
         case 'enterAmount':
