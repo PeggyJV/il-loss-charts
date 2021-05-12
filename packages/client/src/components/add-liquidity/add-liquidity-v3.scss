@@ -131,19 +131,42 @@
     }
 
     .sentiment {
+        background: var(--bgDefault);
+        padding: 0.75rem;
+        border-radius: 4px;
         > div {
-            padding: 0.25rem 0.5rem;
+            padding: 0.5rem 0.5rem;
             color: var(--faceSecondary);
             border: 1px solid var(--borderPrimary);
             background: var(--objDeep);
-            border-radius: 4px;
+            // border-radius: 4px;
             cursor: pointer;
+            &:hover {
+                color: var(--faceDeep);
+            }
+        }
+        > div:first-child {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+        > div:last-child {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
         }
         .active {
-            background: var(--objDefault);
-            border: 1px solid var(--borderDefault);
+            background: var(--objPrimary);
+            border: 1px solid var(--borderPrimary);
             color: var(--faceDeep);
         }
+    }
+
+    .sentiment-button {
+        flex-grow: 1;
+        text-align: center;
+    }
+
+    .sentiment-button + .sentiment-button {
+        // margin-left: 1em;
     }
 
     .token-select {
@@ -293,15 +316,6 @@
             }
         }
     }
-}
-
-.sentiment-button {
-    flex-grow: 1;
-    text-align: center;
-}
-
-.sentiment-button + .sentiment-button {
-    margin-left: 1em;
 }
 
 .well-warn.out-of-range {

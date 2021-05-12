@@ -1486,7 +1486,7 @@ export const AddLiquidityV3 = ({
                 <br />
                 <Box
                     display='flex'
-                    justifyContent='space-between'
+                    justifyContent='center'
                     className='sentiment'
                 >
                     <div
@@ -1517,7 +1517,6 @@ export const AddLiquidityV3 = ({
                         📈 Bullish
                     </div>
                 </Box>
-                <br />
                 {warning?.status && (
                     <div className='well-warn out-of-range'>
                         {warning?.message}
