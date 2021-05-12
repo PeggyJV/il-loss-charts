@@ -9,8 +9,12 @@ import PendingTx from 'components/pending-tx';
 // import { PoolSearch } from 'components/pool-search';
 import { LiquidityContainer } from 'containers/liquidity-container';
 import { Box } from '@material-ui/core';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faDiscord} from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    faDiscord,
+    faTwitter,
+    faTelegram,
+} from '@fortawesome/free-brands-svg-icons';
 function LandingContainer({
     setShowConnectWallet,
     gasPrices,
@@ -71,17 +75,32 @@ function LandingContainer({
                 <br />
                 <LiquidityContainer gasPrices={gasPrices} />
             </Box>
-            <div>
+            <Box
+                display='flex'
+                alignItems='center'
+                className='footer-tab-container'
+            >
+                {/* <a href='https://t.me/getsomm' target='_blank' rel='noreferrer'>
+                    <FontAwesomeIcon icon={faTelegram} />
+                </a>
+                <a
+                    href='https://twitter.com/sommfinance'
+                    target='_blank'
+                    rel='noreferrer'
+                >
+                    <FontAwesomeIcon icon={faTwitter} />
+                </a> */}
                 <a
                     className='support-tab'
                     href='https://discord.gg/VXyUgtnbtv'
                     target='_blank'
                     rel='noreferrer'
                 >
-                    <FontAwesomeIcon icon={faDiscord} />&nbsp;
+                    <FontAwesomeIcon icon={faDiscord} />
+                    &nbsp;
                     <p>Support</p>
                 </a>
-            </div>
+            </Box>
         </div>
     );
 }

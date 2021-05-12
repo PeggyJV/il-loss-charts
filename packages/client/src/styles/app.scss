@@ -245,23 +245,31 @@ p {
     align-items: center;
     margin-bottom: 2rem;
 }
-.support-tab {
+.footer-tab-container {
     position: fixed;
     right: 10px;
     color: var(--facePrimary);
     bottom: 0;
     display: flex;
-    align-items: center;
-    // width: 150px;
-    justify-content: space-between;
-    border: 1px solid var(--bgDefault);
-    background: radial-gradient(var(--bgDefault), var(--bgPrimary));
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    border-top-right-radius: 4px;
-    border-top-left-radius: 4px;
-    &:hover {
-        color: var(--faceAccentAlt);
+
+    > a {
+        // border: 1px solid red;
+        margin-right: 0.5rem;
+        color: var(--facePrimary);
+        border: 1px solid var(--bgDefault);
+        background: radial-gradient(var(--bgDefault), var(--bgPrimary));
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        border-top-right-radius: 4px;
+        border-top-left-radius: 4px;
+        &:hover {
+            color: var(--faceAccentAlt);
+        }
+    }
+    .support-tab {
+        align-items: center;
+        justify-content: space-between;
+        display: flex;
     }
 }
 .telegram-cta {
