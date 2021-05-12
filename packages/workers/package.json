@@ -33,6 +33,7 @@
         "express": "^4.17.1",
         "ioredis": "^4.27.1",
         "node-cron": "^3.0.0",
+        "pino": "^6.11.3",
         "superagent": "^6.1.0"
     },
     "devDependencies": {
