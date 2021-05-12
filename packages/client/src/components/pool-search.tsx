@@ -46,23 +46,27 @@ export function PoolSearch({
     const poolFilter = (options: TopPool[], { inputValue }: any) =>
         matchSorter(options, inputValue, {
             keys: ['token0.symbol', 'token1.symbol', poolSymbol],
-        }).sort(poolSortByVolume).slice(0, 50);
+        })
+            .sort(poolSortByVolume)
+            .slice(0, 50);
 
     const renderPoolWithLogo = (pool: TopPool) => {
-        return (<div className='pair-option-with-logo'>
-            <div className='pair'>
-                {resolveLogo(pool?.token0?.id)}&nbsp;&nbsp;
-                {pool?.token0?.symbol}
+        return (
+            <div className='pair-option-with-logo'>
+                <div className='pair'>
+                    <div>
+                        {resolveLogo(pool?.token0?.id)}
+                        {resolveLogo(pool?.token1?.id)}
+                        &nbsp;&nbsp;
+                    </div>
+                    <div>
+                        {pool?.token0?.symbol}
+                        {'/'}
+                        {pool?.token1?.symbol}
+                    </div>
+                </div>
             </div>
-            &nbsp;
-            {<FontAwesomeIcon icon={faRetweet} />}
-            &nbsp;
-            <div className='pair'>
-                {pool?.token1?.symbol}
-                &nbsp;&nbsp;
-                {resolveLogo(pool?.token1?.id)}
-            </div>
-        </div>)
+        );
     };
 
     return (

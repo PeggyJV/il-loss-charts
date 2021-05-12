@@ -7,12 +7,14 @@
         border: 1px solid var(--borderDefault);
         .MuiAutocomplete-listbox {
             .MuiAutocomplete-option {
-                padding: 0.85rem;
+                // padding: 0.85rem;
                 font-weight: 600;
                 // border-bottom: 1px solid var(--borderDefault);
                 &[data-focus='true'] {
                     color: var(--faceDeep);
-                    background: var(--objDefault);
+                    // border-left: 5px solid var(--borderAccentAlt);
+                    // border-right: 5px solid var(--borderAccentAlt);
+                    background: var(--objAccentAlt);
                     // border-bottom: 1px solid var(--borderPrimary);
                 }
             }
@@ -54,3 +56,33 @@
     }
 }
 
+
+.pair-option-with-logo {
+    display: flex;
+    align-items: center;
+    img {
+        height: 2rem;
+    }
+    .no-image:after {
+        content: '🍇';
+        font-size: 1.5rem;
+    }
+    .pair {
+        // border: 1px solid var(--borderDefault);
+        color: var(--facePrimary);
+        min-width: 175px;
+        padding: 0.5rem 0.5rem;
+        background: var(--objDefault);
+        border-radius: 4px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        // line-height: 2rem;
+        font-size: 1rem;
+        &:hover {
+            background: var(--bgSecondary);
+        }
+    }
+}

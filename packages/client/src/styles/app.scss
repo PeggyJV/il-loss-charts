@@ -559,33 +559,6 @@ p {
     }
 }
 
-.pair-option-with-logo {
-    display: flex;
-    align-items: center;
-    img {
-        height: 2rem;
-    }
-    .no-image:after {
-        content: '🍇';
-        font-size: 1.5rem;
-    }
-    .pair {
-        border: 1px solid var(--borderDefault);
-        width: 125px;
-        height: 50px;
-        background: var(--objDefault);
-        border-radius: 2px;
-        border: 1px solid var(--borderPrimary);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        line-height: 2rem;
-        font-size: 1rem;
-    }
-}
-
 .pair-volume-liquidity-stats {
     // border: 1px solid var(--borderMain);
     // background: var(--bgContainer);
