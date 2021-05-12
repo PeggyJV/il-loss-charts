@@ -56,8 +56,5 @@ if (cacheWarmerEnabled) {
 // In the future we can expose HTTP endpoints for cloud run
 const app = express();
 app.listen(PORT, () => {
-    log.info({
-        msg: 'Scheduler listening',
-        port: PORT,
-    });
+    log.info(`Scheduler listening at http://localhost:${PORT}`);
 });
