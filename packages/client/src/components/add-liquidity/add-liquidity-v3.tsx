@@ -1484,6 +1484,7 @@ export const AddLiquidityV3 = ({
                     </Box>
                 </Box>
                 <br />
+                <p>Select Market Sentiment</p>
                 <Box
                     display='flex'
                     justifyContent='center'
