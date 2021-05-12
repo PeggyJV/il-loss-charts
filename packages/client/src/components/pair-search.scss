@@ -51,9 +51,7 @@
 #all-pairs {
     padding: 1rem;
     text-transform: uppercase;
-    &:active {
-        border: 1px solid red;
-    }
+    color: var(--faceDeep);
 }
 
 
@@ -70,16 +68,15 @@
     .pair {
         // border: 1px solid var(--borderDefault);
         color: var(--facePrimary);
-        min-width: 175px;
+        min-width: 200px;
         padding: 0.5rem 0.5rem;
         background: var(--objDefault);
         border-radius: 4px;
         display: flex;
         justify-content: flex-start;
+        white-space: nowrap;
         align-items: center;
         overflow: hidden;
-        text-overflow: ellipsis;
-        // line-height: 2rem;
         font-size: 1rem;
         &:hover {
             background: var(--bgSecondary);
