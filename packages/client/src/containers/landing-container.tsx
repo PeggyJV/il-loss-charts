@@ -67,7 +67,7 @@ function LandingContainer({
                 alignItems='center'
                 justifyContent='space-around'
             >
-                <div style={{ fontSize: '2rem', textAlign: 'center' }}>
+                <div style={{ fontSize: '1.5rem', textAlign: 'center' }}>
                     The easiest way to add liquidity to{' '}
                     <span style={{ color: 'var(--faceAccent)' }}>Uniswap</span>{' '}
                     <span style={{ color: 'var(--faceAccentAlt)' }}>v3</span>

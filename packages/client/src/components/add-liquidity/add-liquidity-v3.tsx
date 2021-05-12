@@ -10,7 +10,7 @@ import {
     Position,
     priceToClosestTick,
     tickToPrice,
-    TickMath
+    TickMath,
 } from '@uniswap/v3-sdk';
 import { resolveLogo } from 'components/token-with-logo';
 import { TokenWithBalance } from 'components/token-with-balance';
@@ -24,7 +24,11 @@ import { LiquidityContext } from 'containers/liquidity-container';
 import { TokenInput } from 'components/token-input';
 import { toastSuccess, toastWarn, toastError } from 'util/toasters';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faBan, faExchangeAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+    faCheckCircle,
+    faBan,
+    faExchangeAlt,
+} from '@fortawesome/free-solid-svg-icons';
 import { ThreeDots } from 'react-loading-icons';
 import { compactHash } from 'util/formats';
 import { WalletBalances } from 'types/states';
@@ -260,7 +264,7 @@ export const AddLiquidityV3 = ({
 
         let lowerBoundTick: number;
 
-        if (lowerBound > 0) {    
+        if (lowerBound > 0) {
             const lowerBoundNumerator = ethers.utils
                 .parseUnits(
                     new BigNumber(lowerBound).toFixed(
@@ -269,11 +273,11 @@ export const AddLiquidityV3 = ({
                     baseTokenCurrency.decimals
                 )
                 .toString();
-    
+
             const lowerBoundDenominator = ethers.utils
                 .parseUnits('1', quoteTokenCurrency.decimals)
                 .toString();
-    
+
             // Convert to lower tick and upper ticks
             const lowerBoundPrice = new Price(
                 baseTokenCurrency,
@@ -281,9 +285,9 @@ export const AddLiquidityV3 = ({
                 lowerBoundNumerator,
                 lowerBoundDenominator
             );
-    
+
             (window as any).lowerBoundPrice = lowerBoundPrice;
-    
+
             lowerBoundTick = priceToClosestTick(lowerBoundPrice);
             lowerBoundTick -= lowerBoundTick % uniPool.tickSpacing;
         } else {
@@ -593,7 +597,7 @@ export const AddLiquidityV3 = ({
 
             setPriceImpact(priceImpact);
 
-            console.log('GONNA HANDLE BOUNDS AGAIN')
+            console.log('GONNA HANDLE BOUNDS AGAIN');
             const bounds = handleBounds(pool, indicators, [
                 expectedBaseAmount,
                 expectedQuoteAmount,
@@ -662,9 +666,9 @@ export const AddLiquidityV3 = ({
                 const txStatus: ethers.providers.TransactionReceipt = await provider.waitForTransaction(
                     hash
                 );
-    
+
                 const { status } = txStatus;
-    
+
                 if (status === 1) {
                     toastSuccess(`Confirmed tx ${compactHash(hash)}`);
                     setPendingTx &&
@@ -699,7 +703,14 @@ export const AddLiquidityV3 = ({
     };
 
     const doTwoSidedAdd = async (): Promise<string | undefined> => {
-        if (!pool || !provider || !indicators || !bounds.position || !currentGasPrice) return;
+        if (
+            !pool ||
+            !provider ||
+            !indicators ||
+            !bounds.position ||
+            !currentGasPrice
+        )
+            return;
 
         const addLiquidityContractAddress =
             config.networks[wallet.network || '1']?.contracts?.ADD_LIQUIDITY_V3;
@@ -825,13 +836,13 @@ export const AddLiquidityV3 = ({
 
                 const tokenAllowance = ethers.utils.formatUnits(
                     balances?.[tokenSymbol]?.allowance?.[
-                    addLiquidityContractAddress
+                        addLiquidityContractAddress
                     ],
                     balances?.[tokenSymbol]?.decimals
                 );
 
                 // skip approval on allowance
-                console.log('THIS IS ALLOWANCE', tokenSymbol, tokenAllowance)
+                console.log('THIS IS ALLOWANCE', tokenSymbol, tokenAllowance);
                 if (new BigNumber(baseTokenAmount).lt(tokenAllowance)) continue;
             }
 
@@ -884,24 +895,24 @@ export const AddLiquidityV3 = ({
                 setPendingTx &&
                     setPendingTx(
                         (state: PendingTx): PendingTx =>
-                        ({
-                            approval: [...state.approval, approveHash],
-                            confirm: [...state.confirm],
-                        } as PendingTx)
+                            ({
+                                approval: [...state.approval, approveHash],
+                                confirm: [...state.confirm],
+                            } as PendingTx)
                     );
                 await provider.waitForTransaction(approveHash);
                 setPendingApproval(false);
                 setPendingTx &&
                     setPendingTx(
                         (state: PendingTx): PendingTx =>
-                        ({
-                            approval: [
-                                ...state.approval.filter(
-                                    (h) => h != approveHash
-                                ),
-                            ],
-                            confirm: [...state.confirm],
-                        } as PendingTx)
+                            ({
+                                approval: [
+                                    ...state.approval.filter(
+                                        (h) => h != approveHash
+                                    ),
+                                ],
+                                confirm: [...state.confirm],
+                            } as PendingTx)
                     );
             }
         }
@@ -955,7 +966,14 @@ export const AddLiquidityV3 = ({
     };
 
     const doOneSidedAdd = async (): Promise<string | undefined> => {
-        if (!pool || !provider || !indicators || !bounds.position || !currentGasPrice) return;
+        if (
+            !pool ||
+            !provider ||
+            !indicators ||
+            !bounds.position ||
+            !currentGasPrice
+        )
+            return;
 
         const addLiquidityContractAddress =
             config.networks[wallet.network || '1']?.contracts?.ADD_LIQUIDITY_V3;
@@ -980,8 +998,8 @@ export const AddLiquidityV3 = ({
         const [selectedToken] = tokenInputState.selectedTokens;
         const tokenData = tokenInputState[selectedToken];
 
-        console.log("THIS IS TOKENDATA", selectedToken, tokenData)
-        console.log("INPUT STATE", tokenInputState);
+        console.log('THIS IS TOKENDATA', selectedToken, tokenData);
+        console.log('INPUT STATE', tokenInputState);
 
         const tokenId = 0;
         let decimals = 18;
@@ -992,26 +1010,24 @@ export const AddLiquidityV3 = ({
         }
         const mintAmountOneSide = ethers.utils
             .parseUnits(
-                new BigNumber(tokenData.amount).toFixed(
-                    decimals
-                ),
+                new BigNumber(tokenData.amount).toFixed(decimals),
                 decimals
             )
             .toString();
 
         const mintAmount0 = ethers.utils
             .parseUnits(
-                new BigNumber(tokenInputState[pool.token0.symbol].amount).toFixed(
-                    parseInt(pool.token0.decimals)
-                ),
+                new BigNumber(
+                    tokenInputState[pool.token0.symbol].amount
+                ).toFixed(parseInt(pool.token0.decimals)),
                 pool.token0.decimals
             )
             .toString();
         const mintAmount1 = ethers.utils
             .parseUnits(
-                new BigNumber(tokenInputState[pool.token1.symbol].amount).toFixed(
-                    parseInt(pool.token1.decimals)
-                ),
+                new BigNumber(
+                    tokenInputState[pool.token1.symbol].amount
+                ).toFixed(parseInt(pool.token1.decimals)),
                 pool.token1.decimals
             )
             .toString();
@@ -1021,7 +1037,7 @@ export const AddLiquidityV3 = ({
         // const slippageRatio = new BigNumber(slippageTolerance as number).div(
         //     100
         // );
-        
+
         // const slippageCoefficient = new BigNumber(1).minus(slippageRatio);
 
         // const liquiditySquared = new BigNumber(mintAmount0).times(mintAmount1);
@@ -1080,7 +1096,7 @@ export const AddLiquidityV3 = ({
 
                 const tokenAllowance = ethers.utils.formatUnits(
                     balances?.[tokenSymbol]?.allowance?.[
-                    addLiquidityContractAddress
+                        addLiquidityContractAddress
                     ],
                     balances?.[tokenSymbol]?.decimals
                 );
@@ -1138,24 +1154,24 @@ export const AddLiquidityV3 = ({
                 setPendingTx &&
                     setPendingTx(
                         (state: PendingTx): PendingTx =>
-                        ({
-                            approval: [...state.approval, approveHash],
-                            confirm: [...state.confirm],
-                        } as PendingTx)
+                            ({
+                                approval: [...state.approval, approveHash],
+                                confirm: [...state.confirm],
+                            } as PendingTx)
                     );
                 await provider.waitForTransaction(approveHash);
                 setPendingApproval(false);
                 setPendingTx &&
                     setPendingTx(
                         (state: PendingTx): PendingTx =>
-                        ({
-                            approval: [
-                                ...state.approval.filter(
-                                    (h) => h != approveHash
-                                ),
-                            ],
-                            confirm: [...state.confirm],
-                        } as PendingTx)
+                            ({
+                                approval: [
+                                    ...state.approval.filter(
+                                        (h) => h != approveHash
+                                    ),
+                                ],
+                                confirm: [...state.confirm],
+                            } as PendingTx)
                     );
             }
         }
@@ -1174,16 +1190,12 @@ export const AddLiquidityV3 = ({
         let gasEstimate: ethers.BigNumber;
 
         try {
-            gasEstimate = await addLiquidityContract.estimateGas['investTokenForUniPair'](
-                tokenData.id,
-                mintAmountOneSide,
-                tokenId,
-                mintParams,
-                {
-                    gasPrice: baseGasPrice,
-                    value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
-                }
-            );
+            gasEstimate = await addLiquidityContract.estimateGas[
+                'investTokenForUniPair'
+            ](tokenData.id, mintAmountOneSide, tokenId, mintParams, {
+                gasPrice: baseGasPrice,
+                value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
+            });
 
             // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
             gasEstimate = gasEstimate.add(gasEstimate.div(3));
@@ -1296,7 +1308,13 @@ export const AddLiquidityV3 = ({
                                         }
                                     />
                                 </button>
-                                <div style={{ flexGrow: 1 }}>
+                                <div
+                                    style={{
+                                        flexGrow: 1,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                    }}
+                                >
                                     <TokenWithBalance
                                         id={tokenInputState['ETH']?.id}
                                         name={'ETH'}
@@ -1368,7 +1386,13 @@ export const AddLiquidityV3 = ({
                                     }
                                 />
                             </button>
-                            <div style={{ flexGrow: 1 }}>
+                            <div
+                                style={{
+                                    flexGrow: 1,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                }}
+                            >
                                 <TokenWithBalance
                                     id={tokenInputState[token0Symbol].id}
                                     name={token0Symbol}
@@ -1445,7 +1469,13 @@ export const AddLiquidityV3 = ({
                                     }
                                 />
                             </button>
-                            <div style={{ flexGrow: 1 }}>
+                            <div
+                                style={{
+                                    flexGrow: 1,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                }}
+                            >
                                 <TokenWithBalance
                                     id={tokenInputState[token1Symbol].id}
                                     name={token1Symbol}
@@ -1538,7 +1568,7 @@ export const AddLiquidityV3 = ({
                                     style={{
                                         cursor: 'pointer',
                                         color: 'var(--objAccentAlt)',
-                                        padding: '0.5rem'
+                                        padding: '0.5rem',
                                     }}
                                 >
                                     <FontAwesomeIcon icon={faExchangeAlt} />
@@ -1555,8 +1585,12 @@ export const AddLiquidityV3 = ({
                             <span className='face-positive'>
                                 {pendingBounds ? (
                                     <ThreeDots width='24px' height='10px' />
+                                ) : isFlipped ? (
+                                    `${1 / bounds.prices[1]} t0 ${
+                                        1 / bounds.prices[0]
+                                    }`
                                 ) : (
-                                    isFlipped ? `${1 / bounds.prices[1]} t0 ${1 / bounds.prices[0]}` : `${bounds.prices[0]} to ${bounds.prices[1]}`
+                                    `${bounds.prices[0]} to ${bounds.prices[1]}`
                                 )}
                             </span>
                         </div>
