@@ -27,7 +27,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faBan, faExchangeAlt } from '@fortawesome/free-solid-svg-icons';
 import { ThreeDots } from 'react-loading-icons';
 import { compactHash } from 'util/formats';
-import { WalletBalances } from 'types/states';
+import { WalletBalances, BoundsState, TokenInputAmount } from 'types/states';
 import { useWallet } from 'hooks/use-wallet';
 import { usePendingTx, PendingTx } from 'hooks/use-pending-tx';
 import { useMarketData } from 'hooks';
@@ -35,19 +35,13 @@ import { LiquidityActionButton } from 'components/add-liquidity/liquidity-action
 import { EthGasPrices, LiquidityBand } from '@sommelier/shared-types';
 import { PoolOverview } from 'hooks/data-fetchers';
 import { debug } from 'util/debug';
+import { trackSentimentInteraction, trackAddLiquidityTx } from 'util/mixpanel';
 import classNames from 'classnames';
 
 type Props = {
     balances: WalletBalances;
     pool: PoolOverview | null;
     gasPrices: EthGasPrices | null;
-};
-
-type BoundsState = {
-    prices: [number, number];
-    ticks: [number, number];
-    ticksFromPrice?: [Price, Price];
-    position?: Position;
 };
 
 export type Sentiment = 'bullish' | 'bearish' | 'neutral';
@@ -642,13 +636,24 @@ export const AddLiquidityV3 = ({
         }
 
         let hash: string | undefined;
+        let addType: string
         if (tokenInputState.selectedTokens.length === 1) {
             hash = await doOneSidedAdd();
+            addType = 'one-sided';
         } else {
             hash = await doTwoSidedAdd();
+            addType = 'two-sided';
         }
 
         if (hash) {
+            trackAddLiquidityTx(
+                pool,
+                sentiment,
+                bounds,
+                addType,
+                getTokensWithAmounts() as Record<string, TokenInputAmount>
+            );
+
             toastWarn(`Confirming tx ${compactHash(hash)}`);
             setPendingTx &&
                 setPendingTx(
@@ -1494,7 +1499,10 @@ export const AddLiquidityV3 = ({
                             'sentiment-button': true,
                             active: sentiment === 'bearish',
                         })}
-                        onClick={() => setSentiment('bearish')}
+                        onClick={() => {
+                            setSentiment('bearish')
+                            trackSentimentInteraction(pool, 'bearish');
+                        }}
                     >
                         📉 Bearish
                     </div>
@@ -1503,7 +1511,10 @@ export const AddLiquidityV3 = ({
                             'sentiment-button': true,
                             active: sentiment === 'neutral',
                         })}
-                        onClick={() => setSentiment('neutral')}
+                        onClick={() => {
+                            setSentiment('neutral')
+                            trackSentimentInteraction(pool, 'neutral');
+                        }}
                     >
                         Neutral
                     </div>
@@ -1512,7 +1523,10 @@ export const AddLiquidityV3 = ({
                             'sentiment-button': true,
                             active: sentiment === 'bullish',
                         })}
-                        onClick={() => setSentiment('bullish')}
+                        onClick={() => {
+                            setSentiment('bullish')
+                            trackSentimentInteraction(pool, 'bullish');
+                        }}
                     >
                         📈 Bullish
                     </div>

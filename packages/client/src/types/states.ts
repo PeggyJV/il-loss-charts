@@ -11,6 +11,12 @@ import {
     NetworkIds,
 } from '@sommelier/shared-types';
 
+import {
+    Position,
+} from '@uniswap/v3-sdk';
+
+import { Price } from '@uniswap/sdk-core';
+
 import { ethers } from 'ethers';
 
 export interface AllPairsState {
@@ -102,4 +108,19 @@ export interface WalletBalances {
             [address: string]:ethers.BigNumber
         };
     }
+}
+
+export type BoundsState = {
+    prices: [number, number];
+    ticks: [number, number];
+    ticksFromPrice?: [Price, Price];
+    position?: Position;
+};
+
+export interface TokenInputAmount {
+    id?: string;
+    name?: string;
+    symbol?: string;
+    amount: string;
+    selected: boolean;
 }

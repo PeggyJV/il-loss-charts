@@ -14,6 +14,7 @@ import BigNumber from 'bignumber.js';
 
 import { TopPool, useTopPools } from 'hooks/data-fetchers';
 import { ThreeDots } from 'react-loading-icons';
+import { trackPoolSearch, trackPoolSelected } from 'util/mixpanel';
 
 const useStyles = makeStyles(() => ({
     input: {
@@ -81,6 +82,7 @@ export function PoolSearch({
                 loadingText={'...loading'}
                 onChange={(_, pool) => {
                     setPoolId(pool?.id ?? null);
+                    trackPoolSelected(pool);
                 }}
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 getOptionLabel={poolOptionLabel}
@@ -98,6 +100,7 @@ export function PoolSearch({
                             textTransform: 'uppercase',
                             background: 'var(--bgDeep)',
                         }}
+                        onClick={trackPoolSearch}
                     />
                 )}
             />

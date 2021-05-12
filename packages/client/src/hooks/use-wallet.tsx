@@ -96,9 +96,13 @@ export const WalletProvider = ({
     const [error, setError] = useState<Error | null>(null);
 
     const disconnectWallet = useCallback(() => {
-        mixpanel.track('wallet:disconnect', {
+        const mixpanelData = {
+            distinct_id: wallet.account,
+            account: wallet.account,
             providerName: wallet.providerName,
-        });
+        };
+        mixpanel.track('wallet:disconnected', mixpanelData);
+
         setWallet({
             account: null,
             providerName: null,
@@ -180,7 +184,7 @@ export const WalletProvider = ({
                 providerName: 'metamask',
             };
 
-            mixpanel.track('wallet', mixpanelData);
+            mixpanel.track('wallet:connected', mixpanelData);
         } catch (e) {
             console.error(`Metrics error on wallet.`);
         }
