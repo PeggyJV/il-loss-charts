@@ -74,7 +74,7 @@ export async function run(): Promise<void> {
     const filter: Set<string> = new Set();
 
     const topPools = await getTopPools(count, sort);
-    log.info({ msg: 'Fetched top pools', count: topPools.length });
+    log.info({ msg: `Fetched ${topPools.length} top pools`, count: topPools.length });
 
     const top = topPools.slice(0, poolCount * 5) // get more than we need
         // filter duplicate token pairs out
@@ -99,19 +99,19 @@ const periodDaysStr = process.env.PERIOD_DAYS ?? '19';
 const periodDays = parseInt(periodDaysStr, 10);
 
 async function updatePoolCache(pool: any) {
-    const name = poolId(pool);
+    const name = poolName(pool);
     // bail if we've already updated market data for this token pair
 
     const baseToken = pool.token1.id;
     const quoteToken = pool.token0.id;
 
     try {
-        log.info({ msg: 'fetching daily data', pool: name, })
+        log.info({ msg: `fetching daily data: ${name}`, pool: name, })
         // TODO: remove daily data fetch after client refactor
         // get daily data
         await getLastDayOHLC.forceUpdate(baseToken, quoteToken);
     } catch (error) {
-        log.error({ msg: 'Unable to update daily data', pool: name, error: error.message ?? '' });
+        log.error({ msg: `Unable to update daily data: ${name}`, pool: name, error: error.message ?? '' });
     }
 
     // calculate period for fetching indicators, must be same as client code
@@ -120,10 +120,10 @@ async function updatePoolCache(pool: any) {
     const startDate = startOfDay(subDays(now, periodDays)).getTime();
 
     try {
-        log.info({ msg: 'fetching indicators', pool: name });
+        log.info({ msg: `fetching indicators: ${name}`, pool: name });
         await getPeriodIndicators.forceUpdate(baseToken, quoteToken, startDate, endDate);
     } catch (error) {
-        log.error({ msg: 'Unable to update indicator data', pool: name, error: error.message ?? '' });
+        log.error({ msg: `Unable to update indicator data: ${name}`, pool: name, error: error.message ?? '' });
 
     }
 }
