@@ -55,7 +55,9 @@ morgan.token('trace-context', function getTraceContext(req: Request): string {
 
 morgan.token('route', function getRoute(req: Request): string {
     const route: string = req.route?.path?.toString() ?? '';
-    return `${req.baseUrl ?? ''}${route}`
+    const result = `${req.baseUrl}${route}`;
+
+    return result.trim().length ? result : '/';
 });
 
 morgan.token('network', function getNetwork(req: Request): string {
