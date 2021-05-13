@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { URL } from 'url';
 import morgan, { TokenIndexer, } from 'morgan';
 
+import { getNetwork as getNetworkFrom } from 'util/get-network';
 import config from 'config';
 
 const { host } = config.server;
@@ -37,8 +38,14 @@ morgan.token('lb-ip', function getLbIp(req: Request): string {
     return ips.join(',');
 });
 
-morgan.token('geo', function getGeo(req: Request): string {
-    return req.get('X-Client-Geo') ?? '-';
+morgan.token('country', function getCountry(req: Request): string {
+    const [country] = (req.get('X-Client-Geo') ?? ',').split(',');
+    return country.length ? country : '-';
+})
+
+morgan.token('city', function getCity(req: Request): string {
+    const [,city] = (req.get('X-Client-Geo') ?? ',').split(',');
+    return city.length ? city : '-';
 });
 
 const traceHeader = 'X-Cloud-Trace-Context';
@@ -46,10 +53,14 @@ morgan.token('trace-context', function getTraceContext(req: Request): string {
     return req.get(traceHeader) ?? '-';
 });
 
-morgan.token('instance-id', function getInstanceId(): string {
-    // TODO
-    return '';
-})
+morgan.token('route', function getRoute(req: Request): string {
+    const route: string = req.route?.path?.toString() ?? '';
+    return `${req.baseUrl ?? ''}${route}`
+});
+
+morgan.token('network', function getNetwork(req: Request): string {
+    return getNetworkFrom(req.originalUrl) ?? 'mainnet';
+});
 
 type Tokens = TokenIndexer<Request, Response>;
 
@@ -82,8 +93,9 @@ function jsonFormat(tokens: Tokens, req: Request, res: Response): string {
     return JSON.stringify({
         'method': tokens['method'](req, res),
         'path': tokens['pathname'](req, res),
+        'route': tokens['route'](req, res),
         'query': req.query,
-        'status': statusNum,
+        'statusCode': statusNum,
         'responseTime': responseTimeMs,
         'contentLength': contentLength,
         'clientIp': tokens['client-ip'](req, res),
@@ -92,10 +104,11 @@ function jsonFormat(tokens: Tokens, req: Request, res: Response): string {
         'cdnId': tokens['cdn-id'](req, res),
         'cdnStatus': tokens['cdn-status'](req, res),
         'lbIp': tokens['lb-ip'](req, res),
-        'geo': tokens['geo'](req, res),
+        'country': tokens['country'](req, res),
+        'city': tokens['city'](req, res),
         'traceContext': tokens['trace-context'](req, res),
-        'instanceId': tokens['instance-id'](req, res),
-        // TODO pid
+        'network': tokens['network'](req, res),
+        // TODO container && pid
     });
 }
 
