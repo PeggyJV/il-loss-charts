@@ -154,7 +154,7 @@
             border-bottom-right-radius: 4px;
         }
         .active {
-            background: var(--objPrimary);
+            background: linear-gradient(var(--objPrimary), var(--objDefault));
             border: 1px solid var(--borderPrimary);
             color: var(--faceDeep);
         }
