@@ -77,25 +77,23 @@ export const AddLiquidityV3 = ({
             name: pool?.token0?.name,
             symbol: pool?.token0?.symbol,
             amount: '',
-            selected: true,
+            selected: false,
         },
         [token1Symbol]: {
             id: pool?.token1?.id,
             name: pool?.token1?.name,
             symbol: pool?.token1?.symbol,
             amount: '',
-            selected: true,
+            selected: false,
         },
         ETH: {
             id: ETH_ID,
             symbol: 'ETH',
             name: 'Ethereum',
             amount: '',
-            selected: false,
+            selected: true,
         },
-        selectedTokens: [token0Symbol, token1Symbol],
-        isWETHSelected:
-            pool?.token0?.symbol === 'WETH' || pool?.token1?.symbol === 'WETH',
+        selectedTokens: ['ETH']
     };
 
     const reducer = (
