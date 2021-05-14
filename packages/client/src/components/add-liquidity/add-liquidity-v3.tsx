@@ -1245,6 +1245,7 @@ export const AddLiquidityV3 = ({
     // const selectedSymbol1 = tokenInputState.selectedTokens[1];
     const disableWETH = tokenInputState['ETH'].selected;
     const isWETHPair = token0Symbol === 'WETH' || token1Symbol === 'WETH';
+    const baseCoin = isFlipped ? pool.token0.symbol : pool.token1.symbol;
 
     return (
         <>
@@ -1528,14 +1529,14 @@ export const AddLiquidityV3 = ({
                     <div
                         className={classNames({
                             'sentiment-button': true,
-                            active: sentiment === 'bearish',
+                            active: isFlipped ? sentiment === 'bullish' : sentiment === 'bearish',
                         })}
                         onClick={() => {
-                            setSentiment('bearish')
+                            setSentiment(isFlipped ? 'bullish' : 'bearish')
                             trackSentimentInteraction(pool, 'bearish');
                         }}
                     >
-                        📉 Bearish
+                        📉 Bearish {baseCoin}
                     </div>
                     <div
                         className={classNames({
@@ -1552,14 +1553,14 @@ export const AddLiquidityV3 = ({
                     <div
                         className={classNames({
                             'sentiment-button': true,
-                            active: sentiment === 'bullish',
+                            active: isFlipped ? sentiment === 'bearish' : sentiment === 'bullish',
                         })}
                         onClick={() => {
-                            setSentiment('bullish')
+                            setSentiment(isFlipped ? 'bearish' : 'bullish')
                             trackSentimentInteraction(pool, 'bullish');
                         }}
                     >
-                        📈 Bullish
+                        📈 Bullish {baseCoin}
                     </div>
                 </Box>
                 {warning?.status && (
@@ -1600,7 +1601,7 @@ export const AddLiquidityV3 = ({
                                 {pendingBounds ? (
                                     <ThreeDots width='24px' height='10px' />
                                 ) : isFlipped ? (
-                                    `${1 / bounds.prices[1]} t0 ${
+                                    `${1 / bounds.prices[1]} to ${
                                         1 / bounds.prices[0]
                                     }`
                                 ) : (
