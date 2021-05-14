@@ -77,25 +77,23 @@ export const AddLiquidityV3 = ({
             name: pool?.token0?.name,
             symbol: pool?.token0?.symbol,
             amount: '',
-            selected: true,
+            selected: false,
         },
         [token1Symbol]: {
             id: pool?.token1?.id,
             name: pool?.token1?.name,
             symbol: pool?.token1?.symbol,
             amount: '',
-            selected: true,
+            selected: false,
         },
         ETH: {
             id: ETH_ID,
             symbol: 'ETH',
             name: 'Ethereum',
             amount: '',
-            selected: false,
+            selected: true,
         },
-        selectedTokens: [token0Symbol, token1Symbol],
-        isWETHSelected:
-            pool?.token0?.symbol === 'WETH' || pool?.token1?.symbol === 'WETH',
+        selectedTokens: ['ETH']
     };
 
     const reducer = (
@@ -1247,6 +1245,7 @@ export const AddLiquidityV3 = ({
     // const selectedSymbol1 = tokenInputState.selectedTokens[1];
     const disableWETH = tokenInputState['ETH'].selected;
     const isWETHPair = token0Symbol === 'WETH' || token1Symbol === 'WETH';
+    const baseCoin = isFlipped ? pool.token0.symbol : pool.token1.symbol;
 
     return (
         <>
@@ -1530,14 +1529,14 @@ export const AddLiquidityV3 = ({
                     <div
                         className={classNames({
                             'sentiment-button': true,
-                            active: sentiment === 'bearish',
+                            active: isFlipped ? sentiment === 'bullish' : sentiment === 'bearish',
                         })}
                         onClick={() => {
-                            setSentiment('bearish')
+                            setSentiment(isFlipped ? 'bullish' : 'bearish')
                             trackSentimentInteraction(pool, 'bearish');
                         }}
                     >
-                        📉 Bearish
+                        📉 Bearish {baseCoin}
                     </div>
                     <div
                         className={classNames({
@@ -1554,14 +1553,14 @@ export const AddLiquidityV3 = ({
                     <div
                         className={classNames({
                             'sentiment-button': true,
-                            active: sentiment === 'bullish',
+                            active: isFlipped ? sentiment === 'bearish' : sentiment === 'bullish',
                         })}
                         onClick={() => {
-                            setSentiment('bullish')
+                            setSentiment(isFlipped ? 'bearish' : 'bullish')
                             trackSentimentInteraction(pool, 'bullish');
                         }}
                     >
-                        📈 Bullish
+                        📈 Bullish {baseCoin}
                     </div>
                 </Box>
                 {warning?.status && (
@@ -1602,7 +1601,7 @@ export const AddLiquidityV3 = ({
                                 {pendingBounds ? (
                                     <ThreeDots width='24px' height='10px' />
                                 ) : isFlipped ? (
-                                    `${1 / bounds.prices[1]} t0 ${
+                                    `${1 / bounds.prices[1]} to ${
                                         1 / bounds.prices[0]
                                     }`
                                 ) : (
