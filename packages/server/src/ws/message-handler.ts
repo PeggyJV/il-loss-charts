@@ -173,7 +173,7 @@ export default class WsMessageHandler {
         const [source, query, args] = tokenizeTopic(topic);
 
         // We assume token is valid
-        if (source === 'uniswap' || source === 'ethGas') {
+        if (source === 'uniswap') {
             // send latest data first
             const latestData = pollingUtil.getLatestTopicData(topic);
             if (latestData) {
