@@ -216,6 +216,7 @@
     .token-balance-wrapper {
         background: var(--objDefault);
         // background: var(--objDeep);
+        cursor: pointer;
     }
     .token-balance-wrapper.active{
         background: linear-gradient(var(--objPrimary), var(--objDefault));;

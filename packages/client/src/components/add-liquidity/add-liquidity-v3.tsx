@@ -93,7 +93,7 @@ export const AddLiquidityV3 = ({
             amount: '',
             selected: true,
         },
-        selectedTokens: ['ETH']
+        selectedTokens: ['ETH'],
     };
 
     const reducer = (
@@ -639,7 +639,7 @@ export const AddLiquidityV3 = ({
         }
 
         let hash: string | undefined;
-        let addType: string
+        let addType: string;
         if (tokenInputState.selectedTokens.length === 1) {
             hash = await doOneSidedAdd();
             addType = 'one-sided';
@@ -1297,10 +1297,12 @@ export const AddLiquidityV3 = ({
                                         selectedSymbolCount === 2
                                     )
                                         return;
-                                    dispatch({
-                                        type: 'toggle',
-                                        payload: { sym: 'ETH' },
-                                    });
+                                    if (isTokenETHDisabled)
+                                    return;
+                                        dispatch({
+                                            type: 'toggle',
+                                            payload: { sym: 'ETH' },
+                                        });
                                 }}
                             >
                                 <button
@@ -1378,6 +1380,16 @@ export const AddLiquidityV3 = ({
                             justifyContent='flex-start'
                             flexGrow='1'
                             onClick={() => {
+                                if (
+                                    !isToken0Active &&
+                                    selectedSymbolCount === 2
+                                )
+                                    return;
+                                if (
+                                    isToken0Disabled ||
+                                    (token0Symbol === 'WETH' && disableWETH)
+                                )
+                                    return;
                                 dispatch({
                                     type: 'toggle',
                                     payload: { sym: token0Symbol },
@@ -1464,6 +1476,11 @@ export const AddLiquidityV3 = ({
                                     selectedSymbolCount === 2
                                 )
                                     return;
+                                if (
+                                    isToken1Disabled ||
+                                    (token1Symbol === 'WETH' && disableWETH)
+                                )
+                                    return;
                                 dispatch({
                                     type: 'toggle',
                                     payload: { sym: token1Symbol },
@@ -1542,10 +1559,12 @@ export const AddLiquidityV3 = ({
                     <div
                         className={classNames({
                             'sentiment-button': true,
-                            active: isFlipped ? sentiment === 'bullish' : sentiment === 'bearish',
+                            active: isFlipped
+                                ? sentiment === 'bullish'
+                                : sentiment === 'bearish',
                         })}
                         onClick={() => {
-                            setSentiment(isFlipped ? 'bullish' : 'bearish')
+                            setSentiment(isFlipped ? 'bullish' : 'bearish');
                             trackSentimentInteraction(pool, 'bearish');
                         }}
                     >
@@ -1566,10 +1585,12 @@ export const AddLiquidityV3 = ({
                     <div
                         className={classNames({
                             'sentiment-button': true,
-                            active: isFlipped ? sentiment === 'bearish' : sentiment === 'bullish',
+                            active: isFlipped
+                                ? sentiment === 'bearish'
+                                : sentiment === 'bullish',
                         })}
                         onClick={() => {
-                            setSentiment(isFlipped ? 'bearish' : 'bullish')
+                            setSentiment(isFlipped ? 'bearish' : 'bullish');
                             trackSentimentInteraction(pool, 'bullish');
                         }}
                     >
