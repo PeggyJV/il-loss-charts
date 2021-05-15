@@ -287,6 +287,14 @@
                         "type": "int128"
                     },
                     {
+                        "name": "sqrtPriceAX96",
+                        "type": "uint256"
+                    },
+                    {
+                        "name": "sqrtPriceBX96",
+                        "type": "uint256"
+                    },
+                    {
                         "name": "liquidityMin",
                         "type": "uint256"
                     },

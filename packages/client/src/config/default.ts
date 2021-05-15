@@ -11,14 +11,14 @@ const config: AppConfig = {
                 REMOVE_LIQUIDITY: '0x430f33353490b256D2fD7bBD9DaDF3BB7f905E78',
                 TWO_SIDE_ADD_LIQUIDITY:
                     '0xA522AA47C40F2BAC847cbe4D37455c521E69DEa7',
-                ADD_LIQUIDITY_V3: '0xDA76A489b8148Ba6e409B04259CB14E75e5E9dd3'
+                ADD_LIQUIDITY_V3: '0xE76427463FdBacdD0e794e5Ea30269f30Dd9B8eB'
             },
         },
         '4': {
             id: 4,
             name: 'rinkeby',
             contracts: {
-                ADD_LIQUIDITY_V3: '0xfc9Ce938f67897882e42A23771751a2175e266a1',
+                // ADD_LIQUIDITY_V3: '0xfc9Ce938f67897882e42A23771751a2175e266a1',
             },
         },
         '5': {

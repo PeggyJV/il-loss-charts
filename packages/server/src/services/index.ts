@@ -1,6 +1,6 @@
 import uniswap from './uniswap';
 import infura from './infura';
-import ethGas from './eth-gas';
+import { EthGasStream as ethGas } from './eth-gas';
 
 export default {
     uniswap,

@@ -283,7 +283,8 @@ export const AddLiquidityV3 = ({
             lowerBoundTick = priceToClosestTick(lowerBoundPrice);
             lowerBoundTick -= lowerBoundTick % uniPool.tickSpacing;
         } else {
-            lowerBoundTick = TickMath.MIN_TICK;
+            lowerBoundTick = TickMath.MIN_TICK + uniPool.tickSpacing;
+            lowerBoundTick -= lowerBoundTick % uniPool.tickSpacing;
         }
 
         const upperBoundNumerator = ethers.utils
@@ -306,7 +307,7 @@ export const AddLiquidityV3 = ({
 
         (window as any).upperBoundPrice = upperBoundPrice;
 
-        let upperBoundTick = priceToClosestTick(upperBoundPrice);
+        let upperBoundTick = Math.min(TickMath.MAX_TICK, priceToClosestTick(upperBoundPrice));
         upperBoundTick -= upperBoundTick % uniPool.tickSpacing;
 
         const sortedTicks = [lowerBoundTick, upperBoundTick].sort(
@@ -473,7 +474,7 @@ export const AddLiquidityV3 = ({
                 pool.token1.decimals
             )
             .toString();
-
+        
         const position = Position.fromAmounts({
             pool: uniPool,
             tickLower: ticks[0],
@@ -1002,9 +1003,6 @@ export const AddLiquidityV3 = ({
         const [selectedToken] = tokenInputState.selectedTokens;
         const tokenData = tokenInputState[selectedToken];
 
-        console.log('THIS IS TOKENDATA', selectedToken, tokenData);
-        console.log('INPUT STATE', tokenInputState);
-
         const tokenId = 0;
         let decimals = 18;
         if (selectedToken === pool.token0.symbol) {
@@ -1048,12 +1046,17 @@ export const AddLiquidityV3 = ({
         // const minLiquidity = liquiditySquared.times(slippageCoefficient).sqrt().toFixed(0);
         // const baseMinLiquidity = ethers.utils.parseUnits()
 
+        const sqrtPriceAX96 = TickMath.getSqrtRatioAtTick(bounds.position.tickLower);
+        const sqrtPriceBX96 = TickMath.getSqrtRatioAtTick(bounds.position.tickUpper);
+
         const mintParams = [
             pool.token0.id, // token0
             pool.token1.id, // token1
             pool.feeTier, // feeTier
             bounds.position.tickLower, // tickLower
             bounds.position.tickUpper, // tickUpper
+            sqrtPriceAX96.toString(),
+            sqrtPriceBX96.toString(),
             minLiquidity, // amount0Desired
             wallet.account, // recipient
             Math.floor(Date.now() / 1000) + 86400000, // deadline
