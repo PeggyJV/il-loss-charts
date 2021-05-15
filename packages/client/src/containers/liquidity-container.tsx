@@ -53,8 +53,7 @@ const SearchHeader = ({
             <Box
                 display='flex'
                 justifyContent='space-between'
-                flexDirection='row'
-                alignItems='center'
+                flexDirection='column'
                 className='search-header'
             >
                 <div style={{ fontSize: '1', color: 'var(--faceDeep)' }}>

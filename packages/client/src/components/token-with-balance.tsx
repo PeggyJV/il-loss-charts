@@ -22,7 +22,7 @@ export const TokenWithBalance = ({
         alignItems='center'
         className='token-with-balance'
     >
-        <div className={classNames('token-logo', {disable: disabled})}>
+        <div className={classNames('token-logo', { disable: disabled })}>
             {resolveLogo(id)}&nbsp;{name}
         </div>
         <Box

@@ -3,15 +3,11 @@ import 'react-widgets/dist/css/react-widgets.css';
 import 'styles/app.scss';
 import classNames from 'classnames';
 import { ErrorBoundary } from 'react-error-boundary';
-import {
-    useState,
-    useEffect,
-    ReactElement
-} from 'react';
+import { useState, useEffect, ReactElement } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { useEthGasPrices } from 'hooks';
-import {PendingTxProvider} from 'hooks/use-pending-tx';
+import { PendingTxProvider } from 'hooks/use-pending-tx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LandingContainer from 'containers/landing-container';
@@ -19,7 +15,6 @@ import ConnectWalletModal from 'components/connect-wallet-modal';
 import { PageError, ModalError } from 'components/page-error';
 
 import { WalletProvider } from 'hooks/use-wallet';
-
 
 function App(): ReactElement {
     // ------------------ Initial Mount - API calls for first render ------------------
@@ -33,9 +28,8 @@ function App(): ReactElement {
 
     const gasPrices = useEthGasPrices();
     const [showConnectWallet, setShowConnectWallet] = useState(false);
-
     // subscribe to the hook, will propogate to the nearest boundary
-    
+
     const queryClient = new QueryClient();
     // useErrorHandler(error);
     useEffect(() => {
@@ -69,6 +63,7 @@ function App(): ReactElement {
     //     void fetchAllPairs();
     //     // eslint-disable-next-line react-hooks/exhaustive-deps
     // }, []);
+
 
     return (
         <ErrorBoundary

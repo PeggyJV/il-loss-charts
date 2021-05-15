@@ -154,7 +154,7 @@
             border-bottom-right-radius: 4px;
         }
         .active {
-            background: var(--objPrimary);
+            background: linear-gradient(var(--objPrimary), var(--objDefault));
             border: 1px solid var(--borderPrimary);
             color: var(--faceDeep);
         }
@@ -199,26 +199,41 @@
             box-shadow: none;
             border: 0;
             border-radius: 4px;
-            background: var(--bgDeep);
+            background: var(--objDefault);
             color: var(--faceDisabled);
+
         }
         button.active {
             background: var(--bgDeep);
             color: var(--objPositiveAlt);
+            background: linear-gradient(var(--objPrimary), var(--objDefault));
+            color: var(--objPositiveAlt);
+            border-bottom-right-radius: 0;
+            border-top-right-radius: 0;
+
         }
+    }
+    .token-balance-wrapper {
+        background: var(--objDefault);
+        // background: var(--objDeep);
+        cursor: pointer;
+    }
+    .token-balance-wrapper.active{
+        background: linear-gradient(var(--objPrimary), var(--objDefault));;
     }
     .token-input-control {
         border: 1px solid var(--borderDefault);
     }
     .token-input-control.active {
-        border: 1px solid var(--objPositiveAlt);
+        // border: 1px solid var(--objPositiveAlt);
         border-radius: 4px;
-        background: var(--bgDeep);
+        // background: var(--bgDeep);
+        background: linear-gradient(var(--objPrimary), var(--objDefault));
     }
     .token-input-control.inactive {
         border: 1px solid var(--borderDefault);
         border-radius: 4px;
-        background: var(--bgDeep);
+        background: var(--objDefault);
     }
     .token-input-control.disable {
         border: 1px solid var(--objDisabledAlt);
@@ -271,7 +286,7 @@
             width: 150px;
         }
         button {
-            background: var(--objDefault);
+            background: linear-gradient(var(--objPrimary), var(--objDefault));
             padding: 0.3rem 1rem;
             border-radius: 4px;
         }
@@ -296,7 +311,8 @@
             //     background: var(--objDefault);
             // }
             img {
-                height: 3rem;
+                height: 2rem;
+                border-radius: 1rem;
             }
             .no-image:after {
                 content: '🍇';
@@ -325,4 +341,19 @@
 
 .token-input.disabled {
     opacity: 0.5;
+}
+
+@media (max-width: 500px) {
+    .token-control-container {
+        > div {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid red;
+        }
+    }
+    .add-v3-container {
+        .sentiment {
+            flex-direction: column;
+        }
+    }
 }

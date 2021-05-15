@@ -4,8 +4,6 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { matchSorter } from 'match-sorter';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 import './pair-search.scss';
 import { resolveLogo } from 'components/token-with-logo';
 import { Box } from '@material-ui/core';
@@ -40,6 +38,7 @@ export function PoolSearch({
 }): JSX.Element {
     const classes = useStyles();
     const { data: pools, isLoading: isTopPoolsLoading } = useTopPools();
+
     if (isTopPoolsLoading || !pools) {
         return <ThreeDots height='1rem' />;
     }
@@ -62,10 +61,11 @@ export function PoolSearch({
                     </div>
                     <div>
                         {pool?.token0?.symbol}
-                        {'/'}
+                        {' / '}
                         {pool?.token1?.symbol}
                     </div>
                 </div>
+                <div className='fee-tier'>{(parseInt(pool?.feeTier) / 10000).toFixed(2) + '%'}</div>
             </div>
         );
     };
@@ -82,6 +82,8 @@ export function PoolSearch({
                 autoSelect={false}
                 loading={false}
                 debug={false}
+                blurOnSelect={'touch'}
+                placeholder={'Search Pairings'}
                 noOptionsText={'Invalid Pair'}
                 loadingText={'...loading'}
                 onChange={(_, pool) => {

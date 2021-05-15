@@ -201,12 +201,7 @@ p {
     display: flex;
     background: var(--bgDeep);
     color: var(--facePrimary);
-    // background: linear-gradient(
-    //     153deg,
-    //     rgba(33, 1, 58, 0.9066001400560224) 29%,
-    //     rgba(13, 131, 167, 0.8953956582633054) 60%,
-    //     rgba(87, 4, 113, 0.8785889355742297) 78%
-    // );
+
     background: rgb(32, 9, 88);
     background: linear-gradient(
         222deg,
@@ -215,14 +210,8 @@ p {
         #430263 80%,
         rgba(0, 213, 255, 0.632) 100%
     );
-    // background: linear-gradient(
-    //     153deg,
-    //     rgba(33, 1, 58, 0.9066) 29%,
-    //     rgb(13 131 167 / 50%) 54%,
-    //     rgb(82 2 84 / 88%) 78%
-    // );
-
-    // , rgb(53 1 93 / 91%) 29%, rgb(13 131 167 / 90%) 70%, rgb(148 4 152 / 88%) 98%);
+    // background-color: #05001f;
+    // background: linear-gradient(160deg, #05001f 0%, #18086b 100%);
 }
 
 .app-body {
@@ -796,7 +785,7 @@ p {
     color: var(--facePrimary);
 }
 .connect-wallet-modal-option:hover {
-    border:1px solid var(--borderAccent);
+    border: 1px solid var(--borderAccent);
 }
 .connect-wallet-modal .error-container {
     opacity: 0.7;
@@ -1180,20 +1169,31 @@ th .caret-4-desc:after {
         width: 100%;
     }
     .app-body {
+        width: 100%;
         padding: 0 1rem;
     }
 }
 @media (max-width: 500px) {
+    html {
+        font-size: 12px;
+    }
     .app-body {
         width: 100%;
+        font-size: 12px;
     }
     .pool-stats-container {
         grid-template-columns: 1fr;
     }
+    .nav-button-container {
+        align-items: center;
+    }
     .main-header-container {
         flex-direction: column;
         justify-content: space-between;
-        align-items: flex-end;
+        align-items: center;
+        > * {
+            margin: 5px 0;
+        }
         .telegram-cta {
             margin: 0;
         }
