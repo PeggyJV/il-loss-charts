@@ -1291,23 +1291,23 @@ export const AddLiquidityV3 = ({
                                 display='flex'
                                 justifyContent='flex-start'
                                 flexGrow='1'
+                                onClick={() => {
+                                    if (
+                                        !isTokenETHActive &&
+                                        selectedSymbolCount === 2
+                                    )
+                                        return;
+                                    dispatch({
+                                        type: 'toggle',
+                                        payload: { sym: 'ETH' },
+                                    });
+                                }}
                             >
                                 <button
                                     className={classNames('btn-default', {
                                         active: isTokenETHActive,
                                     })}
                                     disabled={isTokenETHDisabled}
-                                    onClick={() => {
-                                        if (
-                                            !isTokenETHActive &&
-                                            selectedSymbolCount === 2
-                                        )
-                                            return;
-                                        dispatch({
-                                            type: 'toggle',
-                                            payload: { sym: 'ETH' },
-                                        });
-                                    }}
                                 >
                                     <FontAwesomeIcon
                                         icon={
@@ -1323,6 +1323,10 @@ export const AddLiquidityV3 = ({
                                         display: 'flex',
                                         alignItems: 'center',
                                     }}
+                                    className={classNames(
+                                        'token-balance-wrapper',
+                                        { active: isTokenETHActive }
+                                    )}
                                 >
                                     <TokenWithBalance
                                         id={tokenInputState['ETH']?.id}
@@ -1373,6 +1377,12 @@ export const AddLiquidityV3 = ({
                             display='flex'
                             justifyContent='flex-start'
                             flexGrow='1'
+                            onClick={() => {
+                                dispatch({
+                                    type: 'toggle',
+                                    payload: { sym: token0Symbol },
+                                });
+                            }}
                         >
                             <button
                                 className={classNames('btn-default', {
@@ -1382,12 +1392,6 @@ export const AddLiquidityV3 = ({
                                     isToken0Disabled ||
                                     (token0Symbol === 'WETH' && disableWETH)
                                 }
-                                onClick={() => {
-                                    dispatch({
-                                        type: 'toggle',
-                                        payload: { sym: token0Symbol },
-                                    });
-                                }}
                             >
                                 <FontAwesomeIcon
                                     icon={
@@ -1401,6 +1405,9 @@ export const AddLiquidityV3 = ({
                                     display: 'flex',
                                     alignItems: 'center',
                                 }}
+                                className={classNames('token-balance-wrapper', {
+                                    active: isToken0Active,
+                                })}
                             >
                                 <TokenWithBalance
                                     id={tokenInputState[token0Symbol].id}
@@ -1451,6 +1458,17 @@ export const AddLiquidityV3 = ({
                             display='flex'
                             justifyContent='flex-start'
                             flexGrow='1'
+                            onClick={() => {
+                                if (
+                                    !isToken1Active &&
+                                    selectedSymbolCount === 2
+                                )
+                                    return;
+                                dispatch({
+                                    type: 'toggle',
+                                    payload: { sym: token1Symbol },
+                                });
+                            }}
                         >
                             <button
                                 className={classNames('btn-default', {
@@ -1460,17 +1478,6 @@ export const AddLiquidityV3 = ({
                                     isToken1Disabled ||
                                     (token1Symbol === 'WETH' && disableWETH)
                                 }
-                                onClick={() => {
-                                    if (
-                                        !isToken1Active &&
-                                        selectedSymbolCount === 2
-                                    )
-                                        return;
-                                    dispatch({
-                                        type: 'toggle',
-                                        payload: { sym: token1Symbol },
-                                    });
-                                }}
                             >
                                 <FontAwesomeIcon
                                     icon={
@@ -1484,6 +1491,9 @@ export const AddLiquidityV3 = ({
                                     display: 'flex',
                                     alignItems: 'center',
                                 }}
+                                className={classNames('token-balance-wrapper', {
+                                    active: isToken1Active,
+                                })}
                             >
                                 <TokenWithBalance
                                     id={tokenInputState[token1Symbol].id}
@@ -1547,7 +1557,7 @@ export const AddLiquidityV3 = ({
                             active: sentiment === 'neutral',
                         })}
                         onClick={() => {
-                            setSentiment('neutral')
+                            setSentiment('neutral');
                             trackSentimentInteraction(pool, 'neutral');
                         }}
                     >
@@ -1608,6 +1618,7 @@ export const AddLiquidityV3 = ({
                                         1 / bounds.prices[0]
                                     }`
                                 ) : (
+                                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                                     `${bounds.prices[0]} to ${bounds.prices[1]}`
                                 )}
                             </span>

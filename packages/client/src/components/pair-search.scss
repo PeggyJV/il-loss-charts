@@ -14,7 +14,7 @@
                     color: var(--faceDeep);
                     // border-left: 5px solid var(--borderAccentAlt);
                     // border-right: 5px solid var(--borderAccentAlt);
-                    background: var(--objAccentAlt);
+                    background: var(--bgPrimary);
                     // border-bottom: 1px solid var(--borderPrimary);
                 }
             }
@@ -54,12 +54,14 @@
     color: var(--faceDeep);
 }
 
-
 .pair-option-with-logo {
     display: flex;
     align-items: center;
     img {
         height: 2rem;
+        height: 2rem;
+        border-radius: 1rem;
+        margin-left: -5px;
     }
     .no-image:after {
         content: '🍇';
@@ -70,7 +72,7 @@
         color: var(--facePrimary);
         min-width: 200px;
         padding: 0.5rem 0.5rem;
-        background: var(--objDefault);
+        // background: var(--objDefault);
         border-radius: 4px;
         display: flex;
         justify-content: flex-start;
@@ -81,5 +83,12 @@
         &:hover {
             background: var(--bgSecondary);
         }
+    }
+    .fee-tier {
+        background: var(--objSecondary);
+        color: var(--facePrimary);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
     }
 }

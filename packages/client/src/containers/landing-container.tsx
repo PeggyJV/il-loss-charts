@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { EthGasPrices } from '@sommelier/shared-types';
-
+import { Modal } from 'react-bootstrap';
 import { useWallet } from 'hooks/use-wallet';
 import { TelegramCTA } from 'components/telegram-cta';
 import mixpanel from 'util/mixpanel';
 import ConnectWalletButton from 'components/connect-wallet-button';
 import PendingTx from 'components/pending-tx';
-// import { PoolSearch } from 'components/pool-search';
+import {useMediaQuery} from 'react-responsive';
 import { LiquidityContainer } from 'containers/liquidity-container';
 import { Box } from '@material-ui/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -23,7 +23,9 @@ function LandingContainer({
     gasPrices: EthGasPrices | null;
 }): JSX.Element {
     const { wallet } = useWallet();
+    const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
 
+    const [showMobileModal, setShowMobileModal] = useState<boolean>(isMobile); 
     const showWalletModal = () => setShowConnectWallet(true);
     useEffect(() => {
         try {
@@ -32,6 +34,24 @@ function LandingContainer({
             console.error(`Metrics error on add positions:landing.`);
         }
     }, []);
+
+     const renderMobileModal = () => (
+         <Modal
+             show={showMobileModal}
+             onHide={() => setShowMobileModal(false)}
+             dialogClassName='dark'
+         >
+             <Modal.Header className='connect-wallet-modal-header' closeButton>
+                 <Modal.Title className='connect-wallet-modal-title'>
+                     {}
+                 </Modal.Title>
+             </Modal.Header>
+
+             <Modal.Body className='connect-wallet-modal'>
+                 {'Mobile Experience coming soon. Please continue on desktop'}
+             </Modal.Body>
+         </Modal>
+     );
 
     return (
         <div>
@@ -55,10 +75,11 @@ function LandingContainer({
                         </span>
                     </h5>
                     <TelegramCTA />
+                    {renderMobileModal()}
                 </div>
                 <div className='wallet-combo'>
                     {wallet?.account && <PendingTx />}
-                    <ConnectWalletButton onClick={showWalletModal} />
+                    {!isMobile &&<ConnectWalletButton onClick={showWalletModal} />}
                 </div>
             </div>
             <Box
