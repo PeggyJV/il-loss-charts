@@ -283,7 +283,8 @@ export const AddLiquidityV3 = ({
             lowerBoundTick = priceToClosestTick(lowerBoundPrice);
             lowerBoundTick -= lowerBoundTick % uniPool.tickSpacing;
         } else {
-            lowerBoundTick = TickMath.MIN_TICK;
+            lowerBoundTick = TickMath.MIN_TICK + uniPool.tickSpacing;
+            lowerBoundTick -= lowerBoundTick % uniPool.tickSpacing;
         }
 
         const upperBoundNumerator = ethers.utils
@@ -306,7 +307,7 @@ export const AddLiquidityV3 = ({
 
         (window as any).upperBoundPrice = upperBoundPrice;
 
-        let upperBoundTick = priceToClosestTick(upperBoundPrice);
+        let upperBoundTick = Math.min(TickMath.MAX_TICK, priceToClosestTick(upperBoundPrice));
         upperBoundTick -= upperBoundTick % uniPool.tickSpacing;
 
         const sortedTicks = [lowerBoundTick, upperBoundTick].sort(
@@ -473,7 +474,7 @@ export const AddLiquidityV3 = ({
                 pool.token1.decimals
             )
             .toString();
-
+        
         const position = Position.fromAmounts({
             pool: uniPool,
             tickLower: ticks[0],
