@@ -28,7 +28,6 @@ function App(): ReactElement {
 
     const gasPrices = useEthGasPrices();
     const [showConnectWallet, setShowConnectWallet] = useState(false);
-    const [showMobileModal, setShowMobileModal] = useState<boolean>(false);
     // subscribe to the hook, will propogate to the nearest boundary
 
     const queryClient = new QueryClient();

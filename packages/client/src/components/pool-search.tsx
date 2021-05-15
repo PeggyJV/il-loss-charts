@@ -81,7 +81,7 @@ export function PoolSearch({
                 autoComplete={false}
                 autoSelect={false}
                 loading={false}
-                debug={true}
+                debug={false}
                 blurOnSelect={'touch'}
                 placeholder={'Search Pairings'}
                 noOptionsText={'Invalid Pair'}
