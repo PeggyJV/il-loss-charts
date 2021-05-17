@@ -21,16 +21,17 @@ export class EthGasFetcher {
 }
 
 export class EthGasStream extends EventEmitter {
-    static ws: WebSocket;
+    static ws: WebSocket | null;
     static emitter = new EventEmitter();
 
-    static subscribe(): EventEmitter {
-        if (!EthGasStream.ws) {
-            EthGasStream.ws = new WebSocket('wss://www.gasnow.org/ws/gasprice');
-        }
+    static startConnection(): WebSocket {
+        EthGasStream.ws = new WebSocket('wss://www.gasnow.org/ws/gasprice');
+        return EthGasStream.ws;
+    }
 
+    static registerMessageHandler(ws: WebSocket): void {
         const convertToGwei = (num: string) => parseInt(new BigNumber(num).shiftedBy(-9).toFixed(0), 10);
-        EthGasStream.ws.on('message', (data: string) => {
+        ws.on('message', (data: string) => {
             const { data: parsedData } = JSON.parse(data);
 
             const gasPrices: EthGasPrices = {
@@ -42,6 +43,38 @@ export class EthGasStream extends EventEmitter {
 
             EthGasStream.emitter.emit('data', gasPrices);
         });
+    }
+
+    static subscribe(): EventEmitter {
+        let ws = EthGasStream.ws;
+
+        if (!ws) {
+            ws = EthGasStream.startConnection();
+
+            ws.on('open', () => {
+                console.log('[WS:GAS]: Connected to gasnow.org gas price oracle.');
+            });
+
+            ws.on('close', () =>  {
+                console.log('[WS:GAS]: Disconnected from gasnow.org gas price oracle.');
+                console.log('[WS:GAS]: Attempting to reconnect in 5 seconds...');
+
+                setTimeout(() => {
+                    EthGasStream.ws = null;
+                    EthGasStream.subscribe();
+                }, 5000);
+            });
+
+            ws.on('error', (err) => {
+                console.error('[WS:GAS]: Error connecting to gasnow.org gas price oracle.: ', err.message);
+            });
+
+            EthGasStream.registerMessageHandler(ws);
+        }
+
+        if (!ws) {
+            throw new Error('Websocket not properly instantiated')
+        }
         return EthGasStream.emitter;
     }
 }
