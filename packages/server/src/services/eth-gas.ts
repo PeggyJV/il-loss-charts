@@ -49,6 +49,7 @@ export class EthGasStream extends EventEmitter {
         let ws = EthGasStream.ws;
 
         if (!ws) {
+            console.log('[WS:GAS]: Opening connection to gasnow.org gas price oracle...');
             ws = EthGasStream.startConnection();
 
             ws.on('open', () => {
