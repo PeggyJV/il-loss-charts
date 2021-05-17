@@ -1666,6 +1666,7 @@ export const AddLiquidityV3 = ({
                         onClick={() => doAddLiquidity()}
                         balances={balances}
                         pendingBounds={pendingBounds}
+                        currentGasPrice={currentGasPrice}
                     />
                 </div>
             </div>
