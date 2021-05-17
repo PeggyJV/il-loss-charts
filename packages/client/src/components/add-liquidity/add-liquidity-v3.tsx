@@ -379,8 +379,15 @@ export const AddLiquidityV3 = ({
 
             const { newAmount0, newAmount1 } = bounds;
 
-            const updatedToken =
-                selectedToken === pool.token0.symbol ? 'token0' : 'token1';
+            let updatedToken;
+
+            if (selectedToken === 'ETH') {
+                updatedToken = pool.token0.symbol === 'WETH' ? 'token0' : 'token1';
+            } else {
+                updatedToken =
+                    selectedToken === pool.token0.symbol ? 'token0' : 'token1';
+            }
+
             const otherToken = updatedToken === 'token0' ? 'token1' : 'token0';
 
             let updatedAmount =
@@ -422,7 +429,17 @@ export const AddLiquidityV3 = ({
                     type: 'update-amount',
                     payload: {
                         sym: 'WETH',
-                        amount: updatedAmount.toFixed(),
+                        // amount: updatedAmount.toFixed(),
+                        amount: selectedAmount
+                    },
+                });
+            } else if (selectedToken === 'WETH') {
+                dispatch({
+                    type: 'update-amount',
+                    payload: {
+                        sym: 'ETH',
+                        // amount: updatedAmount.toFixed(),
+                        amount: selectedAmount
                     },
                 });
             }
