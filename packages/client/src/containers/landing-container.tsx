@@ -79,7 +79,7 @@ function LandingContainer({
                 </div>
                 <div className='wallet-combo'>
                     {wallet?.account && <PendingTx />}
-                    {!isMobile &&<ConnectWalletButton onClick={showWalletModal} />}
+                    {<ConnectWalletButton onClick={showWalletModal} />}
                 </div>
             </div>
             <Box

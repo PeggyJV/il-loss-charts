@@ -4,6 +4,7 @@ import { Button, Modal } from 'react-bootstrap';
 import {useWallet} from 'hooks/use-wallet';
 import {useErrorHandler} from 'react-error-boundary';
 import { ReactComponent as MetamaskLogo } from 'styles/metamask-logo.svg';
+import { ReactComponent as WalletConnectLogo } from 'styles/walletconnect-logo.svg';
 
 function ConnectWalletModal({
     show,
@@ -14,7 +15,7 @@ function ConnectWalletModal({
 }): JSX.Element {
     const handleClose = () => setShow(false);
     const handleError = useErrorHandler();
-    const {wallet, connectMetaMask, disconnectWallet} = useWallet();
+    const {wallet, connectMetaMask,connectWalletConnect, disconnectWallet, availableProviders} = useWallet();
     const titleText = wallet?.account
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         ? `Connected: ${wallet?.account}`
@@ -31,16 +32,16 @@ function ConnectWalletModal({
         setTimeout(handleClose, 500);
     };
 
-    // const handleConnectWalletConnect = async () => {
-    //     try{
-    //         await connectWalletConnect();
-    //     } catch(e){
-    //         handleError(e);
-    //     }
+    const handleConnectWalletConnect = async () => {
+        try{
+            await connectWalletConnect();
+        } catch(e){
+            handleError(e);
+        }
 
-    //     // Close modlal after half-second
-    //     setTimeout(handleClose, 500);
-    // };
+        // Close modlal after half-second
+        setTimeout(handleClose, 500);
+    };
 
     return (
         <Modal show={show} onHide={handleClose} dialogClassName='dark'>
@@ -62,13 +63,13 @@ function ConnectWalletModal({
                         >
                             <MetamaskLogo />
                         </button>
-                        {/* <button
+                        <button
                             className='connect-wallet-modal-option'
                             disabled={!availableProviders.walletconnect}
                             onClick={handleConnectWalletConnect}
                         >
                             <WalletConnectLogo />
-                        </button> */}
+                        </button>
                     </div>
                 </Modal.Body>
             )}

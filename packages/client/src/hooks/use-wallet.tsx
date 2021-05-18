@@ -8,26 +8,27 @@ import {
 } from 'react';
 import Cookies from 'universal-cookie';
 
-// import WalletConnectProvider from '@walletconnect/web3-provider';
-import { Wallet } from 'types/states';
+import WalletConnectProvider from '@walletconnect/web3-provider';
+import { Provider, Wallet } from 'types/states';
 import mixpanel from 'util/mixpanel';
+import { debug } from 'util/debug';
 
 const cookies = new Cookies();
 
-// const wcProvider = new WalletConnectProvider({
-//     infuraId: process.env.REACT_APP_INFURA_PROJECT_ID,
-// });
+const wcProvider = new WalletConnectProvider({
+    infuraId: process.env.REACT_APP_INFURA_PROJECT_ID,
+});
 
-// debug.wcProvider = wcProvider;
+debug.wcProvider = wcProvider;
 
 type WalletContextType = {
     ethereum?: any;
     wallet: Wallet;
     connectMetaMask: () => Promise<void>;
-    // connectWalletConnect: () => Promise<void>;
+    connectWalletConnect: () => Promise<void>;
     disconnectWallet: () => void;
     error: Error | null;
-    // availableProviders: { [providerName in Provider]: boolean };
+    availableProviders: { [providerName in Provider]: boolean };
 };
 
 const initialWallet = {
@@ -49,12 +50,11 @@ export const WalletProvider = ({
 }: {
     children: JSX.Element;
 }): JSX.Element => {
-
     const ethereum = (window as any).ethereum;
-    // const availableProviders = {
-    //     metamask: ethereum?.isMetaMask,
-    //     walletconnect: true,
-    // };
+    const availableProviders = {
+        metamask: ethereum?.isMetaMask,
+        walletconnect: true,
+    };
     // Try to read wallet from cookies
     const initialWalletState: Wallet = {
         account: null,
@@ -161,6 +161,69 @@ export const WalletProvider = ({
         }
     }, [disconnectWallet, ethereum, wallet]);
 
+    useEffect(() => {
+        const handleAccountChange = (accounts: string[]) => {
+            const [account] = accounts;
+
+            if (account) {
+                const walletObj: Wallet = {
+                    account,
+                    providerName: 'walletconnect',
+                    provider: wcProvider,
+                    network: wcProvider?.networkId  as unknown as NetworkIds || '1',
+                };
+
+                setWallet(walletObj);
+
+                try {
+                    const mixpanelData = {
+                        distinct_id: account,
+                        account,
+                        providerName: 'walletconnect',
+                    };
+
+                    mixpanel.track('wallet', mixpanelData);
+                } catch (e) {
+                    console.error(`Metrics error on wallet.`);
+                }
+            }
+        };
+
+        // TODO this doesn't work with wallet connect
+        const handleNetworkChange = (
+            newNetwork: string,
+            oldNetwork?: string
+        ) => {
+            // When a Provider makes its initial connection, it emits a "network"
+            // event with a null oldNetwork along with the newNetwork. So, if the
+            // oldNetwork exists, it represents a changing network
+            if (oldNetwork) {
+                window.location.reload();
+                // setWallet({ ...wallet, network: newNetwork });
+            }
+        };
+
+        const handleDisconnect = () => {
+            setWallet({
+                account: null,
+                provider: null,
+                providerName: null,
+                network: null,
+            });
+            cookies.remove('current_wallet');
+        };
+
+        wcProvider.on('network', handleNetworkChange);
+        wcProvider.on('accountsChanged', handleAccountChange);
+        wcProvider.on('disconnect', handleDisconnect);
+
+        return () => {
+            wcProvider.removeListener('accountsChanged', handleAccountChange);
+            wcProvider.removeListener('networkChanged', handleNetworkChange);
+            wcProvider.removeListener('disconnect', handleDisconnect);
+        };
+    }, []);
+
     const connectMetaMask = async () => {
         if (!ethereum) return;
 
@@ -190,6 +253,34 @@ export const WalletProvider = ({
         }
     };
 
+    const connectWalletConnect = async () => {
+        console.log('connect wallet connect');
+        await wcProvider.enable();
+        const walletObj: Wallet = {
+            account: wcProvider.accounts[0],
+            providerName: 'walletconnect',
+            provider: wcProvider,
+            network: null, // figure this out for wc
+        };
+
+        // If provider is different, sest to the WC wallet
+        if (wallet.provider !== 'walletconnect') {
+            setWallet(walletObj);
+
+            try {
+                const mixpanelData = {
+                    distinct_id: wcProvider.accounts[0],
+                    account: wcProvider.accounts[0],
+                    providerName: 'walletconnect',
+                };
+
+                mixpanel.track('wallet:connect', mixpanelData);
+            } catch (e) {
+                console.error(`Metrics error on wallet.`);
+            }
+        }
+    };
+
     //re-set cookie when wallet state changes
     useEffect(() => {
         try {
@@ -213,14 +304,15 @@ export const WalletProvider = ({
         }
     }, [wallet]);
 
-
     return (
         <WalletContext.Provider
             value={{
                 ethereum,
                 wallet,
                 connectMetaMask,
+                connectWalletConnect,
                 disconnectWallet,
+                availableProviders,
                 error,
             }}
         >
