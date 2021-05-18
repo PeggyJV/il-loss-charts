@@ -254,7 +254,6 @@ export const WalletProvider = ({
     };
 
     const connectWalletConnect = async () => {
-        console.log('connect wallet connect');
         await wcProvider.enable();
         const walletObj: Wallet = {
             account: wcProvider.accounts[0],
