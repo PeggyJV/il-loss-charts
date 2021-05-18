@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useState, useContext, useEffect, useReducer } from 'react';
-
 import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
 import { Price, Token, TokenAmount } from '@uniswap/sdk-core';
@@ -39,6 +38,7 @@ import { LiquidityActionButton } from 'components/add-liquidity/liquidity-action
 import { EthGasPrices, LiquidityBand } from '@sommelier/shared-types';
 import { PoolOverview } from 'hooks/data-fetchers';
 import { debug } from 'util/debug';
+import Sentry, { SentryError } from 'util/sentry';
 import { trackSentimentInteraction, trackAddLiquidityTx } from 'util/mixpanel';
 import classNames from 'classnames';
 
@@ -379,8 +379,15 @@ export const AddLiquidityV3 = ({
 
             const { newAmount0, newAmount1 } = bounds;
 
-            const updatedToken =
-                selectedToken === pool.token0.symbol ? 'token0' : 'token1';
+            let updatedToken;
+
+            if (selectedToken === 'ETH') {
+                updatedToken = pool.token0.symbol === 'WETH' ? 'token0' : 'token1';
+            } else {
+                updatedToken =
+                    selectedToken === pool.token0.symbol ? 'token0' : 'token1';
+            }
+
             const otherToken = updatedToken === 'token0' ? 'token1' : 'token0';
 
             let updatedAmount =
@@ -422,7 +429,17 @@ export const AddLiquidityV3 = ({
                     type: 'update-amount',
                     payload: {
                         sym: 'WETH',
-                        amount: updatedAmount.toFixed(),
+                        // amount: updatedAmount.toFixed(),
+                        amount: selectedAmount
+                    },
+                });
+            } else if (selectedToken === 'WETH') {
+                dispatch({
+                    type: 'update-amount',
+                    payload: {
+                        sym: 'ETH',
+                        // amount: updatedAmount.toFixed(),
+                        amount: selectedAmount
                     },
                 });
             }
@@ -563,6 +580,25 @@ export const AddLiquidityV3 = ({
         };
     };
 
+    const handleGasEstimationError = (err: Error, payload: Record<string, any> = {}): undefined => {
+        // We could not estimate gas, for whaever reason, so we should not let the transaction continue.
+        const notEnoughETH = err.message.match(/exceeds allowance/) || err.message.match(/insufficient funds/);
+
+        let toastMsg = 'Could not estimate gas for this transaction. Check your parameters or try a different pool.';
+
+        if (notEnoughETH) {
+            toastMsg = 'Not enough ETH to pay gas for this transaction. If you are using ETH, try reducing the entry amount.';
+        }
+
+        toastError(toastMsg);
+
+        // Send event to sentry
+        const sentryErr = new SentryError(`Could not estimate gas: ${err.message}`, payload);
+        Sentry.captureException(sentryErr);
+            
+        return;
+    }
+
     useEffect(() => {
         if (indicators) {
             const bounds = getBoundPricesAndTicks(indicators);
@@ -590,7 +626,6 @@ export const AddLiquidityV3 = ({
 
             setPriceImpact(priceImpact);
 
-            console.log('GONNA HANDLE BOUNDS AGAIN');
             const bounds = handleBounds(pool, indicators, [
                 expectedBaseAmount,
                 expectedQuoteAmount,
@@ -846,7 +881,6 @@ export const AddLiquidityV3 = ({
                 );
 
                 // skip approval on allowance
-                console.log('THIS IS ALLOWANCE', tokenSymbol, tokenAllowance);
                 if (new BigNumber(baseTokenAmount).lt(tokenAllowance)) continue;
             }
 
@@ -865,15 +899,14 @@ export const AddLiquidityV3 = ({
                     approvalEstimate.div(3)
                 );
             } catch (err) {
-                // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
-                console.error(
-                    `Could not estimate gas fees: ${err.message as string}`
-                );
-
-                toastError(
-                    'Could not estimate gas for this transaction. Check your parameters or try a different pool.'
-                );
-                return;
+                return handleGasEstimationError(err, {
+                    type: 'approve',
+                    account: wallet.account,
+                    to: tokenInputState[tokenSymbol].id,
+                    target: addLiquidityContractAddress,
+                    amount: baseApproveAmount,
+                    gasPrice: baseGasPrice
+                });
             }
 
             // Approve the add liquidity contract to spend entry tokens
@@ -947,14 +980,14 @@ export const AddLiquidityV3 = ({
             // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
             gasEstimate = gasEstimate.add(gasEstimate.div(2));
         } catch (err) {
-            // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
-            console.error(`Could not estimate gas: ${err.message as string}`);
-
-            toastError(
-                'Could not estimate gas for this transaction. Check your parameters or try a different pool.'
-            );
-
-            return;
+            return handleGasEstimationError(err, {
+                type: 'addLiquidity:twoSide',
+                method: fnName,
+                account: wallet.account,
+                to: addLiquidityContractAddress,
+                tokenId,
+                mintParams
+            }); 
         }
 
         const { hash } = await addLiquidityContract[fnName](
@@ -1127,15 +1160,14 @@ export const AddLiquidityV3 = ({
                     approvalEstimate.div(3)
                 );
             } catch (err) {
-                // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
-                console.error(
-                    `Could not estimate gas fees: ${err.message as string}`
-                );
-
-                toastError(
-                    'Could not estimate gas for this transaction. Check your parameters or try a different pool.'
-                );
-                return;
+                return handleGasEstimationError(err, {
+                    type: 'approve',
+                    account: wallet.account,
+                    token: tokenInputState[tokenSymbol].id,
+                    target: addLiquidityContractAddress,
+                    amount: baseApproveAmount,
+                    gasPrice: baseGasPrice
+                });            
             }
 
             // Approve the add liquidity contract to spend entry tokens
@@ -1207,14 +1239,16 @@ export const AddLiquidityV3 = ({
             // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
             gasEstimate = gasEstimate.add(gasEstimate.div(2));
         } catch (err) {
-            // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
-            console.error(`Could not estimate gas: ${err.message as string}`);
-
-            toastError(
-                'Could not estimate gas for this transaction. Check your parameters or try a different pool.'
-            );
-
-            return;
+            return handleGasEstimationError(err, {
+                type: 'addLiquidity:oneSide',
+                method: 'investTokenForUniPair',
+                account: wallet.account,
+                to: addLiquidityContractAddress,
+                tokenId,
+                tokenToAdd: tokenData.id,
+                tokenAmount: mintAmountOneSide,
+                mintParams
+            }); 
         }
 
         const { hash } = await addLiquidityContract['investTokenForUniPair'](
@@ -1666,6 +1700,7 @@ export const AddLiquidityV3 = ({
                         onClick={() => doAddLiquidity()}
                         balances={balances}
                         pendingBounds={pendingBounds}
+                        currentGasPrice={currentGasPrice}
                     />
                 </div>
             </div>

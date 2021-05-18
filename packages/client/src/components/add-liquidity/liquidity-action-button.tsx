@@ -5,13 +5,15 @@ import { WalletBalances } from 'types/states';
 import { ethers } from 'ethers';
 import { useWallet } from 'hooks/use-wallet';
 import { Rings } from 'react-loading-icons';
+
 export const LiquidityActionButton = ({
     tokenInputState,
     onClick,
     balances,
     pendingApproval,
     pendingBounds,
-    disabledInput
+    disabledInput,
+    currentGasPrice
 }: {
     tokenInputState: any;
     onClick: () => void;
@@ -19,6 +21,7 @@ export const LiquidityActionButton = ({
     pendingApproval: boolean;
     pendingBounds: boolean;
     disabledInput: string[] | null;
+    currentGasPrice: number | null;
 }): JSX.Element => {
     // const [isDisabled, setIsDisabled] = useState(disabled);
     const [buttonState, setButtonState] = useState('Add Liquidity');
@@ -29,13 +32,18 @@ export const LiquidityActionButton = ({
     useEffect(() => {
         const numOfTokens = tokenInputState?.selectedTokens?.length ?? 0;
 
-        if (pendingApproval) {
-            setButtonState('pendingApproval');
+        if (!wallet?.account) {
+            setButtonState('connectWallet');
             return;
         }
 
-        if (!wallet?.account) {
-            setButtonState('connectWallet');
+        if (!currentGasPrice) {
+            setButtonState('gasPriceNotSelected');
+            return;
+        }
+
+        if (pendingApproval) {
+            setButtonState('pendingApproval');
             return;
         }
 
@@ -78,7 +86,7 @@ export const LiquidityActionButton = ({
             return;
         }
         setButtonState('addLiquidity');
-    }, [balances, pendingApproval, pendingBounds, tokenInputState, wallet?.account]);
+    }, [currentGasPrice, balances, pendingApproval, pendingBounds, tokenInputState, wallet?.account]);
 
     switch (buttonState) {
         case 'pendingApproval':
@@ -100,6 +108,16 @@ export const LiquidityActionButton = ({
                     className={classNames('btn-addl', 'btn-negative')}
                 >
                     {'Connect Wallet'}
+                </button>
+            );
+        case 'gasPriceNotSelected':
+            return (
+                <button
+                    disabled={true}
+                    onClick={onClick}
+                    className={classNames('btn-addl', 'btn-negative')}
+                >
+                    {'Select Transaction Speed'}
                 </button>
             );
         case 'selectTokens':
