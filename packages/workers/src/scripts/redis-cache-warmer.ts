@@ -106,10 +106,10 @@ async function updatePoolCache(pool: any) {
     const quoteToken = pool.token0.id;
 
     try {
-        log.info({ msg: `fetching daily data: ${name}`, pool: name, })
         // TODO: remove daily data fetch after client refactor
         // get daily data
         await getLastDayOHLC.forceUpdate(baseToken, quoteToken);
+        log.info({ msg: `Fetched daily data: ${name}`, pool: name, })
     } catch (error) {
         log.error({ msg: `Unable to update daily data: ${name}`, pool: name, error: error.message ?? '' });
     }
@@ -120,8 +120,8 @@ async function updatePoolCache(pool: any) {
     const startDate = startOfDay(subDays(now, periodDays)).getTime();
 
     try {
-        log.info({ msg: `fetching indicators: ${name}`, pool: name });
         await getPeriodIndicators.forceUpdate(baseToken, quoteToken, startDate, endDate);
+        log.info({ msg: `Fetched indicators: ${name}`, pool: name });
     } catch (error) {
         log.error({ msg: `Unable to update indicator data: ${name}`, pool: name, error: error.message ?? '' });
 

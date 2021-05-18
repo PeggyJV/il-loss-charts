@@ -44,11 +44,12 @@ export function PoolSearch({
     }
 
     const poolFilter = (options: TopPool[], { inputValue }: any) =>
-        matchSorter(options, inputValue, {
-            keys: ['token0.symbol', 'token1.symbol', poolSymbol],
-        })
-            .sort(poolSortByVolume)
-            .slice(0, 50);
+        sortTopPools(
+            matchSorter(options, inputValue, {
+                keys: ['token0.symbol', 'token1.symbol', poolSymbol],
+            })
+        )
+        .slice(0, 50);
 
     const renderPoolWithLogo = (pool: TopPool) => {
         return (
@@ -129,4 +130,31 @@ function poolSortByVolume(a: TopPool, b: TopPool) {
     const volB = new BigNumber(b.volumeUSD);
 
     return volB.comparedTo(volA);
+}
+
+// TODO: configure
+const minTokenVol = 1000;
+
+function sortTopPools(pools: TopPool[]) {
+    const top = [];
+    const bot = [];
+    for (const pool of pools) {
+        // Converting these comparisons to BigNumber makes this insanely slow
+        // Precision doesn't matter in this case because are bucketing by threshold
+        // This fn takes 50-60ms to run on a 1000 element list on a M1 MBA when converting to BN
+        // With this impl, it is around 6-10ms (still slow AF)
+        if (
+            parseInt(pool.liquidity, 10) > 0 &&
+            (
+                Math.abs(parseInt(pool.volumeToken0, 10)) > minTokenVol &&
+                Math.abs(parseInt(pool.volumeToken1, 10)) > minTokenVol
+            )
+        ) {
+            top.push(pool);
+        } else {
+            bot.push(pool);
+        }
+    }
+
+    return top.sort(poolSortByVolume).concat(bot.sort(poolSortByVolume));
 }
