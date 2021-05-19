@@ -38,8 +38,11 @@ export const LiquidityActionButton = ({
         }
 
         // a wallet does exist, check for edge case on wcProvider being disconnected
-        if(wallet?.provider && !wallet?.provider?.connected){
-            setButtonState('connectWallet');
+        if (
+            wallet?.providerName === 'walletconnect' &&
+            !wallet?.provider?.connected
+        ) {
+            setButtonState('reConnectWallet');
             return;
         }
 
@@ -116,6 +119,16 @@ export const LiquidityActionButton = ({
                     {'Connect Wallet'}
                 </button>
             );
+        case 'reConnectWallet':
+            return (
+                <button
+                    disabled={true}
+                    onClick={onClick}
+                    className={classNames('btn-addl', 'btn-negative')}
+                >
+                    {'Re-Connect Wallet'}
+                </button>
+            );
         case 'gasPriceNotSelected':
             return (
                 <button
@@ -156,17 +169,17 @@ export const LiquidityActionButton = ({
                     {'Insufficient Funds'}
                 </button>
             );
-        case 'pendingBounds': 
-        return (
-            <button
-                disabled={true}
-                onClick={onClick}
-                className={classNames('btn-addl', 'no-hover', 'btn-warn')}
-            >
-                <Rings width='24px' height='24px' />
-                {' Calculating Range '}
-            </button>
-        );
+        case 'pendingBounds':
+            return (
+                <button
+                    disabled={true}
+                    onClick={onClick}
+                    className={classNames('btn-addl', 'no-hover', 'btn-warn')}
+                >
+                    <Rings width='24px' height='24px' />
+                    {' Calculating Range '}
+                </button>
+            );
         case 'addLiquidity':
             return (
                 <button
