@@ -39,7 +39,6 @@ function ConnectWalletModal({
     };
 
     const handleConnectWalletConnect = async () => {
-        console.log('handle connect wallet');
         try {
             await connectWalletConnect();
         } catch (err) {
