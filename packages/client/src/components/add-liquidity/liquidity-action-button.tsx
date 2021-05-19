@@ -37,6 +37,12 @@ export const LiquidityActionButton = ({
             return;
         }
 
+        // a wallet does exist, check for edge case on wcProvider being disconnected
+        if(wallet?.provider && !wallet?.provider?.connected){
+            setButtonState('connectWallet');
+            return;
+        }
+
         if (!currentGasPrice) {
             setButtonState('gasPriceNotSelected');
             return;
@@ -71,8 +77,8 @@ export const LiquidityActionButton = ({
             const tokenAmount = new BigNumber(tokenInputState[symbol].amount);
             const tokenBalance =
                 ethers.utils.formatUnits(
-                    balances?.[symbol].balance || 0,
-                    parseInt(balances[symbol]?.decimals || '0', 10)
+                    balances?.[symbol]?.balance || 0,
+                    parseInt(balances?.[symbol]?.decimals || '0', 10)
                 ) || '0';
 
             if (tokenAmount.gt(tokenBalance)) {
@@ -86,7 +92,7 @@ export const LiquidityActionButton = ({
             return;
         }
         setButtonState('addLiquidity');
-    }, [currentGasPrice, balances, pendingApproval, pendingBounds, tokenInputState, wallet?.account]);
+    }, [currentGasPrice, balances, pendingApproval, pendingBounds, tokenInputState, wallet?.account, wallet?.provider, isDisabled]);
 
     switch (buttonState) {
         case 'pendingApproval':

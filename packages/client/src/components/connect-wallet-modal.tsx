@@ -1,30 +1,36 @@
-
 import { Button, Modal } from 'react-bootstrap';
 
-import {useWallet} from 'hooks/use-wallet';
-import {useErrorHandler} from 'react-error-boundary';
+import { useWallet } from 'hooks/use-wallet';
+import { useErrorHandler } from 'react-error-boundary';
 import { ReactComponent as MetamaskLogo } from 'styles/metamask-logo.svg';
 import { ReactComponent as WalletConnectLogo } from 'styles/walletconnect-logo.svg';
+import Sentry, { SentryError } from 'util/sentry';
 
 function ConnectWalletModal({
     show,
     setShow,
-}:  {
+}: {
     show: boolean;
     setShow: (show: boolean) => void;
 }): JSX.Element {
     const handleClose = () => setShow(false);
     const handleError = useErrorHandler();
-    const {wallet, connectMetaMask,connectWalletConnect, disconnectWallet, availableProviders} = useWallet();
+    const {
+        wallet,
+        connectMetaMask,
+        connectWalletConnect,
+        disconnectWallet,
+        availableProviders,
+    } = useWallet();
     const titleText = wallet?.account
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        ? `Connected: ${wallet?.account}`
+        ? // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+          `Connected: ${wallet?.account}`
         : 'Connect Wallet';
 
     const handleConnectMetaMask = async () => {
-        try{
+        try {
             await connectMetaMask();
-        } catch(e){
+        } catch (e) {
             handleError(e);
         }
 
@@ -33,14 +39,21 @@ function ConnectWalletModal({
     };
 
     const handleConnectWalletConnect = async () => {
-        try{
+        console.log('handle connect wallet');
+        try {
             await connectWalletConnect();
-        } catch(e){
-            handleError(e);
+        } catch (err) {
+            setTimeout(handleClose, 100);
+            // wallet connect throws error incase user closes the modal
+            // Send event to sentry
+            // Todo, better UX to let the user know what happened
+            const sentryErr = new SentryError(
+                `could not connect to wallet connect provider`,
+                err
+            );
+            Sentry.captureException(sentryErr);
+            window.location.reload();
         }
-
-        // Close modlal after half-second
-        setTimeout(handleClose, 500);
     };
 
     return (
@@ -87,19 +100,5 @@ function ConnectWalletModal({
         </Modal>
     );
 }
-
-// ConnectWalletModal.propTypes = {
-//     show: PropTypes.bool.isRequired,
-//     setShow: PropTypes.func.isRequired,
-//     wallet: PropTypes.shape({
-//         account: PropTypes.string,
-//         providerName: PropTypes.string,
-//         provider: PropTypes.object,
-//     }).isRequired,
-//     connectMetaMask: PropTypes.func,
-//     connectWalletConnect: PropTypes.func,
-//     disconnectWallet: PropTypes.func,
-//     availableProviders: PropTypes.objectOf(PropTypes.bool),
-// };
 
 export default ConnectWalletModal;

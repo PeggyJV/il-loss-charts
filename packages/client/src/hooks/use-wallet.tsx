@@ -17,6 +17,9 @@ const cookies = new Cookies();
 
 const wcProvider = new WalletConnectProvider({
     infuraId: process.env.REACT_APP_INFURA_PROJECT_ID,
+    qrcodeModalOptions: {
+        mobileLinks: ['trust', 'argent'],
+    },
 });
 
 debug.wcProvider = wcProvider;
@@ -63,7 +66,7 @@ export const WalletProvider = ({
         network: null,
     };
     const [wallet, setWallet] = useState<Wallet>(initialWalletState);
-
+    debug.wallet = wallet;
     useEffect(() => {
         const walletFromCookie: Partial<Wallet> = cookies.get('current_wallet');
         if (
@@ -71,24 +74,11 @@ export const WalletProvider = ({
             walletFromCookie.account &&
             walletFromCookie.providerName
         ) {
+            // only recover metamask from cookie to avoid edge cases / sync issues with walletconnect bridge
             if (walletFromCookie.providerName === 'metamask') {
                 const provider = (window as any).ethereum;
                 const network = ethereum.networkVersion || '1';
                 setWallet({ ...walletFromCookie, network, provider } as Wallet);
-            }
-            // } else if (
-            //     // Create walletconnect session if wallet connect
-            //     walletFromCookie.providerName === 'walletconnect' &&
-            //     !wcConnector.connected
-            // ) {
-            //     // TODO inject provider
-            //     void wcConnector.createSession();
-            // }
-        } else {
-            if (walletFromCookie) {
-                console.warn(
-                    `Tried to load wallet from cookie, but it was not correctly formed.`
-                );
             }
         }
     }, [ethereum?.networkVersion]);
@@ -110,13 +100,14 @@ export const WalletProvider = ({
             network: null,
         });
         cookies.remove('current_wallet');
-    }, [wallet.providerName]);
+    }, [wallet.account, wallet.providerName]);
 
     // Subscribe to updates (do this before calling connection in case we load from cookies)
     useEffect(() => {
         if (ethereum) {
             const handleNetworkChange = (networkId: NetworkIds) => {
-                console.log('NETWORK CHANGE', networkId);
+                if (wallet?.providerName !== 'metamask') return;
+
                 setWallet({ ...wallet, network: networkId });
             };
 
@@ -162,7 +153,20 @@ export const WalletProvider = ({
     }, [disconnectWallet, ethereum, wallet]);
 
     useEffect(() => {
+
+        // const handleConnect = (...params: any[]) => {
+        //     console.log('wallet connect : onConnect', params);
+        // };
+
+        // wcProvider.on('connect', handleConnect);
+
+        // const handleSessionUpdate = (error: any, payload: any) => {
+        //     console.log('wallet connect : onSessionUpdate', payload);
+        // };
+        // wcProvider.on('session_update', handleSessionUpdate);
+
         const handleAccountChange = (accounts: string[]) => {
+
             const [account] = accounts;
 
             if (account) {
@@ -170,7 +174,9 @@ export const WalletProvider = ({
                     account,
                     providerName: 'walletconnect',
                     provider: wcProvider,
-                    network: wcProvider?.networkId  as unknown as NetworkIds || '1',
+                    network:
+                        ((wcProvider?.networkId as unknown) as NetworkIds) ||
+                        '1',
                 };
 
                 setWallet(walletObj);
@@ -199,7 +205,12 @@ export const WalletProvider = ({
             // oldNetwork exists, it represents a changing network
             if (oldNetwork) {
                 window.location.reload();
-                // setWallet({ ...wallet, network: newNetwork });
+                setWallet({
+                    account: null,
+                    provider: null,
+                    providerName: null,
+                    network: null,
+                });
             }
         };
 
@@ -221,6 +232,8 @@ export const WalletProvider = ({
             wcProvider.removeListener('accountsChanged', handleAccountChange);
             wcProvider.removeListener('networkChanged', handleNetworkChange);
             wcProvider.removeListener('disconnect', handleDisconnect);
+            // wcProvider.removeListener('connect', handleConnect);
+            // wcProvider.removeListener('session_update', handleSessionUpdate);
         };
     }, []);
 
@@ -254,36 +267,37 @@ export const WalletProvider = ({
     };
 
     const connectWalletConnect = async () => {
+        console.log('connect...');
         await wcProvider.enable();
         const walletObj: Wallet = {
-            account: wcProvider.accounts[0],
+            account: wcProvider?.accounts[0],
             providerName: 'walletconnect',
             provider: wcProvider,
-            network: null, // figure this out for wc
+            network: ((wcProvider?.networkId as unknown) as NetworkIds) || '1',
         };
 
-        // If provider is different, sest to the WC wallet
-        if (wallet.provider !== 'walletconnect') {
-            setWallet(walletObj);
+        // If provider is different, set to the WC wallet
+        // if (wallet.provider !== 'walletconnect') {
+        setWallet(walletObj);
 
-            try {
-                const mixpanelData = {
-                    distinct_id: wcProvider.accounts[0],
-                    account: wcProvider.accounts[0],
-                    providerName: 'walletconnect',
-                };
+        try {
+            const mixpanelData = {
+                distinct_id: wcProvider.accounts[0],
+                account: wcProvider.accounts[0],
+                providerName: 'walletconnect',
+            };
 
-                mixpanel.track('wallet:connect', mixpanelData);
-            } catch (e) {
-                console.error(`Metrics error on wallet.`);
-            }
+            mixpanel.track('wallet:connect', mixpanelData);
+        } catch (e) {
+            console.error(`Metrics error on wallet.`);
         }
+        // }
     };
 
     //re-set cookie when wallet state changes
     useEffect(() => {
         try {
-            if (wallet && wallet.account) {
+            if (wallet && wallet?.account) {
                 cookies.set(
                     'current_wallet',
                     {

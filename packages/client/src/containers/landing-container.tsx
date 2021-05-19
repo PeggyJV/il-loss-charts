@@ -23,9 +23,7 @@ function LandingContainer({
     gasPrices: EthGasPrices | null;
 }): JSX.Element {
     const { wallet } = useWallet();
-    const isMobile = useMediaQuery({ query: '(max-width: 500px)' });
 
-    const [showMobileModal, setShowMobileModal] = useState<boolean>(isMobile); 
     const showWalletModal = () => setShowConnectWallet(true);
     useEffect(() => {
         try {
@@ -34,24 +32,6 @@ function LandingContainer({
             console.error(`Metrics error on add positions:landing.`);
         }
     }, []);
-
-     const renderMobileModal = () => (
-         <Modal
-             show={showMobileModal}
-             onHide={() => setShowMobileModal(false)}
-             dialogClassName='dark'
-         >
-             <Modal.Header className='connect-wallet-modal-header' closeButton>
-                 <Modal.Title className='connect-wallet-modal-title'>
-                     {}
-                 </Modal.Title>
-             </Modal.Header>
-
-             <Modal.Body className='connect-wallet-modal'>
-                 {'Mobile Experience coming soon. Please continue on desktop'}
-             </Modal.Body>
-         </Modal>
-     );
 
     return (
         <div>
@@ -75,7 +55,6 @@ function LandingContainer({
                         </span>
                     </h5>
                     <TelegramCTA />
-                    {renderMobileModal()}
                 </div>
                 <div className='wallet-combo'>
                     {wallet?.account && <PendingTx />}
