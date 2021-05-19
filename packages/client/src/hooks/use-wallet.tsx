@@ -18,7 +18,7 @@ const cookies = new Cookies();
 const wcProvider = new WalletConnectProvider({
     infuraId: process.env.REACT_APP_INFURA_PROJECT_ID,
     qrcodeModalOptions: {
-        mobileLinks: ['trust', 'argent'],
+        mobileLinks: ['trust', 'argent', 'ledger'],
     },
 });
 
