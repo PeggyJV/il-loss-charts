@@ -80,9 +80,6 @@
         align-items: center;
         overflow: hidden;
         font-size: 1rem;
-        &:hover {
-            background: var(--bgSecondary);
-        }
     }
     .fee-tier {
         background: var(--objSecondary);
