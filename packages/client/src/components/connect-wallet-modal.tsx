@@ -1,5 +1,5 @@
 import { Button, Modal } from 'react-bootstrap';
-
+import { useState } from 'react';
 import { useWallet } from 'hooks/use-wallet';
 import { useErrorHandler } from 'react-error-boundary';
 import { ReactComponent as MetamaskLogo } from 'styles/metamask-logo.svg';
@@ -15,6 +15,7 @@ function ConnectWalletModal({
 }): JSX.Element {
     const handleClose = () => setShow(false);
     const handleError = useErrorHandler();
+    const [showReloadModal, setShowReloadModal] = useState<boolean>(false);
     const {
         wallet,
         connectMetaMask,
@@ -41,18 +42,52 @@ function ConnectWalletModal({
     const handleConnectWalletConnect = async () => {
         try {
             await connectWalletConnect();
+            setTimeout(handleClose, 500);
         } catch (err) {
-            setTimeout(handleClose, 100);
+            // setTimeout(handleClose, 100);
             // wallet connect throws error incase user closes the modal
             // Send event to sentry
-            // Todo, better UX to let the user know what happened
+            setShowReloadModal(true);
             const sentryErr = new SentryError(
                 `could not connect to wallet connect provider`,
                 err
             );
             Sentry.captureException(sentryErr);
-            window.location.reload();
         }
+    };
+
+    const renderBody = () => {
+        if (showReloadModal)
+            return (
+                <p className='centered'>
+                    Could not connect to Wallet Connect provider. Please reload
+                    and try again.
+                </p>
+            );
+
+        return (
+            <>
+                <p className='centered'>
+                    Choose a wallet provider to connect with.
+                </p>
+                <div className='connect-wallet-modal-options-container'>
+                    <button
+                        className='connect-wallet-modal-option'
+                        // disabled={!availableProviders.metamask}
+                        onClick={handleConnectMetaMask}
+                    >
+                        <MetamaskLogo />
+                    </button>
+                    <button
+                        className='connect-wallet-modal-option'
+                        disabled={!availableProviders.walletconnect}
+                        onClick={handleConnectWalletConnect}
+                    >
+                        <WalletConnectLogo />
+                    </button>
+                </div>
+            </>
+        );
     };
 
     return (
@@ -64,25 +99,7 @@ function ConnectWalletModal({
             </Modal.Header>
             {!wallet?.account && (
                 <Modal.Body className='connect-wallet-modal'>
-                    <p className='centered'>
-                        Choose a wallet provider to connect with.
-                    </p>
-                    <div className='connect-wallet-modal-options-container'>
-                        <button
-                            className='connect-wallet-modal-option'
-                            // disabled={!availableProviders.metamask}
-                            onClick={handleConnectMetaMask}
-                        >
-                            <MetamaskLogo />
-                        </button>
-                        <button
-                            className='connect-wallet-modal-option'
-                            disabled={!availableProviders.walletconnect}
-                            onClick={handleConnectWalletConnect}
-                        >
-                            <WalletConnectLogo />
-                        </button>
-                    </div>
+                    {renderBody()}
                 </Modal.Body>
             )}
             {wallet?.account && (
@@ -93,6 +110,17 @@ function ConnectWalletModal({
                         onClick={disconnectWallet}
                     >
                         Disconnect
+                    </Button>
+                </Modal.Footer>
+            )}
+            {!wallet?.account && showReloadModal && (
+                <Modal.Footer className='manage-liquidity-modal-footer'>
+                    <Button
+                        variant='info'
+                        size='sm'
+                        onClick={() => window.location.reload()}
+                    >
+                        Reload
                     </Button>
                 </Modal.Footer>
             )}
