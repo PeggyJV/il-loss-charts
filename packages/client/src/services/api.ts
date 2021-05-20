@@ -12,7 +12,7 @@ import {
 
 import { UniswapApiFetcher as OfflineFetcher } from 'services/offline-api';
 
-import config from 'config'
+import config from 'config/app'
 import { Network } from '@sommelier/shared-types/src/bitquery';
 
 type ApiResponse<T> = { data?: T; error?: string };

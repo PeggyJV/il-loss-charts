@@ -1,5 +1,5 @@
 import { IUniswapPair } from '@sommelier/shared-types';
-import config from 'config';
+import config from 'config/app';
 
 import logoMappings from 'constants/trustwallet-mappings.json';
 import { Pair } from 'constants/prop-types';
