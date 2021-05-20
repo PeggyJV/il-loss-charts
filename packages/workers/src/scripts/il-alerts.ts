@@ -1,10 +1,9 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
+import appConfig from 'config/app';
 import TelegramBot from 'node-telegram-bot-api';
 import BigNumber from 'bignumber.js';
 import logger from '../logger';
 
+const config = appConfig.alerts;
 const log = logger.child({ worker: 'il-alerts' });
 
 import { UniswapFetcher, calculateMarketStats } from '@sommelier/data-service';
@@ -15,8 +14,8 @@ import {
 } from '@sommelier/shared-types';
 
 let sommBot: TelegramBot | undefined;
-if (process.env.TELEGRAM_BOT_TOKEN) {
-    sommBot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
+if (config.telegramToken.length > 0) {
+    sommBot = new TelegramBot(config.telegramToken);
 } else {
     throw new Error(`Cannot start il alerts telegram bot without token.`);
 }

@@ -1,5 +1,6 @@
-import dotenv from 'dotenv';
-dotenv.config();
+
+import appConfig from 'config/app';
+const config = appConfig.telegramBot;
 
 import Mixpanel from 'mixpanel';
 let mixpanel: Mixpanel.Mixpanel;
@@ -8,14 +9,14 @@ import TelegramBot from 'node-telegram-bot-api';
 let sommBot: TelegramBot | undefined;
 
 export default function getTelegramDataForMixpanel(): void {
-  if(process.env.SOMM_STATS_BOT_TOKEN){
-    sommBot = new TelegramBot(process.env.SOMM_STATS_BOT_TOKEN, {polling: true});
+  if(config.telegramToken.length > 0){
+    sommBot = new TelegramBot(config.telegramToken);
   } else {
       throw new Error(`Cannot start telegram mixpanel stat bot without stat bot token.`);
   }
 
-  if (process.env.MIXPANEL_TOKEN) {
-      mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN);
+  if (config.mixpanelToken.length > 0) {
+      mixpanel = Mixpanel.init(config.mixpanelToken);
   } else {
       throw new Error(`Cannot start telegram mixpanel stat bot without mixpanel token.`);
   }
