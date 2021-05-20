@@ -19,7 +19,7 @@ import {
   GetTopPoolsResult,
 } from '@sommelier/shared-types/src/api'; // how do we export at root level?
 import catchAsyncRoute from 'api/util/catch-async-route';
-import config from 'config';
+import config from 'config/config';
 import validateEthAddress from 'api/util/validate-eth-address';
 
 // poolToPair(pool: Pool): IUniswapPair {

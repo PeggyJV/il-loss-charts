@@ -8,7 +8,7 @@ import {
     GetTopPoolsResult,
 } from '@sommelier/shared-types/src/api'; // how do we export at root level?
 import { UniswapFetcher, UniswapV3Fetcher } from 'services/uniswap-v3/fetcher';
-import appConfig from 'config';
+import appConfig from 'config/config';
 import memoizer from 'util/memoizer-redis';
 import redis from 'util/redis';
 
