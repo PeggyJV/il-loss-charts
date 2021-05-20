@@ -3,7 +3,7 @@ import useWebSocket from 'react-use-websocket';
 
 import { debug } from 'util/debug';
 import { EthGasPrices } from '@sommelier/shared-types';
-import config from 'config';
+import config from 'config/app';
 
 export const ethGasPriceTopic = 'ethGas:getGasPrices';
 export const gasPriceTopicRex = /^ethGas:getGasPrices/;

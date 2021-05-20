@@ -5,7 +5,7 @@ import { WalletBalances } from 'types/states';
 import { PoolOverview } from 'hooks/data-fetchers';
 import { useWallet } from 'hooks/use-wallet';
 import { poolSymbol } from 'util/formats';
-import config from 'config';
+import config from 'config/app';
 const EXCHANGE_ADD_ABI_ADDRESS = '0xFd8A61F94604aeD5977B31930b48f1a94ff3a195';
 const EXCHANGE_REMOVE_ABI_ADDRESS =
     '0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92';

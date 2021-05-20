@@ -5,7 +5,7 @@ import {
     TopPool as TopPoolType,
 } from '@sommelier/shared-types/src/api';
 import { debug } from 'util/debug';
-import config from 'config';
+import config from 'config/app';
 // For Easy Import
 export type TopPool = TopPoolType;
 export interface UseTopPools {

@@ -16,7 +16,7 @@ import { TokenWithBalance } from 'components/token-with-balance';
 import './add-liquidity-v3.scss';
 import 'rc-slider/assets/index.css';
 import { Box } from '@material-ui/core';
-import config from 'config';
+import config from 'config/app';
 import erc20Abi from 'constants/abis/erc20.json';
 import addLiquidityAbi from 'constants/abis/uniswap_v3_add_liquidity.json';
 import { LiquidityContext } from 'containers/liquidity-container';

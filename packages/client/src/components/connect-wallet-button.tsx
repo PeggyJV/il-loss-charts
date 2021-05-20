@@ -1,4 +1,4 @@
-import config from 'config';
+import config from 'config/app';
 import { useWallet } from 'hooks/use-wallet';
 import {formatAddress} from 'util/formats';
 
