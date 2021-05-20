@@ -1,6 +1,6 @@
-
-import AppConfig from 'types/app-config';
 import { RecursivePartial } from 'types/shared';
+
+import type { AppConfig } from 'config/app';
 
 const config: RecursivePartial<AppConfig> = {
     server: {
@@ -9,7 +9,7 @@ const config: RecursivePartial<AppConfig> = {
     uniswap: {
         v3: {
             networks: {
-                mainnet: process.env.V3_SUBGRAPH_URL ?? 'http://graph-node-mainnet.us-west1.gcp.somm.network:8080/subgraphs/name/sommelier/uniswap-v3',
+                mainnet: 'http://graph-node-mainnet.us-west1.gcp.somm.network:8080/subgraphs/name/sommelier/uniswap-v3',
             }
         }
     },

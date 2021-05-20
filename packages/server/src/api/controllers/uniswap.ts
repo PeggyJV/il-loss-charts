@@ -21,7 +21,7 @@ import {
 
 import redis from 'util/redis';
 import memoizer from 'util/memoizer-redis';
-import appConfig from 'config/config';
+import appConfig from 'config/app';
 
 const config = appConfig.memoizerRedis;
 const memoize = memoizer(redis, { enabled: config.enabled });

@@ -1,8 +1,11 @@
 import { EventEmitter } from 'events';
 import Web3 from 'web3';
 import fetch from 'node-fetch';
+import appConfig from 'config/app';
 
-if (!process.env.INFURA_PROJECT_ID) {
+const { infura: config } = appConfig;
+
+if (config.projectId.length === 0) {
     throw new Error(
         'Cannot instiate Infura handler without infura project id.'
     );
@@ -20,9 +23,7 @@ export class Infura extends EventEmitter {
 
     static web3 = new Web3(
         new Web3.providers.WebsocketProvider(
-            `wss://${Infura.apiRoot}/ws/v3/${
-                process.env.INFURA_PROJECT_ID as string
-            }`
+            `wss://${Infura.apiRoot}/ws/v3/${config.projectId}`
         )
     );
 
@@ -76,9 +77,7 @@ export class Infura extends EventEmitter {
 
     async getLatestBlock(): Promise<{ result: number }> {
         const res = await fetch(
-            `https://${Infura.apiRoot}/v3/${
-                process.env.INFURA_PROJECT_ID as string
-            }`
+            `https://${Infura.apiRoot}/v3/${config.projectId}`
         );
         const data = await res.json();
 
