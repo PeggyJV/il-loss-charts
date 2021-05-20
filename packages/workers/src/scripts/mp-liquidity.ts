@@ -1,5 +1,5 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import appConfig from 'config/app';
+const config = appConfig.mpLiquidity;
 
 import Mixpanel from 'mixpanel';
 let mixpanel: Mixpanel.Mixpanel;
@@ -30,8 +30,8 @@ if (key == 'freekey') {
 }
 
 
-if (process.env.MIXPANEL_TOKEN) {
-    mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN, { secret: process.env.MIXPANEL_SECRET });
+if (config.mixpanelToken.length > 0) {
+    mixpanel = Mixpanel.init(config.mixpanelToken, { secret: config.mixpanelSecret });
 } else {
     throw new Error(`Cannot start il alerts mixpanel liquidity bot without mixpanel token.`);
 }

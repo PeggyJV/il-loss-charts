@@ -10,7 +10,7 @@ import { minuteMs } from 'util/date';
 import validateEthAddress from 'api/util/validate-eth-address';
 import BitqueryFetcher from 'services/bitquery/fetcher';
 import catchAsyncRoute from 'api/util/catch-async-route';
-import appConfig from 'config';
+import appConfig from 'config/app';
 import memoizer from 'util/memoizer-redis';
 import redis from 'util/redis';
 

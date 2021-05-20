@@ -1,9 +1,9 @@
 import server from 'common/server';
 import WebsocketServer from 'ws/server';
-import config from 'config';
+import config from 'config/app';
 
 function startServer() {
-    const port = parseInt(config.port);
+    const port = config.server.port;
 
     server.listen(port);
 

@@ -24,7 +24,6 @@ export default interface AppConfig {
             }
         }
     }
-    port: string;
     requestLimit: string;
     openApiSpec: string;
     enableResponseValidation: boolean;

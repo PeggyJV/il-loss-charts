@@ -1,5 +1,6 @@
-import AppConfig from 'types/app-config';
 import { RecursivePartial } from 'types/shared';
+
+import type { AppConfig } from 'config/app';
 
 const config: RecursivePartial<AppConfig> = {
   redis: {

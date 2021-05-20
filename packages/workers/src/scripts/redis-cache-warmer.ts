@@ -1,12 +1,21 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions, @typescript-eslint/ban-ts-comment */
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client/core';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
-import dotenv from 'dotenv';
 import fetch from 'cross-fetch';
 import Redis from 'ioredis';
 import logger from '../logger';
+import appConfig from 'config/app';
 
 const log = logger.child({ worker: 'redis-cache-warmer' });
+const {
+    v3SubgraphUrl,
+    redisUrl,
+    redisPort,
+    redisDb,
+    redisPw,
+    periodDays,
+    topPoolCount: poolCount,
+} = appConfig.redisCacheWarmer;
 
 import {
     _getPeriodIndicators,
@@ -16,14 +25,8 @@ import {
     UniswapV3Fetcher,
 } from '@sommelier/data-service';
 
-// load .env
-dotenv.config();
-
 // configure apollo
-const uri =
-    process.env.V3_SUBGRAPH_URL ||
-    'http://localhost:8000/subgraphs/name/sommelier/uniswap-v3';
-const link = new HttpLink({ uri, fetch });
+const link = new HttpLink({ uri: v3SubgraphUrl, fetch });
 const cache = new InMemoryCache();
 const client = new ApolloClient({ link, cache });
 
@@ -31,13 +34,10 @@ const client = new ApolloClient({ link, cache });
 const sdk = apolloClients.getUniswapV3Sdk(client);
 
 // configure redis
-const redisPort = process.env.REDIS_PORT ?? '6379';
-const redisDb = process.env.REDIS_DB ?? '0';
-const redisPw = process.env.REDIS_AUTH ?? '';
 let redisConfig: Record<string, any> = {
-    host: process.env.REDIS_URL ?? '127.0.0.1',
-    port: parseInt(redisPort, 10),
-    db: parseInt(redisDb, 10),
+    host: redisUrl,
+    port: redisPort,
+    db: redisDb,
 };
 if (redisPw != null && redisPw.length > 0) {
     redisConfig = { ...redisConfig, password: redisPw };
@@ -65,10 +65,6 @@ const getLastDayOHLC = bqMemo(BitqueryFetcher.getLastDayOHLC.bind(BitqueryFetche
 const count = 1000;
 const sort = 'volumeUSD';
 
-// number of top pools to keep warm
-const poolCountStr = process.env.TOP_POOL_COUNT ?? '40';
-const poolCount = parseInt(poolCountStr, 10);
-
 export async function run(): Promise<void> {
     // track token pairs we've warmed
     const filter: Set<string> = new Set();
@@ -94,9 +90,6 @@ export async function run(): Promise<void> {
         await Promise.all(chunk.map(async (pool) => updatePoolCache(pool)));
     }
 }
-// this needs to stay in lockstep with the default days for the /marketData/indicators routte
-const periodDaysStr = process.env.PERIOD_DAYS ?? '19';
-const periodDays = parseInt(periodDaysStr, 10);
 
 async function updatePoolCache(pool: any) {
     const name = poolName(pool);

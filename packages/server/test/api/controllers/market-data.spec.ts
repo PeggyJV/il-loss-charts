@@ -1,10 +1,8 @@
-import { endOfDay, endOfHour, subDays, subHours, startOfDay, startOfHour } from 'date-fns';
 import supertest from 'supertest';
 
 // TODO: Fix module resolutions for Jest, it works tho....
 import { app } from 'common/server';
 import BitqueryFetcher from 'services/bitquery/fetcher';
-import config from 'config';
 
 import expectedDailyOHLC from '../../fixtures/market-data/bitquery-daily-ohlc.json';
 import expectedWeeklyOHLC from '../../fixtures/market-data/bitquery-weekly-ohlc.json';

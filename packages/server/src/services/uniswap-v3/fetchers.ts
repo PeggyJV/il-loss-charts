@@ -8,7 +8,7 @@ import fetch from 'cross-fetch';
 import { EthNetwork } from '@sommelier/shared-types';
 
 import { UniswapV3Fetcher, UniswapV3FetcherMemoized } from 'services/uniswap-v3';
-import appConfig from 'config';
+import appConfig from 'config/app';
 import { getUniswapV3Sdk } from 'services/util/apollo-client';
 
 const config: Record<string, string> = appConfig.uniswap.v3.networks;

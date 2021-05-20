@@ -1,16 +1,18 @@
-import AppConfig from 'types/app-config';
-
-const config: AppConfig = {
+// Custom environment variable resolution is defined in config/custom-environment-variables.json
+// N.B. node-config's parser will correctly detect strings / numbers and parse them correctly
+// booleans are parsed as strings must be defined with a __format: boolean to be parsed correctly.
+const config = {
+    env: 'development',
+    logLevel: "info",
     server: {
         host: 'http://localhost:3000',
+        port: 3001,
     },
     redis: {
-        host: process.env.REDIS_URL || '127.0.0.1',
-        port: process.env.REDIS_PORT
-            ? parseInt(process.env.REDIS_PORT, 10)
-            : 6379,
+        host: '127.0.0.1',
+        port: 6379,
         db: 0,
-        password: process.env.REDIS_AUTH ?? '',
+        password: '',
     },
     memoizerRedis: {
         enabled: true,
@@ -18,7 +20,7 @@ const config: AppConfig = {
     uniswap: {
         v3: {
             networks: {
-                mainnet: process.env.V3_SUBGRAPH_URL ?? 'http://localhost:8000/subgraphs/name/sommelier/uniswap-v3',
+                mainnet: 'http://localhost:8000/subgraphs/name/sommelier/uniswap-v3',
                 rinkeby: 'http://35.197.14.14:8000/subgraphs/name/sommelier/uniswap-v3-2',
                 goerli: 'http://35.197.14.14:8000/subgraphs/name/sommelier/uniswap-v3-2',
                 ropsten: 'http://35.197.14.14:8000/subgraphs/name/sommelier/uniswap-v3-2',
@@ -26,8 +28,19 @@ const config: AppConfig = {
             }
         }
     },
-    port: process.env.PORT || '3001',
-    requestLimit: process.env.REQUEST_LIMIT || '10kb',
+    infura: {
+        projectId: '',
+    },
+    bitquery: {
+        apiKey: '',
+    },
+    mixpanel: {
+        apiKey: '',
+    },
+    session: {
+        secret: '',
+    },
+    requestLimit: '10kb',
     openApiSpec: '/api/v1/spec',
     enableResponseValidation: false
 };

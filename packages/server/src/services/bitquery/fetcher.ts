@@ -9,8 +9,11 @@ import fetch from 'cross-fetch';
 import { getBitquerySdk } from 'services/util/apollo-client';
 import { DexTrade } from 'services/bitquery/generated-types';
 import { UpstreamError, UpstreamMissingPoolDataError } from 'api/util/errors';
+import appConfig from 'config/app';
 
 import { format, endOfDay, startOfDay, subDays } from 'date-fns';
+
+const config = appConfig.bitquery;
 
 // TODO replace with bitquery URI
 const uri = 'https://graphql.bitquery.io';
@@ -23,7 +26,7 @@ const authMiddleware = new ApolloLink((operation, forward) => {
     // add the authorization to the headers
     operation.setContext({
         headers: {
-            'X-API-KEY': process.env.BITQUERY_API_KEY,
+            'X-API-KEY': config.apiKey,
         }
     });
 

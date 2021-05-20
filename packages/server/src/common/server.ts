@@ -13,12 +13,12 @@ import mime from 'mime-types';
 import * as OpenApiValidator from 'express-openapi-validator';
 import * as middleware from '../api/middlewares';
 
-import config from 'config';
+import config from 'config/app';
 
 let mixpanel: Mixpanel.Mixpanel;
 
-if (process.env.MIXPANEL_TOKEN) {
-    mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN);
+if (config.mixpanel.apiKey.length > 0) {
+    mixpanel = Mixpanel.init(config.mixpanel.apiKey);
 }
 
 export const app = express();
@@ -34,7 +34,7 @@ class ExpressServer {
         app.use(middleware.logger())
 
         app.use(middleware.poweredBy);
-        app.use(cookieParser(process.env.SESSION_SECRET));
+        app.use(cookieParser(config.session.secret));
 
         app.use('/static', express.static(`${clientRoot}/build/static`, {
             maxAge: '30d',
@@ -108,7 +108,7 @@ class ExpressServer {
         const welcome = (p: number) => (): void =>
             console.info(
                 `${new Date().toISOString()} up and running in ${
-                    process.env.NODE_ENV || 'development'
+                    config.env
                 } @: ${os.hostname()} on port: ${p}`
             );
 

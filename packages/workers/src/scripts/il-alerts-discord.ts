@@ -1,9 +1,7 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 import BigNumber from 'bignumber.js';
 import Discord from "discord.js";
 import logger from '../logger';
+import appConfig from 'config/app';
 
 import { UniswapFetcher, calculateMarketStats } from '@sommelier/data-service';
 import {
@@ -11,6 +9,8 @@ import {
     IUniswapPair,
     MarketStats,
 } from '@sommelier/shared-types';
+
+const config = appConfig.discordAlerts;
 
 const log = logger.child({ worker: 'il-alerts-discord' });
 
@@ -33,7 +33,7 @@ const handleExit = () => {
 }
 
 export default function loginAndSetupAlerts(): void {
-    void client.login(process.env.DISCORD_BOT_TOKEN);
+    void client.login(config.botToken);
 
     client.on('ready', () => {
         if (client.user == null) {
@@ -134,7 +134,7 @@ async function runDiscordAlerts(): Promise<void> {
 }
 
 if (require.main === module) {
-  if (process.env.DISCORD_BOT_TOKEN) {
+  if (config.botToken.length > 0) {
     loginAndSetupAlerts();
   } else {
       throw new Error(`Cannot start il alerts discord bot without token.`);

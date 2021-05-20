@@ -9,6 +9,9 @@
             {
                 "transform": "@zerollup/ts-transform-paths"
             }
+        ],
+        "types": [
+          "node"
         ]
     },
     "include": [
