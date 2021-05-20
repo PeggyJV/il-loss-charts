@@ -1,5 +1,11 @@
 .DS_Store
 
+# Build
+packages/client/build
+packages/server/dist
+packages/workers/dist
+packages/sommelier-types/dist
+
 # Logs
 logs
 *.log
