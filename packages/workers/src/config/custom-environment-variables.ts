@@ -47,4 +47,7 @@ export default {
         db: ' REDIS_DB',
         password: 'REDIS_AUTH',
     },
+    bitquery: {
+        apiKey: 'BITQUERY_API_KEY',
+    },
 };

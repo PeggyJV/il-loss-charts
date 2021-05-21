@@ -40,7 +40,7 @@ if (!cron.validate(cacheWarmerCron)) {
 }
 
 if (cacheWarmer) {
-    log.info({ msg: 'Telegram alerts scheduled', cron: cacheWarmerCron });
+    log.info({ msg: 'Redis Cache Warmer scheduled', cron: cacheWarmerCron });
     cron.schedule(cacheWarmerCron, () => {
         void runRedisCacheWarmer();
     });

@@ -47,4 +47,7 @@ export default {
     memoizerRedis: {
         enabled: true,
     },
+    bitquery: {
+        apiKey: '',
+    },
 };
