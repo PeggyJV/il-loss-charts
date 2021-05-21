@@ -1,7 +1,8 @@
 import BigNumber from 'bignumber.js';
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-export type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+export type WithOptional<T, K extends keyof T> = Omit<T, K> &
+    Partial<Pick<T, K>>;
 export interface ILiquidityData {
     reserve0: string;
     reserve1: string;
@@ -19,7 +20,6 @@ export interface IToken {
     tradeVolumeUSD: string;
 }
 
-
 export interface PairToken {
     __typename: 'Token';
     decimals?: string;
@@ -30,7 +30,6 @@ export interface PairToken {
     totalLiquidity: string;
     tradeVolumeUSD: string;
 }
-
 
 export interface IUniswapPair extends ILiquidityData {
     __typename: 'Pair';
@@ -69,7 +68,7 @@ export class UniswapPair implements IUniswapPair {
     totalSupply: string;
     feesUSD?: string;
     pairReadable: string;
-    
+
     constructor(pairData: IUniswapPair) {
         this.__typename = pairData.__typename;
         this.createdAtTimestamp = pairData.createdAtTimestamp;
@@ -87,12 +86,15 @@ export class UniswapPair implements IUniswapPair {
         this.untrackedVolumeUSD = pairData.untrackedVolumeUSD;
         this.totalSupply = pairData.totalSupply;
         this.feesUSD = pairData.feesUSD;
-        this.pairReadable = pairData.token0.symbol + '-' + pairData.token1.symbol
+        this.pairReadable =
+            pairData.token0.symbol + '-' + pairData.token1.symbol;
     }
 
     get symbols(): string[] {
         if (!this.token0.symbol || !this.token1.symbol) {
-            throw new Error('Pair does not have enough data - token symbols missing');
+            throw new Error(
+                'Pair does not have enough data - token symbols missing',
+            );
         }
 
         return [this.token0.symbol, this.token1.symbol];
@@ -103,11 +105,15 @@ export class UniswapPair implements IUniswapPair {
     // }
 
     get isStablecoinPair(): boolean {
-        return this.symbols.some((symbol) => UniswapPair.STABLECOIN_SYMBOLS.includes(symbol));
+        return this.symbols.some((symbol) =>
+            UniswapPair.STABLECOIN_SYMBOLS.includes(symbol),
+        );
     }
 
     get isEthPair(): boolean {
-        return this.symbols.some((symbol) => UniswapPair.ETH_SYMBOLS.includes(symbol));
+        return this.symbols.some((symbol) =>
+            UniswapPair.ETH_SYMBOLS.includes(symbol),
+        );
     }
 
     get isFloatingPair(): boolean {

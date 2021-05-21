@@ -3,11 +3,11 @@ import { ArrayElement } from './index';
 
 // Return values for API Endpoints
 import {
-  GetPoolOverviewQuery,
-  GetPoolsOverviewQuery,
-  GetPoolDailyDataQuery,
-  GetPoolHourlyDataQuery,
-  GetTopPoolsQuery,
+    GetPoolOverviewQuery,
+    GetPoolsOverviewQuery,
+    GetPoolDailyDataQuery,
+    GetPoolHourlyDataQuery,
+    GetTopPoolsQuery,
 } from './uniswap-v3';
 
 export type GetEthPriceResult = { ethPrice: BigNumber };
