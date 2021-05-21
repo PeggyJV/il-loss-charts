@@ -4,7 +4,7 @@ import { endOfDay, startOfDay, subDays } from 'date-fns';
 import fetch from 'cross-fetch';
 import Redis from 'ioredis';
 import logger from '../logger';
-import appConfig from 'config/app';
+import appConfig from '@config';
 
 const log = logger.child({ worker: 'redis-cache-warmer' });
 const {

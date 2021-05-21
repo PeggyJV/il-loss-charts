@@ -5,7 +5,7 @@ import { run as runRedisCacheWarmer } from './scripts/redis-cache-warmer';
 import runTgAlerts from './scripts/il-alerts';
 import runDiscordAlerts from './scripts/il-alerts-discord';
 import logger from './logger';
-import config from 'config/app';
+import config from '@config';
 
 const log = logger.child({ worker: 'scheduler' });
 

@@ -5,9 +5,14 @@
         "outDir": "dist",
         "rootDir": "src",
         "baseUrl": "./src",
+        "plugins": [
+            {
+                "transform": "@zerollup/ts-transform-paths"
+            }
+        ],
         "paths": {
-            "*": ["*", "../server/*"]
-        }
+            "@config": ["config/app"]
+        },
     },
     "include": ["src"],
     "exclude": ["node_modules"]

@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import Discord from 'discord.js';
 import logger from '../logger';
-import appConfig from 'config/app';
+import appConfig from '@config';
 
 import { UniswapFetcher, calculateMarketStats } from '@sommelier/data-service';
 import {

@@ -1,4 +1,4 @@
-import appConfig from 'config/app';
+import appConfig from '@config';
 const config = appConfig.mpLiquidity;
 
 import Mixpanel from 'mixpanel';

@@ -6,7 +6,7 @@ services:
     container_name: somm_app
     # Run with datadog agent
     # entrypoint: ["/app/entrypoint.sh"]
-    command: ["pm2-runtime", "packages/server/dist/index.js"]
+    command: ["pm2-runtime", "packages/server/dist/www.js"]
     links:
       - redis_app
     ports:

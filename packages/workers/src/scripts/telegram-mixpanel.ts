@@ -1,4 +1,4 @@
-import appConfig from 'config/app';
+import appConfig from '@config';
 const config = appConfig.telegramBot;
 
 import Mixpanel from 'mixpanel';

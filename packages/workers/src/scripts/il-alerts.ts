@@ -1,4 +1,4 @@
-import appConfig from 'config/app';
+import appConfig from '@config';
 import TelegramBot from 'node-telegram-bot-api';
 import BigNumber from 'bignumber.js';
 import logger from '../logger';
