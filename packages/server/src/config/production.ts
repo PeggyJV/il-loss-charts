@@ -1,6 +1,6 @@
 import { RecursivePartial } from 'types/shared';
 
-import type { AppConfig } from 'config/app';
+import type { AppConfig } from '@config';
 
 const config: RecursivePartial<AppConfig> = {
     server: {

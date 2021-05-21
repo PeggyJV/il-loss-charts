@@ -13,7 +13,7 @@ import mime from 'mime-types';
 import * as OpenApiValidator from 'express-openapi-validator';
 import * as middleware from '../api/middlewares';
 
-import config from 'config/app';
+import config from '@config';
 
 let mixpanel: Mixpanel.Mixpanel;
 

@@ -9,7 +9,7 @@ import fetch from 'cross-fetch';
 import { getBitquerySdk } from 'services/util/apollo-client';
 import { DexTrade } from 'services/bitquery/generated-types';
 import { UpstreamError, UpstreamMissingPoolDataError } from 'api/util/errors';
-import appConfig from 'config/app';
+import appConfig from '@config';
 
 import { format, endOfDay, startOfDay, subDays } from 'date-fns';
 

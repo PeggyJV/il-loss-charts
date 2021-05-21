@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import Web3 from 'web3';
 import fetch from 'node-fetch';
-import appConfig from 'config/app';
+import appConfig from '@config';
 
 const { infura: config } = appConfig;
 
