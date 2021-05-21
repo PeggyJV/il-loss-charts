@@ -3,7 +3,7 @@ import { URL } from 'url';
 import morgan, { TokenIndexer } from 'morgan';
 
 import { getNetwork as getNetworkFrom } from 'util/get-network';
-import config from 'config/app';
+import config from '@config';
 
 const { host } = config.server;
 

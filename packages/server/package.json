@@ -15,7 +15,7 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
-        "start": "NODE_PATH=dist/ node dist/index.js",
+        "start": "NODE_PATH=dist/ node dist/www.js",
         "clean": "rimraf dist *.tsbuildinfo",
         "build": "ttsc -p tsconfig.build.json && yarn build:copy",
         "build:watch": "ts-node -C build.ts && tsc -w",

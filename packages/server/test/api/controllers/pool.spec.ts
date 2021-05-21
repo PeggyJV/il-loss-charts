@@ -11,7 +11,7 @@ import supertest from 'supertest';
 // TODO: Fix module resolutions for Jest, it works tho....
 import { app } from 'common/server';
 import { UniswapV3Fetchers } from 'services/uniswap-v3/fetchers';
-import config from 'config/app';
+import config from '@config';
 
 const request = supertest(app);
 const fetcher = UniswapV3Fetchers.get('mainnet');

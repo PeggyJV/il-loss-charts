@@ -36,4 +36,18 @@ export default {
         mixpanelToken: '',
         mixpanelSecret: '',
     },
+    // TODO Fix, having to duplicate this config is whack
+    // shared config from server
+    redis: {
+        host: '127.0.0.1',
+        port: 6379,
+        db: 0,
+        password: '',
+    },
+    memoizerRedis: {
+        enabled: true,
+    },
+    bitquery: {
+        apiKey: '',
+    },
 };
