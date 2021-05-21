@@ -6,7 +6,6 @@ module.exports = {
         project: path.join(__dirname, './tsconfig.json'),
         sourceType: 'module',
     },
-    extends: [
-        '../../.eslintrc.json',
-    ]
+    extends: ['../.eslintrc.json'],
+    ignorePatterns: ['dist'],
 };

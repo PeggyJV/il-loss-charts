@@ -12,13 +12,15 @@
     "private": true,
     "scripts": {
         "lint": "eslint src --ext js,ts",
+        "lint:fix": "eslint --ext js,ts src",
         "clean": "rimraf dist *.tsbuildinfo",
         "build": "tsc",
         "worker:alerts:tg": "ts-node src/scripts/il-alerts.ts",
         "worker:alerts:discord": "ts-node src/scripts/il-alerts-discord.ts",
         "worker:mixpanel-liquidity": "ts-node src/scripts/mp-liquidity.ts",
         "worker:telegram-mixpanel": "ts-node src/scripts/telegram-mixpanel.ts",
-        "cron": "node dist/scheduler.js"
+        "cron": "node dist/scheduler.js",
+        "pre-commit": "yarn lint-staged"
     },
     "keywords": [],
     "author": "",
@@ -37,6 +39,16 @@
         "superagent": "^6.1.0"
     },
     "devDependencies": {
-        "@types/node-cron": "^2.0.3"
+        "@types/node-cron": "^2.0.3",
+        "eslint-config-prettier": "^8.3.0",
+        "eslint-plugin-prettier": "^3.4.0",
+        "lint-staged": "^11.0.0",
+        "prettier": "^2.3.0"
+    },
+    "lint-staged": {
+        "**/*.{js,ts,tsx}": [
+            "prettier --write",
+            "eslint --cache --fix"
+        ]
     }
 }

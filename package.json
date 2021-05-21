@@ -22,7 +22,7 @@
         "test": "lerna run test --stream --concurrency 3",
         "test-ci": "lerna run test --stream --concurrency 1",
         "prepare": "husky install",
-        "pre-commit": "yarn lint-staged"
+        "pre-commit": "lerna run --concurrency 1 --stream precommit --since HEAD --exclude-dependents"
     },
     "volta": {
         "node": "14.15.4",
