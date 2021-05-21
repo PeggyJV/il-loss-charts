@@ -64,7 +64,6 @@ function App(): ReactElement {
     //     // eslint-disable-next-line react-hooks/exhaustive-deps
     // }, []);
 
-
     return (
         <ErrorBoundary
             fallbackRender={({ error }) => <PageError errorMsg={error} />}

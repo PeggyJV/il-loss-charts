@@ -16,13 +16,15 @@ export interface UseTopPools {
 }
 
 export const useTopPools = (): UseTopPools => {
-    const {wallet: {network}} = useWallet();
+    const {
+        wallet: { network },
+    } = useWallet();
 
     const networkName = network ? config.networks[network].name : 'mainnet';
-    
+
     const getTopPools = async () => {
         const response = await fetch(
-            `/api/v1/${networkName}/pools?count=${1000}`
+            `/api/v1/${networkName}/pools?count=${1000}`,
         );
         if (!response.ok) throw new Error(`Failed to fetch top pools`);
 
@@ -35,7 +37,7 @@ export const useTopPools = (): UseTopPools => {
 
     const { data, isLoading, status, isError } = useQuery(
         ['topPools', networkName],
-        getTopPools
+        getTopPools,
     );
 
     return { data, isLoading, status, isError };

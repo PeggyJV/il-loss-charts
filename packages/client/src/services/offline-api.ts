@@ -8,7 +8,7 @@ import {
     UniswapDailyData,
     UniswapHourlyData,
     LPPositionData,
-    NetworkIds
+    NetworkIds,
 } from '@sommelier/shared-types';
 
 import initialData from 'constants/initialData.json';
@@ -18,20 +18,20 @@ type ApiResponse<T> = { data?: T; error?: string };
 export class UniswapApiFetcher {
     static async getPairOverview(
         network: NetworkIds,
-        pairId: string
+        pairId: string,
     ): Promise<ApiResponse<IUniswapPair>> {
         return Promise.resolve({ data: initialData.pairData as IUniswapPair });
     }
 
     static async getLatestSwaps(
         network: NetworkIds,
-        pairId: string
+        pairId: string,
     ): Promise<ApiResponse<UniswapSwap[]>> {
         return Promise.resolve({ data: initialData.swaps as UniswapSwap[] });
     }
 
     static async getMintsAndBurns(
-        pairId: string
+        pairId: string,
     ): Promise<
         ApiResponse<{
             mints: UniswapMintOrBurn[];
@@ -50,13 +50,15 @@ export class UniswapApiFetcher {
 
     static async getTopPairs(
         network: NetworkIds,
-        count = 1000
+        count = 1000,
     ): Promise<ApiResponse<IUniswapPair[]>> {
-        return Promise.resolve({ data: initialData.allPairs as IUniswapPair[] });
+        return Promise.resolve({
+            data: initialData.allPairs as IUniswapPair[],
+        });
     }
 
     static async getMarketData(
-        startDate = '2020-12-01'
+        startDate = '2020-12-01',
     ): Promise<ApiResponse<MarketStats[]>> {
         return Promise.resolve({
             data: initialData.marketData as MarketStats[],
@@ -83,12 +85,12 @@ export class UniswapApiFetcher {
         pairId: string,
         startDate: Date,
         endDate = new Date(),
-        lpLiquidityUSD: number
+        lpLiquidityUSD: number,
     ): Promise<ApiResponse<LPStats<string>>> {
         const lpStats = initialData.lpStats;
         const loadedLpStats = {
             ...lpStats,
-            fullDates: lpStats.fullDates.map((d) => new Date(d))
+            fullDates: lpStats.fullDates.map((d) => new Date(d)),
         };
         return Promise.resolve({
             data: loadedLpStats as LPStats<string>,
@@ -99,7 +101,7 @@ export class UniswapApiFetcher {
         network: NetworkIds,
         pairId: string,
         startDate: Date,
-        endDate = new Date()
+        endDate = new Date(),
     ): Promise<ApiResponse<UniswapDailyData[]>> {
         return Promise.resolve({
             data: initialData.historicalDailyData as UniswapDailyData[],
@@ -110,7 +112,7 @@ export class UniswapApiFetcher {
         network: NetworkIds,
         pairId: string,
         startDate: Date,
-        endDate = new Date()
+        endDate = new Date(),
     ): Promise<ApiResponse<UniswapHourlyData[]>> {
         return Promise.resolve({
             data: initialData.historicalHourlyData as UniswapHourlyData[],
@@ -118,10 +120,10 @@ export class UniswapApiFetcher {
     }
 
     static async getPositionStats(
-        address: string
+        address: string,
     ): Promise<ApiResponse<LPPositionData<string>>> {
         const response = await fetch(
-            `/api/v1/uniswap/positions/${address}/stats`
+            `/api/v1/uniswap/positions/${address}/stats`,
         );
         const { data, error } = await (response.json() as Promise<
             ApiResponse<LPPositionData<string>>

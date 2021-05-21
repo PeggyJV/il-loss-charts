@@ -20,7 +20,7 @@ type IndicatorsMap = {
 export const useMarketData = (
     baseToken: MaybeToken,
     quoteToken: MaybeToken,
-    network?: NetworkIds | null
+    network?: NetworkIds | null,
 ): { newPair: DexTrade | undefined } & IndicatorsMap => {
     let topPairs: IUniswapPair[];
 
@@ -43,7 +43,7 @@ export const useMarketData = (
     };
 
     const getMainnetTokenIdForSymbol = async (
-        token: Partial<IToken>
+        token: Partial<IToken>,
     ): Promise<string> => {
         const { symbol } = token;
         if (!symbol) return token.id as string;
@@ -67,7 +67,7 @@ export const useMarketData = (
 
     const fetchPairData = async (
         baseToken: MaybeToken,
-        quoteToken: MaybeToken
+        quoteToken: MaybeToken,
     ) => {
         if (!baseToken || !quoteToken) return;
 
@@ -83,7 +83,7 @@ export const useMarketData = (
         const response = await fetch(
             `/api/v1/marketData/daily?baseToken=${
                 baseTokenId ?? ''
-            }&quoteToken=${quoteTokenId ?? ''}`
+            }&quoteToken=${quoteTokenId ?? ''}`,
             // if we start setting the days param here, dynamic or static
             // we will need to update the cache warmer PERIOD_DAYS value
         );
@@ -98,7 +98,7 @@ export const useMarketData = (
 
     const fetchIndicators = async (
         baseToken: MaybeToken,
-        quoteToken: MaybeToken
+        quoteToken: MaybeToken,
     ) => {
         if (!baseToken || !quoteToken) return;
 
@@ -114,7 +114,7 @@ export const useMarketData = (
         const response = await fetch(
             `/api/v1/marketData/indicators?baseToken=${
                 baseTokenId ?? ''
-            }&quoteToken=${quoteTokenId ?? ''}`
+            }&quoteToken=${quoteTokenId ?? ''}`,
         );
 
         if (!response.ok) {
@@ -129,24 +129,27 @@ export const useMarketData = (
     const { data: newPair } = useQuery(
         ['marketData', baseToken?.id, quoteToken?.id],
         () => fetchPairData(baseToken, quoteToken),
-        { retry }
+        { retry },
     );
 
     const { data: indicators } = useQuery(
         ['indicators', baseToken?.id, quoteToken?.id],
         () => fetchIndicators(baseToken, quoteToken),
-        { retry }
+        { retry },
     );
 
     return { newPair, ...indicators };
 };
 
 // TODO: move to a util for rethrowing coded errors?
-function getCodedError(error: { code?: number } | undefined, fallbackMsg: string): Error | CodedError {
+function getCodedError(
+    error: { code?: number } | undefined,
+    fallbackMsg: string,
+): Error | CodedError {
     const codedError = codedErrors[error?.code ?? ''];
     if (codedError) {
         // TODO: Something is up with the type of CodedError when importing
-        const err: Error = (codedError as any);
+        const err: Error = codedError as any;
         return err;
     }
 
@@ -156,8 +159,9 @@ function getCodedError(error: { code?: number } | undefined, fallbackMsg: string
 function retry(count: number, error: Error | CodedError) {
     if (error instanceof CodedError) {
         const { code } = error;
-        const shouldRetry = code !== codedErrors.UpstreamError.code
-            && code !== codedErrors.UpstreamMissingPoolDataError.code;
+        const shouldRetry =
+            code !== codedErrors.UpstreamError.code &&
+            code !== codedErrors.UpstreamMissingPoolDataError.code;
 
         return shouldRetry;
     }

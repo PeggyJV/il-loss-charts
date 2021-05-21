@@ -25,13 +25,15 @@ function LPStatsChart({
     debug.lpStats = lpStats;
 
     lpStats.ticks.forEach((stats, i) => {
-        const runningGain = new BigNumber(lpStats.runningFees[i]).plus(lpStats.runningNotionalGain[i]).toNumber();
+        const runningGain = new BigNumber(lpStats.runningFees[i])
+            .plus(lpStats.runningNotionalGain[i])
+            .toNumber();
         const runningReturn = new BigNumber(
-            lpStats.runningReturn[i]
+            lpStats.runningReturn[i],
         ).toNumber();
 
         const date = new Date(
-            lpStats.fullDates?.[i] as Date | number
+            lpStats.fullDates?.[i] as Date | number,
         ).getTime();
 
         chartData.push([date, runningGain, runningReturn]);
@@ -96,7 +98,7 @@ function LPStatsChart({
                         [
                             1,
                             Highcharts.color(
-                                Highcharts.getOptions().colors?.[0] as string
+                                Highcharts.getOptions().colors?.[0] as string,
                             )
                                 .setOpacity(0)
                                 .get('rgba') as string,
@@ -191,18 +193,18 @@ function LPStatsChart({
                 }
 
                 const feesPoint = this.points.find(
-                    (p) => p.series.name === 'Fees Collected + Notional Gain'
+                    (p) => p.series.name === 'Fees Collected + Notional Gain',
                 );
                 const returnPoint = this.points.find(
-                    (p) => p.series.name === 'Total Return'
+                    (p) => p.series.name === 'Total Return',
                 );
                 const calculatedIl =
                     feesPoint && returnPoint && feesPoint.y - returnPoint.y;
                 const volPoint = this.points.find(
-                    (p) => p.series.name === 'USD Volume'
+                    (p) => p.series.name === 'USD Volume',
                 );
                 const liqPoint = this.points.find(
-                    (p) => p.series.name === 'Total Pool Liquidity'
+                    (p) => p.series.name === 'Total Pool Liquidity',
                 );
 
                 // Format data and call default formatter
@@ -215,7 +217,7 @@ function LPStatsChart({
                             ? `<span style="color:${
                                   feesPoint.color as string
                               };">\u25CF</span><b> Fees Collected + Notional Gain:</b> ${formatUSD(
-                                  feesPoint.y
+                                  feesPoint.y,
                               )}<br>`
                             : ''
                     }
@@ -224,7 +226,7 @@ function LPStatsChart({
                             ? `<span style="color:${
                                   feesPoint?.color as string
                               };">\u25CF</span><b> Impermanent Loss:</b> ${formatUSD(
-                                  calculatedIl
+                                  calculatedIl,
                               )}<br>`
                             : ''
                     }
@@ -233,7 +235,7 @@ function LPStatsChart({
                             ? `<span style="color:${
                                   returnPoint.color as string
                               };">\u25CF</span><b> Total Return:</b> ${formatUSD(
-                                  returnPoint.y
+                                  returnPoint.y,
                               )}<br><br>`
                             : ''
                     }
@@ -242,7 +244,7 @@ function LPStatsChart({
                             ? `<span style="color:${
                                   volPoint.color as string
                               };">\u25CF</span><b> Pool Volume:</b> ${formatUSD(
-                                  volPoint.y
+                                  volPoint.y,
                               )}<br>`
                             : ''
                     }
@@ -251,7 +253,7 @@ function LPStatsChart({
                             ? `<span style="color:${
                                   liqPoint.color as string
                               };">\u25CF</span><b> Pool Liquidity:</b> ${formatUSD(
-                                  liqPoint.y
+                                  liqPoint.y,
                               )}<br>`
                             : ''
                     }

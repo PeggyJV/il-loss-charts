@@ -98,7 +98,7 @@ export const AddLiquidityV3 = ({
 
     const reducer = (
         state: { [x: string]: any },
-        action: { type: any; payload: { sym: any; amount?: any } }
+        action: { type: any; payload: { sym: any; amount?: any } },
     ) => {
         let sym: string;
         let amt: string;
@@ -111,7 +111,7 @@ export const AddLiquidityV3 = ({
                 // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                 selectedSymbols = state[sym].selected
                     ? state.selectedTokens.filter(
-                          (symbol: string) => symbol !== sym
+                          (symbol: string) => symbol !== sym,
                       )
                     : [...state.selectedTokens, sym];
 
@@ -126,7 +126,7 @@ export const AddLiquidityV3 = ({
                         ) {
                             orderedSymbols.push('ETH');
                         }
-                    }
+                    },
                 );
 
                 return {
@@ -151,7 +151,7 @@ export const AddLiquidityV3 = ({
     // const [token, setToken] = useState('ETH');
     // TODO calculate price impact
     const { selectedGasPrice, slippageTolerance } = useContext(
-        LiquidityContext
+        LiquidityContext,
     );
     let currentGasPrice: number | null = null;
     if (gasPrices && selectedGasPrice) {
@@ -181,7 +181,7 @@ export const AddLiquidityV3 = ({
     const { newPair: marketData, indicators } = useMarketData(
         pool?.token1, // Order here matters, you must update the cache worker to use the correct baseToken
         pool?.token0, // Order here matters, update cahce worker with the correct quoteToken if changing
-        wallet.network
+        wallet.network,
     );
     debug.marketData = marketData;
     debug.indicators = indicators;
@@ -190,7 +190,7 @@ export const AddLiquidityV3 = ({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return tokenInputState.selectedTokens.map(
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            (symbol: string) => tokenInputState[symbol]
+            (symbol: string) => tokenInputState[symbol],
         );
     };
 
@@ -206,7 +206,7 @@ export const AddLiquidityV3 = ({
             pool.token0.id,
             Number(pool.token0.decimals),
             pool.token0.symbol,
-            pool.token0.name
+            pool.token0.name,
         );
 
         const quoteTokenCurrency = new Token(
@@ -214,7 +214,7 @@ export const AddLiquidityV3 = ({
             pool.token1.id,
             Number(pool.token1.decimals),
             pool.token1.symbol,
-            pool.token1.name
+            pool.token1.name,
         );
 
         const uniPool = new Pool(
@@ -224,7 +224,7 @@ export const AddLiquidityV3 = ({
             pool.sqrtPrice,
             pool.liquidity,
             parseInt(pool.tick || '0', 10),
-            []
+            [],
         );
 
         return { baseTokenCurrency, quoteTokenCurrency, uniPool };
@@ -260,9 +260,9 @@ export const AddLiquidityV3 = ({
             const lowerBoundNumerator = ethers.utils
                 .parseUnits(
                     new BigNumber(lowerBound).toFixed(
-                        baseTokenCurrency.decimals
+                        baseTokenCurrency.decimals,
                     ),
-                    baseTokenCurrency.decimals
+                    baseTokenCurrency.decimals,
                 )
                 .toString();
 
@@ -275,7 +275,7 @@ export const AddLiquidityV3 = ({
                 baseTokenCurrency,
                 quoteTokenCurrency,
                 lowerBoundNumerator,
-                lowerBoundDenominator
+                lowerBoundDenominator,
             );
 
             (window as any).lowerBoundPrice = lowerBoundPrice;
@@ -290,7 +290,7 @@ export const AddLiquidityV3 = ({
         const upperBoundNumerator = ethers.utils
             .parseUnits(
                 new BigNumber(upperBound).toFixed(baseTokenCurrency.decimals),
-                baseTokenCurrency.decimals
+                baseTokenCurrency.decimals,
             )
             .toString();
 
@@ -302,26 +302,29 @@ export const AddLiquidityV3 = ({
             baseTokenCurrency,
             quoteTokenCurrency,
             upperBoundNumerator,
-            upperBoundDenominator
+            upperBoundDenominator,
         );
 
         (window as any).upperBoundPrice = upperBoundPrice;
 
-        let upperBoundTick = Math.min(TickMath.MAX_TICK, priceToClosestTick(upperBoundPrice));
+        let upperBoundTick = Math.min(
+            TickMath.MAX_TICK,
+            priceToClosestTick(upperBoundPrice),
+        );
         upperBoundTick -= upperBoundTick % uniPool.tickSpacing;
 
         const sortedTicks = [lowerBoundTick, upperBoundTick].sort(
-            (a, b) => a - b
+            (a, b) => a - b,
         ) as [number, number];
         const priceLower = tickToPrice(
             baseTokenCurrency,
             quoteTokenCurrency,
-            sortedTicks[0]
+            sortedTicks[0],
         );
         const priceUpper = tickToPrice(
             baseTokenCurrency,
             quoteTokenCurrency,
-            sortedTicks[1]
+            sortedTicks[1],
         );
 
         return {
@@ -333,7 +336,7 @@ export const AddLiquidityV3 = ({
 
     const handleTokenRatio = (
         selectedToken: string,
-        selectedAmount: string
+        selectedAmount: string,
     ) => {
         const totalAmount = selectedAmount;
 
@@ -382,7 +385,8 @@ export const AddLiquidityV3 = ({
             let updatedToken;
 
             if (selectedToken === 'ETH') {
-                updatedToken = pool.token0.symbol === 'WETH' ? 'token0' : 'token1';
+                updatedToken =
+                    pool.token0.symbol === 'WETH' ? 'token0' : 'token1';
             } else {
                 updatedToken =
                     selectedToken === pool.token0.symbol ? 'token0' : 'token1';
@@ -430,7 +434,7 @@ export const AddLiquidityV3 = ({
                     payload: {
                         sym: 'WETH',
                         // amount: updatedAmount.toFixed(),
-                        amount: selectedAmount
+                        amount: selectedAmount,
                     },
                 });
             } else if (selectedToken === 'WETH') {
@@ -439,7 +443,7 @@ export const AddLiquidityV3 = ({
                     payload: {
                         sym: 'ETH',
                         // amount: updatedAmount.toFixed(),
-                        amount: selectedAmount
+                        amount: selectedAmount,
                     },
                 });
             }
@@ -449,7 +453,7 @@ export const AddLiquidityV3 = ({
     const handleBounds = (
         pool: PoolOverview,
         indicators: { [indicatorName: string]: LiquidityBand },
-        expectedAmounts: [BigNumber, BigNumber]
+        expectedAmounts: [BigNumber, BigNumber],
     ) => {
         if (!pool) return;
 
@@ -473,7 +477,7 @@ export const AddLiquidityV3 = ({
         (window as any).bounds = bounds;
 
         const { prices, ticks, ticksFromPrice } = getBoundPricesAndTicks(
-            indicators
+            indicators,
         );
 
         const [lowerBound, upperBound] = prices;
@@ -481,17 +485,17 @@ export const AddLiquidityV3 = ({
         const baseAmount0 = ethers.utils
             .parseUnits(
                 expectedBaseAmount.toFixed(Number(pool.token0.decimals)),
-                pool.token0.decimals
+                pool.token0.decimals,
             )
             .toString();
 
         const baseAmount1 = ethers.utils
             .parseUnits(
                 expectedQuoteAmount.toFixed(Number(pool.token1.decimals)),
-                pool.token1.decimals
+                pool.token1.decimals,
             )
             .toString();
-        
+
         const position = Position.fromAmounts({
             pool: uniPool,
             tickLower: ticks[0],
@@ -559,15 +563,15 @@ export const AddLiquidityV3 = ({
         const newAmount0 = new BigNumber(
             ethers.utils.formatUnits(
                 position.mintAmounts.amount0.toString(),
-                pool.token0.decimals
-            )
+                pool.token0.decimals,
+            ),
         );
 
         const newAmount1 = new BigNumber(
             ethers.utils.formatUnits(
                 position.mintAmounts.amount1.toString(),
-                pool.token1.decimals
-            )
+                pool.token1.decimals,
+            ),
         );
 
         const ethAmount =
@@ -580,24 +584,34 @@ export const AddLiquidityV3 = ({
         };
     };
 
-    const handleGasEstimationError = (err: Error, payload: Record<string, any> = {}): undefined => {
+    const handleGasEstimationError = (
+        err: Error,
+        payload: Record<string, any> = {},
+    ): undefined => {
         // We could not estimate gas, for whaever reason, so we should not let the transaction continue.
-        const notEnoughETH = err.message.match(/exceeds allowance/) || err.message.match(/insufficient funds/);
+        const notEnoughETH =
+            err.message.match(/exceeds allowance/) ||
+            err.message.match(/insufficient funds/);
 
-        let toastMsg = 'Could not estimate gas for this transaction. Check your parameters or try a different pool.';
+        let toastMsg =
+            'Could not estimate gas for this transaction. Check your parameters or try a different pool.';
 
         if (notEnoughETH) {
-            toastMsg = 'Not enough ETH to pay gas for this transaction. If you are using ETH, try reducing the entry amount.';
+            toastMsg =
+                'Not enough ETH to pay gas for this transaction. If you are using ETH, try reducing the entry amount.';
         }
 
         toastError(toastMsg);
 
         // Send event to sentry
-        const sentryErr = new SentryError(`Could not estimate gas: ${err.message}`, payload);
+        const sentryErr = new SentryError(
+            `Could not estimate gas: ${err.message}`,
+            payload,
+        );
         Sentry.captureException(sentryErr);
-            
+
         return;
-    }
+    };
 
     useEffect(() => {
         if (indicators) {
@@ -616,7 +630,7 @@ export const AddLiquidityV3 = ({
             const [expectedBaseAmount, expectedQuoteAmount] = expectedAmounts;
 
             const expectedQuoteAmountNoSlippage = expectedBaseAmount.times(
-                currentPrice
+                currentPrice,
             );
             const priceImpact = new BigNumber(expectedQuoteAmountNoSlippage)
                 .minus(expectedQuoteAmount.toFixed(8))
@@ -689,7 +703,7 @@ export const AddLiquidityV3 = ({
                 sentiment,
                 bounds,
                 addType,
-                getTokensWithAmounts() as Record<string, TokenInputAmount>
+                getTokensWithAmounts() as Record<string, TokenInputAmount>,
             );
 
             toastWarn(`Confirming tx ${compactHash(hash)}`);
@@ -699,11 +713,11 @@ export const AddLiquidityV3 = ({
                         ({
                             approval: [...state.approval],
                             confirm: [...state.confirm, hash],
-                        } as PendingTx)
+                        } as PendingTx),
                 );
             if (provider) {
                 const txStatus: ethers.providers.TransactionReceipt = await provider.waitForTransaction(
-                    hash
+                    hash,
                 );
 
                 const { status } = txStatus;
@@ -717,10 +731,10 @@ export const AddLiquidityV3 = ({
                                     approval: [...state.approval],
                                     confirm: [
                                         ...state.approval.filter(
-                                            (hash) => hash !== hash
+                                            (hash) => hash !== hash,
                                         ),
                                     ],
-                                } as PendingTx)
+                                } as PendingTx),
                         );
                 } else {
                     toastError(`Rejected tx ${compactHash(hash)}`);
@@ -731,10 +745,10 @@ export const AddLiquidityV3 = ({
                                     approval: [...state.approval],
                                     confirm: [
                                         ...state.approval.filter(
-                                            (hash) => hash !== hash
+                                            (hash) => hash !== hash,
                                         ),
                                     ],
-                                } as PendingTx)
+                                } as PendingTx),
                         );
                 }
             }
@@ -756,7 +770,7 @@ export const AddLiquidityV3 = ({
 
         if (!addLiquidityContractAddress) {
             throw new Error(
-                'Add liquidity contract not available on this network.'
+                'Add liquidity contract not available on this network.',
             );
         }
 
@@ -766,7 +780,7 @@ export const AddLiquidityV3 = ({
         const addLiquidityContract = new ethers.Contract(
             addLiquidityContractAddress,
             addLiquidityAbi,
-            signer
+            signer,
         );
 
         debug.contract = addLiquidityContract;
@@ -794,17 +808,17 @@ export const AddLiquidityV3 = ({
         const mintAmount0 = ethers.utils
             .parseUnits(
                 new BigNumber(tokenInputState[symbol0].amount).toFixed(
-                    parseInt(pool.token0.decimals)
+                    parseInt(pool.token0.decimals),
                 ),
-                pool.token0.decimals
+                pool.token0.decimals,
             )
             .toString();
         const mintAmount1 = ethers.utils
             .parseUnits(
                 new BigNumber(tokenInputState[symbol1].amount).toFixed(
-                    parseInt(pool.token1.decimals)
+                    parseInt(pool.token1.decimals),
                 ),
-                pool.token1.decimals
+                pool.token1.decimals,
             )
             .toString();
 
@@ -855,7 +869,7 @@ export const AddLiquidityV3 = ({
             const erc20Contract = new ethers.Contract(
                 tokenInputState[tokenSymbol].id,
                 erc20Abi,
-                signer
+                signer,
             );
 
             const amountDesired =
@@ -870,14 +884,14 @@ export const AddLiquidityV3 = ({
             if (balances?.[tokenSymbol]) {
                 const baseTokenAmount = ethers.utils.formatUnits(
                     amountDesired,
-                    balances?.[tokenSymbol]?.decimals
+                    balances?.[tokenSymbol]?.decimals,
                 );
 
                 const tokenAllowance = ethers.utils.formatUnits(
                     balances?.[tokenSymbol]?.allowance?.[
                         addLiquidityContractAddress
                     ],
-                    balances?.[tokenSymbol]?.decimals
+                    balances?.[tokenSymbol]?.decimals,
                 );
 
                 // skip approval on allowance
@@ -891,12 +905,12 @@ export const AddLiquidityV3 = ({
                 approvalEstimate = await erc20Contract.estimateGas.approve(
                     addLiquidityContractAddress,
                     baseApproveAmount,
-                    { gasPrice: baseGasPrice }
+                    { gasPrice: baseGasPrice },
                 );
 
                 // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
                 approvalEstimate = approvalEstimate.add(
-                    approvalEstimate.div(3)
+                    approvalEstimate.div(3),
                 );
             } catch (err) {
                 return handleGasEstimationError(err, {
@@ -905,7 +919,7 @@ export const AddLiquidityV3 = ({
                     to: tokenInputState[tokenSymbol].id,
                     target: addLiquidityContractAddress,
                     amount: baseApproveAmount,
-                    gasPrice: baseGasPrice
+                    gasPrice: baseGasPrice,
                 });
             }
 
@@ -918,7 +932,7 @@ export const AddLiquidityV3 = ({
                 } = await erc20Contract.approve(
                     addLiquidityContractAddress,
                     baseApproveAmount,
-                    { gasPrice: baseGasPrice, gasLimit: approvalEstimate }
+                    { gasPrice: baseGasPrice, gasLimit: approvalEstimate },
                 );
                 approveHash = hash;
             } catch (e) {
@@ -935,7 +949,7 @@ export const AddLiquidityV3 = ({
                             ({
                                 approval: [...state.approval, approveHash],
                                 confirm: [...state.confirm],
-                            } as PendingTx)
+                            } as PendingTx),
                     );
                 await provider.waitForTransaction(approveHash);
                 setPendingApproval(false);
@@ -945,11 +959,11 @@ export const AddLiquidityV3 = ({
                             ({
                                 approval: [
                                     ...state.approval.filter(
-                                        (h) => h != approveHash
+                                        (h) => h != approveHash,
                                     ),
                                 ],
                                 confirm: [...state.confirm],
-                            } as PendingTx)
+                            } as PendingTx),
                     );
             }
         }
@@ -957,7 +971,7 @@ export const AddLiquidityV3 = ({
         let baseMsgValue = ethers.utils.parseEther('0');
         if (tokenInputState.selectedTokens.includes('ETH')) {
             const ethAmount = ethers.utils.parseEther(
-                new BigNumber(tokenInputState['ETH'].amount).toFixed(18)
+                new BigNumber(tokenInputState['ETH'].amount).toFixed(18),
             );
             baseMsgValue = baseMsgValue.add(ethAmount);
         }
@@ -974,7 +988,7 @@ export const AddLiquidityV3 = ({
                 {
                     gasPrice: baseGasPrice,
                     value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
-                }
+                },
             );
 
             // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
@@ -986,8 +1000,8 @@ export const AddLiquidityV3 = ({
                 account: wallet.account,
                 to: addLiquidityContractAddress,
                 tokenId,
-                mintParams
-            }); 
+                mintParams,
+            });
         }
 
         const { hash } = await addLiquidityContract[fnName](
@@ -997,7 +1011,7 @@ export const AddLiquidityV3 = ({
                 gasPrice: baseGasPrice,
                 gasLimit: gasEstimate,
                 value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
-            }
+            },
         );
 
         return hash as string;
@@ -1018,7 +1032,7 @@ export const AddLiquidityV3 = ({
 
         if (!addLiquidityContractAddress) {
             throw new Error(
-                'Add liquidity contract not available on this network.'
+                'Add liquidity contract not available on this network.',
             );
         }
 
@@ -1028,7 +1042,7 @@ export const AddLiquidityV3 = ({
         const addLiquidityContract = new ethers.Contract(
             addLiquidityContractAddress,
             addLiquidityAbi,
-            signer
+            signer,
         );
 
         debug.contract = addLiquidityContract;
@@ -1046,24 +1060,24 @@ export const AddLiquidityV3 = ({
         const mintAmountOneSide = ethers.utils
             .parseUnits(
                 new BigNumber(tokenData.amount).toFixed(decimals),
-                decimals
+                decimals,
             )
             .toString();
 
         const mintAmount0 = ethers.utils
             .parseUnits(
                 new BigNumber(
-                    tokenInputState[pool.token0.symbol].amount
+                    tokenInputState[pool.token0.symbol].amount,
                 ).toFixed(parseInt(pool.token0.decimals)),
-                pool.token0.decimals
+                pool.token0.decimals,
             )
             .toString();
         const mintAmount1 = ethers.utils
             .parseUnits(
                 new BigNumber(
-                    tokenInputState[pool.token1.symbol].amount
+                    tokenInputState[pool.token1.symbol].amount,
                 ).toFixed(parseInt(pool.token1.decimals)),
-                pool.token1.decimals
+                pool.token1.decimals,
             )
             .toString();
 
@@ -1079,8 +1093,12 @@ export const AddLiquidityV3 = ({
         // const minLiquidity = liquiditySquared.times(slippageCoefficient).sqrt().toFixed(0);
         // const baseMinLiquidity = ethers.utils.parseUnits()
 
-        const sqrtPriceAX96 = TickMath.getSqrtRatioAtTick(bounds.position.tickLower);
-        const sqrtPriceBX96 = TickMath.getSqrtRatioAtTick(bounds.position.tickUpper);
+        const sqrtPriceAX96 = TickMath.getSqrtRatioAtTick(
+            bounds.position.tickLower,
+        );
+        const sqrtPriceBX96 = TickMath.getSqrtRatioAtTick(
+            bounds.position.tickUpper,
+        );
 
         const mintParams = [
             pool.token0.id, // token0
@@ -1116,7 +1134,7 @@ export const AddLiquidityV3 = ({
             const erc20Contract = new ethers.Contract(
                 tokenInputState[tokenSymbol].id,
                 erc20Abi,
-                signer
+                signer,
             );
 
             const amountDesired =
@@ -1131,14 +1149,14 @@ export const AddLiquidityV3 = ({
             if (balances?.[tokenSymbol]) {
                 const baseTokenAmount = ethers.utils.formatUnits(
                     amountDesired,
-                    balances?.[tokenSymbol]?.decimals
+                    balances?.[tokenSymbol]?.decimals,
                 );
 
                 const tokenAllowance = ethers.utils.formatUnits(
                     balances?.[tokenSymbol]?.allowance?.[
                         addLiquidityContractAddress
                     ],
-                    balances?.[tokenSymbol]?.decimals
+                    balances?.[tokenSymbol]?.decimals,
                 );
 
                 // skip approval on allowance
@@ -1152,12 +1170,12 @@ export const AddLiquidityV3 = ({
                 approvalEstimate = await erc20Contract.estimateGas.approve(
                     addLiquidityContractAddress,
                     baseApproveAmount,
-                    { gasPrice: baseGasPrice }
+                    { gasPrice: baseGasPrice },
                 );
 
                 // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
                 approvalEstimate = approvalEstimate.add(
-                    approvalEstimate.div(3)
+                    approvalEstimate.div(3),
                 );
             } catch (err) {
                 return handleGasEstimationError(err, {
@@ -1166,8 +1184,8 @@ export const AddLiquidityV3 = ({
                     token: tokenInputState[tokenSymbol].id,
                     target: addLiquidityContractAddress,
                     amount: baseApproveAmount,
-                    gasPrice: baseGasPrice
-                });            
+                    gasPrice: baseGasPrice,
+                });
             }
 
             // Approve the add liquidity contract to spend entry tokens
@@ -1179,7 +1197,7 @@ export const AddLiquidityV3 = ({
                 } = await erc20Contract.approve(
                     addLiquidityContractAddress,
                     baseApproveAmount,
-                    { gasPrice: baseGasPrice, gasLimit: approvalEstimate }
+                    { gasPrice: baseGasPrice, gasLimit: approvalEstimate },
                 );
                 approveHash = hash;
             } catch (e) {
@@ -1196,7 +1214,7 @@ export const AddLiquidityV3 = ({
                             ({
                                 approval: [...state.approval, approveHash],
                                 confirm: [...state.confirm],
-                            } as PendingTx)
+                            } as PendingTx),
                     );
                 await provider.waitForTransaction(approveHash);
                 setPendingApproval(false);
@@ -1206,11 +1224,11 @@ export const AddLiquidityV3 = ({
                             ({
                                 approval: [
                                     ...state.approval.filter(
-                                        (h) => h != approveHash
+                                        (h) => h != approveHash,
                                     ),
                                 ],
                                 confirm: [...state.confirm],
-                            } as PendingTx)
+                            } as PendingTx),
                     );
             }
         }
@@ -1218,7 +1236,7 @@ export const AddLiquidityV3 = ({
         let baseMsgValue = ethers.utils.parseEther('0.005');
         if (tokenInputState.selectedTokens.includes('ETH')) {
             const ethAmount = ethers.utils.parseEther(
-                new BigNumber(tokenInputState['ETH'].amount).toFixed(18)
+                new BigNumber(tokenInputState['ETH'].amount).toFixed(18),
             );
             baseMsgValue = baseMsgValue.add(ethAmount);
         }
@@ -1247,8 +1265,8 @@ export const AddLiquidityV3 = ({
                 tokenId,
                 tokenToAdd: tokenData.id,
                 tokenAmount: mintAmountOneSide,
-                mintParams
-            }); 
+                mintParams,
+            });
         }
 
         const { hash } = await addLiquidityContract['investTokenForUniPair'](
@@ -1260,7 +1278,7 @@ export const AddLiquidityV3 = ({
                 gasPrice: baseGasPrice,
                 gasLimit: gasEstimate,
                 value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
-            }
+            },
         );
 
         return hash as string;
@@ -1331,12 +1349,11 @@ export const AddLiquidityV3 = ({
                                         selectedSymbolCount === 2
                                     )
                                         return;
-                                    if (isTokenETHDisabled)
-                                    return;
-                                        dispatch({
-                                            type: 'toggle',
-                                            payload: { sym: 'ETH' },
-                                        });
+                                    if (isTokenETHDisabled) return;
+                                    dispatch({
+                                        type: 'toggle',
+                                        payload: { sym: 'ETH' },
+                                    });
                                 }}
                             >
                                 <button
@@ -1361,7 +1378,7 @@ export const AddLiquidityV3 = ({
                                     }}
                                     className={classNames(
                                         'token-balance-wrapper',
-                                        { active: isTokenETHActive }
+                                        { active: isTokenETHActive },
                                     )}
                                 >
                                     <TokenWithBalance

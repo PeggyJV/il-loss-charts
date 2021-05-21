@@ -4,23 +4,23 @@ import { faCircleNotch, faCheck } from '@fortawesome/free-solid-svg-icons';
 
 import { ManageLiquidityActionState } from 'types/states';
 
-export function AddLiquidityActionButton({ 
+export function AddLiquidityActionButton({
     state,
     onApprove,
-    onAddLiquidity
-}:{ 
+    onAddLiquidity,
+}: {
     state: ManageLiquidityActionState;
     onApprove: () => void;
     onAddLiquidity: () => void;
 }): JSX.Element {
-    switch(state) {
+    switch (state) {
         case 'awaitingGasPrices':
             return (
                 <Button variant='secondary' disabled>
                     <FontAwesomeIcon icon={faCircleNotch} className='fa-spin' />{' '}
                     Awaiting gas prices...
                 </Button>
-            )
+            );
         case 'gasPriceNotSelected':
             return (
                 <Button variant='secondary' disabled>
@@ -45,7 +45,7 @@ export function AddLiquidityActionButton({
                     Slippage Too High
                 </Button>
             );
-        case 'needsApproval':  
+        case 'needsApproval':
             return (
                 <Button variant='success' onClick={onApprove}>
                     Approve and Confirm
@@ -64,14 +64,13 @@ export function AddLiquidityActionButton({
                     Submit
                 </Button>
             );
-        case 'submitted': 
+        case 'submitted':
             return (
                 <Button variant='success' disabled>
-                    <FontAwesomeIcon icon={faCheck} />{' '}
-                    Submitted
+                    <FontAwesomeIcon icon={faCheck} /> Submitted
                 </Button>
             );
-        default: 
+        default:
             return (
                 <Button variant='secondary' disabled>
                     <FontAwesomeIcon icon={faCircleNotch} className='fa-spin' />{' '}
@@ -84,7 +83,7 @@ export function AddLiquidityActionButton({
 export function RemoveLiquidityActionButton({
     state,
     onApprove,
-    onRemoveLiquidity
+    onRemoveLiquidity,
 }: {
     state: ManageLiquidityActionState;
     onApprove: () => void;
@@ -97,7 +96,7 @@ export function RemoveLiquidityActionButton({
                     <FontAwesomeIcon icon={faCircleNotch} className='fa-spin' />{' '}
                     Awaiting gas prices...
                 </Button>
-            )
+            );
         case 'gasPriceNotSelected':
             return (
                 <Button variant='secondary' disabled>
@@ -138,8 +137,7 @@ export function RemoveLiquidityActionButton({
         case 'submitted':
             return (
                 <Button variant='success' disabled>
-                    <FontAwesomeIcon icon={faCheck} />{' '}
-                    Submitted
+                    <FontAwesomeIcon icon={faCheck} /> Submitted
                 </Button>
             );
         default:
@@ -148,6 +146,6 @@ export function RemoveLiquidityActionButton({
                     <FontAwesomeIcon icon={faCircleNotch} className='fa-spin' />{' '}
                     Awaiting Details...
                 </Button>
-            )
+            );
     }
 }

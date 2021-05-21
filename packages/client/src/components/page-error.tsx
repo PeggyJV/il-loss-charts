@@ -50,8 +50,10 @@ export const PageError = ({
 }: {
     errorMsg?: string | Error;
 }): JSX.Element => {
-
-    const errorString = typeof errorMsg === 'string' ? errorMsg : 'Unknown Error. Please try again!';
+    const errorString =
+        typeof errorMsg === 'string'
+            ? errorMsg
+            : 'Unknown Error. Please try again!';
     return (
         <Container className='error-container'>
             <BrokenWineGlass />

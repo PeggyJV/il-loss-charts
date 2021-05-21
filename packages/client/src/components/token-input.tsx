@@ -1,4 +1,3 @@
-
 import classNames from 'classnames';
 import { ethers } from 'ethers';
 import { WalletBalances } from 'types/states';
@@ -10,8 +9,8 @@ const toBalanceStr = (token: string, balances: WalletBalances): string => {
     return new BigNumber(
         ethers.utils.formatUnits(
             balance || 0,
-            parseInt(balances[token]?.decimals || '0', 10)
-        )
+            parseInt(balances[token]?.decimals || '0', 10),
+        ),
     ).toFixed();
 };
 
@@ -22,7 +21,7 @@ type TokenInputProps = {
     handleTokenRatio: (token: string, amount: string) => void;
     balances: WalletBalances;
     twoSide: boolean;
-    disabled: boolean
+    disabled: boolean;
 };
 export const TokenInput = ({
     token,
@@ -31,7 +30,7 @@ export const TokenInput = ({
     handleTokenRatio,
     balances,
     twoSide,
-    disabled
+    disabled,
 }: TokenInputProps): JSX.Element => (
     <div className={classNames({ 'token-input': true, disabled })}>
         <button

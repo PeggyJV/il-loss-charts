@@ -4,10 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import PropTypes from 'prop-types';
 
-import {
-    UniswapDailyData,
-    LPStats,
-} from '@sommelier/shared-types';
+import { UniswapDailyData, LPStats } from '@sommelier/shared-types';
 
 import {
     AllPairsState,
@@ -36,7 +33,6 @@ import { UniswapApiFetcher as Uniswap } from 'services/api';
 import { deriveLPStats } from 'services/calculate-stats';
 import { debug } from 'util/debug';
 
-
 function PairContainer({
     allPairs,
     prefetchedPairs,
@@ -46,7 +42,6 @@ function PairContainer({
     prefetchedPairs: PrefetchedPairState | null;
     handleAddLiquidity: (pairId: string) => void;
 }): JSX.Element {
-
     // ------------------ Shared State ------------------
 
     const [pairId, setPairId] = useState<string | null>(null);
@@ -59,7 +54,7 @@ function PairContainer({
 
     const { isLoading, currentError, lpInfo } = usePairData(
         pairId,
-        prefetchedPair
+        prefetchedPair,
     );
     const [error, setError] = useState(currentError);
 
@@ -76,7 +71,7 @@ function PairContainer({
         window.history.replaceState(
             null,
             'Sommelier.finance',
-            `/pair?id=${pairId}&timeWindow=${timeWindow}`
+            `/pair?id=${pairId}&timeWindow=${timeWindow}`,
         );
     }
 
@@ -92,11 +87,10 @@ function PairContainer({
 
         const pairId = query.get('id');
         if (pairId) {
-
             try {
-              mixpanel.track('pair:clickthrough', {
-                  distinct_id: pairId
-              });
+                mixpanel.track('pair:clickthrough', {
+                    distinct_id: pairId,
+                });
             } catch (e) {
                 console.error(`Metrics error on pair:clickthrough.`);
             }
@@ -110,18 +104,18 @@ function PairContainer({
         // lookup by symbol
         const symbol = query.get('symbol');
         const pairForSymbol = allPairs.pairs.find((pair) => {
-            const pairSymbol = pair.pairReadable
+            const pairSymbol = pair.pairReadable;
             return symbol === pairSymbol;
         });
 
         if (pairForSymbol) {
             try {
-              mixpanel.track('pair:clickthrough', {
-                  distinct_id: pairForSymbol.id,
-                  pairId: pairForSymbol.id,
-                  token0: pairForSymbol.token0.symbol,
-                  token1: pairForSymbol.token1.symbol,
-              });
+                mixpanel.track('pair:clickthrough', {
+                    distinct_id: pairForSymbol.id,
+                    pairId: pairForSymbol.id,
+                    token0: pairForSymbol.token0.symbol,
+                    token1: pairForSymbol.token1.symbol,
+                });
             } catch (e) {
                 console.error(`Metrics error on pair:clickthrough.`);
             }
@@ -142,7 +136,10 @@ function PairContainer({
 
     const [lpDate, setLPDate] = useState(new Date(initialData.lpDate));
     const [lpShare, setLPShare] = useState(initialData.lpShare);
-    const [defaultLPStats, setDefaultLPStats] = useState<LPStats<string> | null>(null);
+    const [
+        defaultLPStats,
+        setDefaultLPStats,
+    ] = useState<LPStats<string> | null>(null);
 
     useEffect(() => {
         const getDefaultLPStats = async () => {
@@ -152,7 +149,7 @@ function PairContainer({
                 pairId,
                 new Date(initialData.lpDate),
                 new Date(),
-                lpShare
+                lpShare,
             );
 
             // Slice Pair stats according to LP date
@@ -168,23 +165,22 @@ function PairContainer({
             if (lpStats) {
                 setDefaultLPStats(lpStats);
             }
-        }
+        };
 
         if (prefetchedPair && prefetchedPair.lpStats) {
             setDefaultLPStats(prefetchedPair.lpStats);
         } else {
             void getDefaultLPStats();
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pairId]);
-
 
     const lpStats: LPStats<string> | null = useMemo(() => {
         if (!defaultLPStats) return null;
         // slice LP stats to correct time
         // scale LP stats to correct entry
         return deriveLPStats(defaultLPStats, lpDate, lpShare);
-    }, [defaultLPStats, lpDate, lpShare])
+    }, [defaultLPStats, lpDate, lpShare]);
 
     const dataAtLPDate = useMemo((): UniswapDailyData | null => {
         if (currentError) return null;
@@ -216,10 +212,10 @@ function PairContainer({
 
             if (lpInfo.historicalDailyData.length === 0) return null;
             const firstDay = new Date(
-                lpInfo.historicalDailyData[0].date * 1000
+                lpInfo.historicalDailyData[0].date * 1000,
             );
             console.warn(
-                `Could not find LP date in historical data: ${lpDate.toISOString()}. Setting to first day, which is ${firstDay.toISOString()}.`
+                `Could not find LP date in historical data: ${lpDate.toISOString()}. Setting to first day, which is ${firstDay.toISOString()}.`,
             );
             setLPDate(firstDay);
             // eslint-disable-next-line
@@ -353,14 +349,22 @@ function PairContainer({
         );
     }
 
-    const shouldShowAddl = lpInfo.pairData?.token0.symbol === 'WETH' || lpInfo.pairData?.token1?.symbol === 'WETH';
-    const pairStr = lpInfo.pairData?.token0.symbol + '/' + lpInfo.pairData?.token1.symbol;
+    const shouldShowAddl =
+        lpInfo.pairData?.token0.symbol === 'WETH' ||
+        lpInfo.pairData?.token1?.symbol === 'WETH';
+    const pairStr =
+        lpInfo.pairData?.token0.symbol + '/' + lpInfo.pairData?.token1.symbol;
     return (
         <div>
             <Helmet>
-                <title>Sommelier Finance Impermanent Loss Calculator for Uniswap Pool {pairStr}</title>
+                <title>
+                    Sommelier Finance Impermanent Loss Calculator for Uniswap
+                    Pool {pairStr}
+                </title>
             </Helmet>
-            <h4 className='heading-main'>Impermanent Loss for Uniswap Pair {pairStr}</h4>
+            <h4 className='heading-main'>
+                Impermanent Loss for Uniswap Pair {pairStr}
+            </h4>
             <div className='alert-well'>
                 <p>
                     This is not financial advice. This is an alpha project.
@@ -369,7 +373,7 @@ function PairContainer({
                 </p>
             </div>
 
-            <PoolSearch  setPoolId={setPairId} />
+            <PoolSearch setPoolId={setPairId} />
             <div className='pair-controls'>
                 <div className='pair-and-pool-stats'>
                     <PairSelector
@@ -384,14 +388,14 @@ function PairContainer({
                             defaultWindow={timeWindow}
                             setWindow={setWindow}
                         />
-                        {shouldShowAddl &&
+                        {shouldShowAddl && (
                             <button
                                 className='btn-addl'
                                 onClick={() => handleAddLiquidity(pairId)}
                             >
                                 MANAGE LIQUIDITY
                             </button>
-                        }
+                        )}
                     </div>
                 </div>
                 <div className='lp-input-with-stats'>

@@ -52,7 +52,7 @@ export function useEthGasPrices(): EthGasPrices | null {
 
 export function isChangedPrice(
     oldPrices: EthGasPrices | null,
-    prices?: EthGasPrices | null
+    prices?: EthGasPrices | null,
 ): boolean {
     return (
         prices?.safeLow !== oldPrices?.safeLow ||

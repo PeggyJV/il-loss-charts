@@ -32,80 +32,91 @@ export const useBalance = ({ pairData, wallet }: Props): WalletBalances => {
             ].map(async (tokenAddress) => {
                 if (!tokenAddress) {
                     throw new Error(
-                        'Could not get balance for pair without token address'
+                        'Could not get balance for pair without token address',
                     );
                 }
                 const token = new ethers.Contract(
                     tokenAddress,
-                    erc20Abi
-                ).connect(provider );
+                    erc20Abi,
+                ).connect(provider);
 
-                try {                 
+                try {
                     const balance: ethers.BigNumber = await token.balanceOf(
-                        wallet.account
+                        wallet.account,
                     );
                     return balance;
                 } catch (e) {
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    console.error(`Could not get balance of token ${tokenAddress} for wallet ${wallet.account!}`);
+                    console.error(
+                        `Could not get balance of token ${tokenAddress} for wallet ${
+                            wallet.account ?? ''
+                        }`,
+                    );
                     console.error(`Error; ${e.message as string}`);
                     return ethers.BigNumber.from(0);
                 }
             });
 
-            const getAllowances = [
-                pairData.token0.id,
-                pairData.token1.id
-            ].map(async (tokenAddress) => {
-                if (!tokenAddress) {
-                    throw new Error(
-                        'Could not get balance for pair without token address'
-                    );
-                }
-                const token = new ethers.Contract(
-                    tokenAddress,
-                    erc20Abi
-                ).connect(provider);
+            const getAllowances = [pairData.token0.id, pairData.token1.id].map(
+                async (tokenAddress) => {
+                    if (!tokenAddress) {
+                        throw new Error(
+                            'Could not get balance for pair without token address',
+                        );
+                    }
+                    const token = new ethers.Contract(
+                        tokenAddress,
+                        erc20Abi,
+                    ).connect(provider);
 
-                const targetAddress = EXCHANGE_ADD_ABI_ADDRESS;
+                    const targetAddress = EXCHANGE_ADD_ABI_ADDRESS;
 
-                try {
-                    const allowance: ethers.BigNumber = await token.allowance(
-                        wallet.account,
-                        targetAddress
-                    );
-                    return allowance;
-                } catch (e) {
-                    console.error(`Could not get allowance of contract ${targetAddress} on behalf of ${wallet?.account ?? ''} for token ${tokenAddress}`);
-                    console.error(`Error; ${e.message as string}`);
-                    return ethers.BigNumber.from(0);
-                }
-            });
+                    try {
+                        const allowance: ethers.BigNumber = await token.allowance(
+                            wallet.account,
+                            targetAddress,
+                        );
+                        return allowance;
+                    } catch (e) {
+                        console.error(
+                            `Could not get allowance of contract ${targetAddress} on behalf of ${
+                                wallet?.account ?? ''
+                            } for token ${tokenAddress}`,
+                        );
+                        console.error(`Error; ${e.message as string}`);
+                        return ethers.BigNumber.from(0);
+                    }
+                },
+            );
 
             const getTwoSideAllowances = [
                 pairData.token0.id,
-                pairData.token1.id
+                pairData.token1.id,
             ].map(async (tokenAddress) => {
                 if (!tokenAddress) {
                     throw new Error(
-                        'Could not get balance for pair without token address'
+                        'Could not get balance for pair without token address',
                     );
                 }
                 const token = new ethers.Contract(
                     tokenAddress,
-                    erc20Abi
-                ).connect(provider)
-                
+                    erc20Abi,
+                ).connect(provider);
+
                 const targetAddress = EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS;
 
                 try {
                     const allowance: ethers.BigNumber = await token.allowance(
                         wallet.account,
-                        targetAddress
+                        targetAddress,
                     );
                     return allowance;
                 } catch (e) {
-                    console.error(`Could not get two-sided allowance of contract ${targetAddress} on behalf of ${wallet?.account ?? ''} for token ${tokenAddress}`);
+                    console.error(
+                        `Could not get two-sided allowance of contract ${targetAddress} on behalf of ${
+                            wallet?.account ?? ''
+                        } for token ${tokenAddress}`,
+                    );
                     console.error(`Error; ${e.message as string}`);
                     return ethers.BigNumber.from(0);
                 }
@@ -142,7 +153,7 @@ export const useBalance = ({ pairData, wallet }: Props): WalletBalances => {
                     allowance: {
                         [EXCHANGE_ADD_ABI_ADDRESS]: ethers.BigNumber.from(0),
                         [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: ethers.BigNumber.from(
-                            0
+                            0,
                         ),
                     },
                 },

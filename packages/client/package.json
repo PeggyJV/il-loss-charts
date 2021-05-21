@@ -79,8 +79,8 @@
     },
     "scripts": {
         "clean": "rimraf build *.tsbuildinfo",
-        "lint": "eslint src --ext js,ts",
-        "lint:fix": "eslint src --ext js,ts --fix",
+        "lint": "eslint --ext js,ts src",
+        "lint:fix": "eslint --ext js,ts --fix src",
         "predeploy": "yarn build",
         "deploy": "gh-pages -d build",
         "dev": "react-scripts start",
@@ -89,7 +89,8 @@
         "test-watch": "react-scripts test",
         "eject": "react-scripts eject",
         "analyze": "source-map-explorer 'build/static/js/*.js'",
-        "sentry": "(export SENTRY_RELEASE=$(git rev-parse --short HEAD); && node scripts/sentry-maps.js"
+        "sentry": "(export SENTRY_RELEASE=$(git rev-parse --short HEAD); && node scripts/sentry-maps.js",
+        "pre-commit": "yarn lint-staged"
     },
     "proxy": "http://localhost:3001",
     "eslintConfig": {
@@ -125,5 +126,12 @@
         "eslint-plugin-react": "^7.22.0",
         "eslint-plugin-react-hooks": "^4.2.0",
         "source-map-explorer": "^2.5.2"
+    },
+    "lint-staged": {
+        "**/*.{js,ts,tsx}": [
+            "prettier --write",
+            "eslint --cache --fix"
+        ],
+        "**/*.{css,md}": "prettier --write"
     }
 }

@@ -21,5 +21,5 @@ type Network = {
 export default interface AppConfig {
     wsApi: string;
     networks: Network;
-    ethAddress: string
+    ethAddress: string;
 }

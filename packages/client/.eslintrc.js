@@ -13,7 +13,6 @@ module.exports = {
     },
     extends: [
         '../.eslintrc.json',
-        "prettier/react",
         'plugin:react/recommended',
         'plugin:react-hooks/recommended',
     ],

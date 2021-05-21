@@ -13,7 +13,7 @@ export const LiquidityActionButton = ({
     pendingApproval,
     pendingBounds,
     disabledInput,
-    currentGasPrice
+    currentGasPrice,
 }: {
     tokenInputState: any;
     onClick: () => void;
@@ -27,7 +27,8 @@ export const LiquidityActionButton = ({
     const [buttonState, setButtonState] = useState('Add Liquidity');
     const { wallet } = useWallet();
 
-    const isDisabled = (symbol: string) => disabledInput && disabledInput.includes(symbol);
+    const isDisabled = (symbol: string) =>
+        disabledInput && disabledInput.includes(symbol);
 
     useEffect(() => {
         const numOfTokens = tokenInputState?.selectedTokens?.length ?? 0;
@@ -81,7 +82,7 @@ export const LiquidityActionButton = ({
             const tokenBalance =
                 ethers.utils.formatUnits(
                     balances?.[symbol]?.balance || 0,
-                    parseInt(balances?.[symbol]?.decimals || '0', 10)
+                    parseInt(balances?.[symbol]?.decimals || '0', 10),
                 ) || '0';
 
             if (tokenAmount.gt(tokenBalance)) {
@@ -90,12 +91,21 @@ export const LiquidityActionButton = ({
             }
         }
 
-        if(pendingBounds) {
+        if (pendingBounds) {
             setButtonState('pendingBounds');
             return;
         }
         setButtonState('addLiquidity');
-    }, [currentGasPrice, balances, pendingApproval, pendingBounds, tokenInputState, wallet?.account, wallet?.provider, isDisabled]);
+    }, [
+        currentGasPrice,
+        balances,
+        pendingApproval,
+        pendingBounds,
+        tokenInputState,
+        wallet?.account,
+        wallet?.provider,
+        isDisabled,
+    ]);
 
     switch (buttonState) {
         case 'pendingApproval':

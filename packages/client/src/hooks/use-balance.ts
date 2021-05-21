@@ -23,7 +23,9 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
     }
 
     const [balances, setBalances] = useState<WalletBalances>({});
-    const EXCHANGE_ADD_V3_ABI_ADDRESS: string = config.networks[wallet.network || '1']?.contracts?.ADD_LIQUIDITY_V3 || '';
+    const EXCHANGE_ADD_V3_ABI_ADDRESS: string =
+        config.networks[wallet.network || '1']?.contracts?.ADD_LIQUIDITY_V3 ||
+        '';
 
     useEffect(() => {
         // get balances of both tokens
@@ -35,78 +37,74 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                 async (tokenAddress) => {
                     if (!tokenAddress) {
                         throw new Error(
-                            'Could not get balance for pair without token address'
+                            'Could not get balance for pair without token address',
                         );
                     }
                     const token = new ethers.Contract(
                         tokenAddress,
-                        erc20Abi
+                        erc20Abi,
                     ).connect(provider);
 
                     try {
                         const balance: ethers.BigNumber = await token.balanceOf(
-                            wallet.account
+                            wallet.account,
                         );
                         return balance;
                     } catch (e) {
                         console.error(
                             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                            `Could not get balance of token ${tokenAddress} for wallet ${wallet.account}`
+                            `Could not get balance of token ${tokenAddress} for wallet ${wallet.account}`,
                         );
                         console.error(`Error; ${e.message as string}`);
                         return ethers.BigNumber.from(0);
                     }
-                }
+                },
             );
 
             const getAllowances = [pool.token0.id, pool.token1.id].map(
                 async (tokenAddress) => {
                     if (!tokenAddress) {
                         throw new Error(
-                            'Could not get balance for pair without token address'
+                            'Could not get balance for pair without token address',
                         );
                     }
                     const token = new ethers.Contract(
                         tokenAddress,
-                        erc20Abi
+                        erc20Abi,
                     ).connect(provider);
 
                     const targetAddress = EXCHANGE_ADD_V3_ABI_ADDRESS;
-                        
-
 
                     try {
                         const allowance: ethers.BigNumber = await token.allowance(
                             wallet.account,
-                            targetAddress
+                            targetAddress,
                         );
                         return allowance;
                     } catch (e) {
                         console.error(
-                            `Could not get allowance of contract ${
-                                targetAddress 
-                            } on behalf of ${
+                            `Could not get allowance of contract ${targetAddress} on behalf of ${
                                 wallet?.account ?? ''
                                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                            } for token ${tokenAddress}`
+                            } for token ${tokenAddress}`,
                         );
                         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                         console.error(`Error; ${e.message}`);
                         return ethers.BigNumber.from(0);
                     }
-                }
+                },
             );
 
             const getTwoSideAllowances = [pool.token0.id, pool.token1.id].map(
                 async (tokenAddress) => {
                     if (!tokenAddress) {
                         throw new Error(
-                            'Could not get balance for pair without token address'
+                            'Could not get balance for pair without token address',
                         );
                     }
                     const token = new ethers.Contract(
                         tokenAddress,
-                        erc20Abi
+                        erc20Abi,
                     ).connect(provider);
 
                     const targetAddress = EXCHANGE_ADD_V3_ABI_ADDRESS;
@@ -114,7 +112,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                     try {
                         const allowance: ethers.BigNumber = await token.allowance(
                             wallet.account,
-                            targetAddress
+                            targetAddress,
                         );
                         return allowance;
                     } catch (e) {
@@ -122,13 +120,13 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                             `Could not get two-sided allowance of contract ${targetAddress} on behalf of ${
                                 wallet?.account ?? ''
                                 // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                            } for token ${tokenAddress}`
+                            } for token ${tokenAddress}`,
                         );
                         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                         console.error(`Error; ${e.message}`);
                         return ethers.BigNumber.from(0);
                     }
-                }
+                },
             );
 
             const getEthBalance = provider.getBalance(wallet.account);
@@ -162,7 +160,7 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                     allowance: {
                         [EXCHANGE_ADD_V3_ABI_ADDRESS]: ethers.BigNumber.from(0),
                         [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: ethers.BigNumber.from(
-                            0
+                            0,
                         ),
                     },
                 },

@@ -26,8 +26,8 @@ export const WalletBalance = ({
                                     b || 0,
                                     parseInt(
                                         balances[token]?.decimals || '0',
-                                        10
-                                    )
+                                        10,
+                                    ),
                                 )}
                             </td>
                         </tr>

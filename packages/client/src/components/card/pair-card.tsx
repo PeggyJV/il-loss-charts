@@ -24,8 +24,8 @@ function PercentChangeStat({ value }: { value?: number }): JSX.Element {
 
 const formatPair = ({ id, token0, token1 }: IUniswapPair) => {
     return (
-            <Link to={`/pair?id=${id}&timeWindow=day`}>
-                <div className='pair-combo'>
+        <Link to={`/pair?id=${id}&timeWindow=day`}>
+            <div className='pair-combo'>
                 <div>
                     {resolveLogo(token0.id)} {token0.symbol}
                 </div>
@@ -37,8 +37,8 @@ const formatPair = ({ id, token0, token1 }: IUniswapPair) => {
                 <div>
                     {resolveLogo(token1.id)} {token1.symbol}
                 </div>
-                </div>
-            </Link>
+            </div>
+        </Link>
     );
 };
 
@@ -52,7 +52,9 @@ export const PairCard = ({
     handleAddLiquidity: (pairId: string) => void;
 }): JSX.Element => {
     const multiplier = mode === 'daily' ? 365 : 52;
-    const shouldShowAddl = pairStats.token0.symbol === 'WETH' || pairStats.token1.symbol === 'WETH';
+    const shouldShowAddl =
+        pairStats.token0.symbol === 'WETH' ||
+        pairStats.token1.symbol === 'WETH';
 
     return (
         <div className='pair-card'>
@@ -72,7 +74,7 @@ export const PairCard = ({
                         </span>
                     </div>
                 </div>
-                {shouldShowAddl &&
+                {shouldShowAddl && (
                     <button
                         className='btn-addl'
                         onClick={() => {
@@ -81,7 +83,7 @@ export const PairCard = ({
                     >
                         ADDL
                     </button>
-                }
+                )}
             </div>
         </div>
     );

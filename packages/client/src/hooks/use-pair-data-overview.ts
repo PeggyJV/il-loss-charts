@@ -5,7 +5,7 @@ import { UniswapApiFetcher } from 'services/api';
 
 export const usePairDataOverview = (
     pairId: string | null,
-    network: NetworkIds
+    network: NetworkIds,
 ): UniswapPair | null => {
     const [pairData, setPairData] = useState<UniswapPair | null>(null);
 
@@ -15,7 +15,7 @@ export const usePairDataOverview = (
     };
 
     const { data: newPair } = useQuery(['pairDataOverview', pairId], () =>
-        fetchPairData(pairId)
+        fetchPairData(pairId),
     );
 
     useEffect(() => {

@@ -37,7 +37,7 @@ export const TokenWithBalance = ({
             <div className='balance-string'>
                 {ethers.utils.formatUnits(
                     balance || 0,
-                    parseInt(decimals || '0', 10)
+                    parseInt(decimals || '0', 10),
                 )}
             </div>
         </Box>
