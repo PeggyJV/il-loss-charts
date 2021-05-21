@@ -48,36 +48,45 @@ const getIndicatorsValidator = celebrate({
 });
 
 // GET /marketData/daily
-const getLastDayOHLC = memoize(BitqueryFetcher.getLastDayOHLC.bind(BitqueryFetcher));
+const getLastDayOHLC = memoize(
+    BitqueryFetcher.getLastDayOHLC.bind(BitqueryFetcher),
+);
 async function getPoolDailyOHLC(
-    req: Request<unknown, unknown, unknown, GetMarketDataQuery>
+    req: Request<unknown, unknown, unknown, GetMarketDataQuery>,
 ) {
     const { baseToken, quoteToken } = req.query;
 
-    const result: DexTrade = (await getLastDayOHLC(baseToken, quoteToken) );
+    const result: DexTrade = await getLastDayOHLC(baseToken, quoteToken);
     return result;
 }
 
 // GET /marketData/weekly
-const getLastWeekOHLC = memoize(BitqueryFetcher.getLastWeekOHLC.bind(BitqueryFetcher));
+const getLastWeekOHLC = memoize(
+    BitqueryFetcher.getLastWeekOHLC.bind(BitqueryFetcher),
+);
 async function getPoolWeeklyOHLC(
-    req: Request<unknown, unknown, unknown, GetMarketDataQuery>
+    req: Request<unknown, unknown, unknown, GetMarketDataQuery>,
 ) {
     const { baseToken, quoteToken } = req.query;
 
-    const result: DexTrade = (await getLastWeekOHLC(baseToken, quoteToken) );
+    const result: DexTrade = await getLastWeekOHLC(baseToken, quoteToken);
     return result;
 }
 
 // GET /marketData/indicators
 const getPeriodIndicators = memoize(_getPeriodIndicators);
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export async function _getPeriodIndicators(baseToken: string, quoteToken: string, startDate: number, endDate: number) {
+export async function _getPeriodIndicators(
+    baseToken: string,
+    quoteToken: string,
+    startDate: number,
+    endDate: number,
+) {
     const marketData = await BitqueryFetcher.getPeriodDailyOHLC(
         baseToken,
         quoteToken,
         startDate,
-        endDate
+        endDate,
     );
 
     const poolIndicators = indicators.getAllIndicators(marketData);
@@ -85,7 +94,7 @@ export async function _getPeriodIndicators(baseToken: string, quoteToken: string
 }
 
 async function getPoolIndicators(
-    req: Request<unknown, unknown, unknown, GetIndicatorsQuery>
+    req: Request<unknown, unknown, unknown, GetIndicatorsQuery>,
 ) {
     const { baseToken, quoteToken } = req.query;
     // TODO: config
@@ -96,7 +105,10 @@ async function getPoolIndicators(
     const endDate = endOfDay(now).getTime();
     const startDate = startOfDay(subDays(now, days)).getTime();
 
-    const result: { marketData: DexTrade[], indicators: LiquidityBand } = (await getPeriodIndicators(baseToken, quoteToken, startDate, endDate) );
+    const result: {
+        marketData: DexTrade[];
+        indicators: LiquidityBand;
+    } = await getPeriodIndicators(baseToken, quoteToken, startDate, endDate);
     return result;
 }
 
@@ -105,15 +117,15 @@ export default Router()
     .get(
         '/daily',
         getMarketDataValidator,
-        catchAsyncRoute(getPoolDailyOHLC, cacheConfig)
+        catchAsyncRoute(getPoolDailyOHLC, cacheConfig),
     )
     .get(
         '/weekly',
         getMarketDataValidator,
-        catchAsyncRoute(getPoolWeeklyOHLC, cacheConfig)
+        catchAsyncRoute(getPoolWeeklyOHLC, cacheConfig),
     )
     .get(
         '/indicators',
         getIndicatorsValidator,
-        catchAsyncRoute(getPoolIndicators, cacheConfig)
+        catchAsyncRoute(getPoolIndicators, cacheConfig),
     );

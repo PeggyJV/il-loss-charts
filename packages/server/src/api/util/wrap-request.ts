@@ -4,7 +4,10 @@ import { CacheControl, setCacheControl } from 'api/util/set-cache-control';
 
 export default function wrapRequest(
     // eslint-ignore-next-line no-unused-vars
-    controllerFn: (req: Request<any, any, any, any>, res: Response) => Promise<unknown>,
+    controllerFn: (
+        req: Request<any, any, any, any>,
+        res: Response,
+    ) => Promise<unknown>,
     cacheOptions?: CacheControl,
 ): RequestHandler {
     return async (req: Request, res: Response) => {

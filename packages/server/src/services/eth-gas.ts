@@ -8,7 +8,7 @@ import { EthGasPrices } from '@sommelier/shared-types';
 export class EthGasFetcher {
     static async getGasPrices(): Promise<EthGasPrices> {
         const res = await fetch(
-            'https://www.etherchain.org/api/gasPriceOracle'
+            'https://www.etherchain.org/api/gasPriceOracle',
         );
         const gasPrices: EthGasPrices | null = await res.json();
 
@@ -30,7 +30,8 @@ export class EthGasStream extends EventEmitter {
     }
 
     static registerMessageHandler(ws: WebSocket): void {
-        const convertToGwei = (num: string) => parseInt(new BigNumber(num).shiftedBy(-9).toFixed(0), 10);
+        const convertToGwei = (num: string) =>
+            parseInt(new BigNumber(num).shiftedBy(-9).toFixed(0), 10);
         ws.on('message', (data: string) => {
             const { data: parsedData } = JSON.parse(data);
 
@@ -49,16 +50,24 @@ export class EthGasStream extends EventEmitter {
         let ws = EthGasStream.ws;
 
         if (!ws) {
-            console.log('[WS:GAS]: Opening connection to gasnow.org gas price oracle...');
+            console.log(
+                '[WS:GAS]: Opening connection to gasnow.org gas price oracle...',
+            );
             ws = EthGasStream.startConnection();
 
             ws.on('open', () => {
-                console.log('[WS:GAS]: Connected to gasnow.org gas price oracle.');
+                console.log(
+                    '[WS:GAS]: Connected to gasnow.org gas price oracle.',
+                );
             });
 
-            ws.on('close', () =>  {
-                console.log('[WS:GAS]: Disconnected from gasnow.org gas price oracle.');
-                console.log('[WS:GAS]: Attempting to reconnect in 5 seconds...');
+            ws.on('close', () => {
+                console.log(
+                    '[WS:GAS]: Disconnected from gasnow.org gas price oracle.',
+                );
+                console.log(
+                    '[WS:GAS]: Attempting to reconnect in 5 seconds...',
+                );
 
                 setTimeout(() => {
                     EthGasStream.ws = null;
@@ -67,14 +76,17 @@ export class EthGasStream extends EventEmitter {
             });
 
             ws.on('error', (err) => {
-                console.error('[WS:GAS]: Error connecting to gasnow.org gas price oracle.: ', err.message);
+                console.error(
+                    '[WS:GAS]: Error connecting to gasnow.org gas price oracle.: ',
+                    err.message,
+                );
             });
 
             EthGasStream.registerMessageHandler(ws);
         }
 
         if (!ws) {
-            throw new Error('Websocket not properly instantiated')
+            throw new Error('Websocket not properly instantiated');
         }
         return EthGasStream.emitter;
     }

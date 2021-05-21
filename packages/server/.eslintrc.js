@@ -12,5 +12,5 @@ module.exports = {
         'no-unused-vars': 'off', // use @typescript-eslint/no-unused-vars
         '@typescript-eslint/no-unused-vars': 'error',
     },
-    extends: ['../../.eslintrc.json'],
+    extends: ['../.eslintrc.json'],
 };

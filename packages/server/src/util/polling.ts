@@ -17,7 +17,7 @@ class PollingUtil extends EventEmitter {
 
     subscribe(
         topic: string,
-        interval: number = PollingUtil.DEFAULT_INTERVAL
+        interval: number = PollingUtil.DEFAULT_INTERVAL,
     ): EventEmitter {
         if (this.activeTopics[topic]) {
             // If topic is already active, no-op
@@ -59,7 +59,7 @@ class PollingUtil extends EventEmitter {
         const queryFn = (dataSource as any)[query];
         if (!queryFn)
             throw new Error(
-                `Query ${query} does not exist on data source ${source}`
+                `Query ${query} does not exist on data source ${source}`,
             );
 
         const topicEmitter = new EventEmitter();
@@ -73,7 +73,7 @@ class PollingUtil extends EventEmitter {
                 // cache the latest topic data so we can return immediately on subscribe
                 latestTopicData.set(topic, latest);
 
-                return topicEmitter.emit('data', latest)
+                return topicEmitter.emit('data', latest);
             });
         }
         // immediate fetch data and emit
@@ -81,7 +81,9 @@ class PollingUtil extends EventEmitter {
 
         // start polling
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const interval: NodeJS.Timeout = <any>setInterval(pollAndEmit, intervalMs);
+        const interval: NodeJS.Timeout = <any>(
+            setInterval(pollAndEmit, intervalMs)
+        );
 
         // Unref prevents the interval from blocking app shutdown
         interval.unref();

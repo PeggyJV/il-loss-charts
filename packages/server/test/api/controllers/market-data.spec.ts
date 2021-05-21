@@ -27,7 +27,9 @@ describe('Bitquery market data HTTP tests', () => {
         test('gets the last day OHLC', async () => {
             getLastDayOHLC.mockResolvedValue(expectedDailyOHLC);
 
-            const res = await request.get(`${url}?baseToken=${validBaseToken}&quoteToken=${validQuoteToken}`);
+            const res = await request.get(
+                `${url}?baseToken=${validBaseToken}&quoteToken=${validQuoteToken}`,
+            );
             expect(res.status).toBe(200);
             expect(res.body).toMatchObject(expectedDailyOHLC);
 
@@ -36,15 +38,23 @@ describe('Bitquery market data HTTP tests', () => {
         });
 
         test('400s with an invalid base token', async () => {
-            const res = await request.get(`${url}?baseToken=foo&quoteToken=${validQuoteToken}`);
+            const res = await request.get(
+                `${url}?baseToken=foo&quoteToken=${validQuoteToken}`,
+            );
             expect(res.status).toBe(400);
-            expect(res.body.error).toMatch(`"baseToken" must be a valid ETH address.`);
+            expect(res.body.error).toMatch(
+                `"baseToken" must be a valid ETH address.`,
+            );
         });
 
         test('400s with an invalid quote token', async () => {
-            const res = await request.get(`${url}?baseToken=${validBaseToken}&quoteToken=foo`);
+            const res = await request.get(
+                `${url}?baseToken=${validBaseToken}&quoteToken=foo`,
+            );
             expect(res.status).toBe(400);
-            expect(res.body.error).toMatch(`"quoteToken" must be a valid ETH address.`);
+            expect(res.body.error).toMatch(
+                `"quoteToken" must be a valid ETH address.`,
+            );
         });
     });
 
@@ -58,7 +68,9 @@ describe('Bitquery market data HTTP tests', () => {
         test('gets the last day OHLC', async () => {
             getLastWeekOHLC.mockResolvedValue(expectedWeeklyOHLC);
 
-            const res = await request.get(`${url}?baseToken=${validBaseToken}&quoteToken=${validQuoteToken}`);
+            const res = await request.get(
+                `${url}?baseToken=${validBaseToken}&quoteToken=${validQuoteToken}`,
+            );
             expect(res.status).toBe(200);
             expect(res.body).toMatchObject(expectedWeeklyOHLC);
 
@@ -67,15 +79,23 @@ describe('Bitquery market data HTTP tests', () => {
         });
 
         test('400s with an invalid base token', async () => {
-            const res = await request.get(`${url}?baseToken=foo&quoteToken=${validQuoteToken}`);
+            const res = await request.get(
+                `${url}?baseToken=foo&quoteToken=${validQuoteToken}`,
+            );
             expect(res.status).toBe(400);
-            expect(res.body.error).toMatch(`"baseToken" must be a valid ETH address.`);
+            expect(res.body.error).toMatch(
+                `"baseToken" must be a valid ETH address.`,
+            );
         });
 
         test('400s with an invalid quote token', async () => {
-            const res = await request.get(`${url}?baseToken=${validBaseToken}&quoteToken=foo`);
+            const res = await request.get(
+                `${url}?baseToken=${validBaseToken}&quoteToken=foo`,
+            );
             expect(res.status).toBe(400);
-            expect(res.body.error).toMatch(`"quoteToken" must be a valid ETH address.`);
+            expect(res.body.error).toMatch(
+                `"quoteToken" must be a valid ETH address.`,
+            );
         });
     });
 });

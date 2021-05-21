@@ -1,5 +1,5 @@
-query getPoolOverview ($id: ID!, $blockNumber: Int) {
-    pool(id: $id, block: $blockNumber){
+query getPoolOverview($id: ID!, $blockNumber: Int) {
+    pool(id: $id, block: $blockNumber) {
         id
         createdAtTimestamp
         feeTier

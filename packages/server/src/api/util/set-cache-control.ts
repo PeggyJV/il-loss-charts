@@ -2,22 +2,24 @@ import { Response } from 'express';
 
 export type CacheControl = {
     // cacheability options
-    public?: boolean,
-    noStore?: boolean,
+    public?: boolean;
+    noStore?: boolean;
 
     // expiration options
-    maxAge?: number, // seconds
-    sMaxAge?: number,
-    mustRevalidate?: boolean,
-    proxyRevalidate?: boolean,
-}
+    maxAge?: number; // seconds
+    sMaxAge?: number;
+    mustRevalidate?: boolean;
+    proxyRevalidate?: boolean;
+};
 
 export function setCacheControl(res: Response, options: CacheControl): void {
     const directive = makeDirective(options);
-    if(directive) {
+    if (directive) {
         res.set('Cache-Control', directive);
     } else {
-        console.error('Cache-Control headers were configured but could not be set.');
+        console.error(
+            'Cache-Control headers were configured but could not be set.',
+        );
     }
 }
 
@@ -31,7 +33,12 @@ const optionToName: Record<string, string> = {
 };
 
 const validCacheability: Array<keyof CacheControl> = ['public', 'noStore'];
-const validDirectives: Array<keyof CacheControl> = ['maxAge', 'sMaxAge', 'mustRevalidate', 'proxyRevalidate'];
+const validDirectives: Array<keyof CacheControl> = [
+    'maxAge',
+    'sMaxAge',
+    'mustRevalidate',
+    'proxyRevalidate',
+];
 
 export function makeDirective(options: CacheControl): string | undefined {
     const keys = Object.keys(options);
@@ -42,7 +49,8 @@ export function makeDirective(options: CacheControl): string | undefined {
     // public, private, no-cache, or no-store
     const cacheSetting = optionToName[cacheability[0]];
 
-    const directives = validDirectives.filter((opt) => keys.includes(opt))
+    const directives = validDirectives
+        .filter((opt) => keys.includes(opt))
         .map((directive: keyof CacheControl) => {
             const name = optionToName[directive];
             const value = options[directive];
@@ -56,8 +64,11 @@ export function makeDirective(options: CacheControl): string | undefined {
             }
 
             return `${name}=${value.toString()}`;
-        }).filter(d => d != null);
-    
+        })
+        .filter((d) => d != null);
+
     // public, max-age=60, another-one=20
-    return `${cacheSetting}${directives.length ? ['', ...directives].join(', ') : ''}`;
+    return `${cacheSetting}${
+        directives.length ? ['', ...directives].join(', ') : ''
+    }`;
 }

@@ -10,8 +10,5 @@
         ],
         "@babel/preset-typescript"
     ],
-    "babelrcRoots": [
-        ".",
-        "packages/*"
-    ]
+    "babelrcRoots": [".", "packages/*"]
 }

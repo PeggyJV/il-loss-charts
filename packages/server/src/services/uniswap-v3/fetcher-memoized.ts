@@ -49,31 +49,31 @@ export class UniswapV3FetcherMemoized implements UniswapFetcher {
         const config = memoConfig.getEthPrice;
         const fn: UniswapFetcher['getEthPrice'] = this.memoize(
             this.fetcher.getEthPrice.bind(this.fetcher),
-            config
+            config,
         );
         return fn(blockNumber);
     }
 
     getPoolOverview(
         poolId: string,
-        blockNumber?: number
+        blockNumber?: number,
     ): Promise<GetPoolOverviewResult> {
         const config = memoConfig.getPoolOverview;
         const fn: UniswapFetcher['getPoolOverview'] = this.memoize(
             this.fetcher.getPoolOverview.bind(this.fetcher),
-            config
+            config,
         );
         return fn(poolId, blockNumber);
     }
 
     getTopPools(
         count: number,
-        orderBy: keyof Pool
+        orderBy: keyof Pool,
     ): Promise<GetTopPoolsResult> {
         const config = memoConfig.getTopPools;
         const fn: UniswapFetcher['getTopPools'] = this.memoize(
             this.fetcher.getTopPools.bind(this.fetcher),
-            config
+            config,
         );
         return fn(count, orderBy);
     }
@@ -82,7 +82,7 @@ export class UniswapV3FetcherMemoized implements UniswapFetcher {
     getPoolDailyData(
         poolId: string,
         start: Date,
-        end: Date
+        end: Date,
     ): Promise<GetPoolDailyDataResult> {
         const fn = this.fetcher.getPoolDailyData.bind(this.fetcher);
         return fn(poolId, start, end);
@@ -92,7 +92,7 @@ export class UniswapV3FetcherMemoized implements UniswapFetcher {
     getPoolHourlyData(
         poolId: string,
         start: Date,
-        end: Date
+        end: Date,
     ): Promise<GetPoolHourlyDataResult> {
         const fn = this.fetcher.getPoolHourlyData.bind(this.fetcher);
         return fn(poolId, start, end);
@@ -101,12 +101,12 @@ export class UniswapV3FetcherMemoized implements UniswapFetcher {
     getHistoricalDailyData(
         poolId: string,
         start: Date,
-        end: Date
+        end: Date,
     ): Promise<GetPoolDailyDataResult> {
         const config = memoConfig.getHistoricalDailyData;
         const fn: UniswapFetcher['getHistoricalDailyData'] = this.memoize(
             this.fetcher.getHistoricalDailyData.bind(this.fetcher),
-            config
+            config,
         );
         return fn(poolId, start, end);
     }
@@ -114,12 +114,12 @@ export class UniswapV3FetcherMemoized implements UniswapFetcher {
     getHistoricalHourlyData(
         poolId: string,
         start: Date,
-        end: Date
+        end: Date,
     ): Promise<GetPoolHourlyDataResult> {
         const config = memoConfig.getHistoricalHourlyData;
         const fn: UniswapFetcher['getHistoricalHourlyData'] = this.memoize(
             this.fetcher.getHistoricalHourlyData.bind(this.fetcher),
-            config
+            config,
         );
         return fn(poolId, start, end);
     }

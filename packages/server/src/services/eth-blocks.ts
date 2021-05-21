@@ -43,7 +43,7 @@ export default class EthBlockFetcher {
             query: gql`
                 {
                     blocks(first: 1, orderBy: timestamp, orderDirection: asc, where: {timestamp_gt: "${Math.floor(
-                        date.getTime() / 1000
+                        date.getTime() / 1000,
                     )}"}) {
                         id
                         number
@@ -61,7 +61,7 @@ export default class EthBlockFetcher {
             throw new Error(
                 `Could not find block for given date ${date.toISOString()}. Error from response: ${
                     response.error?.toString() || ''
-                }`
+                }`,
             );
         } else if (block == null) {
             throw new HTTPError(404);
@@ -75,7 +75,7 @@ export default class EthBlockFetcher {
     }
 
     static async getLastBlockBefore(
-        date: Date
+        date: Date,
     ): Promise<{ id: string; number: number; timestamp: Date }> {
         const response: ApolloResponse<{
             blocks: Array<{ id: string; number: string; timestamp: string }>;
@@ -83,7 +83,7 @@ export default class EthBlockFetcher {
             query: gql`
                 {
                     blocks(first: 1, orderBy: timestamp, orderDirection: desc, where: {timestamp_lt: "${Math.floor(
-                        date.getTime() / 1000
+                        date.getTime() / 1000,
                     )}"}) {
                         id
                         number
@@ -101,7 +101,7 @@ export default class EthBlockFetcher {
             throw new Error(
                 `Could not find block for given date ${date.toISOString()}. Error from response: ${
                     response.error?.toString() || ''
-                }`
+                }`,
             );
         } else if (block == null) {
             throw new HTTPError(404);
