@@ -7,10 +7,10 @@ export async function keepCachePopulated(
     fn: (...args: any[]) => any,
     args: any[],
     interval = 60,
-    expires?: number
+    expires?: number,
 ): Promise<void> {
     const redisKey = [fn.name, ...args.map((arg) => JSON.stringify(arg))].join(
-        ':'
+        ':',
     );
 
     const callFn = async (attempt = 0) => {
@@ -21,7 +21,7 @@ export async function keepCachePopulated(
                 redisKey,
                 JSON.stringify(result),
                 'EX',
-                (interval + 300) * 1000
+                (interval + 300) * 1000,
             );
 
             return; // cache succcessfully populated
@@ -50,7 +50,7 @@ export async function keepCachePopulated(
             if (cachedFns[redisKey]) {
                 // we can no-op, since an interval already exists
                 console.warn(
-                    `Attempting to double-cache ${redisKey} - ignoring`
+                    `Attempting to double-cache ${redisKey} - ignoring`,
                 );
                 return;
             } else {
@@ -76,16 +76,16 @@ export async function keepCachePopulated(
                             if (currentlyCached) {
                                 try {
                                     const cachedFns: FnCache = JSON.parse(
-                                        currentlyCached
+                                        currentlyCached,
                                     );
                                     delete cachedFns[redisKey];
                                     return redis.set(
                                         'cached_fns',
-                                        JSON.stringify(cachedFns)
+                                        JSON.stringify(cachedFns),
                                     );
                                 } catch (e) {
                                     console.error(
-                                        'Could not delete cached function at end of interval'
+                                        'Could not delete cached function at end of interval',
                                     );
                                 }
                             }
@@ -95,7 +95,7 @@ export async function keepCachePopulated(
             }
         } catch (err) {
             throw new Error(
-                `Could not parse cachedFns in redis: ${err.message as string}`
+                `Could not parse cachedFns in redis: ${err.message as string}`,
             );
         }
     }
@@ -105,7 +105,7 @@ export function wrapWithCache(
     redis: Redis.Redis,
     fn: (...args: any[]) => any,
     expiry = 30,
-    populate = false
+    populate = false,
 ): (...args: any[]) => any {
     const wrappedFn = async (...args: any[]): Promise<any> => {
         // Try cache first

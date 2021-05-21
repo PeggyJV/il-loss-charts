@@ -4,10 +4,7 @@ import { ButtonGroup, Modal } from 'react-bootstrap';
 import classNames from 'classnames';
 import { toastWarn, toastSuccess, toastError } from 'util/toasters';
 import { ethers } from 'ethers';
-import {
-    EthGasPrices,
-    LPPositionData,
-} from '@sommelier/shared-types';
+import { EthGasPrices, LPPositionData } from '@sommelier/shared-types';
 import { Wallet } from 'types/states';
 import { compactHash } from 'util/formats';
 import { UniswapApiFetcher as Uniswap } from 'services/api';
@@ -34,9 +31,9 @@ function ManageLiquidityModal({
     gasPrices: EthGasPrices | null;
 }): JSX.Element | null {
     const [mode, setMode] = useState<'add' | 'remove'>('add');
-    
+
     const pairData = usePairDataOverview(pairId, wallet.network || '1');
-      
+
     const [
         positionData,
         setPositionData,
@@ -60,13 +57,13 @@ function ManageLiquidityModal({
                             ...state.approval.filter((hash) => hash !== txHash),
                         ],
                         confirm: [...state.confirm, txHash],
-                    } as PendingTx)
+                    } as PendingTx),
             );
 
         toastWarn(`Confirming tx ${compactHash(txHash)}`);
         if (provider) {
             const txStatus: ethers.providers.TransactionReceipt = await provider.waitForTransaction(
-                txHash
+                txHash,
             );
             const { status } = txStatus;
 
@@ -79,10 +76,10 @@ function ManageLiquidityModal({
                                 approval: [...state.approval],
                                 confirm: [
                                     ...state.approval.filter(
-                                        (hash) => hash !== txHash
+                                        (hash) => hash !== txHash,
                                     ),
                                 ],
-                            } as PendingTx)
+                            } as PendingTx),
                     );
             } else {
                 toastError(`Rejected tx ${compactHash(txHash)}`);
@@ -93,10 +90,10 @@ function ManageLiquidityModal({
                                 approval: [...state.approval],
                                 confirm: [
                                     ...state.approval.filter(
-                                        (hash) => hash !== txHash
+                                        (hash) => hash !== txHash,
                                     ),
                                 ],
-                            } as PendingTx)
+                            } as PendingTx),
                     );
             }
         }

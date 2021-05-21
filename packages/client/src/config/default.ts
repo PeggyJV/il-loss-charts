@@ -11,7 +11,7 @@ const config: AppConfig = {
                 REMOVE_LIQUIDITY: '0x430f33353490b256D2fD7bBD9DaDF3BB7f905E78',
                 TWO_SIDE_ADD_LIQUIDITY:
                     '0xA522AA47C40F2BAC847cbe4D37455c521E69DEa7',
-                ADD_LIQUIDITY_V3: '0xE76427463FdBacdD0e794e5Ea30269f30Dd9B8eB'
+                ADD_LIQUIDITY_V3: '0xE76427463FdBacdD0e794e5Ea30269f30Dd9B8eB',
             },
         },
         '4': {
@@ -34,7 +34,7 @@ const config: AppConfig = {
             name: 'kovan',
         },
     },
-    ethAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+    ethAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
 };
 
 export default config;

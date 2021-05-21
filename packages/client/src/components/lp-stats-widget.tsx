@@ -16,7 +16,7 @@ function LPStatsWidget({
     const displayValue = (value?: string) => {
         if (!value)
             throw new Error(
-                `Could not display nonexist value in LPStatsWidget`
+                `Could not display nonexist value in LPStatsWidget`,
             );
         return formatUSD(new BigNumber(value).toFixed(3));
     };
@@ -26,25 +26,19 @@ function LPStatsWidget({
             <table>
                 <tbody>
                     <tr>
-                        <td className='lp-stats-table-cell label'>
-                            Fees
-                        </td>
+                        <td className='lp-stats-table-cell label'>Fees</td>
                         <td className='lp-stats-table-cell value'>
                             {displayValue(lpStats.totalFees)}
                         </td>
                     </tr>
                     <tr>
-                        <td className='lp-stats-table-cell label'>
-                            IL
-                        </td>
+                        <td className='lp-stats-table-cell label'>IL</td>
                         <td className='lp-stats-table-cell value'>
                             {displayValue(lpStats.impermanentLoss)}
                         </td>
                     </tr>
                     <tr>
-                        <td className='lp-stats-table-cell label'>
-                            NR
-                        </td>
+                        <td className='lp-stats-table-cell label'>NR</td>
                         <td className='lp-stats-table-cell value'>
                             {displayValue(lpStats.totalReturn)}
                         </td>

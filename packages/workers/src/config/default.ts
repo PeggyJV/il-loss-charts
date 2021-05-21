@@ -12,7 +12,6 @@ export default {
     },
     discordAlerts: {
         botToken: '',
-
     },
     telegramBot: {
         mixpanelToken: '',
@@ -22,7 +21,8 @@ export default {
         telegramToken: '',
     },
     redisCacheWarmer: {
-        v3SubgraphUrl: 'http://localhost:8000/subgraphs/name/sommelier/uniswap-v3',
+        v3SubgraphUrl:
+            'http://localhost:8000/subgraphs/name/sommelier/uniswap-v3',
         redisUrl: '127.0.0.1',
         redisPort: 6379,
         redisDb: 0,
@@ -35,5 +35,5 @@ export default {
     mpLiquidity: {
         mixpanelToken: '',
         mixpanelSecret: '',
-    }
-}
+    },
+};

@@ -10,16 +10,8 @@
                 "transform": "@zerollup/ts-transform-paths"
             }
         ],
-        "types": [
-          "node"
-        ]
+        "types": ["node"]
     },
-    "include": [
-        "src",
-        "test"
-    ],
-    "exclude": [
-        "node_modules",
-        "build.ts"
-    ]
+    "include": ["src", "test"],
+    "exclude": ["node_modules", "build.ts"]
 }

@@ -7,7 +7,7 @@ const { infura: config } = appConfig;
 
 if (config.projectId.length === 0) {
     throw new Error(
-        'Cannot instiate Infura handler without infura project id.'
+        'Cannot instiate Infura handler without infura project id.',
     );
 }
 
@@ -23,8 +23,8 @@ export class Infura extends EventEmitter {
 
     static web3 = new Web3(
         new Web3.providers.WebsocketProvider(
-            `wss://${Infura.apiRoot}/ws/v3/${config.projectId}`
-        )
+            `wss://${Infura.apiRoot}/ws/v3/${config.projectId}`,
+        ),
     );
 
     activeTopics: {
@@ -47,14 +47,14 @@ export class Infura extends EventEmitter {
                 // newHeads is mentioned in the docs below, but not supported as a type
                 // https://infura.io/docs/ethereum#section/Make-Requests/Subscriptions-and-Filters
                 subscription = Infura.web3.eth.subscribe(
-                    'newHeads' as 'newBlockHeaders'
+                    'newHeads' as 'newBlockHeaders',
                 );
             } else {
                 throw new Error();
             }
         } catch (e) {
             throw new Error(
-                `Could not subscribe to web3.eth for topic ${topic}`
+                `Could not subscribe to web3.eth for topic ${topic}`,
             );
         }
 
@@ -77,7 +77,7 @@ export class Infura extends EventEmitter {
 
     async getLatestBlock(): Promise<{ result: number }> {
         const res = await fetch(
-            `https://${Infura.apiRoot}/v3/${config.projectId}`
+            `https://${Infura.apiRoot}/v3/${config.projectId}`,
         );
         const data = await res.json();
 

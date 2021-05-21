@@ -19,10 +19,10 @@ enum calculation {
 
 type ethereum {
     dexTrades(
-        options: Options,
-        date: SearchDate,
-        exchangeName: Exchange,
-        baseCurrency: BaseCurrency,
+        options: Options
+        date: SearchDate
+        exchangeName: Exchange
+        baseCurrency: BaseCurrency
         quoteCurrency: QuoteCurrency
     ): [DexTrade!]
     date: String!
@@ -84,5 +84,5 @@ type Query {
 }
 
 schema {
-  query: Query
+    query: Query
 }

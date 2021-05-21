@@ -6,14 +6,13 @@
     "extends": [
         "eslint:recommended",
         "prettier",
-        "prettier/react",
-        "prettier/@typescript-eslint",
+        "plugin:prettier/recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking"
     ],
     "parserOptions": {
-        "ecmaVersion": 12,
-        "project": "packages/tsconfig.settings.json"
+        "project": "packages/tsconfig.settings.json",
+        "ecmaVersion": 12
     },
     "plugins": [
         "@typescript-eslint"

@@ -31,26 +31,31 @@ class ExpressServer {
         app.set('appPath', root + 'client');
 
         // logging, should be first middleware
-        app.use(middleware.logger())
+        app.use(middleware.logger());
 
         app.use(middleware.poweredBy);
         app.use(cookieParser(config.session.secret));
 
-        app.use('/static', express.static(`${clientRoot}/build/static`, {
-            maxAge: '30d',
-            immutable: true,  // these files never change and can be cached for 1y
-        }));
+        app.use(
+            '/static',
+            express.static(`${clientRoot}/build/static`, {
+                maxAge: '30d',
+                immutable: true, // these files never change and can be cached for 1y
+            }),
+        );
 
         // if we change these files we'll have to invalidate the cache in gcp console
-        app.use(express.static(`${clientRoot}/build`, {
-            maxAge: '30d', // index.html should be revalidated much more frequently
-            setHeaders: (res: Response, path: string) => {
-                // html like index.html should be revalidated often
-                if (mime.lookup(path) === 'text/html') {
-                    res.setHeader('Cache-Control', 'public, max-age=60');
-                }
-            }
-        }));
+        app.use(
+            express.static(`${clientRoot}/build`, {
+                maxAge: '30d', // index.html should be revalidated much more frequently
+                setHeaders: (res: Response, path: string) => {
+                    // html like index.html should be revalidated often
+                    if (mime.lookup(path) === 'text/html') {
+                        res.setHeader('Cache-Control', 'public, max-age=60');
+                    }
+                },
+            }),
+        );
 
         // Catch all
         app.use(function (req: Request, res: Response, next: NextFunction) {
@@ -67,11 +72,9 @@ class ExpressServer {
             bodyParser.urlencoded({
                 extended: true,
                 limit: config.requestLimit,
-            })
+            }),
         );
-        app.use(
-            bodyParser.text({ limit: config.requestLimit })
-        );
+        app.use(bodyParser.text({ limit: config.requestLimit }));
 
         routes(app);
         app.use(middleware.errorHandler);
@@ -90,16 +93,19 @@ class ExpressServer {
 
         if (apiDoc) {
             app.use('/api/explorer', swaggerUi.serve, swaggerUi.setup(apiDoc));
-            app.use(config.openApiSpec, express.static(apiSpec, { maxAge: '1h' }));
+            app.use(
+                config.openApiSpec,
+                express.static(apiSpec, { maxAge: '1h' }),
+            );
 
-             const validateResponses = config.enableResponseValidation;
+            const validateResponses = config.enableResponseValidation;
             app.use(
                 OpenApiValidator.middleware({
                     apiSpec,
                     validateRequests: true,
                     validateResponses,
                     ignorePaths: /.*\/spec(\/|$)/,
-                })
+                }),
             );
         }
     }
@@ -109,7 +115,7 @@ class ExpressServer {
             console.info(
                 `${new Date().toISOString()} up and running in ${
                     config.env
-                } @: ${os.hostname()} on port: ${p}`
+                } @: ${os.hostname()} on port: ${p}`,
             );
 
         this.httpServer = http.createServer(app).listen(port, welcome(port));

@@ -12,7 +12,7 @@ module.exports = {
         sourceType: 'module',
     },
     extends: [
-        '../../.eslintrc.json',
+        '../.eslintrc.json',
         'plugin:react/recommended',
         'plugin:react-hooks/recommended',
     ],

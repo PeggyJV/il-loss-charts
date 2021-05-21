@@ -40,7 +40,7 @@ const initialContext = {
     slippageTolerance: 3.0,
 };
 export const LiquidityContext = createContext<Partial<LiquidityContext>>(
-    initialContext
+    initialContext,
 );
 
 const SearchHeader = ({
@@ -76,7 +76,7 @@ const TransactionSettings = ({
 }) => {
     // TODO why does TS think this could be undefined ?
     const { selectedGasPrice, setSelectedGasPrice } = useContext(
-        LiquidityContext
+        LiquidityContext,
     );
 
     // TODO show loader only for prices
@@ -154,7 +154,7 @@ export const LiquidityContainer = ({
     const { data: pool } = usePoolOverview(wallet.network, poolId);
     const [slippageTolerance, setSlippageTolerance] = useState(3.0);
     const [selectedGasPrice, setSelectedGasPrice] = useState<GasPriceSelection>(
-        GasPriceSelection.Fast
+        GasPriceSelection.Fast,
     );
     const balances = useBalance({
         pool,

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { URL } from 'url';
-import morgan, { TokenIndexer, } from 'morgan';
+import morgan, { TokenIndexer } from 'morgan';
 
 import { getNetwork as getNetworkFrom } from 'util/get-network';
 import config from 'config/app';
@@ -41,10 +41,10 @@ morgan.token('lb-ip', function getLbIp(req: Request): string {
 morgan.token('country', function getCountry(req: Request): string {
     const [country] = (req.get('X-Client-Geo') ?? ',').split(',');
     return country.length ? country : '-';
-})
+});
 
 morgan.token('city', function getCity(req: Request): string {
-    const [,city] = (req.get('X-Client-Geo') ?? ',').split(',');
+    const [, city] = (req.get('X-Client-Geo') ?? ',').split(',');
     return city.length ? city : '-';
 });
 
@@ -82,34 +82,37 @@ function jsonFormat(tokens: Tokens, req: Request, res: Response): string {
     // convert response time to a number for datadog
     const responseTime = tokens['response-time'](req, res) ?? '-1';
     // parseFloat will convert '123nan' -> 123
-    const responseTimeMs = floatRex.test(responseTime) ? parseFloat(responseTime) : -1;
+    const responseTimeMs = floatRex.test(responseTime)
+        ? parseFloat(responseTime)
+        : -1;
 
     // convert status to a number
     const status = parseInt(tokens['status'](req, res) ?? '-1', 10);
     const statusNum = Number.isNaN(status) ? -1 : status;
 
     const length = parseInt(res.get('content-length'), 10);
-    const contentLength = Number.isNaN(length) ? tokens['res'](req, res, 'content-length') : length;
-
+    const contentLength = Number.isNaN(length)
+        ? tokens['res'](req, res, 'content-length')
+        : length;
 
     return JSON.stringify({
-        'method': tokens['method'](req, res),
-        'path': tokens['pathname'](req, res),
-        'route': tokens['route'](req, res),
-        'query': req.query,
-        'statusCode': statusNum,
-        'responseTime': responseTimeMs,
-        'contentLength': contentLength,
-        'clientIp': tokens['client-ip'](req, res),
-        'userAgent': tokens['user-agent'](req, res),
-        'referrer': tokens['referrer'](req, res),
-        'cdnId': tokens['cdn-id'](req, res),
-        'cdnStatus': tokens['cdn-status'](req, res),
-        'lbIp': tokens['lb-ip'](req, res),
-        'country': tokens['country'](req, res),
-        'city': tokens['city'](req, res),
-        'traceContext': tokens['trace-context'](req, res),
-        'network': tokens['network'](req, res),
+        method: tokens['method'](req, res),
+        path: tokens['pathname'](req, res),
+        route: tokens['route'](req, res),
+        query: req.query,
+        statusCode: statusNum,
+        responseTime: responseTimeMs,
+        contentLength: contentLength,
+        clientIp: tokens['client-ip'](req, res),
+        userAgent: tokens['user-agent'](req, res),
+        referrer: tokens['referrer'](req, res),
+        cdnId: tokens['cdn-id'](req, res),
+        cdnStatus: tokens['cdn-status'](req, res),
+        lbIp: tokens['lb-ip'](req, res),
+        country: tokens['country'](req, res),
+        city: tokens['city'](req, res),
+        traceContext: tokens['trace-context'](req, res),
+        network: tokens['network'](req, res),
         // TODO container && pid
     });
 }
@@ -118,7 +121,7 @@ const hcRoute = '/api/v1/healthcheck';
 
 // TODO: configure
 const intervalMs = 10;
-const maxCount = Math.floor(60 / intervalMs)
+const maxCount = Math.floor(60 / intervalMs);
 let count = 1;
 
 function skip(req: Request): boolean {

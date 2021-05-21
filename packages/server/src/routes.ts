@@ -7,7 +7,7 @@ export default function routes(app: Application): void {
     app.get('/api/v1/healthcheck', (req, res) => {
         res.send('alive');
     });
-    
+
     app.use('/api/v1/uniswap', uniswapRouter);
     app.use('/api/v1/marketData', marketDataRouter);
     app.use('/api/v1', poolsRouter);

@@ -1,4 +1,3 @@
-
 import {
     MarketStats,
     IUniswapPair,
@@ -11,9 +10,7 @@ import {
     NetworkIds,
 } from '@sommelier/shared-types';
 
-import {
-    Position,
-} from '@uniswap/v3-sdk';
+import { Position } from '@uniswap/v3-sdk';
 
 import { Price } from '@uniswap/sdk-core';
 
@@ -86,8 +83,8 @@ export interface GasPrices {
     faster: number;
 }
 
-export type ManageLiquidityActionState = 
-    'awaitingGasPrices'
+export type ManageLiquidityActionState =
+    | 'awaitingGasPrices'
     | 'gasPriceNotSelected'
     | 'amountNotEntered'
     | 'insufficientFunds'
@@ -105,9 +102,9 @@ export interface WalletBalances {
         symbol?: string;
         decimals?: string;
         allowance: {
-            [address: string]:ethers.BigNumber
+            [address: string]: ethers.BigNumber;
         };
-    }
+    };
 }
 
 export type BoundsState = {

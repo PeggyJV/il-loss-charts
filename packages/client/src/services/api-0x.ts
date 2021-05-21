@@ -3,7 +3,7 @@ import { debug } from 'util/debug';
 export async function get0xSwapQuote(
     buyToken: string,
     sellToken: string,
-    sellAmount: string
+    sellAmount: string,
 ): Promise<any> {
     try {
         const headers = {
@@ -15,7 +15,7 @@ export async function get0xSwapQuote(
             `https://api.0x.org/swap/v1/quote?buyToken=${buyToken}&sellToken=${sellToken}&sellAmount=${sellAmount}`,
             {
                 headers,
-            }
+            },
         );
         const quote = await response.json();
         debug.quote = quote;

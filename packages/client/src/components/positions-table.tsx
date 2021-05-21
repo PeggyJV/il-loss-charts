@@ -115,7 +115,9 @@ function PositionsTable({
                 </strong>
             );
 
-        return <span style={{ color: 'var(--faceDump)' }}>{formatUSD(val)}</span>;
+        return (
+            <span style={{ color: 'var(--faceDump)' }}>{formatUSD(val)}</span>
+        );
     };
 
     const formatUSDorNA = (val: string): string => {
@@ -212,11 +214,11 @@ PositionsTable.propTypes = {
         stats: PropTypes.objectOf(
             PropTypes.shape({
                 historicalData: PropTypes.arrayOf(
-                    PropTypes.oneOf([DailyData, HourlyData])
+                    PropTypes.oneOf([DailyData, HourlyData]),
                 ),
                 statsWindows: PropTypes.arrayOf(LPStats),
                 aggregatedStats: LPStats,
-            })
+            }),
         ),
     }),
     pairId: PropTypes.string,

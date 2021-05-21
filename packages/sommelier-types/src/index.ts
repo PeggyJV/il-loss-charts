@@ -1,11 +1,6 @@
 import BigNumber from 'bignumber.js';
 
-import { 
-    ILiquidityData, 
-    IUniswapPair, 
-    IToken,
-    UniswapPair 
-} from './pair';
+import { ILiquidityData, IUniswapPair, IToken, UniswapPair } from './pair';
 
 export type { ILiquidityData, IUniswapPair, IToken }; // used as type
 export { UniswapPair }; // use as value
@@ -59,7 +54,7 @@ export interface PoolStats<T = BigNumber> {
     dailyLiquidity: T[];
     ticks: string[];
     fullDates?: Date[];
-    dataPoints: HistoricalData[]
+    dataPoints: HistoricalData[];
 }
 export interface LPStats<T = BigNumber> extends PoolStats<T> {
     dailyEthPrice: T[];
@@ -133,20 +128,21 @@ export interface LiquidityBand {
     baseTokenId: string;
     quoteTokenId: string;
     indicatorName: string;
-    metadata?: { [key: string]: any }
+    metadata?: { [key: string]: any };
     currentPrice?: number;
     bounds: {
-        [key: string]: [number, number]
-    }
+        [key: string]: [number, number];
+    };
 }
 
-export type EthNetwork = "mainnet" | "rinkeby" | "goerli" | "ropsten" | "kovan";
+export type EthNetwork = 'mainnet' | 'rinkeby' | 'goerli' | 'ropsten' | 'kovan';
 
 export type NetworkIds = '1' | '4' | '5' | '3' | '42';
 
 // Utility
-export type ArrayElement<ArrayType extends readonly unknown[]> = 
-  ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
+export type ArrayElement<
+    ArrayType extends readonly unknown[]
+> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 
 // TODO rename this package to shared and clean up import / exports
 export interface ICodedError {
@@ -177,8 +173,14 @@ export class CodedError extends Error implements ICodedError {
 }
 
 const ValidationError = new CodedError(100, 'Could not validate parameters.');
-const UpstreamError = new CodedError(1000, 'Encountered error with upstream service.')
-const UpstreamMissingPoolDataError = new CodedError(1001, 'Upstream service missing data for pool.');
+const UpstreamError = new CodedError(
+    1000,
+    'Encountered error with upstream service.',
+);
+const UpstreamMissingPoolDataError = new CodedError(
+    1001,
+    'Upstream service missing data for pool.',
+);
 
 // Object with every coded error
 const codedErrors = {
@@ -188,12 +190,15 @@ const codedErrors = {
 };
 
 // TODO: i want to be able to import '@sommelier/shared/errors'
-export const errors = Object.entries(codedErrors).reduce((codes: Record<string, CodedError>, error: [string, CodedError]) => {
-    const [errorName, codedError] = error;
-    const code = codedError.code.toString();
+export const errors = Object.entries(codedErrors).reduce(
+    (codes: Record<string, CodedError>, error: [string, CodedError]) => {
+        const [errorName, codedError] = error;
+        const code = codedError.code.toString();
 
-    codes[errorName] = codedError;
-    codes[code] = codedError;
+        codes[errorName] = codedError;
+        codes[code] = codedError;
 
-    return codes;
-}, {});
+        return codes;
+    },
+    {},
+);

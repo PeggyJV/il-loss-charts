@@ -9,11 +9,12 @@ if (password != null && password.length > 0) {
     redisConfig = { ...redisConfig, password };
 }
 
-
 try {
     redis = new Redis(redisConfig);
 } catch (e) {
-    console.error(`Error connecting to redis at ${host}:${port}: ${e.message as string}`);
+    console.error(
+        `Error connecting to redis at ${host}:${port}: ${e.message as string}`,
+    );
     throw e;
 }
 

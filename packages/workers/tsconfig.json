@@ -6,16 +6,9 @@
         "rootDir": "src",
         "baseUrl": "./src",
         "paths": {
-            "*": [
-                "*",
-                "../server/*"
-            ]
+            "*": ["*", "../server/*"]
         }
     },
-    "include": [
-        "src"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+    "include": ["src"],
+    "exclude": ["node_modules"]
 }

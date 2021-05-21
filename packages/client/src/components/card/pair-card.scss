@@ -23,12 +23,12 @@
     font-size: 1.4rem;
     color: var(--faceSecondary);
     svg {
-      font-size: 0.8rem;
-      color: var(--faceAccentAlt);  
+        font-size: 0.8rem;
+        color: var(--faceAccentAlt);
     }
     &:hover {
-      text-decoration: none;
-      color: var(--faceAccentAlt);
+        text-decoration: none;
+        color: var(--faceAccentAlt);
     }
 }
 .apy {
@@ -36,7 +36,7 @@
     color: var(--faceSecondary);
 }
 .return-duration {
-  color: var(--faceSecondary);
+    color: var(--faceSecondary);
 }
 .pct-change-up {
     color: var(--faceMoon);
@@ -50,9 +50,9 @@
     font-family: 'Source Code Pro';
 }
 .stats-and-ape {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 .btn-addl {
     padding: 0.25rem 0.5rem;
@@ -64,12 +64,13 @@
     border: 1px solid var(--btnMoonBorder);
     border-radius: 2px;
     background: var(--btnMoon);
-    &:hover,:active,:focus {
-      background: var(--btnMoonHover);
-
+    &:hover,
+    :active,
+    :focus {
+        background: var(--btnMoonHover);
     }
     &:focus {
-      outline: none;
-      box-shadow: 0;
+        outline: none;
+        box-shadow: 0;
     }
 }

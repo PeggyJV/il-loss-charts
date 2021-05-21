@@ -12,15 +12,22 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
-        "lint": "eslint src --ext js,ts",
-        "lint:fix": "eslint src --ext js,ts --fix",
+        "lint": "eslint --ext js,ts src",
+        "lint:fix": "eslint --ext js,ts --fix src",
         "clean": "rimraf dist *.tsbuildinfo",
         "build": "tsc",
-        "dev": "tsc -w --preserveWatchOutput"
+        "dev": "tsc -w --preserveWatchOutput",
+        "pre-commit": "yarn lint-staged"
     },
     "keywords": [],
     "author": "",
     "dependencies": {
         "bignumber.js": "^9.0.1"
+    },
+    "lint-staged": {
+        "**/*.{js,ts,tsx}": [
+            "prettier --write",
+            "eslint --cache --fix"
+        ]
     }
 }

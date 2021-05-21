@@ -17,9 +17,9 @@ const config = appConfig.bitquery;
 
 // TODO replace with bitquery URI
 const uri = 'https://graphql.bitquery.io';
-const httpLink = new HttpLink({ 
-    uri, 
-    fetch 
+const httpLink = new HttpLink({
+    uri,
+    fetch,
 });
 
 const authMiddleware = new ApolloLink((operation, forward) => {
@@ -27,11 +27,11 @@ const authMiddleware = new ApolloLink((operation, forward) => {
     operation.setContext({
         headers: {
             'X-API-KEY': config.apiKey,
-        }
+        },
     });
 
     return forward(operation);
-})
+});
 
 const cache = new InMemoryCache({
     typePolicies: {
@@ -47,38 +47,54 @@ const cache = new InMemoryCache({
                 ['address'],
                 'quoteCurrency',
                 ['address'],
-            ]
-        }
-    }
+            ],
+        },
+    },
 });
-const client = new ApolloClient({ 
-    link: concat(authMiddleware, httpLink), 
-    cache 
+const client = new ApolloClient({
+    link: concat(authMiddleware, httpLink),
+    cache,
 });
 const sdk = getBitquerySdk(client);
 
 export default class BitqueryFetcher {
     static formatDate(date: Date): string {
-        return format(date, 'yyyy-MM-dd')
+        return format(date, 'yyyy-MM-dd');
     }
 
-    static async getLastDayOHLC(baseTokenId: string, quoteTokenId: string): Promise<DexTrade> {
+    static async getLastDayOHLC(
+        baseTokenId: string,
+        quoteTokenId: string,
+    ): Promise<DexTrade> {
         // Calculate start Date and endDate
         const endDate = endOfDay(new Date());
         const startDate = subDays(startOfDay(new Date()), 1);
 
-        const dexTrades = await BitqueryFetcher.getPeriodDailyOHLC(baseTokenId, quoteTokenId, startDate, endDate);
+        const dexTrades = await BitqueryFetcher.getPeriodDailyOHLC(
+            baseTokenId,
+            quoteTokenId,
+            startDate,
+            endDate,
+        );
 
         return dexTrades[0];
     }
 
-    static async getLastWeekOHLC(baseTokenId: string, quoteTokenId: string): Promise<DexTrade> {
+    static async getLastWeekOHLC(
+        baseTokenId: string,
+        quoteTokenId: string,
+    ): Promise<DexTrade> {
         // Calculate start Date and endDate
         // Todo make this weekly
         const endDate = endOfDay(new Date());
         const startDate = subDays(startOfDay(new Date()), 7);
 
-        const dexTrades = await BitqueryFetcher.getPeriodDailyOHLC(baseTokenId, quoteTokenId, startDate, endDate);
+        const dexTrades = await BitqueryFetcher.getPeriodDailyOHLC(
+            baseTokenId,
+            quoteTokenId,
+            startDate,
+            endDate,
+        );
 
         const weeklyOHLC = { ...dexTrades[0] };
 
@@ -88,12 +104,12 @@ export default class BitqueryFetcher {
         for (const daily of dexTrades) {
             if (daily.minimum_price < min) {
                 min = daily.minimum_price;
-                weeklyOHLC.minimum_price = min
+                weeklyOHLC.minimum_price = min;
             }
 
             if (daily.maximum_price > max) {
                 max = daily.maximum_price;
-                weeklyOHLC.maximum_price = max
+                weeklyOHLC.maximum_price = max;
             }
         }
 
@@ -102,7 +118,12 @@ export default class BitqueryFetcher {
         return weeklyOHLC;
     }
 
-    static async getPeriodDailyOHLC(baseTokenId: string, quoteTokenId: string, start: Date | number, end: Date | number): Promise<DexTrade[]> {
+    static async getPeriodDailyOHLC(
+        baseTokenId: string,
+        quoteTokenId: string,
+        start: Date | number,
+        end: Date | number,
+    ): Promise<DexTrade[]> {
         end = typeof end === 'number' ? new Date(end) : end;
         start = typeof start === 'number' ? new Date(start) : start;
 
@@ -112,7 +133,12 @@ export default class BitqueryFetcher {
 
         let result;
         try {
-            result = await sdk.getPoolDailyOHLC({ baseTokenId, quoteTokenId, startDate, endDate });
+            result = await sdk.getPoolDailyOHLC({
+                baseTokenId,
+                quoteTokenId,
+                startDate,
+                endDate,
+            });
         } catch (error) {
             // eslint-ignore-next-line
             console.error('Bitquery:', error.message);
@@ -126,5 +152,4 @@ export default class BitqueryFetcher {
 
         return dexTrades;
     }
-
 }

@@ -8,13 +8,13 @@ const env = (process.env.REACT_APP_ENV as Environments) ?? process.env.NODE_ENV;
 
 const configEnvs: Partial<{ [env in Environments]: Partial<AppConfig> }> = {
     production,
-    staging
+    staging,
 };
 
 const activeConfig: AppConfig = Object.assign(
     {},
     defaultConfig,
-    configEnvs[env] || {}
+    configEnvs[env] || {},
 );
 
 export default activeConfig;

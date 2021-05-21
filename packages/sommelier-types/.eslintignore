@@ -1,1 +1,4 @@
 src/bitquery.ts
+dist
+.eslintrc.js
+.prettierrc.js

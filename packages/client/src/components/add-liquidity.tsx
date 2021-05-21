@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import {
     Row,
@@ -68,10 +67,10 @@ function AddLiquidity({
     const [tokenTwoAmount, setTokenTwoAmount] = useState<string>('');
     const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
-        gasPrices?.standard
+        gasPrices?.standard,
     );
     const [approvalState, setApprovalState] = useState<'needed' | 'done'>(
-        'needed'
+        'needed',
     );
     // const [tokensNeedApproval, setTokensNeedApproval] = useState<Set<string>>(
     //     new Set()
@@ -133,7 +132,7 @@ function AddLiquidity({
             const tokenOneAmountBig = new BigNumber(tokenOneAmount);
             const allowanceStr = ethers.utils.formatUnits(
                 allowance || 0,
-                parseInt(balances[tokenOne]?.decimals || '0', 10)
+                parseInt(balances[tokenOne]?.decimals || '0', 10),
             );
             const allowanceNum = new BigNumber(allowanceStr);
             // If allowance is less than entry amount, make it needed
@@ -221,12 +220,12 @@ function AddLiquidity({
             if (token === 'currentPair') return acc;
             const balance = ethers.utils.formatUnits(
                 balances?.[token].balance || 0,
-                parseInt(balances[token]?.decimals || '0', 10)
+                parseInt(balances[token]?.decimals || '0', 10),
             );
 
             const allowance = ethers.utils.formatUnits(
                 balances?.[token].allowance?.[CONTRACT_ADDRESS] || 0,
-                parseInt(balances[token]?.decimals || '0', 10)
+                parseInt(balances[token]?.decimals || '0', 10),
             );
 
             const id = balances?.[token].id;
@@ -276,26 +275,26 @@ function AddLiquidity({
             switch (token) {
                 case tokenOne:
                     price = new BigNumber(
-                        tokenData?.[tokenTwo]?.reserve as string
+                        tokenData?.[tokenTwo]?.reserve as string,
                     )
                         .times(new BigNumber(amount))
                         .div(
                             new BigNumber(
-                                tokenData?.[tokenOne].reserve as string
-                            )
+                                tokenData?.[tokenOne].reserve as string,
+                            ),
                         );
                     priceStr = price.isNaN() ? '' : price.toFixed(7);
                     setTokenTwoAmount(priceStr);
                     break;
                 case tokenTwo:
                     price = new BigNumber(
-                        tokenData?.[tokenOne]?.reserve as string
+                        tokenData?.[tokenOne]?.reserve as string,
                     )
                         .times(new BigNumber(amount))
                         .div(
                             new BigNumber(
-                                tokenData?.[tokenTwo].reserve as string
-                            )
+                                tokenData?.[tokenTwo].reserve as string,
+                            ),
                         );
                     priceStr = price.isNaN() ? '' : price.toFixed(7);
                     setTokenOneAmount(priceStr);
@@ -304,7 +303,7 @@ function AddLiquidity({
                     console.warn('No matching token. Cannot update ratio');
             }
         },
-        [tokenData, tokenOne, tokenTwo, twoSide]
+        [tokenData, tokenOne, tokenTwo, twoSide],
     );
     // useEffect(() => {
     //     twoSide && handleTokenRatio(tokenOne, tokenOneAmount);
@@ -329,13 +328,13 @@ function AddLiquidity({
             const sellTokenContract = new ethers.Contract(
                 sellToken,
                 erc20Abi,
-                signer
+                signer,
             );
 
             const decimals = parseInt(balances[token]?.decimals || '0', 10);
             if (decimals === 0) {
                 throw new Error(
-                    `Do not have decimal units for ${decimals} - unsafe, cannot proceed`
+                    `Do not have decimal units for ${decimals} - unsafe, cannot proceed`,
                 );
             }
 
@@ -346,7 +345,7 @@ function AddLiquidity({
             const baseAmount = ethers.utils
                 .parseUnits(
                     new BigNumber(tokenAmount).times(100).toString(),
-                    decimals
+                    decimals,
                 )
                 .toString();
             const baseGasPrice = ethers.utils
@@ -362,7 +361,7 @@ function AddLiquidity({
                         ? EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS
                         : EXCHANGE_ADD_ABI_ADDRESS,
                     baseAmount,
-                    { gasPrice: baseGasPrice }
+                    { gasPrice: baseGasPrice },
                 );
 
                 // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
@@ -370,7 +369,7 @@ function AddLiquidity({
             } catch (err) {
                 // We could not estimate gas, for whaever reason, so we will use a high default to be safe.
                 console.error(
-                    `Could not estimate gas fees: ${err.message as string}`
+                    `Could not estimate gas fees: ${err.message as string}`,
                 );
 
                 gasEstimate = ethers.BigNumber.from('1000000');
@@ -385,7 +384,7 @@ function AddLiquidity({
                 {
                     gasPrice: baseGasPrice,
                     gasLimit: gasEstimate, // setting a high gas limit because it is hard to predict gas we will use
-                }
+                },
             );
 
             // setApprovalState('pending');
@@ -396,7 +395,7 @@ function AddLiquidity({
                         ({
                             approval: [...state.approval, hash],
                             confirm: [...state.confirm],
-                        } as PendingTx)
+                        } as PendingTx),
                 );
             onClose();
             await provider.waitForTransaction(hash);
@@ -415,7 +414,7 @@ function AddLiquidity({
         const expectedLpTokensNum = new BigNumber(expectedLpTokens);
         const slippageRatio = new BigNumber(slippageTolerance).div(100);
         const minPoolTokens = expectedLpTokensNum.times(
-            new BigNumber(1).minus(slippageRatio)
+            new BigNumber(1).minus(slippageRatio),
         );
 
         let sellToken = tokenOne;
@@ -442,13 +441,13 @@ function AddLiquidity({
         const addLiquidityContract = new ethers.Contract(
             EXCHANGE_ADD_ABI_ADDRESS,
             exchangeAddAbi,
-            signer
+            signer,
         );
 
         const decimals = parseInt(balances[tokenOne]?.decimals || '0', 10);
         if (decimals === 0) {
             throw new Error(
-                `Do not have decimal units for ${decimals} - unsafe, cannot proceed`
+                `Do not have decimal units for ${decimals} - unsafe, cannot proceed`,
             );
         }
 
@@ -461,7 +460,7 @@ function AddLiquidity({
         let baseMsgValue = ethers.utils.parseUnits('0.005', 18);
         if (tokenOne === 'ETH') {
             baseMsgValue = baseMsgValue.add(
-                ethers.utils.parseUnits(tokenOneAmount.toString(), decimals)
+                ethers.utils.parseUnits(tokenOneAmount.toString(), decimals),
             );
         }
         const value = baseMsgValue.toString();
@@ -532,11 +531,11 @@ function AddLiquidity({
 
         const slippageRatio = 0.5;
         const amountAMin = new BigNumber(tokenOneAmount).times(
-            new BigNumber(1).minus(slippageRatio)
+            new BigNumber(1).minus(slippageRatio),
         );
 
         const amountBMin = new BigNumber(tokenTwoAmount).times(
-            new BigNumber(1).minus(slippageRatio)
+            new BigNumber(1).minus(slippageRatio),
         );
 
         const amountAMinStr = ethers.utils
@@ -550,7 +549,7 @@ function AddLiquidity({
         const addTwoSideLiquidityContract = new ethers.Contract(
             EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS,
             exchangeTwoSideAddAbi as ethers.ContractInterface,
-            signer
+            signer,
         );
 
         const decimalsOne = parseInt(balances[tokenOne]?.decimals || '0', 10);
@@ -559,7 +558,7 @@ function AddLiquidity({
 
         if (decimalsOne === 0 || decimalsTwo === 0) {
             throw new Error(
-                `Do not have decimal units for tokens - unsafe, cannot proceed`
+                `Do not have decimal units for tokens - unsafe, cannot proceed`,
             );
         }
 
@@ -653,7 +652,7 @@ function AddLiquidity({
             {
                 ...overrides,
                 gasLimit: gasEstimate,
-            }
+            },
         );
 
         setTxSubmitted(true);
@@ -737,7 +736,7 @@ function AddLiquidity({
         } else {
             const lastPosition = pairPosition[pairPosition.length - 1];
             currentLpTokens = new BigNumber(
-                lastPosition.liquidityTokenBalance
+                lastPosition.liquidityTokenBalance,
             ).toFixed(4);
         }
     }
@@ -746,7 +745,7 @@ function AddLiquidity({
     const dropdownOptionsPairTwo =
         tokenData &&
         Object.keys(tokenData).filter(
-            (symbol) => symbol !== 'ETH' && symbol !== 'WETH'
+            (symbol) => symbol !== 'ETH' && symbol !== 'WETH',
         );
 
     const showTwoSide = (): JSX.Element | null => {
@@ -838,7 +837,7 @@ function AddLiquidity({
                                 type='number'
                                 onChange={(e) => {
                                     setSlippageTolerance(
-                                        parseFloat(e.target.value)
+                                        parseFloat(e.target.value),
                                     );
                                 }}
                             />

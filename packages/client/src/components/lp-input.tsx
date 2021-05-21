@@ -38,7 +38,7 @@ function LPInput({
 
     const calcAmounts = (
         lpShare: number,
-        dataAtLPDate: ILiquidityData
+        dataAtLPDate: ILiquidityData,
     ): void => {
         const poolShare = new BigNumber(lpShare).div(dataAtLPDate.reserveUSD);
         const token0Amt = poolShare.times(dataAtLPDate.reserve0).toNumber();
@@ -123,7 +123,7 @@ function LPInput({
                             onChange={(event) =>
                                 updateShare(
                                     'USD',
-                                    parseFloat(event.target.value)
+                                    parseFloat(event.target.value),
                                 )
                             }
                             value={usdAmt}
@@ -140,7 +140,7 @@ function LPInput({
                             onChange={(event) =>
                                 updateShare(
                                     'token0',
-                                    parseFloat(event.target.value)
+                                    parseFloat(event.target.value),
                                 )
                             }
                             value={token0Amt}
@@ -155,7 +155,7 @@ function LPInput({
                             onChange={(event) =>
                                 updateShare(
                                     'token1',
-                                    parseFloat(event.target.value)
+                                    parseFloat(event.target.value),
                                 )
                             }
                             value={token1Amt}

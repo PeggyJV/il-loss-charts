@@ -1,5 +1,5 @@
-query getEthPrice ($id: ID!, $blockNumber: Int) {
-  bundle(id: $id, block: $blockNumber) {
-    ethPriceUSD
-  }
+query getEthPrice($id: ID!, $blockNumber: Int) {
+    bundle(id: $id, block: $blockNumber) {
+        ethPriceUSD
+    }
 }

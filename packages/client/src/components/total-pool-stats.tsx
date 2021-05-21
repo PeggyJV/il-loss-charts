@@ -101,7 +101,7 @@ function TotalPoolStats({
                             {stats?.liquidityUSDChange && (
                                 <PercentChangeStat
                                     value={stats?.liquidityUSDChange?.times(
-                                        100
+                                        100,
                                     )}
                                 />
                             )}

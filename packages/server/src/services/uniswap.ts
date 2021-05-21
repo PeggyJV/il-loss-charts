@@ -39,7 +39,7 @@ const getFirstBlockAfter = wrapWithCache(
     redis,
     EthBlockFetcher.getFirstBlockAfter,
     10000,
-    false
+    false,
 );
 
 export default class UniswapFetcher {
@@ -60,7 +60,7 @@ export default class UniswapFetcher {
 
     static async getPoolOverview(
         pairId: string,
-        blockNumber?: number
+        blockNumber?: number,
     ): Promise<IUniswapPair> {
         let filterStr = `id: "${pairId}"`;
 
@@ -114,7 +114,7 @@ export default class UniswapFetcher {
             throw new Error(
                 `Could not find pair with ID ${pairId}. Error from response: ${
                     response.error?.toString() || ''
-                }`
+                }`,
             );
         } else if (pair == null) {
             throw new HTTPError(404);
@@ -132,13 +132,13 @@ export default class UniswapFetcher {
         redis,
         UniswapFetcher.getPoolOverview,
         10000,
-        false
+        false,
     );
 
     static async getTopPools(
         count = 1000,
         orderBy = 'volumeUSD',
-        includeUntracked = false
+        includeUntracked = false,
     ): Promise<IUniswapPair[]> {
         const response: ApolloResponse<{
             pairs: IUniswapPair[];
@@ -172,7 +172,7 @@ export default class UniswapFetcher {
             throw new Error(
                 `Could not fetch top pairs. Error from response: ${
                     response.error?.toString() || ''
-                }`
+                }`,
             );
         }
 
@@ -196,12 +196,12 @@ export default class UniswapFetcher {
         const pairsWithUntracked = pairs.concat(...untrackedPairs);
 
         return pairsWithUntracked.sort(
-            (a, b) => parseFloat(b.volumeUSD) - parseFloat(a.volumeUSD)
+            (a, b) => parseFloat(b.volumeUSD) - parseFloat(a.volumeUSD),
         );
     }
 
     static async getCurrentTopPerformingPools(
-        count = 100
+        count = 100,
     ): Promise<IUniswapPair[]> {
         const response: ApolloResponse<{
             pairs: IUniswapPair[];
@@ -244,7 +244,7 @@ export default class UniswapFetcher {
             throw new Error(
                 `Could not fetch pairs subject to alerting. Error from response: ${
                     response.error?.toString() || ''
-                }`
+                }`,
             );
         }
 
@@ -270,7 +270,7 @@ export default class UniswapFetcher {
         if (startBlock) {
             if (!endBlock) {
                 throw new Error(
-                    'If providing start block must also provide end block'
+                    'If providing start block must also provide end block',
                 );
             }
 
@@ -278,7 +278,7 @@ export default class UniswapFetcher {
         } else {
             if (!startDate || !endDate) {
                 throw new Error(
-                    'Must provide both start and end date if not providing block numbers'
+                    'Must provide both start and end date if not providing block numbers',
                 );
             }
 
@@ -292,11 +292,11 @@ export default class UniswapFetcher {
             (block) =>
                 <Promise<IUniswapPair>>UniswapFetcher.cachedGetPoolOverview(
                     pairId,
-                    block.number
+                    block.number,
                 ).catch((err: HTTPError) => {
                     if (err.status === 404) return null;
                     else throw err;
-                })
+                }),
         );
 
         let pairDatas: IUniswapPair[];
@@ -311,13 +311,13 @@ export default class UniswapFetcher {
                 pairDatas = await Promise.all([
                     <Promise<IUniswapPair>>UniswapFetcher.cachedGetPoolOverview(
                         pairId,
-                        blockDatas[0].number
+                        blockDatas[0].number,
                     ).catch((err: HTTPError) => {
                         if (err.status === 404) return null;
                         else throw err;
                     }),
                     <Promise<IUniswapPair>>UniswapFetcher.cachedGetPoolOverview(
-                        pairId
+                        pairId,
                     ).catch((err: HTTPError) => {
                         if (err.status === 404) return null;
                         else throw err;
@@ -336,29 +336,29 @@ export default class UniswapFetcher {
             // We didn't get any data at the startDate,
             // but we can get the first block the pair existed
             const pairStartDate = new Date(
-                parseInt(pairDatas[1].createdAtTimestamp, 10) * 1000
+                parseInt(pairDatas[1].createdAtTimestamp, 10) * 1000,
             );
 
             const pairStartBlock = await EthBlockFetcher.getFirstBlockAfter(
-                pairStartDate
+                pairStartDate,
             );
 
             // Make sure pairStartBlock is actually after our first block
             if (pairStartBlock.number > blockDatas[0].number) {
                 pairDatas[0] = await UniswapFetcher.cachedGetPoolOverview(
                     pairId,
-                    pairStartBlock.number
+                    pairStartBlock.number,
                 );
             } else {
                 // Something is wrong, since the pair is old enough to have data at the starting block
                 console.error(
-                    `Could not get start block data for older pair - ${pairDatas[1].id}`
+                    `Could not get start block data for older pair - ${pairDatas[1].id}`,
                 );
 
                 // Try to re-fetch
                 pairDatas[0] = await UniswapFetcher.cachedGetPoolOverview(
                     pairId,
-                    blockDatas[0].number
+                    blockDatas[0].number,
                 );
             }
         }
@@ -369,7 +369,7 @@ export default class UniswapFetcher {
     static async getPoolDailyData(
         pairId: string,
         startDate: Date,
-        endDate: Date
+        endDate: Date,
     ): Promise<UniswapDailyData[]> {
         const response: ApolloResponse<{
             pairDayDatas: UniswapDailyData[];
@@ -380,7 +380,7 @@ export default class UniswapFetcher {
                             where: {
                                 pairAddress: "${pairId}",
                                 date_gt: ${Math.floor(
-                                    startDate.getTime() / 1000
+                                    startDate.getTime() / 1000,
                                 )}
                                 date_lt: ${Math.floor(endDate.getTime() / 1000)}
                             }
@@ -404,7 +404,7 @@ export default class UniswapFetcher {
             throw new Error(
                 `Could not fetch daily data for pair ${pairId}. Error from response: ${
                     response.error?.toString() || ''
-                }`
+                }`,
             );
         }
 
@@ -414,7 +414,7 @@ export default class UniswapFetcher {
     static async getPoolHourlyData(
         pairId: string,
         startDate: Date,
-        endDate: Date
+        endDate: Date,
     ): Promise<UniswapHourlyData[]> {
         const response: ApolloResponse<{
             pairHourDatas: UniswapHourlyData[];
@@ -428,7 +428,7 @@ export default class UniswapFetcher {
                                     Math.floor(startDate.getTime() / 1000) - 1
                                 }
                                 hourStartUnix_lt: ${Math.floor(
-                                    endDate.getTime() / 1000
+                                    endDate.getTime() / 1000,
                                 )}
                             }
                         ) {
@@ -453,7 +453,7 @@ export default class UniswapFetcher {
             throw new Error(
                 `Could not fetch daily data for pair ${pairId}. Error from response: ${
                     response.error?.toString() || ''
-                }`
+                }`,
             );
         }
 
@@ -463,12 +463,12 @@ export default class UniswapFetcher {
     static async getCurrentDayDataFromHourly(
         pairId: string,
         startDate: Date,
-        endDate: Date
+        endDate: Date,
     ): Promise<UniswapDailyData> {
         const pairHourDatas = await UniswapFetcher.getPoolHourlyData(
             pairId,
             startDate,
-            endDate
+            endDate,
         );
 
         // Aggregate hour datas into current day data
@@ -476,13 +476,13 @@ export default class UniswapFetcher {
         const currentDayResults = pairHourDatas.reduce(
             (acc, hourData) => {
                 acc.dailyVolumeUSD = acc.dailyVolumeUSD.plus(
-                    hourData.hourlyVolumeUSD
+                    hourData.hourlyVolumeUSD,
                 );
                 acc.dailyVolumeToken0 = acc.dailyVolumeToken0.plus(
-                    hourData.hourlyVolumeToken0
+                    hourData.hourlyVolumeToken0,
                 );
                 acc.dailyVolumeToken1 = acc.dailyVolumeToken1.plus(
-                    hourData.hourlyVolumeToken1
+                    hourData.hourlyVolumeToken1,
                 );
                 return acc;
             },
@@ -497,7 +497,7 @@ export default class UniswapFetcher {
                 reserve1: pairHourDatas[pairHourDatas.length - 1].reserve1,
                 reserveUSD: pairHourDatas[pairHourDatas.length - 1].reserveUSD,
                 pairHourDatas: pairHourDatas,
-            }
+            },
         );
 
         const currentDayData: UniswapDailyData = {
@@ -514,13 +514,13 @@ export default class UniswapFetcher {
     static async getHistoricalDailyData(
         pairId: string,
         startDate: Date,
-        endDate = new Date()
+        endDate = new Date(),
     ): Promise<UniswapDailyData[]> {
         let lastStartDate = startDate;
         let dailyData = await UniswapFetcher.getPoolDailyData(
             pairId,
             startDate,
-            endDate
+            endDate,
         );
         const endDateTimestamp = Math.floor(endDate.getTime() / 1000);
         const dayMs = 1000 * 60 * 60 * 24;
@@ -528,7 +528,7 @@ export default class UniswapFetcher {
         if (dailyData.length === 0) {
             throw new HTTPError(
                 404,
-                `Could not fetch any historical data for the given timeframe. Make sure the window is at least 1 day.`
+                `Could not fetch any historical data for the given timeframe. Make sure the window is at least 1 day.`,
             );
         }
 
@@ -538,7 +538,7 @@ export default class UniswapFetcher {
             Math.floor(lastStartDate.getTime() / 1000) <= endDateTimestamp
         ) {
             lastStartDate = new Date(
-                dailyData[dailyData.length - 1].date * 1000 + dayMs
+                dailyData[dailyData.length - 1].date * 1000 + dayMs,
             ); // skip ahead 24 hrs
             const oldLength = dailyData.length;
             dailyData = [
@@ -546,7 +546,7 @@ export default class UniswapFetcher {
                 ...(await UniswapFetcher.getPoolDailyData(
                     pairId,
                     lastStartDate,
-                    endDate
+                    endDate,
                 )),
             ];
 
@@ -562,13 +562,13 @@ export default class UniswapFetcher {
     static async getHistoricalHourlyData(
         pairId: string,
         startDate: Date,
-        endDate = new Date()
+        endDate = new Date(),
     ): Promise<UniswapHourlyData[]> {
         let lastStartDate = startDate;
         let hourlyData = await UniswapFetcher.getPoolHourlyData(
             pairId,
             startDate,
-            endDate
+            endDate,
         );
         const endDateTimestamp = Math.floor(endDate.getTime() / 1000);
         const dayMs = 1000 * 60 * 60 * 24;
@@ -576,7 +576,7 @@ export default class UniswapFetcher {
         if (hourlyData.length === 0) {
             throw new HTTPError(
                 404,
-                `Could not fetch any historical hourly data for the given timeframe. Make sure the window is at least 1 hour.`
+                `Could not fetch any historical hourly data for the given timeframe. Make sure the window is at least 1 hour.`,
             );
         }
 
@@ -587,7 +587,7 @@ export default class UniswapFetcher {
             Math.floor(lastStartDate.getTime() / 1000) <= endDateTimestamp
         ) {
             lastStartDate = new Date(
-                hourlyData[hourlyData.length - 1].hourStartUnix * 1000 + dayMs
+                hourlyData[hourlyData.length - 1].hourStartUnix * 1000 + dayMs,
             ); // skip ahead 24 hrs
             const oldLength = hourlyData.length;
             hourlyData = [
@@ -595,7 +595,7 @@ export default class UniswapFetcher {
                 ...(await UniswapFetcher.getPoolHourlyData(
                     pairId,
                     lastStartDate,
-                    endDate
+                    endDate,
                 )),
             ];
 
@@ -644,7 +644,7 @@ export default class UniswapFetcher {
             throw new Error(
                 `Could not fetch recent swaps for pair ${pairId}. Error from response: ${
                     response.error?.toString() || ''
-                }`
+                }`,
             );
         } else if (swaps.length === 0) {
             throw new HTTPError(404);
@@ -687,7 +687,7 @@ export default class UniswapFetcher {
             throw new Error(
                 `Could not fetch recent mints for pair ${pairId}. Error from response: ${
                     response.error?.toString() || ''
-                }`
+                }`,
             );
         } else if (mints.length === 0) {
             throw new HTTPError(404);
@@ -732,7 +732,7 @@ export default class UniswapFetcher {
             throw new Error(
                 `Could not fetch recent burns for pair ${pairId}. Error from response: ${
                     response.error?.toString() || ''
-                }`
+                }`,
             );
         } else if (burns.length === 0) {
             throw new HTTPError(404);
@@ -742,7 +742,7 @@ export default class UniswapFetcher {
     }
 
     static async getEthPrice(
-        blockNumber?: number
+        blockNumber?: number,
     ): Promise<{ ethPrice: number }> {
         let filterStr = `id: "1"`;
 
@@ -770,7 +770,7 @@ export default class UniswapFetcher {
             throw new Error(
                 `Could not fetch ethPrice. Error from response: ${
                     response.error?.toString() || ''
-                }`
+                }`,
             );
         }
 
@@ -778,7 +778,7 @@ export default class UniswapFetcher {
     }
 
     static async getLiquidityPositions(
-        address: string
+        address: string,
     ): Promise<LiquidityPositionPairMapping> {
         const response: ApolloResponse<{
             liquidityPositionSnapshots: UniswapLiquidityPositionAtTime[];
@@ -825,7 +825,7 @@ export default class UniswapFetcher {
             throw new Error(
                 `Could not fetch liquidity positions for address ${address}. Error from response: ${
                     response.error?.toString() || ''
-                }`
+                }`,
             );
         } else if (liquidityPositionSnapshots.length === 0) {
             throw new HTTPError(404);
@@ -848,7 +848,7 @@ export default class UniswapFetcher {
 
                 return acc;
             },
-            {}
+            {},
         );
 
         return positions;

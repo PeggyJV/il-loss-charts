@@ -26,7 +26,7 @@ const handleExit = () => {
     if (require.main === module) {
         process.exit(1);
     }
-}
+};
 
 export default async function runAlertCheck(): Promise<void> {
     // Every hour, fetch latest market data for top pairs - runs locally so using localhost
@@ -50,14 +50,14 @@ export default async function runAlertCheck(): Promise<void> {
     const startDate = new Date(Date.now() - oneDayMs);
     const endDate = new Date();
 
-    log.info(`Testing impermanent loss for ${topPairs.length }pairs`);
+    log.info(`Testing impermanent loss for ${topPairs.length}pairs`);
 
     // TODO: Save requests by only fetching first and last hour
     const historicalFetches = topPairs.map(
         (pair: IUniswapPair): Promise<UniswapHourlyData[]> =>
-        // TODO: remove
-        // eslint-disable-next-line
-            UniswapFetcher.getPoolHourlyData(pair.id, startDate, endDate)
+            // TODO: remove
+            // eslint-disable-next-line
+            UniswapFetcher.getPoolHourlyData(pair.id, startDate, endDate),
     );
 
     let historicalData: UniswapHourlyData[][];
@@ -66,7 +66,10 @@ export default async function runAlertCheck(): Promise<void> {
     try {
         historicalData = await Promise.all(historicalFetches);
     } catch (e) {
-        log.error({ msg: 'Aborting, could not fetch historical data', error: e.message ?? '' });
+        log.error({
+            msg: 'Aborting, could not fetch historical data',
+            error: e.message ?? '',
+        });
         return handleExit();
     }
 
@@ -75,10 +78,13 @@ export default async function runAlertCheck(): Promise<void> {
         marketStats = await calculateMarketStats(
             topPairs,
             historicalData,
-            'hourly'
+            'hourly',
         );
     } catch (e) {
-        log.error({ msg: 'Aborting, could not fetch latest market stats', error: e.message ?? '' });
+        log.error({
+            msg: 'Aborting, could not fetch latest market stats',
+            error: e.message ?? '',
+        });
         return handleExit();
     }
 
@@ -96,10 +102,10 @@ export default async function runAlertCheck(): Promise<void> {
         const returnStr = new BigNumber(pair.pctReturn).times(100).toFixed(2);
         const numGlasses = Math.min(
             Math.abs(Math.ceil(pair.pctReturn / 0.01)),
-            10
+            10,
         );
         const msg = `${'🍷'.repeat(
-            numGlasses
+            numGlasses,
         )} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${
             pair.market
         }</a> saw a ${returnStr}% return in the last 24 hours!`;
@@ -115,10 +121,10 @@ export default async function runAlertCheck(): Promise<void> {
             .toFixed(2);
         const numFaces = Math.min(
             Math.abs(Math.ceil(pair.impermanentLoss / -0.01)),
-            10
+            10,
         );
         const msg = `${'😢'.repeat(
-            numFaces
+            numFaces,
         )} Pair <a href='https://app.sommelier.finance/pair?id=${pair.id}'>${
             pair.market
         }</a> saw a ${ilStr}% impermanent loss in the last 24 hours!`;
@@ -132,7 +138,10 @@ export default async function runAlertCheck(): Promise<void> {
             parse_mode: 'HTML',
         });
     } catch (e) {
-        log.error({ msg: 'Aborting, error sending a msg to Telegram', error: e.message ?? '' });
+        log.error({
+            msg: 'Aborting, error sending a msg to Telegram',
+            error: e.message ?? '',
+        });
         return handleExit();
     }
 

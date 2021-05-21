@@ -3,7 +3,11 @@ import PropTypes from 'prop-types';
 import { Card, ListGroup, Button } from 'react-bootstrap';
 import BigNumber from 'bignumber.js';
 
-import { IToken, UniswapSwap, UniswapMintOrBurn } from '@sommelier/shared-types';
+import {
+    IToken,
+    UniswapSwap,
+    UniswapMintOrBurn,
+} from '@sommelier/shared-types';
 
 import { MintOrBurn, Swap } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';

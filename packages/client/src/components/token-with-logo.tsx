@@ -4,10 +4,15 @@ import config from 'config/app';
 import logoMappings from 'constants/trustwallet-mappings.json';
 import { Pair } from 'constants/prop-types';
 
-function TokenWithLogo(side: 'left' | 'right'): ({ item: pair }: { item: IUniswapPair }, logoPosition?: string) => JSX.Element {
+function TokenWithLogo(
+    side: 'left' | 'right',
+): (
+    { item: pair }: { item: IUniswapPair },
+    logoPosition?: string,
+) => JSX.Element {
     const TokenOnGivenSide = (
         { item: pair }: { item: IUniswapPair },
-        logoPosition = 'left'
+        logoPosition = 'left',
     ) => {
         let token;
 
@@ -34,7 +39,6 @@ function TokenWithLogo(side: 'left' | 'right'): ({ item: pair }: { item: IUniswa
 
     return TokenOnGivenSide;
 }
-
 
 TokenWithLogo.displayName = 'TokenWithLogo';
 

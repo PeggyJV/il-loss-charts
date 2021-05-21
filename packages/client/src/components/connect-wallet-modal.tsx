@@ -50,7 +50,7 @@ function ConnectWalletModal({
             setShowReloadModal(true);
             const sentryErr = new SentryError(
                 `could not connect to wallet connect provider`,
-                err
+                err,
             );
             Sentry.captureException(sentryErr);
         }

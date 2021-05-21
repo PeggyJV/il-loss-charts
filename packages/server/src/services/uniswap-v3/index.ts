@@ -1,7 +1,7 @@
 export * from './fetcher';
 export * from './fetchers';
 export * from './fetcher-memoized';
-export * from './generated-types'; 
+export * from './generated-types';
 
 import { UniswapV3Fetcher } from './fetcher';
 import { UniswapV3FetcherMemoized } from './fetcher-memoized';

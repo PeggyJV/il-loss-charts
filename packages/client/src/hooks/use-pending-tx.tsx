@@ -24,7 +24,7 @@ const defaultPendingContext = {
 };
 
 const PendingTxContext = createContext<Partial<PendingTxContextType>>(
-    defaultPendingContext
+    defaultPendingContext,
 );
 
 export const PendingTxProvider = ({

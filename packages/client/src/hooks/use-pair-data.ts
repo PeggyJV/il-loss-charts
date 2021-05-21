@@ -10,7 +10,7 @@ import { debug } from 'util/debug';
 
 export default function usePairData(
     pairId: string | null,
-    prefetchedData: PairDataState | null
+    prefetchedData: PairDataState | null,
 ): PairDataState {
     // For all coins, fetch the following:
     // - Pair overview
@@ -36,13 +36,13 @@ export default function usePairData(
             // Default to createdAt date if LP date not set
             const { data: newPair, error } = await Uniswap.getPairOverview(
                 '1',
-                pairId
+                pairId,
             );
 
             if (error) {
                 // we could not get data for this new pair
                 console.warn(
-                    `Could not fetch pair data for ${pairId}: ${error}`
+                    `Could not fetch pair data for ${pairId}: ${error}`,
                 );
                 setError(error);
                 return;
@@ -71,7 +71,7 @@ export default function usePairData(
                 if (historicalErrors) {
                     // we could not get data for this new pair
                     console.warn(
-                        `Could not fetch historical data for ${pairId}: ${historicalErrors}`
+                        `Could not fetch historical data for ${pairId}: ${historicalErrors}`,
                     );
                     setError(historicalErrors);
                     return;
@@ -82,21 +82,21 @@ export default function usePairData(
                     const firstActiveDaily = historicalDailyData.findIndex(
                         (dailyData) =>
                             new BigNumber(dailyData.reserveUSD).gt(0) &&
-                            new BigNumber(dailyData.dailyVolumeUSD).gt(0)
+                            new BigNumber(dailyData.dailyVolumeUSD).gt(0),
                     );
 
                     const activeDaily = historicalDailyData.slice(
-                        firstActiveDaily
+                        firstActiveDaily,
                     );
 
                     const firstActiveHourly = historicalHourlyData.findIndex(
                         (hourlyDatas) =>
                             new BigNumber(hourlyDatas.reserveUSD).gt(0) &&
-                            new BigNumber(hourlyDatas.hourlyVolumeUSD).gt(0)
+                            new BigNumber(hourlyDatas.hourlyVolumeUSD).gt(0),
                     );
 
                     const activeHourly = historicalHourlyData.slice(
-                        firstActiveHourly
+                        firstActiveHourly,
                     );
 
                     setLPInfo(
@@ -105,21 +105,21 @@ export default function usePairData(
                             pairData: new UniswapPair(newPair),
                             historicalDailyData: activeDaily,
                             historicalHourlyData: activeHourly,
-                        })
+                        }),
                     );
                 } else {
                     throw new Error(
-                        `Error populating historical info - did not receive error or data`
+                        `Error populating historical info - did not receive error or data`,
                     );
                 }
 
                 try {
-                  mixpanel.track('pair:query', {
-                      distinct_id: pairId,
-                      pairId,
-                      token0: newPair.token0.symbol,
-                      token1: newPair.token1.symbol,
-                  });
+                    mixpanel.track('pair:query', {
+                        distinct_id: pairId,
+                        pairId,
+                        token0: newPair.token0.symbol,
+                        token1: newPair.token1.symbol,
+                    });
                 } catch (e) {
                     console.error(`Metrics error on pair:query.`);
                 }
@@ -157,7 +157,7 @@ export default function usePairData(
             if (error) {
                 // we could not get data for this new pair
                 console.warn(
-                    `Could not fetch trades data for ${pairId}: ${error}`
+                    `Could not fetch trades data for ${pairId}: ${error}`,
                 );
                 setError(error);
                 return;
@@ -189,7 +189,7 @@ export default function usePairData(
         };
     } else {
         throw new Error(
-            `Error in usePairData - not loading but no error or data present`
+            `Error in usePairData - not loading but no error or data present`,
         );
     }
 }

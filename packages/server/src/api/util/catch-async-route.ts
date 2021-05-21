@@ -5,7 +5,7 @@ import { CacheControl, setCacheControl } from 'api/util/set-cache-control';
 // eslint-disable-next-line no-unused-vars
 type RouteHandler = (
     req: Request<any, any, any, any>,
-    res: Response
+    res: Response,
 ) => Promise<unknown>;
 
 // Catch async route handler errors since they must be

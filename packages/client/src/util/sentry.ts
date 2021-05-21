@@ -15,7 +15,7 @@ export function init(): void {
 
 export class SentryError extends Error {
     payload: Record<string, any>;
-    
+
     constructor(msg: string, payload: Record<string, any>) {
         super(msg);
         this.payload = payload;

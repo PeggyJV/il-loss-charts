@@ -45,7 +45,7 @@ const initialWallet = {
     error: null,
 };
 export const WalletContext = createContext<Partial<WalletContextType>>(
-    initialWallet
+    initialWallet,
 );
 
 export const WalletProvider = ({
@@ -153,7 +153,6 @@ export const WalletProvider = ({
     }, [disconnectWallet, ethereum, wallet]);
 
     useEffect(() => {
-
         // const handleConnect = (...params: any[]) => {
         //     console.log('wallet connect : onConnect', params);
         // };
@@ -166,7 +165,6 @@ export const WalletProvider = ({
         // wcProvider.on('session_update', handleSessionUpdate);
 
         const handleAccountChange = (accounts: string[]) => {
-
             const [account] = accounts;
 
             if (account) {
@@ -198,7 +196,7 @@ export const WalletProvider = ({
         // TODO this doesn't work with wallet connect
         const handleNetworkChange = (
             newNetwork: string,
-            oldNetwork?: string
+            oldNetwork?: string,
         ) => {
             // When a Provider makes its initial connection, it emits a "network"
             // event with a null oldNetwork along with the newNetwork. So, if the
@@ -305,7 +303,7 @@ export const WalletProvider = ({
                     },
                     {
                         expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
-                    }
+                    },
                 );
             } else {
                 // wallet was un-set, remove cookie

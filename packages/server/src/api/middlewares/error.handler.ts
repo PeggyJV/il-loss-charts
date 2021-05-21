@@ -11,17 +11,19 @@ export function errorHandler(
     req: Request,
     res: Response,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    next: NextFunction
+    next: NextFunction,
 ): void {
     // continue if no error
-    if (err == null) { next(); }
+    if (err == null) {
+        next();
+    }
 
     // Coded HTTP Errors
     else if (err instanceof CodedHTTPError) {
         // respond with error json body
         res.status(err.status).json({
             error: err.toObject(),
-        })
+        });
     }
 
     // Validation Errors via Celebrate
@@ -45,8 +47,13 @@ export function errorHandler(
 
     // handle express http errors
     // TODO [http-errors@>=1.8.0]: use createError.isHttpError(err);
-    else if (typeof (err as any).status === 'number' || typeof (err as any).statusCode === 'number') {
-        res.status((err as any).status ?? (err as any).statusCode).json({ error: err.message });
+    else if (
+        typeof (err as any).status === 'number' ||
+        typeof (err as any).statusCode === 'number'
+    ) {
+        res.status((err as any).status ?? (err as any).statusCode).json({
+            error: err.message,
+        });
     }
 
     // all other errors should be a 500

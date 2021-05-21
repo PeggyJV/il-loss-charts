@@ -47,9 +47,8 @@ export function PoolSearch({
         sortTopPools(
             matchSorter(options, inputValue, {
                 keys: ['token0.symbol', 'token1.symbol', poolSymbol],
-            })
-        )
-        .slice(0, 50);
+            }),
+        ).slice(0, 50);
 
     const renderPoolWithLogo = (pool: TopPool) => {
         return (
@@ -66,7 +65,9 @@ export function PoolSearch({
                         {pool?.token1?.symbol}
                     </div>
                 </div>
-                <div className='fee-tier'>{(parseInt(pool?.feeTier) / 10000).toFixed(2) + '%'}</div>
+                <div className='fee-tier'>
+                    {(parseInt(pool?.feeTier) / 10000).toFixed(2) + '%'}
+                </div>
             </div>
         );
     };
@@ -145,10 +146,8 @@ function sortTopPools(pools: TopPool[]) {
         // With this impl, it is around 6-10ms (still slow AF)
         if (
             parseInt(pool.liquidity, 10) > 0 &&
-            (
-                Math.abs(parseInt(pool.volumeToken0, 10)) > minTokenVol &&
-                Math.abs(parseInt(pool.volumeToken1, 10)) > minTokenVol
-            )
+            Math.abs(parseInt(pool.volumeToken0, 10)) > minTokenVol &&
+            Math.abs(parseInt(pool.volumeToken1, 10)) > minTokenVol
         ) {
             top.push(pool);
         } else {

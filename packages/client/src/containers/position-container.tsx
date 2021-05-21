@@ -32,7 +32,7 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
 
     // Initialize pair to be first position in wallet
     const [pairId, setPairId] = useState(
-        positionData?.positions ? Object.keys(positionData.positions)[0] : null
+        positionData?.positions ? Object.keys(positionData.positions)[0] : null,
     );
 
     // const currentPosition = positions[pairId];
@@ -88,10 +88,10 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
             if (isInitialLoad) setIsInitialLoad(false);
 
             try {
-              mixpanel.track('positions:query', {
-                  distinct_id: wallet.account,
-                  address: wallet.account
-              });
+                mixpanel.track('positions:query', {
+                    distinct_id: wallet.account,
+                    address: wallet.account,
+                });
             } catch (e) {
                 console.error(`Metrics error on positions:query.`);
             }

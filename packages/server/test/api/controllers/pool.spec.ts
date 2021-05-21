@@ -150,7 +150,7 @@ describe('pools HTTP tests', () => {
 
             expect(res.status).toBe(400);
             expect(res.body.error).toMatch(
-                'Validation Error: "sort" must be one of [volumeUSD, liquidity]'
+                'Validation Error: "sort" must be one of [volumeUSD, liquidity]',
             );
         });
 
@@ -158,7 +158,7 @@ describe('pools HTTP tests', () => {
             const res = await request.get(url).query({ count: 'abcd' });
             expect(res.status).toBe(400);
             expect(res.body.error).toBe(
-                'Validation Error: "count" must be a number'
+                'Validation Error: "count" must be a number',
             );
         });
 
@@ -166,7 +166,7 @@ describe('pools HTTP tests', () => {
             const res = await request.get(url).query({ count: -1000 });
             expect(res.status).toBe(400);
             expect(res.body.error).toMatch(
-                'Validation Error: "count" must be greater than or equal to 1'
+                'Validation Error: "count" must be greater than or equal to 1',
             );
         });
 
@@ -174,7 +174,7 @@ describe('pools HTTP tests', () => {
             const res = await request.get(url).query({ count: 1001 });
             expect(res.status).toBe(400);
             expect(res.body.error).toMatch(
-                'Validation Error: "count" must be less than or equal to 1000'
+                'Validation Error: "count" must be less than or equal to 1000',
             );
         });
 
@@ -182,7 +182,7 @@ describe('pools HTTP tests', () => {
             const res = await request.get(url).query({ count: 0 });
             expect(res.status).toBe(400);
             expect(res.body.error).toMatch(
-                'Validation Error: "count" must be greater than or equal to 1'
+                'Validation Error: "count" must be greater than or equal to 1',
             );
         });
 
@@ -216,7 +216,7 @@ describe('pools HTTP tests', () => {
             const res = await request.get(`${url}/123abcd`);
             expect(res.status).toBe(400);
             expect(res.body.error).toMatch(
-                '"poolId" must be a valid ETH address.'
+                '"poolId" must be a valid ETH address.',
             );
         });
 
@@ -285,7 +285,7 @@ describe('pools HTTP tests', () => {
             const res = await request.get(getUrl('abcd'));
             expect(res.status).toBe(400);
             expect(res.body.error).toMatch(
-                '"poolId" must be a valid ETH address.'
+                '"poolId" must be a valid ETH address.',
             );
         });
 
@@ -397,7 +397,7 @@ describe('pools HTTP tests', () => {
             const res = await request.get(getUrl('abcd'));
             expect(res.status).toBe(400);
             expect(res.body.error).toMatch(
-                '"poolId" must be a valid ETH address.'
+                '"poolId" must be a valid ETH address.',
             );
         });
 
@@ -428,7 +428,7 @@ describe('pools HTTP tests', () => {
 
             expect(res.status).toBe(400);
             expect(res.body.error).toMatch(
-                '"startDate" must fall within the window of 1 week.'
+                '"startDate" must fall within the window of 1 week.',
             );
         });
 

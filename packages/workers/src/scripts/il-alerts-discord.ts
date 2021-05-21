@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import Discord from "discord.js";
+import Discord from 'discord.js';
 import logger from '../logger';
 import appConfig from 'config/app';
 
@@ -22,22 +22,21 @@ function logError(e: Error) {
 }
 
 function respond(channel: any, text: string) {
-    (channel as Discord.TextChannel).send(text)
-    .catch(logError);
+    (channel as Discord.TextChannel).send(text).catch(logError);
 }
 
 const handleExit = () => {
     if (require.main === module) {
         process.exit(1);
     }
-}
+};
 
 export default function loginAndSetupAlerts(): void {
     void client.login(config.botToken);
 
     client.on('ready', () => {
         if (client.user == null) {
-            throw new Error('Could not login to Discord.')
+            throw new Error('Could not login to Discord.');
         }
 
         log.info({ msg: `Logged in as ${client.user.tag}` });
@@ -52,11 +51,13 @@ async function runDiscordAlerts(): Promise<void> {
     // Get 100 top pairs
     let topPairs: IUniswapPair[];
 
-
     try {
         topPairs = await UniswapFetcher.getCurrentTopPerformingPools(100);
     } catch (e) {
-        log.error({ msg: 'Aborting, could not fetch pairs for IL alerts', error: e.message ?? '' });
+        log.error({
+            msg: 'Aborting, could not fetch pairs for IL alerts',
+            error: e.message ?? '',
+        });
         return handleExit();
     }
 
@@ -70,9 +71,9 @@ async function runDiscordAlerts(): Promise<void> {
     // TODO: Save requests by only fetching first and last hour
     const historicalFetches = topPairs.map(
         (pair: IUniswapPair): Promise<UniswapHourlyData[]> =>
-        // TODO: remove
-        // eslint-disable-next-line
-            UniswapFetcher.getPoolHourlyData(pair.id, startDate, endDate)
+            // TODO: remove
+            // eslint-disable-next-line
+            UniswapFetcher.getPoolHourlyData(pair.id, startDate, endDate),
     );
 
     let historicalData: UniswapHourlyData[][];
@@ -81,7 +82,10 @@ async function runDiscordAlerts(): Promise<void> {
     try {
         historicalData = await Promise.all(historicalFetches);
     } catch (e) {
-        log.error({ msg: 'Aborting, could not fetch historical data', error: e.message ?? '' });
+        log.error({
+            msg: 'Aborting, could not fetch historical data',
+            error: e.message ?? '',
+        });
         return handleExit();
     }
 
@@ -90,10 +94,13 @@ async function runDiscordAlerts(): Promise<void> {
         marketStats = await calculateMarketStats(
             topPairs,
             historicalData,
-            'hourly'
+            'hourly',
         );
     } catch (e) {
-        log.error({ msg: 'Aborting, could not fetch latest market stats', error: e.message ?? '' });
+        log.error({
+            msg: 'Aborting, could not fetch latest market stats',
+            error: e.message ?? '',
+        });
         return handleExit();
     }
 
@@ -108,11 +115,9 @@ async function runDiscordAlerts(): Promise<void> {
         const returnStr = new BigNumber(pair.pctReturn).times(100).toFixed(2);
         const numGlasses = Math.min(
             Math.abs(Math.ceil(pair.pctReturn / 0.01)),
-            10
+            10,
         );
-        const msg = `${'🍷'.repeat(
-            numGlasses
-        )} Pair ${
+        const msg = `${'🍷'.repeat(numGlasses)} Pair ${
             pair.market
         } saw a ${returnStr}% return in the last 24 hours!`;
         // sommBot.sendMessage(CHAT_ID, msg, { parse_mode: 'HTML' });
@@ -124,19 +129,23 @@ async function runDiscordAlerts(): Promise<void> {
     });
 
     try {
-        client.channels.fetch(CHAT_ID)
-        .then(channel => respond(channel, msgs.join('\n')))
-        .catch(logError);
+        client.channels
+            .fetch(CHAT_ID)
+            .then((channel) => respond(channel, msgs.join('\n')))
+            .catch(logError);
     } catch (e) {
-        log.error({ msg: 'Aborting, error sending a msg to Telegram', error: e.message ?? '' });
+        log.error({
+            msg: 'Aborting, error sending a msg to Telegram',
+            error: e.message ?? '',
+        });
         return handleExit();
     }
 }
 
 if (require.main === module) {
-  if (config.botToken.length > 0) {
-    loginAndSetupAlerts();
-  } else {
-      throw new Error(`Cannot start il alerts discord bot without token.`);
-  }
+    if (config.botToken.length > 0) {
+        loginAndSetupAlerts();
+    } else {
+        throw new Error(`Cannot start il alerts discord bot without token.`);
+    }
 }

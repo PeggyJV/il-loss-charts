@@ -83,7 +83,7 @@ export function calculatePoolStats({
         dailyVolume.push(vol);
         runningVolume.push(getPrevRunningValue(runningVolume).plus(vol));
         runningPoolFees.push(
-            getPrevRunningValue(runningPoolFees).plus(dailyPoolFees)
+            getPrevRunningValue(runningPoolFees).plus(dailyPoolFees),
         );
 
         fullDates.push(currentDate);
@@ -115,13 +115,13 @@ export function calculatePoolStats({
         runningPoolFees,
         ticks,
         fullDates,
-        dataPoints
+        dataPoints,
     };
 }
 
 export function calculateTimeWindowStats(
     lpInfo: PairPricesState,
-    period: StatsWindow = 'total'
+    period: StatsWindow = 'total',
 ): TimeWindowStats {
     let runningVolume: BigNumber[];
     let runningPoolFees: BigNumber[];
@@ -132,7 +132,7 @@ export function calculateTimeWindowStats(
         const lpStats = calculatePoolStats({
             hourlyData: lpInfo?.historicalHourlyData,
             startDate: new Date(
-                lpInfo?.historicalHourlyData[0].hourStartUnix * 1000
+                lpInfo?.historicalHourlyData[0].hourStartUnix * 1000,
             ),
         });
 
@@ -173,10 +173,10 @@ export function calculateTimeWindowStats(
             const twoDaysAgo = Date.now() - oneDayMs * 2;
 
             periodStartIndex = fullDates.findIndex(
-                (d) => Math.abs(d.getTime() - oneDayAgo) <= 1000 * 60 * 60
+                (d) => Math.abs(d.getTime() - oneDayAgo) <= 1000 * 60 * 60,
             );
             prevPeriodStartIndex = fullDates.findIndex(
-                (d) => Math.abs(d.getTime() - twoDaysAgo) <= 1000 * 60 * 60
+                (d) => Math.abs(d.getTime() - twoDaysAgo) <= 1000 * 60 * 60,
             );
         } else {
             const oneWeekMs = 60 * 60 * 24 * 1000 * 7;
@@ -184,16 +184,16 @@ export function calculateTimeWindowStats(
             const twoWeeksAgo = Date.now() - oneWeekMs * 2;
 
             periodStartIndex = fullDates.findIndex(
-                (d) => Math.abs(d.getTime() - oneWeekAgo) <= 1000 * 60 * 60
+                (d) => Math.abs(d.getTime() - oneWeekAgo) <= 1000 * 60 * 60,
             );
             prevPeriodStartIndex = fullDates.findIndex(
-                (d) => Math.abs(d.getTime() - twoWeeksAgo) <= 1000 * 60 * 60
+                (d) => Math.abs(d.getTime() - twoWeeksAgo) <= 1000 * 60 * 60,
             );
         }
 
         if (periodStartIndex < 0 || prevPeriodStartIndex < 0) {
             console.warn(
-                `Stats data of length ${numPoints} not long enough to calculate ${period} data`
+                `Stats data of length ${numPoints} not long enough to calculate ${period} data`,
             );
 
             if (periodStartIndex < 0) {
@@ -203,11 +203,11 @@ export function calculateTimeWindowStats(
 
         const lastPeriodStats: StatsOverTime = {
             volumeUSD: runningVolume[lastIndex].minus(
-                runningVolume[periodStartIndex]
+                runningVolume[periodStartIndex],
             ),
             liquidityUSD: dailyLiquidity[lastIndex],
             feesUSD: runningPoolFees[lastIndex].minus(
-                runningPoolFees[periodStartIndex]
+                runningPoolFees[periodStartIndex],
             ),
         };
 
@@ -220,11 +220,11 @@ export function calculateTimeWindowStats(
 
         const prevPeriodStats: StatsOverTime = {
             volumeUSD: runningVolume[periodStartIndex].minus(
-                runningVolume[prevPeriodStartIndex]
+                runningVolume[prevPeriodStartIndex],
             ),
             liquidityUSD: dailyLiquidity[periodStartIndex],
             feesUSD: runningPoolFees[periodStartIndex].minus(
-                runningPoolFees[prevPeriodStartIndex]
+                runningPoolFees[prevPeriodStartIndex],
             ),
         };
 
@@ -247,7 +247,7 @@ export function calculateTimeWindowStats(
 }
 
 export function calculatePairRankings(
-    pairs: IUniswapPair[]
+    pairs: IUniswapPair[],
 ): {
     byVolume: IUniswapPair[];
     byLiquidity: IUniswapPair[];
@@ -260,18 +260,18 @@ export function calculatePairRankings(
     };
 } {
     const byVolume = [...pairs].sort((a, b) =>
-        new BigNumber(a.volumeUSD).minus(new BigNumber(b.volumeUSD)).toNumber()
+        new BigNumber(a.volumeUSD).minus(new BigNumber(b.volumeUSD)).toNumber(),
     );
     const byLiquidity = [...pairs].sort((a, b) =>
         new BigNumber(b.reserveUSD)
             .minus(new BigNumber(a.reserveUSD))
-            .toNumber()
+            .toNumber(),
     );
     const liquidityLookup: {
         [pairId: string]: IUniswapPair;
     } = byLiquidity.reduce(
         (acc, pair, index) => ({ ...acc, [pair.id]: index + 1 }),
-        {}
+        {},
     );
 
     const pairLookups = pairs.reduce(
@@ -283,7 +283,7 @@ export function calculatePairRankings(
                 liquidityRanking: liquidityLookup[pair.id],
             },
         }),
-        {}
+        {},
     );
 
     return {
@@ -295,9 +295,9 @@ export function calculatePairRankings(
 }
 
 export function deriveLPStats(
-    lpStats: LPStats<string>, 
+    lpStats: LPStats<string>,
     startDate: Date,
-    lpShare: number
+    lpShare: number,
 ): LPStats<string> {
     // Re-calculate LP stats for a given start/end date locally
     // Takes advantage of having eth prices already available in the default
@@ -308,10 +308,14 @@ export function deriveLPStats(
         throw new Error(`Cannot slice lp stats without full dates`);
     }
 
-    let sliceIndex = lpStats.fullDates.findIndex((tickDate) => new Date(tickDate) > startDate);
+    let sliceIndex = lpStats.fullDates.findIndex(
+        (tickDate) => new Date(tickDate) > startDate,
+    );
 
     if (sliceIndex < 1) {
-        console.warn(`Cannot slice LP Stats - startDate ${startDate.toISOString()} before first date of stats ${lpStats.fullDates[0].toString()}`);
+        console.warn(
+            `Cannot slice LP Stats - startDate ${startDate.toISOString()} before first date of stats ${lpStats.fullDates[0].toString()}`,
+        );
         return lpStats;
     }
 
@@ -320,13 +324,13 @@ export function deriveLPStats(
     const calculateImpermanentLoss = (
         startDailyData: ILiquidityData,
         endDailyData: ILiquidityData,
-        lpLiquidity: number
+        lpLiquidity: number,
     ): BigNumber => {
         const initialExchangeRate = new BigNumber(startDailyData.reserve0).div(
-            new BigNumber(startDailyData.reserve1)
+            new BigNumber(startDailyData.reserve1),
         );
         const currentExchangeRate = new BigNumber(endDailyData.reserve0).div(
-            new BigNumber(endDailyData.reserve1)
+            new BigNumber(endDailyData.reserve1),
         );
         const priceRatio = currentExchangeRate.div(initialExchangeRate);
         const impermanentLossPct = new BigNumber(2)
@@ -334,7 +338,7 @@ export function deriveLPStats(
             .div(priceRatio.plus(1))
             .minus(1);
         const impermanentLoss = impermanentLossPct.times(
-            new BigNumber(lpLiquidity)
+            new BigNumber(lpLiquidity),
         );
 
         return impermanentLoss;
@@ -349,7 +353,7 @@ export function deriveLPStats(
         runningNotionalGain: lpStats.runningNotionalGain[sliceIndex],
         runningImpermanentLoss: lpStats.runningImpermanentLoss[sliceIndex],
         runningReturn: lpStats.runningReturn[sliceIndex],
-        dataPoint: lpStats.dataPoints[sliceIndex]
+        dataPoint: lpStats.dataPoints[sliceIndex],
     };
 
     const statsAfterSlice: LPStats<string> = {
@@ -365,11 +369,13 @@ export function deriveLPStats(
         totalReturn: '0',
         runningFees: lpStats.runningFees.slice(sliceIndex),
         runningNotionalGain: lpStats.runningNotionalGain.slice(sliceIndex),
-        runningImpermanentLoss: lpStats.runningImpermanentLoss.slice(sliceIndex),
+        runningImpermanentLoss: lpStats.runningImpermanentLoss.slice(
+            sliceIndex,
+        ),
         runningReturn: lpStats.runningReturn.slice(sliceIndex),
         ticks: lpStats.ticks.slice(sliceIndex),
         fullDates: lpStats.fullDates.slice(sliceIndex),
-        dataPoints: lpStats.dataPoints.slice(sliceIndex)
+        dataPoints: lpStats.dataPoints.slice(sliceIndex),
     };
 
     if (statsAfterSlice.fullDates == null) {
@@ -378,20 +384,59 @@ export function deriveLPStats(
 
     for (let i = sliceIndex + 1; i < statsAfterSlice.fullDates.length; i++) {
         // deduct pre-slice stats from all running totals
-        statsAfterSlice.runningVolume[i] = new BigNumber(statsAfterSlice.runningVolume[i]).minus(statsAtSliceIndex.runningVolume).times(lpShareRatio).toString();
-        statsAfterSlice.runningPoolFees[i] = new BigNumber(statsAfterSlice.runningPoolFees[i]).minus(statsAtSliceIndex.runningPoolFees).times(lpShareRatio).toString();
-        statsAfterSlice.runningFees[i] = new BigNumber(statsAfterSlice.runningFees[i]).minus(statsAtSliceIndex.runningFees).times(lpShareRatio).toString();
-        statsAfterSlice.runningNotionalGain[i] = new BigNumber(statsAfterSlice.runningNotionalGain[i]).minus(statsAtSliceIndex.runningNotionalGain).times(lpShareRatio).toString();
+        statsAfterSlice.runningVolume[i] = new BigNumber(
+            statsAfterSlice.runningVolume[i],
+        )
+            .minus(statsAtSliceIndex.runningVolume)
+            .times(lpShareRatio)
+            .toString();
+        statsAfterSlice.runningPoolFees[i] = new BigNumber(
+            statsAfterSlice.runningPoolFees[i],
+        )
+            .minus(statsAtSliceIndex.runningPoolFees)
+            .times(lpShareRatio)
+            .toString();
+        statsAfterSlice.runningFees[i] = new BigNumber(
+            statsAfterSlice.runningFees[i],
+        )
+            .minus(statsAtSliceIndex.runningFees)
+            .times(lpShareRatio)
+            .toString();
+        statsAfterSlice.runningNotionalGain[i] = new BigNumber(
+            statsAfterSlice.runningNotionalGain[i],
+        )
+            .minus(statsAtSliceIndex.runningNotionalGain)
+            .times(lpShareRatio)
+            .toString();
 
         // Re-calculate impermanent loss and return
-        statsAfterSlice.runningImpermanentLoss[i] = calculateImpermanentLoss(statsAtSliceIndex.dataPoint, statsAfterSlice.dataPoints[i], lpShare).toString();
-        statsAfterSlice.runningReturn[i] = new BigNumber(statsAfterSlice.runningFees[i]).plus(statsAfterSlice.runningNotionalGain[i]).plus(statsAfterSlice.runningImpermanentLoss[i]).toString();
+        statsAfterSlice.runningImpermanentLoss[i] = calculateImpermanentLoss(
+            statsAtSliceIndex.dataPoint,
+            statsAfterSlice.dataPoints[i],
+            lpShare,
+        ).toString();
+        statsAfterSlice.runningReturn[i] = new BigNumber(
+            statsAfterSlice.runningFees[i],
+        )
+            .plus(statsAfterSlice.runningNotionalGain[i])
+            .plus(statsAfterSlice.runningImpermanentLoss[i])
+            .toString();
     }
 
-    statsAfterSlice.totalFees = statsAfterSlice.runningFees[statsAfterSlice.runningFees.length - 1];
-    statsAfterSlice.impermanentLoss = statsAfterSlice.runningImpermanentLoss[statsAfterSlice.runningImpermanentLoss.length - 1];
-    statsAfterSlice.totalNotionalGain = statsAfterSlice.runningNotionalGain[statsAfterSlice.runningNotionalGain.length - 1];
-    statsAfterSlice.totalReturn = new BigNumber(statsAfterSlice.totalFees).plus(statsAfterSlice.impermanentLoss).plus(statsAfterSlice.totalNotionalGain).toString();
+    statsAfterSlice.totalFees =
+        statsAfterSlice.runningFees[statsAfterSlice.runningFees.length - 1];
+    statsAfterSlice.impermanentLoss =
+        statsAfterSlice.runningImpermanentLoss[
+            statsAfterSlice.runningImpermanentLoss.length - 1
+        ];
+    statsAfterSlice.totalNotionalGain =
+        statsAfterSlice.runningNotionalGain[
+            statsAfterSlice.runningNotionalGain.length - 1
+        ];
+    statsAfterSlice.totalReturn = new BigNumber(statsAfterSlice.totalFees)
+        .plus(statsAfterSlice.impermanentLoss)
+        .plus(statsAfterSlice.totalNotionalGain)
+        .toString();
 
     return statsAfterSlice;
 }

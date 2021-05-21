@@ -40,7 +40,7 @@ function LPStatsChart({
     lpStats.ticks.forEach((stats, i) => {
         const runningFee = new BigNumber(lpStats.runningFees[i]).toNumber();
         const runningReturn = new BigNumber(
-            lpStats.runningReturn[i]
+            lpStats.runningReturn[i],
         ).toNumber();
 
         chartData.push({
@@ -50,7 +50,7 @@ function LPStatsChart({
             runningFee,
             runningReturn,
             runningImpermanentLoss: new BigNumber(
-                lpStats.runningImpermanentLoss[i]
+                lpStats.runningImpermanentLoss[i],
             ).toNumber(),
             returns: [runningFee, runningReturn],
         });
@@ -201,23 +201,23 @@ function CustomTooltip({
         totalFees: new BigNumber(payload[0].payload.runningFee).toFixed(3),
         totalReturn: new BigNumber(payload[0].payload.runningReturn).toFixed(3),
         impermanentLoss: new BigNumber(
-            payload[0].payload.runningImpermanentLoss
+            payload[0].payload.runningImpermanentLoss,
         ).toFixed(3),
     };
 
     if (!payload[0].payload.fullDate) {
         throw new Error(
-            `Could not render tooltip - data point did not have fullDate`
+            `Could not render tooltip - data point did not have fullDate`,
         );
     }
 
     const tooltipDate = format(
         new Date(payload[0].payload.fullDate),
-        'MMMM d, yyyy'
+        'MMMM d, yyyy',
     );
     const tooltipTime = format(
         new Date(payload[0].payload.fullDate),
-        'HH:mm:ss'
+        'HH:mm:ss',
     );
 
     return (

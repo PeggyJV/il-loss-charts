@@ -1,10 +1,14 @@
-query getPoolDailyData ($id: ID!, $orderBy: String!, $orderDirection: String!, $startDate: Int!, $endDate: Int!) {
-    poolDayDatas(orderBy: $orderBy, orderDirection: $orderDirection,
-        where: {
-            id: $id,
-            date_gt: $startDate,
-            date_lt: $endDate,
-        }
+query getPoolDailyData(
+    $id: ID!
+    $orderBy: String!
+    $orderDirection: String!
+    $startDate: Int!
+    $endDate: Int!
+) {
+    poolDayDatas(
+        orderBy: $orderBy
+        orderDirection: $orderDirection
+        where: { id: $id, date_gt: $startDate, date_lt: $endDate }
     ) {
         date
         pool {

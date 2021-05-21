@@ -12,7 +12,11 @@ export class CodedHTTPError extends Error {
     public message: string;
     public details: string;
 
-    constructor(status: number, error: ICodedError | ErrorShape, details?: string) {
+    constructor(
+        status: number,
+        error: ICodedError | ErrorShape,
+        details?: string,
+    ) {
         super(error.message);
 
         this.status = status;
@@ -30,7 +34,7 @@ export class CodedHTTPError extends Error {
             code: this.code,
             message: this.message,
             details: this.details,
-        }
+        };
     }
 
     setDetails(details: string): void {
@@ -42,12 +46,15 @@ export class CodedHTTPError extends Error {
             code: this.code,
             message: this.message,
             details: this.details,
-        })
+        });
     }
 }
 
 // 500 because users cannot change their request to make this work.
 export const UpstreamError = new CodedHTTPError(500, errors.UpstreamError);
-export const UpstreamMissingPoolDataError = new CodedHTTPError(500, errors.UpstreamMissingPoolDataError);
+export const UpstreamMissingPoolDataError = new CodedHTTPError(
+    500,
+    errors.UpstreamMissingPoolDataError,
+);
 
 export const ValidationError = new CodedHTTPError(400, errors.ValidationError);

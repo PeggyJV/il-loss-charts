@@ -6,17 +6,29 @@ import BigNumber from 'bignumber.js';
 
 import { IUniswapPair, LPPositionData } from '@sommelier/shared-types';
 
-import { Pair, PositionData, LPStats, DailyData, HourlyData } from 'constants/prop-types';
+import {
+    Pair,
+    PositionData,
+    LPStats,
+    DailyData,
+    HourlyData,
+} from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 
 import TokenWithLogo from 'components/token-with-logo';
 
-function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionData }: {
-    pairs: IUniswapPair[],
-    currentPairId: string,
-    setPair: (pairId: string) => void,
-    isLoading: boolean,
-    positionData: LPPositionData
+function PositionSelector({
+    pairs,
+    currentPairId,
+    setPair,
+    isLoading,
+    positionData,
+}: {
+    pairs: IUniswapPair[];
+    currentPairId: string;
+    setPair: (pairId: string) => void;
+    isLoading: boolean;
+    positionData: LPPositionData;
 }): JSX.Element {
     let defaultValue;
     for (const pair of pairs) {
@@ -40,36 +52,50 @@ function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionDa
     const getPositionText = (pair: IUniswapPair) => {
         const allPositions = positionData.positions[pair.id];
         const mostRecentPosition = allPositions[allPositions.length - 1];
-        const tokenBalance = new BigNumber(mostRecentPosition.liquidityTokenBalance);
+        const tokenBalance = new BigNumber(
+            mostRecentPosition.liquidityTokenBalance,
+        );
 
         if (tokenBalance.eq(0)) {
             return 'Closed';
         } else {
             // determine USD value of position
-            const poolShare = tokenBalance.div(new BigNumber(mostRecentPosition.liquidityTokenTotalSupply));
-            const usdValue = new BigNumber(mostRecentPosition.reserveUSD).times(poolShare).toNumber();
+            const poolShare = tokenBalance.div(
+                new BigNumber(mostRecentPosition.liquidityTokenTotalSupply),
+            );
+            const usdValue = new BigNumber(mostRecentPosition.reserveUSD)
+                .times(poolShare)
+                .toNumber();
             return formatUSD(usdValue);
         }
     };
 
-    const PairItem = (listItem: { item: IUniswapPair, value: IUniswapPair }) => {
+    const PairItem = (listItem: {
+        item: IUniswapPair;
+        value: IUniswapPair;
+    }) => {
         return (
             <span>
-                {TokenWithLogo('left')(listItem)}/{TokenWithLogo('right')(listItem, 'right')}{' '}
-                ({getPositionText(listItem.value)})
+                {TokenWithLogo('left')(listItem)}/
+                {TokenWithLogo('right')(listItem, 'right')} (
+                {getPositionText(listItem.value)})
             </span>
         );
     };
 
     const renderPairText = (pair: string | IUniswapPair) => {
         if (typeof pair === 'string') return pair;
-        return `${pair.token0.symbol}/${pair.token1.symbol} (${getPositionText(pair)})`;
-    }
+        return `${pair.token0.symbol}/${pair.token1.symbol} (${getPositionText(
+            pair,
+        )})`;
+    };
 
     return (
         <Card className='pair-selector-card'>
             <Card.Body>
-                <Card.Title className='stats-card-title'>Open and Closed Positions</Card.Title>
+                <Card.Title className='stats-card-title'>
+                    Open and Closed Positions
+                </Card.Title>
                 <div className='pair-selector-container'>
                     <Combobox
                         // @ts-expect-error: className is not on the props definition but does propagate to component
@@ -90,7 +116,7 @@ function PositionSelector({ pairs, currentPairId, setPair, isLoading, positionDa
                     )}
                 </div>
             </Card.Body>
-        </Card >
+        </Card>
     );
 }
 
@@ -101,12 +127,16 @@ PositionSelector.propTypes = {
     isLoading: PropTypes.bool.isRequired,
     positionData: PropTypes.shape({
         positions: PropTypes.objectOf(PositionData),
-        stats: PropTypes.objectOf(PropTypes.shape({
-            historicalData: PropTypes.arrayOf(PropTypes.oneOf([DailyData, HourlyData])),
-            statsWindows: PropTypes.arrayOf(LPStats),
-            aggregatedStats: LPStats
-        }))
-    })
+        stats: PropTypes.objectOf(
+            PropTypes.shape({
+                historicalData: PropTypes.arrayOf(
+                    PropTypes.oneOf([DailyData, HourlyData]),
+                ),
+                statsWindows: PropTypes.arrayOf(LPStats),
+                aggregatedStats: LPStats,
+            }),
+        ),
+    }),
 };
 
 export default PositionSelector;

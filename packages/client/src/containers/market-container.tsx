@@ -9,7 +9,7 @@ import { IUniswapPair, MarketStats } from '@sommelier/shared-types';
 import { MarketData } from 'constants/prop-types';
 import { formatUSD } from 'util/formats';
 import mixpanel from 'util/mixpanel';
-import {ErrorBoundary} from 'react-error-boundary';
+import { ErrorBoundary } from 'react-error-boundary';
 import { resolveLogo } from 'components/token-with-logo';
 import { ComponentError } from 'components/page-error';
 import { debug } from 'util/debug';

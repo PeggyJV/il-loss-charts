@@ -1,6 +1,6 @@
 import config from 'config/app';
 import { useWallet } from 'hooks/use-wallet';
-import {formatAddress} from 'util/formats';
+import { formatAddress } from 'util/formats';
 
 function ConnectWalletButton({
     onClick,
@@ -13,12 +13,13 @@ function ConnectWalletButton({
     //     ? config.networks[wallet?.network].name
     //     : 'Connected';
 
-
     // we care about the network only in dev
     // const buttonText = account
     //     ? network.toUpperCase() + ' : ' + account.toString()
     //     : 'CONNECT WALLET';
-    const buttonText = account ? formatAddress(account.toString()) : 'Connect Wallet';
+    const buttonText = account
+        ? formatAddress(account.toString())
+        : 'Connect Wallet';
     return (
         <button className='connect-wallet-button' onClick={onClick}>
             {buttonText}

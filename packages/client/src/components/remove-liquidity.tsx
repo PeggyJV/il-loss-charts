@@ -61,10 +61,10 @@ function RemoveLiquidity({
     const [exitAmount, setExitAmount] = useState<string>('0');
     const [slippageTolerance, setSlippageTolerance] = useState<number>(3.0);
     const [currentGasPrice, setCurrentGasPrice] = useState<number | undefined>(
-        gasPrices?.standard
+        gasPrices?.standard,
     );
     const [approvalState, setApprovalState] = useState<'needed' | 'done'>(
-        'needed'
+        'needed',
     );
     const [txSubmitted, setTxSubmitted] = useState(false);
     const { setPendingTx } = usePendingTx();
@@ -84,7 +84,7 @@ function RemoveLiquidity({
         const symbol1 = pairData.token1.symbol;
 
         const currentInvariant = new BigNumber(pairData.reserve0).times(
-            pairData.reserve1
+            pairData.reserve1,
         );
 
         if (
@@ -98,7 +98,7 @@ function RemoveLiquidity({
             // Deduct fee from amount we can swap
             const purchasingPower = new BigNumber(0.997).times(expectedToken1);
             const updatedReserve1 = new BigNumber(pairData.reserve1).plus(
-                purchasingPower
+                purchasingPower,
             );
             const updatedReserve0 = currentInvariant.div(updatedReserve1);
             // const newPriceRatio = updatedReserve0.div(updatedReserve1);
@@ -112,7 +112,7 @@ function RemoveLiquidity({
             if (invariantAfterSwap.toFixed(4) !== currentInvariant.toFixed(4)) {
                 // throw new Error(`Swap expectations do not meet invariant - old ${currentInvariant.toFixed(4)} - new ${invariantAfterSwap.toFixed(4)}`);
                 console.warn(
-                    `Swap expectations do not meet invariant - old ${currentInvariant.toFixed()} - new ${invariantAfterSwap.toFixed()}`
+                    `Swap expectations do not meet invariant - old ${currentInvariant.toFixed()} - new ${invariantAfterSwap.toFixed()}`,
                 );
             }
 
@@ -129,7 +129,7 @@ function RemoveLiquidity({
             // Deduct fee from amount we can swap
             const purchasingPower = new BigNumber(0.997).times(expectedToken0);
             const updatedReserve0 = new BigNumber(pairData.reserve0).plus(
-                purchasingPower
+                purchasingPower,
             );
             const updatedReserve1 = currentInvariant.div(updatedReserve0);
             // const newPriceRatio = updatedReserve0.div(updatedReserve1);
@@ -143,7 +143,7 @@ function RemoveLiquidity({
             if (invariantAfterSwap.toFixed(4) !== currentInvariant.toFixed(4)) {
                 // throw new Error(`Swap expectations do not meet invariant - old ${currentInvariant.toFixed(4)} - new ${invariantAfterSwap.toFixed(4)}`);
                 console.warn(
-                    `Swap expectations do not meet invariant - old ${currentInvariant.toFixed()} - new ${invariantAfterSwap.toFixed()}`
+                    `Swap expectations do not meet invariant - old ${currentInvariant.toFixed()} - new ${invariantAfterSwap.toFixed()}`,
                 );
             }
 
@@ -156,7 +156,7 @@ function RemoveLiquidity({
             return owedEth.toFixed(4);
         } else {
             console.warn(
-                `Exit token ${exitToken} does not belong to pair - could not calculate price impact`
+                `Exit token ${exitToken} does not belong to pair - could not calculate price impact`,
             );
             return '0';
         }
@@ -177,7 +177,7 @@ function RemoveLiquidity({
         const exitAmountNum = new BigNumber(exitAmount);
         const allowanceStr = ethers.utils.formatUnits(
             allowance || 0,
-            parseInt(balances.currentPair?.decimals || '0', 10)
+            parseInt(balances.currentPair?.decimals || '0', 10),
         );
         const allowanceNum = new BigNumber(allowanceStr);
 
@@ -210,14 +210,14 @@ function RemoveLiquidity({
         const decimals = parseInt(balances.currentPair?.decimals || '0', 10);
         if (decimals === 0) {
             throw new Error(
-                `Do not have decimal units for ${decimals} - unsafe, cannot proceed`
+                `Do not have decimal units for ${decimals} - unsafe, cannot proceed`,
             );
         }
 
         const baseAmount = ethers.utils
             .parseUnits(
                 new BigNumber(exitAmount).times(100).toString(),
-                decimals
+                decimals,
             )
             .toString();
         const baseGasPrice = ethers.utils
@@ -231,7 +231,7 @@ function RemoveLiquidity({
             gasEstimate = await pairContract.estimateGas.approve(
                 EXCHANGE_REMOVE_ABI_ADDRESS,
                 baseAmount,
-                { gasPrice: baseGasPrice }
+                { gasPrice: baseGasPrice },
             );
 
             // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
@@ -250,7 +250,7 @@ function RemoveLiquidity({
             {
                 gasPrice: baseGasPrice,
                 gasLimit: gasEstimate,
-            }
+            },
         );
 
         // setApprovalState('pending');
@@ -261,7 +261,7 @@ function RemoveLiquidity({
                     ({
                         approval: [...state.approval, hash],
                         confirm: [...state.confirm],
-                    } as PendingTx)
+                    } as PendingTx),
             );
         await provider.waitForTransaction(hash);
         setPendingTx &&
@@ -270,7 +270,7 @@ function RemoveLiquidity({
                     ({
                         approval: [...state.approval.filter((h) => h !== hash)],
                         confirm: [...state.confirm],
-                    } as PendingTx)
+                    } as PendingTx),
             );
         // setApprovalState('done');
         onClose();
@@ -290,7 +290,7 @@ function RemoveLiquidity({
         const removeLiquidityContract = new ethers.Contract(
             EXCHANGE_REMOVE_ABI_ADDRESS,
             exchangeRemoveAbi,
-            signer
+            signer,
         );
 
         // Call the contract and sign
@@ -314,10 +314,13 @@ function RemoveLiquidity({
         const expectedExitTokensNum = new BigNumber(expectedExitToken);
         const slippageRatio = new BigNumber(slippageTolerance).div(100);
         const minExitTokens = expectedExitTokensNum.times(
-            new BigNumber(1).minus(slippageRatio)
+            new BigNumber(1).minus(slippageRatio),
         );
         const baseMinExitTokens = ethers.utils
-            .parseUnits(minExitTokens.toString(), balances[exitToken]?.decimals || 18)
+            .parseUnits(
+                minExitTokens.toString(),
+                balances[exitToken]?.decimals || 18,
+            )
             .toString();
 
         // Call the contract and sign
@@ -355,7 +358,7 @@ function RemoveLiquidity({
                 exitToken,
                 gasEstimate,
                 exitAmount,
-                slippageTolerance
+                slippageTolerance,
             };
 
             mixpanel.track('transaction:removeLiquidity', metrics);
@@ -382,7 +385,7 @@ function RemoveLiquidity({
         } else {
             const lastPosition = pairPosition[pairPosition.length - 1];
             currentLpTokens = new BigNumber(
-                lastPosition.liquidityTokenBalance
+                lastPosition.liquidityTokenBalance,
             ).toFixed();
         }
     }
@@ -424,7 +427,7 @@ function RemoveLiquidity({
     }
 
     const renderPairText = (
-        pair: string | { id: string; symbol: string }
+        pair: string | { id: string; symbol: string },
     ): string => {
         // If pair is string, it's typed in so return
         if (typeof pair === 'string') return pair;
@@ -457,7 +460,7 @@ function RemoveLiquidity({
     }
 
     const exitOptions = Object.values(balances).filter(
-        (balance) => balance.id !== pairData.id
+        (balance) => balance.id !== pairData.id,
     );
 
     return (
@@ -561,7 +564,9 @@ function RemoveLiquidity({
                                 value={slippageTolerance}
                                 type='number'
                                 onChange={(e) => {
-                                    setSlippageTolerance(parseFloat(e.target.value))
+                                    setSlippageTolerance(
+                                        parseFloat(e.target.value),
+                                    );
                                 }}
                             />
                             <InputGroup.Append>

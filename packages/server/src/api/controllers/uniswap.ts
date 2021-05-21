@@ -38,18 +38,16 @@ const getCurrentTopPerformingPairs = memoize(
     ttl5min,
 );
 const getEthPrice = memoize(UniswapFetcher.getEthPrice, ttl5min);
-const getHistoricalDailyData = memoize(
-    UniswapFetcher.getHistoricalDailyData,
-    { ttl: 3600 * 1000 },
-);
+const getHistoricalDailyData = memoize(UniswapFetcher.getHistoricalDailyData, {
+    ttl: 3600 * 1000,
+});
 const getHistoricalHourlyData = memoize(
     UniswapFetcher.getHistoricalHourlyData,
     ttl5min,
 );
-const getFirstBlockAfter = memoize(
-    EthBlockFetcher.getFirstBlockAfter,
-    { ttl: 10000 * 1000 },
-);
+const getFirstBlockAfter = memoize(EthBlockFetcher.getFirstBlockAfter, {
+    ttl: 10000 * 1000,
+});
 
 class UniswapController {
     static async getTopPairs(req: Request) {
@@ -60,14 +58,14 @@ class UniswapController {
             if (Number.isNaN(count) || count < 1)
                 throw new HTTPError(
                     400,
-                    `Invalid 'count' parameter: ${req.query.count}`
+                    `Invalid 'count' parameter: ${req.query.count}`,
                 );
         }
 
         const topPairs: IUniswapPair[] = await getTopPairs(
             count,
             'volumeUSD',
-            true
+            true,
         );
 
         return topPairs;
@@ -83,7 +81,7 @@ class UniswapController {
             if (Number.isNaN(count) || count < 1)
                 throw new HTTPError(
                     400,
-                    `Invalid 'count' parameter: ${req.query.count}`
+                    `Invalid 'count' parameter: ${req.query.count}`,
                 );
         }
 
@@ -95,7 +93,7 @@ class UniswapController {
         // Get 25 top pairs
         // TODO: make this changeable by query
         const topPairs: IUniswapPair[] = await getCurrentTopPerformingPairs(
-            count
+            count,
         );
 
         const [startBlock, endBlock] = await Promise.all([
@@ -116,22 +114,22 @@ class UniswapController {
                     }
 
                     throw err;
-                })
+                }),
         );
 
         const historicalData: IUniswapPair[][] = await Promise.all(
-            historicalFetches
+            historicalFetches,
         );
 
         // Calculate IL for top 25 pairs by liquidity
         const marketStats = await calculateMarketStats(
             topPairs,
             historicalData,
-            'delta'
+            'delta',
         );
 
         const statsByReturn = [...marketStats].sort(
-            (a, b) => b.pctReturn - a.pctReturn
+            (a, b) => b.pctReturn - a.pctReturn,
         );
 
         return statsByReturn;
@@ -147,7 +145,7 @@ class UniswapController {
             if (Number.isNaN(count) || count < 1)
                 throw new HTTPError(
                     400,
-                    `Invalid 'count' parameter: ${req.query.count}`
+                    `Invalid 'count' parameter: ${req.query.count}`,
                 );
         }
 
@@ -160,7 +158,7 @@ class UniswapController {
         // Get 25 top pairs
         // TODO: make this changeable by query
         const topPairs: IUniswapPair[] = await getCurrentTopPerformingPairs(
-            count
+            count,
         );
 
         // // Fetch first hour and last hour
@@ -217,22 +215,22 @@ class UniswapController {
                     }
 
                     throw err;
-                })
+                }),
         );
         const historicalData: IUniswapPair[][] = await Promise.all(
-            historicalFetches
+            historicalFetches,
         );
 
         // Calculate IL for top 25 pairs by liquidity
         const marketStats = await calculateMarketStats(
             topPairs,
             historicalData,
-            'delta'
+            'delta',
         );
 
         // TODO: Determine cause of nulls and fix
         const statsByReturn = [...marketStats].sort(
-            (a, b) => b.pctReturn - a.pctReturn
+            (a, b) => b.pctReturn - a.pctReturn,
         );
 
         return statsByReturn;
@@ -273,7 +271,7 @@ class UniswapController {
         ]);
 
         const combined = [...mints, ...burns].sort(
-            (a, b) => parseInt(b.timestamp, 10) - parseInt(a.timestamp, 10)
+            (a, b) => parseInt(b.timestamp, 10) - parseInt(a.timestamp, 10),
         );
 
         return { mints, burns, combined };
@@ -296,7 +294,7 @@ class UniswapController {
             throw new HTTPError(400, `Received invalid date for 'startDate'.`);
 
         const startDateDayStart = new Date(
-            Math.floor(startDate.getTime() / oneDayMs) * oneDayMs
+            Math.floor(startDate.getTime() / oneDayMs) * oneDayMs,
         );
 
         const endDate: Date = req.query.endDate
@@ -306,13 +304,13 @@ class UniswapController {
             throw new HTTPError(400, `Received invalid date for 'endDate'.`);
 
         const endDateDayEnd = new Date(
-            Math.ceil(endDate.getTime() / oneDayMs) * oneDayMs
+            Math.ceil(endDate.getTime() / oneDayMs) * oneDayMs,
         );
 
         const historicalDailyData: UniswapDailyData[] = await getHistoricalDailyData(
             pairId,
             startDateDayStart,
-            endDateDayEnd
+            endDateDayEnd,
         );
 
         return historicalDailyData;
@@ -336,7 +334,7 @@ class UniswapController {
             throw new HTTPError(400, `Received invalid date for 'startDate'.`);
 
         const startDateHourStart = new Date(
-            Math.floor(startDate.getTime() / oneHourMs) * oneHourMs
+            Math.floor(startDate.getTime() / oneHourMs) * oneHourMs,
         );
 
         const endDate: Date = req.query.endDate
@@ -346,13 +344,13 @@ class UniswapController {
             throw new HTTPError(400, `Received invalid date for 'endDate'.`);
 
         const endDateHourEnd = new Date(
-            Math.ceil(endDate.getTime() / oneHourMs) * oneHourMs
+            Math.ceil(endDate.getTime() / oneHourMs) * oneHourMs,
         );
 
         const historicalHourlyData: UniswapHourlyData[] = await getHistoricalHourlyData(
             pairId,
             startDateHourStart,
-            endDateHourEnd
+            endDateHourEnd,
         );
         return historicalHourlyData;
     }
@@ -396,18 +394,18 @@ class UniswapController {
                     }
 
                     throw err;
-                })
+                }),
         );
 
         const historicalData: IUniswapPair[][] = await Promise.all(
-            historicalFetches
+            historicalFetches,
         );
 
         // Calculate IL for top 25 pairs by liquidity
         const marketStats = await calculateMarketStats(
             pairsByVol,
             historicalData,
-            'delta'
+            'delta',
         );
 
         return marketStats.slice(0, 25);
@@ -439,7 +437,7 @@ class UniswapController {
             throw new HTTPError(400, `'lpLiquidityUSD' is required.`);
         const lpLiquidityUSD: number = parseInt(
             req.query.lpLiquidityUSD?.toString(),
-            10
+            10,
         );
         if (Number.isNaN(lpLiquidityUSD) || lpLiquidityUSD < 0)
             throw new HTTPError(400, `Invalid 'lpLiquidityUSD' value.`);
@@ -473,7 +471,7 @@ class UniswapController {
             throw new HTTPError(400, `'address' must be a valid ETH address.`);
 
         const liquidityPositions = await UniswapFetcher.getLiquidityPositions(
-            userAddress
+            userAddress,
         );
 
         return liquidityPositions;
@@ -481,11 +479,11 @@ class UniswapController {
 
     static async getLiquidityPositionStats(req: Request) {
         const liquidityPositions = await UniswapController.getLiquidityPositions(
-            req
+            req,
         );
 
         const positionStats = await calculateStatsForPositions(
-            liquidityPositions
+            liquidityPositions,
         );
 
         return { positions: liquidityPositions, stats: positionStats };
@@ -494,17 +492,23 @@ class UniswapController {
 
 export default express
     .Router()
-    .get('/ethPrice', wrapRequest(UniswapController.getEthPrice, {
-        public: true,
-        maxAge: 5,
-        sMaxAge: 20,
-    }))
+    .get(
+        '/ethPrice',
+        wrapRequest(UniswapController.getEthPrice, {
+            public: true,
+            maxAge: 5,
+            sMaxAge: 20,
+        }),
+    )
     // .get('/market', wrapRequest(UniswapController.getMarketStats))
-    .get('/pairs', wrapRequest(UniswapController.getTopPairs, {
-        public: true,
-        maxAge: 15,
-        sMaxAge: 60,
-    }))
+    .get(
+        '/pairs',
+        wrapRequest(UniswapController.getTopPairs, {
+            public: true,
+            maxAge: 15,
+            sMaxAge: 60,
+        }),
+    )
     // .get(
     //     '/pairs/performance/daily',
     //     cacheMiddleware(300),
@@ -515,37 +519,40 @@ export default express
     //     cacheMiddleware(300),
     //     wrapRequest(UniswapController.getWeeklyTopPerformingPairs)
     // )
-    .get('/pairs/:id', wrapRequest(UniswapController.getPairOverview, {
-        public: true,
-        maxAge: 15,
-        sMaxAge: 60,
-    }))
-    // .get(
-    //     '/pairs/:id/swaps',
-    //     cacheMiddleware(60),
-    //     wrapRequest(UniswapController.getSwapsForPair)
-    // )
-    // .get(
-    //     '/pairs/:id/addremove',
-    //     cacheMiddleware(60),
-    //     wrapRequest(UniswapController.getMintsAndBurnsForPair)
-    // )
-    // .get(
-    //     '/pairs/:id/historical/daily',
-    //     wrapRequest(UniswapController.getHistoricalDailyData)
-    // )
-    // .get(
-    //     '/pairs/:id/historical/hourly',
-    //     wrapRequest(UniswapController.getHistoricalHourlyData)
-    // )
-    // .get('/pairs/:id/stats', wrapRequest(UniswapController.getPairStats))
-    // .get(
-    //     '/positions/:address',
-    //     cacheMiddleware(60),
-    //     wrapRequest(UniswapController.getLiquidityPositions)
-    // )
-    // .get(
-    //     '/positions/:address/stats',
-    //     cacheMiddleware(300),
-    //     wrapRequest(UniswapController.getLiquidityPositionStats)
-    // );
+    .get(
+        '/pairs/:id',
+        wrapRequest(UniswapController.getPairOverview, {
+            public: true,
+            maxAge: 15,
+            sMaxAge: 60,
+        }),
+    );
+// .get(
+//     '/pairs/:id/swaps',
+//     cacheMiddleware(60),
+//     wrapRequest(UniswapController.getSwapsForPair)
+// )
+// .get(
+//     '/pairs/:id/addremove',
+//     cacheMiddleware(60),
+//     wrapRequest(UniswapController.getMintsAndBurnsForPair)
+// )
+// .get(
+//     '/pairs/:id/historical/daily',
+//     wrapRequest(UniswapController.getHistoricalDailyData)
+// )
+// .get(
+//     '/pairs/:id/historical/hourly',
+//     wrapRequest(UniswapController.getHistoricalHourlyData)
+// )
+// .get('/pairs/:id/stats', wrapRequest(UniswapController.getPairStats))
+// .get(
+//     '/positions/:address',
+//     cacheMiddleware(60),
+//     wrapRequest(UniswapController.getLiquidityPositions)
+// )
+// .get(
+//     '/positions/:address/stats',
+//     cacheMiddleware(300),
+//     wrapRequest(UniswapController.getLiquidityPositionStats)
+// );

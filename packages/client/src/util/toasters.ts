@@ -14,10 +14,10 @@ export function toastWarn(msg: string): void {
     toast.warning(msg, options);
 }
 
-export function toastSuccess(msg: string): void{
+export function toastSuccess(msg: string): void {
     toast.success(msg, options);
 }
 
-export function toastError(msg: string): void{
+export function toastError(msg: string): void {
     toast.error(msg, options);
 }

@@ -44,7 +44,6 @@ if (redisPw != null && redisPw.length > 0) {
 }
 const redis = new Redis(redisConfig);
 
-
 // memoizer config
 const memoConfig = {
     lockTimeout: 1000 * 30, // attempt to acquire lock for 30 seconds
@@ -53,9 +52,11 @@ const memoConfig = {
 const v3Fetcher = new UniswapV3Fetcher(sdk);
 const getTopPools = v3Fetcher.getTopPools.bind(v3Fetcher);
 
-const bqMemo = memoizer(redis, { ttl: 1000 * 60 * 60 * 1, ...memoConfig }) // 1hr
+const bqMemo = memoizer(redis, { ttl: 1000 * 60 * 60 * 1, ...memoConfig }); // 1hr
 const getPeriodIndicators = bqMemo(_getPeriodIndicators);
-const getLastDayOHLC = bqMemo(BitqueryFetcher.getLastDayOHLC.bind(BitqueryFetcher));
+const getLastDayOHLC = bqMemo(
+    BitqueryFetcher.getLastDayOHLC.bind(BitqueryFetcher),
+);
 
 // This script is meant to be scheduled and run on an interval by cron.
 // We want to keep the top pools query cache warmed up on mainnet at all times
@@ -70,9 +71,13 @@ export async function run(): Promise<void> {
     const filter: Set<string> = new Set();
 
     const topPools = await getTopPools(count, sort);
-    log.info({ msg: `Fetched ${topPools.length} top pools`, count: topPools.length });
+    log.info({
+        msg: `Fetched ${topPools.length} top pools`,
+        count: topPools.length,
+    });
 
-    const top = topPools.slice(0, poolCount * 5) // get more than we need
+    const top = topPools
+        .slice(0, poolCount * 5) // get more than we need
         // filter duplicate token pairs out
         .filter((pool: any) => {
             const name = poolId(pool);
@@ -82,7 +87,8 @@ export async function run(): Promise<void> {
 
             filter.add(name);
             return true;
-        }).slice(0, poolCount); // get what we need
+        })
+        .slice(0, poolCount); // get what we need
 
     // chunk pools in groups of 5
     const chunks = chunk(top, 5);
@@ -102,9 +108,13 @@ async function updatePoolCache(pool: any) {
         // TODO: remove daily data fetch after client refactor
         // get daily data
         await getLastDayOHLC.forceUpdate(baseToken, quoteToken);
-        log.info({ msg: `Fetched daily data: ${name}`, pool: name, })
+        log.info({ msg: `Fetched daily data: ${name}`, pool: name });
     } catch (error) {
-        log.error({ msg: `Unable to update daily data: ${name}`, pool: name, error: error.message ?? '' });
+        log.error({
+            msg: `Unable to update daily data: ${name}`,
+            pool: name,
+            error: error.message ?? '',
+        });
     }
 
     // calculate period for fetching indicators, must be same as client code
@@ -113,11 +123,19 @@ async function updatePoolCache(pool: any) {
     const startDate = startOfDay(subDays(now, periodDays)).getTime();
 
     try {
-        await getPeriodIndicators.forceUpdate(baseToken, quoteToken, startDate, endDate);
+        await getPeriodIndicators.forceUpdate(
+            baseToken,
+            quoteToken,
+            startDate,
+            endDate,
+        );
         log.info({ msg: `Fetched indicators: ${name}`, pool: name });
     } catch (error) {
-        log.error({ msg: `Unable to update indicator data: ${name}`, pool: name, error: error.message ?? '' });
-
+        log.error({
+            msg: `Unable to update indicator data: ${name}`,
+            pool: name,
+            error: error.message ?? '',
+        });
     }
 }
 
@@ -140,7 +158,7 @@ function poolId(pool: any) {
     return `${poolName(pool)}-${token0.id.substr(-8)}-${token1.id.substr(-8)}`;
 }
 
-function chunk (a: Array<any>, size: number): Array<Array<any>> {
+function chunk(a: Array<any>, size: number): Array<Array<any>> {
     if (Array.length === 0) return [];
 
     const chunks: Array<Array<any>> = [[]];

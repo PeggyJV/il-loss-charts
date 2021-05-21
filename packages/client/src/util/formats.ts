@@ -9,21 +9,22 @@ const usdFormatter = new Intl.NumberFormat('en-US', {
     //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
 });
 
-export const formatUSD = (val: string | number): string => usdFormatter.format(parseFloat(val.toString()));
+export const formatUSD = (val: string | number): string =>
+    usdFormatter.format(parseFloat(val.toString()));
 
 export const formatAddress = (val: string): string => {
-    return `${val.substring(0,6)}...${val.substring(val.length - 5)}`
-}
+    return `${val.substring(0, 6)}...${val.substring(val.length - 5)}`;
+};
 export const compactHash = (val = ''): string => {
-    if(val.length !== 66){
+    if (val.length !== 66) {
         return val.substring(0, 6).concat('... ');
     }
     return val.substring(0, 6).concat('...').concat(val.substring(62));
-}
+};
 
 export const poolSymbol = (pool: PoolLike, separator = ' '): string => {
     if (!pool || !pool.token0 || !pool.token1) return '';
 
-    return `${pool.token0.symbol}${separator}${pool.token1.symbol}`
-}
+    return `${pool.token0.symbol}${separator}${pool.token1.symbol}`;
+};
 export type { PoolLike };

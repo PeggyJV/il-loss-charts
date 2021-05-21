@@ -16,11 +16,10 @@ class MixpanelWrapper {
             this.isActive = true;
             mixpanel.init(token, { debug: true });
 
-
             mixpanel.track('page_load');
 
             try {
-              mixpanel.track('page_load', { distinct_id: Date.now() });
+                mixpanel.track('page_load', { distinct_id: Date.now() });
             } catch (e) {
                 console.error(`Metrics error on page_load.`);
             }
@@ -42,28 +41,37 @@ export default mix;
 export function trackPoolSelected(pool: PoolLike): void {
     mix.track('pool:selected', {
         name: poolName(pool),
-    })
+    });
 }
 
-export function trackSentimentInteraction(pool: PoolLike, sentiment: Sentiment): void {
+export function trackSentimentInteraction(
+    pool: PoolLike,
+    sentiment: Sentiment,
+): void {
     mix.track('pool:sentiment-selected', {
         name: poolName(pool),
         sentiment,
-    })
+    });
 }
 
-export function trackAddLiquidityTx(pool: PoolLike, sentiment: Sentiment, bounds: BoundsState, type: string, amounts: Record<string, TokenInputAmount>): void {
+export function trackAddLiquidityTx(
+    pool: PoolLike,
+    sentiment: Sentiment,
+    bounds: BoundsState,
+    type: string,
+    amounts: Record<string, TokenInputAmount>,
+): void {
     mix.track('pool:add-liquidity', {
         name: poolName(pool),
         type,
         sentiment,
         bounds: { prices: bounds.prices, ticks: bounds.ticks },
-        amounts
-    })
+        amounts,
+    });
 }
 
 export function trackPoolSearch(): void {
-    mix.track('pool:search-started', {})
+    mix.track('pool:search-started', {});
 }
 
 function poolName(pool: PoolLike): string {

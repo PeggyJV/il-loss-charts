@@ -52,9 +52,9 @@ Note: Beware of modifying this element as it can break the animations - you shou
     flex-direction: column;
     justify-content: flex-start;
     width: 100%;
-    text-align:center;
+    text-align: center;
     > div:first-child {
-     margin-bottom: 100px;   
+        margin-bottom: 100px;
     }
 }
 
@@ -68,9 +68,8 @@ Note: Beware of modifying this element as it can break the animations - you shou
 }
 
 .bm-item .side-menu-link.side-menu-active a {
-        color: var(--faceAccentAlt);
+    color: var(--faceAccentAlt);
 }
-
 
 /* Individual item */
 
@@ -81,10 +80,10 @@ Note: Beware of modifying this element as it can break the animations - you shou
     outline: none;
     text-align: left;
     > p {
-      border-bottom: 1px solid var(--bgDeep);
+        border-bottom: 1px solid var(--bgDeep);
     }
-    > p:last-child{
-      border-bottom: none;
+    > p:last-child {
+        border-bottom: none;
     }
 }
 
@@ -92,16 +91,16 @@ Note: Beware of modifying this element as it can break the animations - you shou
     margin-right: 1rem;
 }
 .bm-item .side-menu-link {
-  padding: 0.8rem 1rem;
+    padding: 0.8rem 1rem;
 }
 .bm-item .side-menu-link a {
     font-size: 1rem;
     color: var(--faceSecondary);
     text-transform: uppercase;
-    & svg{
-      font-size: 1rem;
-      color: var(--faceSecondary);
-    } 
+    & svg {
+        font-size: 1rem;
+        color: var(--faceSecondary);
+    }
 }
 
 .bm-item .side-menu-link a:hover {
@@ -131,7 +130,10 @@ Note: Beware of modifying this element as it can break the animations - you shou
     text-align: center;
     text-transform: uppercase;
     margin-bottom: 2rem;
-    a,:visited,:active,:focus {
+    a,
+    :visited,
+    :active,
+    :focus {
         color: var(--facePrimary);
     }
 }

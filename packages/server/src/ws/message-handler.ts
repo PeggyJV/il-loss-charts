@@ -59,7 +59,7 @@ export default class WsMessageHandler {
         if (!msgPayload.topics || topics.length === 0) {
             return this.sendError(
                 400,
-                `Received 'subscribe' message without topics.`
+                `Received 'subscribe' message without topics.`,
             );
         }
 
@@ -85,7 +85,7 @@ export default class WsMessageHandler {
         if (!msgPayload.topics || topics.length === 0) {
             return this.sendError(
                 400,
-                `Received 'subscribe' message without topics.`
+                `Received 'subscribe' message without topics.`,
             );
         }
 
@@ -127,7 +127,7 @@ export default class WsMessageHandler {
         if (!query) {
             this.sendError(
                 400,
-                `Did not receive query for source ${source}. To subscribe to all queries use a wildcard.`
+                `Did not receive query for source ${source}. To subscribe to all queries use a wildcard.`,
             );
             return false;
         }
@@ -137,7 +137,7 @@ export default class WsMessageHandler {
             if (query !== '*' && !(service as any)[query]) {
                 this.sendError(
                     400,
-                    `Invalid query for source ${source}: ${query}`
+                    `Invalid query for source ${source}: ${query}`,
                 );
                 return false;
             }
@@ -160,7 +160,7 @@ export default class WsMessageHandler {
             if (query === 'pendingTransactions' && !isValidEthAddress(args)) {
                 this.sendError(
                     400,
-                    `Invalid address for pendingTransactions query.`
+                    `Invalid address for pendingTransactions query.`,
                 );
                 return false;
             }
@@ -185,7 +185,7 @@ export default class WsMessageHandler {
                 this.sendJSON({
                     topic,
                     data,
-                })
+                }),
             );
         } else {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -195,7 +195,7 @@ export default class WsMessageHandler {
                     this.sendJSON({
                         topic,
                         data,
-                    })
+                    }),
                 );
         }
     }
@@ -211,7 +211,7 @@ export default class WsMessageHandler {
         const queryFn = (dataSource as any)[query];
         if (!queryFn)
             throw new Error(
-                `Query ${query} does not exist on data source ${source}`
+                `Query ${query} does not exist on data source ${source}`,
             );
 
         // Assume args are comma-delimited
@@ -225,9 +225,9 @@ export default class WsMessageHandler {
                     this.sendJSON({
                         topic,
                         data: latest,
-                    })
+                    }),
                 );
-            }
+            },
         );
     }
 

@@ -29,7 +29,9 @@ function PairSelector({
         }
     }
 
-    const [currentValue, setCurrentValue] = useState<IUniswapPair>(defaultValue);
+    const [currentValue, setCurrentValue] = useState<IUniswapPair>(
+        defaultValue,
+    );
 
     const leftSideOptions = [];
     const rightSideOptions = [];
@@ -54,7 +56,7 @@ function PairSelector({
     }, [currentValue, setPair]);
 
     const renderPairText = (side: 'left' | 'right') => (
-        pair: string | IUniswapPair
+        pair: string | IUniswapPair,
     ): string => {
         // If pair is string, it's typed in so return
         if (typeof pair === 'string') return pair;
@@ -64,7 +66,7 @@ function PairSelector({
     };
 
     const handleChange = (side: 'left' | 'right') => (
-        value: string | IUniswapPair
+        value: string | IUniswapPair,
     ): void => {
         // If pair is string, it's typed in
         // so just override one side
