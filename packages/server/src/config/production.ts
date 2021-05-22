@@ -14,6 +14,9 @@ const config: RecursivePartial<AppConfig> = {
             },
         },
     },
+    pools: {
+        shortLinkBaseUrl: 'https://somm.fi',
+    },
 };
 
 export default config;

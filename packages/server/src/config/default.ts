@@ -50,7 +50,8 @@ const config = {
         secret: '',
     },
     pools: {
-        shortLinkBaseUrl: defer(function (): string {
+        shortLinkBaseUrl: 'https://dev.somm.fi',
+        deepLinkBaseUrl: defer(function (): string {
             const host: string = this.server.host ?? '';
             return `${host}/pools`;
         }),
