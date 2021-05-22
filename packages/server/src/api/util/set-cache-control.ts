@@ -4,6 +4,7 @@ export type CacheControl = {
     // cacheability options
     public?: boolean;
     noStore?: boolean;
+    immutable?: boolean;
 
     // expiration options
     maxAge?: number; // seconds
@@ -30,6 +31,7 @@ const optionToName: Record<string, string> = {
     sMaxAge: 's-maxage',
     mustRevalidate: 'must-revalidate',
     proxyRevalidate: 'proxy-revalidate',
+    immutable: 'immutable,',
 };
 
 const validCacheability: Array<keyof CacheControl> = ['public', 'noStore'];
@@ -38,6 +40,7 @@ const validDirectives: Array<keyof CacheControl> = [
     'sMaxAge',
     'mustRevalidate',
     'proxyRevalidate',
+    'immutable',
 ];
 
 export function makeDirective(options: CacheControl): string | undefined {
