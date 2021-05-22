@@ -16,6 +16,7 @@ export REDIS_AUTH=$(gcloud secrets versions access latest --secret=REDIS_AUTH)
 export REDIS_URL=$(gcloud secrets versions access latest --secret=APP_PROD_REDIS_URL)
 
 export V3_SUBGRAPH_URL=$(gcloud secrets versions access latest --secret=APP_PROD_V3_SUBGRAPH_URL)
+export FIREBASE_SERVICE_ACCOUNT=$(gcloud secrets versions access latest --secret=APP_PROD_FIREBASE_SERVICE_ACCOUNT)
 
 mkdir -p /var/log/app
 
