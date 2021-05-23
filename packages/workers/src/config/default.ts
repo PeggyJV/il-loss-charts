@@ -22,7 +22,7 @@ export default {
     },
     redisCacheWarmer: {
         v3SubgraphUrl:
-            'http://localhost:8000/subgraphs/name/sommelier/uniswap-v3',
+            'http://localhost:8000/subgraphs/name/sommelier/uniswap-v3-history',
         redisUrl: '127.0.0.1',
         redisPort: 6379,
         redisDb: 0,
