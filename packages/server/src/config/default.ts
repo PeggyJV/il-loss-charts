@@ -21,7 +21,7 @@ const config = {
         v3: {
             networks: {
                 mainnet:
-                    'http://localhost:8000/subgraphs/name/sommelier/uniswap-v3',
+                    'http://localhost:8000/subgraphs/name/sommelier/uniswap-v3-history',
                 rinkeby:
                     'http://35.197.14.14:8000/subgraphs/name/sommelier/uniswap-v3-2',
                 goerli:
