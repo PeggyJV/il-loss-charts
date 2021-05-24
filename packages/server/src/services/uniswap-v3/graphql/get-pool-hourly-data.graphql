@@ -19,6 +19,10 @@ query getPoolHourlyData(
         }
         liquidity
         sqrtPrice
+        open
+        high
+        low
+        close
         periodStartUnix
         volumeToken0
         volumeToken1

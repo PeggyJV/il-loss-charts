@@ -148,6 +148,10 @@ export interface PoolDayData {
     sqrtPrice: Scalars['BigInt'];
     token0Price: Scalars['BigDecimal'];
     token1Price: Scalars['BigDecimal'];
+    open: Scalars['BigDecimal'];
+    high: Scalars['BigDecimal'];
+    low: Scalars['BigDecimal'];
+    close: Scalars['BigDecimal'];
     tick?: Maybe<Scalars['BigInt']>;
     tvlUSD: Scalars['BigDecimal'];
     volumeToken0: Scalars['BigDecimal'];
@@ -171,6 +175,10 @@ export interface PoolHourData {
     sqrtPrice: Scalars['BigInt'];
     token0Price: Scalars['BigDecimal'];
     token1Price: Scalars['BigDecimal'];
+    open: Scalars['BigDecimal'];
+    high: Scalars['BigDecimal'];
+    low: Scalars['BigDecimal'];
+    close: Scalars['BigDecimal'];
     tick?: Maybe<Scalars['BigInt']>;
     tvlUSD: Scalars['BigDecimal'];
     volumeToken0: Scalars['BigDecimal'];
@@ -387,6 +395,10 @@ export type GetPoolDailyDataQuery = { __typename?: 'Query' } & {
             | 'date'
             | 'liquidity'
             | 'sqrtPrice'
+            | 'open'
+            | 'high'
+            | 'low'
+            | 'close'
             | 'volumeToken0'
             | 'volumeToken1'
             | 'volumeUSD'
@@ -409,6 +421,10 @@ export type GetPoolHourlyDataQuery = { __typename?: 'Query' } & {
             PoolHourData,
             | 'liquidity'
             | 'sqrtPrice'
+            | 'open'
+            | 'high'
+            | 'low'
+            | 'close'
             | 'periodStartUnix'
             | 'volumeToken0'
             | 'volumeToken1'

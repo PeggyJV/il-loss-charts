@@ -16,6 +16,10 @@ query getPoolDailyData(
         }
         liquidity
         sqrtPrice
+        open
+        high
+        low
+        close
         volumeToken0
         volumeToken1
         volumeUSD

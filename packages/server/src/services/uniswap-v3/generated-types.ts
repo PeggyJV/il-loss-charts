@@ -149,6 +149,10 @@ export interface PoolDayData {
   sqrtPrice: Scalars['BigInt'];
   token0Price: Scalars['BigDecimal'];
   token1Price: Scalars['BigDecimal'];
+  open: Scalars['BigDecimal'];
+  high: Scalars['BigDecimal'];
+  low: Scalars['BigDecimal'];
+  close: Scalars['BigDecimal'];
   tick?: Maybe<Scalars['BigInt']>;
   tvlUSD: Scalars['BigDecimal'];
   volumeToken0: Scalars['BigDecimal'];
@@ -172,6 +176,10 @@ export interface PoolHourData {
   sqrtPrice: Scalars['BigInt'];
   token0Price: Scalars['BigDecimal'];
   token1Price: Scalars['BigDecimal'];
+  open: Scalars['BigDecimal'];
+  high: Scalars['BigDecimal'];
+  low: Scalars['BigDecimal'];
+  close: Scalars['BigDecimal'];
   tick?: Maybe<Scalars['BigInt']>;
   tvlUSD: Scalars['BigDecimal'];
   volumeToken0: Scalars['BigDecimal'];
@@ -399,7 +407,7 @@ export type GetPoolDailyDataQuery = (
   { __typename?: 'Query' }
   & { poolDayDatas: Array<(
     { __typename?: 'PoolDayData' }
-    & Pick<PoolDayData, 'date' | 'liquidity' | 'sqrtPrice' | 'volumeToken0' | 'volumeToken1' | 'volumeUSD' | 'tvlUSD'>
+    & Pick<PoolDayData, 'date' | 'liquidity' | 'sqrtPrice' | 'open' | 'high' | 'low' | 'close' | 'volumeToken0' | 'volumeToken1' | 'volumeUSD' | 'tvlUSD'>
     & { pool: (
       { __typename?: 'Pool' }
       & Pick<Pool, 'id'>
@@ -420,7 +428,7 @@ export type GetPoolHourlyDataQuery = (
   { __typename?: 'Query' }
   & { poolHourDatas: Array<(
     { __typename?: 'PoolHourData' }
-    & Pick<PoolHourData, 'liquidity' | 'sqrtPrice' | 'periodStartUnix' | 'volumeToken0' | 'volumeToken1' | 'volumeUSD' | 'tvlUSD'>
+    & Pick<PoolHourData, 'liquidity' | 'sqrtPrice' | 'open' | 'high' | 'low' | 'close' | 'periodStartUnix' | 'volumeToken0' | 'volumeToken1' | 'volumeUSD' | 'tvlUSD'>
     & { pool: (
       { __typename?: 'Pool' }
       & Pick<Pool, 'id'>
@@ -514,6 +522,10 @@ export const GetPoolDailyDataDocument = gql`
     }
     liquidity
     sqrtPrice
+    open
+    high
+    low
+    close
     volumeToken0
     volumeToken1
     volumeUSD
@@ -533,6 +545,10 @@ export const GetPoolHourlyDataDocument = gql`
     }
     liquidity
     sqrtPrice
+    open
+    high
+    low
+    close
     periodStartUnix
     volumeToken0
     volumeToken1
