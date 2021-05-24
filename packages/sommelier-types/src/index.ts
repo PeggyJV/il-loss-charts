@@ -124,7 +124,18 @@ export interface EthGasPrices {
     fastest: number;
 }
 
+export interface OHLCData {
+    poolId?: string;
+    baseCurrency: string;
+    quoteCurrency: string;
+    current: number;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+}
 export interface LiquidityBand {
+    poolId?: string;
     baseTokenId: string;
     quoteTokenId: string;
     indicatorName: string;

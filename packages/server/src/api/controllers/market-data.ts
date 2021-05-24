@@ -5,7 +5,7 @@ import { endOfDay, startOfDay, subDays } from 'date-fns';
 
 import * as indicators from 'util/indicators';
 import { DexTrade } from 'services/bitquery/generated-types';
-import { LiquidityBand } from '@sommelier/shared-types';
+import { LiquidityBand, OHLCData } from '@sommelier/shared-types';
 import { minuteMs } from 'util/date';
 import validateEthAddress from 'api/util/validate-eth-address';
 import BitqueryFetcher from 'services/bitquery/fetcher';
@@ -47,6 +47,18 @@ const getIndicatorsValidator = celebrate({
     }),
 });
 
+function convertBitqueryToOHLC(dexTradeData: DexTrade): OHLCData {
+    return {
+        baseCurrency: dexTradeData.baseCurrency.address,
+        quoteCurrency: dexTradeData.quoteCurrency.address,
+        current: dexTradeData.quotePrice,
+        open: parseFloat(dexTradeData.open_price || '0'),
+        high: dexTradeData.maximum_price,
+        low: dexTradeData.minimum_price,
+        close: parseFloat(dexTradeData.close_price || '0'),
+    };
+}
+
 // GET /marketData/daily
 const getLastDayOHLC = memoize(
     BitqueryFetcher.getLastDayOHLC.bind(BitqueryFetcher),
@@ -57,7 +69,8 @@ async function getPoolDailyOHLC(
     const { baseToken, quoteToken } = req.query;
 
     const result: DexTrade = await getLastDayOHLC(baseToken, quoteToken);
-    return result;
+    const ohlc = convertBitqueryToOHLC(result);
+    return ohlc;
 }
 
 // GET /marketData/weekly
@@ -70,7 +83,8 @@ async function getPoolWeeklyOHLC(
     const { baseToken, quoteToken } = req.query;
 
     const result: DexTrade = await getLastWeekOHLC(baseToken, quoteToken);
-    return result;
+    const ohlc = convertBitqueryToOHLC(result);
+    return ohlc;
 }
 
 // GET /marketData/indicators
@@ -88,8 +102,9 @@ export async function _getPeriodIndicators(
         startDate,
         endDate,
     );
+    const ohlc = marketData.map(convertBitqueryToOHLC);
 
-    const poolIndicators = indicators.getAllIndicators(marketData);
+    const poolIndicators = indicators.getAllIndicators(ohlc);
     return { marketData, indicators: poolIndicators };
 }
 

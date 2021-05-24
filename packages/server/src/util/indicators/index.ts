@@ -1,10 +1,9 @@
-import { LiquidityBand } from '@sommelier/shared-types';
-import { DexTrade } from 'services/bitquery/generated-types';
+import { LiquidityBand, OHLCData } from '@sommelier/shared-types';
 
 const pos = (val: number) => Math.max(0, val);
 
 export function getAllIndicators(
-    marketData: DexTrade[],
+    marketData: OHLCData[],
 ): { [indicatorName: string]: LiquidityBand } {
     return {
         bollingerSMANormalBand: {
@@ -27,7 +26,7 @@ export function getAllIndicators(
 }
 
 export function getEMABollingerBands(
-    marketData: DexTrade[],
+    marketData: OHLCData[],
     numStdDevs = 2,
 ): LiquidityBand {
     const sampleData = marketData[0];
@@ -36,10 +35,10 @@ export function getEMABollingerBands(
     const boundTerm = numStdDevs * stddev;
 
     return {
-        baseTokenId: sampleData.baseCurrency.address,
-        quoteTokenId: sampleData.quoteCurrency.address,
+        baseTokenId: sampleData.baseCurrency,
+        quoteTokenId: sampleData.quoteCurrency,
         indicatorName: 'BollingerBand',
-        currentPrice: marketData[0].quotePrice,
+        currentPrice: marketData[0].current,
         bounds: {
             bullish: [pos(ma - boundTerm), ma + boundTerm * 1.5],
             neutral: [pos(ma - boundTerm), ma + boundTerm],
@@ -49,7 +48,7 @@ export function getEMABollingerBands(
 }
 
 export function getSMABollingerBands(
-    marketData: DexTrade[],
+    marketData: OHLCData[],
     numStdDevs = 2,
 ): LiquidityBand {
     const sampleData = marketData[0];
@@ -58,10 +57,10 @@ export function getSMABollingerBands(
     const boundTerm = numStdDevs * stddev;
 
     return {
-        baseTokenId: sampleData.baseCurrency.address,
-        quoteTokenId: sampleData.quoteCurrency.address,
+        baseTokenId: sampleData.baseCurrency,
+        quoteTokenId: sampleData.quoteCurrency,
         indicatorName: 'BollingerBand',
-        currentPrice: marketData[0].quotePrice,
+        currentPrice: marketData[0].current,
         bounds: {
             bullish: [pos(ma - boundTerm), ma + boundTerm * 1.5],
             neutral: [pos(ma - boundTerm), ma + boundTerm],
@@ -70,20 +69,18 @@ export function getSMABollingerBands(
     };
 }
 
-export function getRSILevels(marketData: DexTrade[]): LiquidityBand {
+export function getRSILevels(marketData: OHLCData[]): LiquidityBand {
     const sampleData = marketData[0];
-    const currentPrice = sampleData.quotePrice;
+    const currentPrice = sampleData.current;
     const last14Days = marketData.slice(0, 14);
 
     const [pctGains, pctLosses] = last14Days.reduce(
-        (acc: number[][], ohlc: DexTrade, index: number) => {
+        (acc: number[][], ohlc: OHLCData, index: number) => {
             if (index === 0) return acc;
             const [pctGains, pctLosses] = acc;
 
-            const currentClosePrice = parseFloat(ohlc.close_price || '0');
-            const lastClosePrice = parseFloat(
-                last14Days[index - 1].close_price || '0',
-            );
+            const currentClosePrice = ohlc.close;
+            const lastClosePrice = last14Days[index - 1].close;
 
             const amtChange = currentClosePrice - lastClosePrice;
             const pctChange = amtChange / lastClosePrice;
@@ -128,24 +125,24 @@ export function getRSILevels(marketData: DexTrade[]): LiquidityBand {
     const lowerBound = (1 - nextDayPctLoss) * currentPrice;
 
     return {
-        baseTokenId: sampleData.baseCurrency.address,
-        quoteTokenId: sampleData.quoteCurrency.address,
+        baseTokenId: sampleData.baseCurrency,
+        quoteTokenId: sampleData.quoteCurrency,
         indicatorName: 'RSI',
         currentPrice: currentPrice,
         bounds: { neutral: [lowerBound, upperBound] },
     };
 }
 
-export function getSMA(marketData: DexTrade[]): number {
+export function getSMA(marketData: OHLCData[]): number {
     const numDays = marketData.length;
     const priceSum = marketData.reduce(
-        (acc: number, ohlc: DexTrade) => acc + getTypicalPrice(ohlc),
+        (acc: number, ohlc: OHLCData) => acc + getTypicalPrice(ohlc),
         0,
     );
     return priceSum / numDays;
 }
 
-export function getEMA(marketData: DexTrade[], smoothing = 2): number {
+export function getEMA(marketData: OHLCData[], smoothing = 2): number {
     const numDays = marketData.length;
     const prevSMA = getSMA(marketData.slice(1));
 
@@ -156,10 +153,10 @@ export function getEMA(marketData: DexTrade[], smoothing = 2): number {
     return ema;
 }
 
-export function getStandardDeviation(marketData: DexTrade[]): number {
+export function getStandardDeviation(marketData: OHLCData[]): number {
     const mean = getSMA(marketData);
 
-    const sumOfSquares = marketData.reduce((acc: number, ohlc: DexTrade) => {
+    const sumOfSquares = marketData.reduce((acc: number, ohlc: OHLCData) => {
         const tp = getTypicalPrice(ohlc);
         const diff = Math.pow(Math.abs(tp - mean), 2);
         return acc + diff;
@@ -168,11 +165,6 @@ export function getStandardDeviation(marketData: DexTrade[]): number {
     return Math.sqrt(sumOfSquares / marketData.length);
 }
 
-function getTypicalPrice(ohlc: DexTrade): number {
-    return (
-        (ohlc.maximum_price +
-            ohlc.minimum_price +
-            parseFloat(ohlc.close_price || '0')) /
-        3
-    );
+function getTypicalPrice(ohlc: OHLCData): number {
+    return ohlc.high + ohlc.low + ohlc.close / 3;
 }
