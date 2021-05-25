@@ -136,7 +136,6 @@ export async function _getBitqueryPeriodIndicators(
         endDate,
     );
     const ohlc = marketData.map(convertBitqueryToOHLC);
-    console.log('THIS IS OHLC', ohlc);
 
     const poolIndicators = indicators.getAllIndicators(ohlc);
     return { marketData, indicators: poolIndicators };
