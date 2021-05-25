@@ -26,7 +26,7 @@ export const useMarketData = (
 
     const getTopPairs = async (): Promise<IUniswapPair[]> => {
         if (!topPairs) {
-            const { data: pairsRaw, error } = await Uniswap.getTopV2Pairs();
+            const { data: pairsRaw, error } = await Uniswap.getTopPairs('1');
 
             if (error) {
                 // we could not list pairs
@@ -73,9 +73,10 @@ export const useMarketData = (
         if (!pool) return;
 
         const poolId =
-            network !== '1'
+            network && network !== '1'
                 ? await getMainnetPoolIdForSymbol(pool.token0, pool.token1)
                 : pool.id;
+        console.log('POOL ID VS', network, poolId, pool.id);
 
         const response = await fetch(
             `/api/v1/marketData/daily?poolId=${poolId}`,
@@ -95,9 +96,10 @@ export const useMarketData = (
         if (!pool) return;
 
         const poolId =
-            network !== '1'
+            network && network !== '1'
                 ? await getMainnetPoolIdForSymbol(pool.token0, pool.token1)
                 : pool.id;
+        console.log('POOL ID VS', poolId, pool.id);
 
         const response = await fetch(
             `/api/v1/marketData/indicators?poolId=${poolId}`,

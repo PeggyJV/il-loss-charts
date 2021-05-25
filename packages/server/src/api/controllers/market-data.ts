@@ -92,35 +92,41 @@ function convertUniswapToOHLC(dailyData: Record<string, any>): OHLCData {
     };
 }
 
-// GET /marketData/daily
-const getLastDayOHLC = memoize(
+// GET /marketData/bitquery/daily
+const getBitqueryLastDayOHLC = memoize(
     BitqueryFetcher.getLastDayOHLC.bind(BitqueryFetcher),
 );
-async function getPoolDailyOHLC(
+async function getBitqueryPoolDailyOHLC(
     req: Request<unknown, unknown, unknown, GetMarketDataQuery>,
 ) {
     const { baseToken, quoteToken } = req.query;
 
-    const result: DexTrade = await getLastDayOHLC(baseToken, quoteToken);
+    const result: DexTrade = await getBitqueryLastDayOHLC(
+        baseToken,
+        quoteToken,
+    );
     const ohlc = convertBitqueryToOHLC(result);
     return ohlc;
 }
 
-// GET /marketData/weekly
-const getLastWeekOHLC = memoize(
+// GET /marketData/bitquery/weekly
+const getBitqueryLastWeekOHLC = memoize(
     BitqueryFetcher.getLastWeekOHLC.bind(BitqueryFetcher),
 );
-async function getPoolWeeklyOHLC(
+async function getBitqueryPoolWeeklyOHLC(
     req: Request<unknown, unknown, unknown, GetMarketDataQuery>,
 ) {
     const { baseToken, quoteToken } = req.query;
 
-    const result: DexTrade = await getLastWeekOHLC(baseToken, quoteToken);
+    const result: DexTrade = await getBitqueryLastWeekOHLC(
+        baseToken,
+        quoteToken,
+    );
     const ohlc = convertBitqueryToOHLC(result);
     return ohlc;
 }
 
-// GET /marketData/indicators
+// GET /marketData/bitquery/indicators
 const getBitqueryPeriodIndicators = memoize(_getBitqueryPeriodIndicators);
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function _getBitqueryPeriodIndicators(
@@ -139,6 +145,66 @@ export async function _getBitqueryPeriodIndicators(
 
     const poolIndicators = indicators.getAllIndicators(ohlc);
     return { marketData, indicators: poolIndicators };
+}
+
+async function getBitqueryPoolIndicators(
+    req: Request<unknown, unknown, unknown, GetIndicatorsQuery>,
+) {
+    const { baseToken, quoteToken } = req.query;
+    // TODO: config
+    const days = 19; // stay in lockstep with cache warmer
+
+    // if this logic changes, we must update the cache warmer worker
+    const now = new Date();
+    const endDate = endOfDay(now).getTime();
+    const startDate = startOfDay(subDays(now, days)).getTime();
+
+    const result: {
+        marketData: DexTrade[];
+        indicators: LiquidityBand;
+    } = await getBitqueryPeriodIndicators(
+        baseToken,
+        quoteToken,
+        startDate,
+        endDate,
+    );
+    return result;
+}
+
+// GET /marketData/daily
+async function getUniswapPoolDailyOHLC(
+    req: Request<unknown, unknown, unknown, GetMarketDataQuery>,
+) {
+    const { poolId } = req.query;
+    const now = new Date();
+    const endDate = endOfDay(now);
+    const startDate = startOfDay(subDays(now, 1));
+
+    const result = await UniswapFetcher.getHistoricalDailyData(
+        poolId as string,
+        startDate,
+        endDate,
+    );
+    const ohlc = convertUniswapToOHLC(result[0]);
+    return ohlc;
+}
+
+// GET /marketData/weekly
+async function getUniswapPoolWeeklyOHLC(
+    req: Request<unknown, unknown, unknown, GetMarketDataQuery>,
+) {
+    const { poolId } = req.query;
+    const now = new Date();
+    const endDate = endOfDay(now);
+    const startDate = startOfDay(subDays(now, 7));
+
+    const result = await UniswapFetcher.getHistoricalDailyData(
+        poolId as string,
+        startDate,
+        endDate,
+    );
+    const ohlc = result.map(convertUniswapToOHLC);
+    return ohlc;
 }
 
 // GET /marketData/indicators
@@ -161,10 +227,10 @@ export async function _getUniswapPeriodIndicators(
     return { marketData, indicators: poolIndicators };
 }
 
-async function getPoolIndicators(
+async function getUniswapPoolIndicators(
     req: Request<unknown, unknown, unknown, GetIndicatorsQuery>,
 ) {
-    const { baseToken, quoteToken, poolId } = req.query;
+    const { poolId } = req.query;
     // TODO: config
     const days = 19; // stay in lockstep with cache warmer
 
@@ -173,24 +239,11 @@ async function getPoolIndicators(
     const endDate = endOfDay(now).getTime();
     const startDate = startOfDay(subDays(now, days)).getTime();
 
-    if (poolId) {
-        const result: {
-            marketData: PoolDayDataResult[];
-            indicators: LiquidityBand;
-        } = await getUniswapPeriodIndicators(poolId, startDate, endDate);
-        return result;
-    } else {
-        const result: {
-            marketData: DexTrade[];
-            indicators: LiquidityBand;
-        } = await getBitqueryPeriodIndicators(
-            baseToken,
-            quoteToken,
-            startDate,
-            endDate,
-        );
-        return result;
-    }
+    const result: {
+        marketData: PoolDayDataResult[];
+        indicators: LiquidityBand;
+    } = await getUniswapPeriodIndicators(poolId, startDate, endDate);
+    return result;
 }
 
 const cacheConfig = { maxAge: 60, sMaxAge: memoTTLMs / 1000, public: true };
@@ -198,15 +251,30 @@ export default Router()
     .get(
         '/daily',
         getMarketDataValidator,
-        catchAsyncRoute(getPoolDailyOHLC, cacheConfig),
+        catchAsyncRoute(getUniswapPoolDailyOHLC, cacheConfig),
     )
     .get(
         '/weekly',
         getMarketDataValidator,
-        catchAsyncRoute(getPoolWeeklyOHLC, cacheConfig),
+        catchAsyncRoute(getUniswapPoolWeeklyOHLC, cacheConfig),
     )
     .get(
         '/indicators',
         getIndicatorsValidator,
-        catchAsyncRoute(getPoolIndicators, cacheConfig),
+        catchAsyncRoute(getUniswapPoolIndicators, cacheConfig),
+    )
+    .get(
+        '/bitquery/daily',
+        getMarketDataValidator,
+        catchAsyncRoute(getBitqueryPoolDailyOHLC, cacheConfig),
+    )
+    .get(
+        '/bitquery/weekly',
+        getMarketDataValidator,
+        catchAsyncRoute(getBitqueryPoolWeeklyOHLC, cacheConfig),
+    )
+    .get(
+        '/bitquery/indicators',
+        getIndicatorsValidator,
+        catchAsyncRoute(getBitqueryPoolIndicators, cacheConfig),
     );
