@@ -33,6 +33,12 @@ export default {
     mixpanel: {
         apiKey: 'MIXPANEL_TOKEN',
     },
+    firebase: {
+        serviceAccount: {
+            __name: 'FIREBASE_SERVICE_ACCOUNT',
+            __format: 'json',
+        },
+    },
     session: {
         secret: 'SESSION_SECRET',
     },

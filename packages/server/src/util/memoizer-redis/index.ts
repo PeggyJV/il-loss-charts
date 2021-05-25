@@ -14,7 +14,7 @@ export type Promise<A extends any> = globalThis.Promise<
 >;
 
 // Not allowed to specify keyPrefix when memoizing a function
-interface MemoizerOptions {
+export interface MemoizerOptions {
     lookupTimeout: number; // how long to wait on redis.get
     lockTimeout: number; // how long to attempt to get a lock
     lockRetry: number; // how long to wait before trying to aquire a lock again
@@ -210,3 +210,5 @@ export function deserialize(data: any): any {
 }
 
 export { lockFactory };
+
+export * from './memoize';

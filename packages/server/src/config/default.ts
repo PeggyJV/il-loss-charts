@@ -1,3 +1,4 @@
+import { deferConfig as defer } from 'config/defer';
 // Custom environment variable resolution is defined in config/custom-environment-variables.json
 // N.B. node-config's parser will correctly detect strings / numbers and parse them correctly
 // booleans are parsed as strings must be defined with a __format: boolean to be parsed correctly.
@@ -42,8 +43,18 @@ const config = {
     mixpanel: {
         apiKey: '',
     },
+    firebase: {
+        serviceAccount: '',
+    },
     session: {
         secret: '',
+    },
+    pools: {
+        shortLinkBaseUrl: 'https://dev.somm.fi',
+        deepLinkBaseUrl: defer(function (): string {
+            const host: string = this.server.host ?? '';
+            return `${host}/pools`;
+        }),
     },
     requestLimit: '10kb',
     openApiSpec: '/api/v1/spec',

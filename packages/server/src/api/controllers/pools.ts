@@ -18,6 +18,9 @@ import {
     GetPoolOverviewResult,
     GetTopPoolsResult,
 } from '@sommelier/shared-types/src/api'; // how do we export at root level?
+import { memoize } from 'util/memoizer-redis';
+import { hourMs, secondMs } from 'util/date';
+import shortLinks from 'services/short-links';
 import catchAsyncRoute from 'api/util/catch-async-route';
 import config from '@config';
 import validateEthAddress from 'api/util/validate-eth-address';
@@ -152,6 +155,22 @@ async function getHistoricalHourlyData(
     return fetcher.getHistoricalHourlyData(poolId, start, end);
 }
 
+const baseUrl = config.pools.shortLinkBaseUrl;
+const getByPool = memoize(shortLinks.getByPool.bind(shortLinks));
+async function getShortUrl(
+    req: Request<PoolPath, unknown, unknown, unknown>,
+): Promise<string> {
+    const { poolId, network } = req.params;
+    let key: string;
+    try {
+        key = await getByPool(poolId);
+    } catch (error) {
+        key = await shortLinks.generateShort(network, poolId);
+    }
+
+    return `${baseUrl}/${key}`;
+}
+
 const route = Router();
 const cacheConfig = { public: true };
 // sMaxAge: 5 min in seconds
@@ -192,6 +211,16 @@ route.get(
     '/:network/pools/:poolId/historical/hourly',
     getHistoricalDataValidator,
     catchAsyncRoute(getHistoricalHourlyData, historyConfig),
+);
+
+route.get(
+    '/:network/pools/:poolId/shorts',
+    poolIdValidator,
+    catchAsyncRoute(getShortUrl, {
+        public: true,
+        immutable: true,
+        maxAge: hourMs / secondMs,
+    }),
 );
 
 export default route;
