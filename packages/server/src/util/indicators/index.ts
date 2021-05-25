@@ -166,5 +166,5 @@ export function getStandardDeviation(marketData: OHLCData[]): number {
 }
 
 function getTypicalPrice(ohlc: OHLCData): number {
-    return ohlc.high + ohlc.low + ohlc.close / 3;
+    return (ohlc.high + ohlc.low + ohlc.close) / 3;
 }

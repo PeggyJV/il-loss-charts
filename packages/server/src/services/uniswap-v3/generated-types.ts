@@ -162,7 +162,7 @@ export interface PoolDayData {
 }
 
 export interface PoolDayDatasWhere {
-  id?: Maybe<Scalars['ID']>;
+  pool?: Maybe<Scalars['ID']>;
   date_gt?: Maybe<Scalars['Int']>;
   date_lt?: Maybe<Scalars['Int']>;
 }
@@ -395,7 +395,7 @@ export type GetEthPriceQuery = (
 );
 
 export type GetPoolDailyDataQueryVariables = Exact<{
-  id: Scalars['ID'];
+  pool: Scalars['ID'];
   orderBy: Scalars['String'];
   orderDirection: Scalars['String'];
   startDate: Scalars['Int'];
@@ -407,10 +407,17 @@ export type GetPoolDailyDataQuery = (
   { __typename?: 'Query' }
   & { poolDayDatas: Array<(
     { __typename?: 'PoolDayData' }
-    & Pick<PoolDayData, 'date' | 'liquidity' | 'sqrtPrice' | 'open' | 'high' | 'low' | 'close' | 'volumeToken0' | 'volumeToken1' | 'volumeUSD' | 'tvlUSD'>
+    & Pick<PoolDayData, 'id' | 'date' | 'liquidity' | 'sqrtPrice' | 'open' | 'high' | 'low' | 'close' | 'token0Price' | 'token1Price' | 'volumeToken0' | 'volumeToken1' | 'volumeUSD' | 'tvlUSD' | 'txCount'>
     & { pool: (
       { __typename?: 'Pool' }
-      & Pick<Pool, 'id'>
+      & Pick<Pool, 'id' | 'token0Price' | 'token1Price'>
+      & { token0: (
+        { __typename?: 'Token' }
+        & Pick<Token, 'id' | 'name' | 'symbol'>
+      ), token1: (
+        { __typename?: 'Token' }
+        & Pick<Token, 'id' | 'name' | 'symbol'>
+      ) }
     ) }
   )> }
 );
@@ -510,15 +517,28 @@ export const GetEthPriceDocument = gql`
 }
     `;
 export const GetPoolDailyDataDocument = gql`
-    query getPoolDailyData($id: ID!, $orderBy: String!, $orderDirection: String!, $startDate: Int!, $endDate: Int!) {
+    query getPoolDailyData($pool: ID!, $orderBy: String!, $orderDirection: String!, $startDate: Int!, $endDate: Int!) {
   poolDayDatas(
     orderBy: $orderBy
     orderDirection: $orderDirection
-    where: {id: $id, date_gt: $startDate, date_lt: $endDate}
+    where: {pool: $pool, date_gt: $startDate, date_lt: $endDate}
   ) {
+    id
     date
     pool {
       id
+      token0 {
+        id
+        name
+        symbol
+      }
+      token1 {
+        id
+        name
+        symbol
+      }
+      token0Price
+      token1Price
     }
     liquidity
     sqrtPrice
@@ -526,10 +546,13 @@ export const GetPoolDailyDataDocument = gql`
     high
     low
     close
+    token0Price
+    token1Price
     volumeToken0
     volumeToken1
     volumeUSD
     tvlUSD
+    txCount
   }
 }
     `;

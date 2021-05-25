@@ -131,7 +131,7 @@ export class UniswapV3Fetcher {
 
         try {
             const { poolDayDatas } = await this.sdk.getPoolDailyData({
-                id: poolId,
+                pool: poolId,
                 orderBy: 'date',
                 orderDirection: 'asc',
                 startDate,
@@ -187,6 +187,7 @@ export class UniswapV3Fetcher {
         end: Date = new Date(),
     ): Promise<GetPoolDailyDataResult> {
         const startData = await this.getPoolDailyData(poolId, start, end);
+
         if (startData.length === 0) {
             throw new HTTPError(
                 404,

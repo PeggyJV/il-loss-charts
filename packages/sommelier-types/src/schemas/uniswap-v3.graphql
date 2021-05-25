@@ -492,7 +492,7 @@ input PoolWhere {
 }
 
 input PoolDayDatasWhere {
-    id: ID
+    pool: ID
     date_gt: Int
     date_lt: Int
 }
