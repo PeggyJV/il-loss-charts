@@ -148,6 +148,10 @@ export interface PoolDayData {
     sqrtPrice: Scalars['BigInt'];
     token0Price: Scalars['BigDecimal'];
     token1Price: Scalars['BigDecimal'];
+    open: Scalars['BigDecimal'];
+    high: Scalars['BigDecimal'];
+    low: Scalars['BigDecimal'];
+    close: Scalars['BigDecimal'];
     tick?: Maybe<Scalars['BigInt']>;
     tvlUSD: Scalars['BigDecimal'];
     volumeToken0: Scalars['BigDecimal'];
@@ -157,7 +161,7 @@ export interface PoolDayData {
 }
 
 export interface PoolDayDatasWhere {
-    id?: Maybe<Scalars['ID']>;
+    pool?: Maybe<Scalars['ID']>;
     date_gt?: Maybe<Scalars['Int']>;
     date_lt?: Maybe<Scalars['Int']>;
 }
@@ -171,6 +175,10 @@ export interface PoolHourData {
     sqrtPrice: Scalars['BigInt'];
     token0Price: Scalars['BigDecimal'];
     token1Price: Scalars['BigDecimal'];
+    open: Scalars['BigDecimal'];
+    high: Scalars['BigDecimal'];
+    low: Scalars['BigDecimal'];
+    close: Scalars['BigDecimal'];
     tick?: Maybe<Scalars['BigInt']>;
     tvlUSD: Scalars['BigDecimal'];
     volumeToken0: Scalars['BigDecimal'];
@@ -373,7 +381,7 @@ export type GetEthPriceQuery = { __typename?: 'Query' } & {
 };
 
 export type GetPoolDailyDataQueryVariables = Exact<{
-    id: Scalars['ID'];
+    pool: Scalars['ID'];
     orderBy: Scalars['String'];
     orderDirection: Scalars['String'];
     startDate: Scalars['Int'];
@@ -384,14 +392,36 @@ export type GetPoolDailyDataQuery = { __typename?: 'Query' } & {
     poolDayDatas: Array<
         { __typename?: 'PoolDayData' } & Pick<
             PoolDayData,
+            | 'id'
             | 'date'
             | 'liquidity'
             | 'sqrtPrice'
+            | 'open'
+            | 'high'
+            | 'low'
+            | 'close'
+            | 'token0Price'
+            | 'token1Price'
             | 'volumeToken0'
             | 'volumeToken1'
             | 'volumeUSD'
             | 'tvlUSD'
-        > & { pool: { __typename?: 'Pool' } & Pick<Pool, 'id'> }
+            | 'txCount'
+        > & {
+                pool: { __typename?: 'Pool' } & Pick<
+                    Pool,
+                    'id' | 'token0Price' | 'token1Price'
+                > & {
+                        token0: { __typename?: 'Token' } & Pick<
+                            Token,
+                            'id' | 'name' | 'symbol'
+                        >;
+                        token1: { __typename?: 'Token' } & Pick<
+                            Token,
+                            'id' | 'name' | 'symbol'
+                        >;
+                    };
+            }
     >;
 };
 
@@ -409,6 +439,10 @@ export type GetPoolHourlyDataQuery = { __typename?: 'Query' } & {
             PoolHourData,
             | 'liquidity'
             | 'sqrtPrice'
+            | 'open'
+            | 'high'
+            | 'low'
+            | 'close'
             | 'periodStartUnix'
             | 'volumeToken0'
             | 'volumeToken1'
