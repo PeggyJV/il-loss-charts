@@ -71,12 +71,10 @@ const TransactionSettings = ({
 }: {
     gasPrices: EthGasPrices | null;
 }) => {
-    // TODO why does TS think this could be undefined ?
     const { selectedGasPrice, setSelectedGasPrice } = useContext(
         LiquidityContext,
     );
 
-    // TODO show loader only for prices
     const isStandardActive = selectedGasPrice === GasPriceSelection.Standard;
     const isFastActive = selectedGasPrice === GasPriceSelection.Fast;
     const isFastestActive = selectedGasPrice === GasPriceSelection.Fastest;
@@ -160,7 +158,6 @@ export const LiquidityContainer = ({
 }): JSX.Element => {
     const { poolId }: { poolId: string } = useParams();
 
-    // const [pid, setPoolId] = useState<string | null>(null);
     const { wallet } = useWallet();
     const { data: pool, isLoading, isError } = usePoolOverview(
         wallet.network,
@@ -181,7 +178,6 @@ export const LiquidityContainer = ({
         <LiquidityContext.Provider
             value={{
                 poolId,
-                // setPoolId,
                 selectedGasPrice,
                 setSelectedGasPrice,
                 slippageTolerance,
