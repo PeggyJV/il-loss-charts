@@ -99,7 +99,7 @@ export function PoolSearch(): JSX.Element {
                 loadingText={'...loading'}
                 onChange={(_, pool) => {
                     setValue(pool);
-                    pool && history.push(pool?.id);
+                    pool && history.push(`/pools/${pool?.id}`);
                     trackPoolSelected(pool);
                 }}
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
