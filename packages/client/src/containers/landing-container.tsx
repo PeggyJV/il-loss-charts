@@ -1,20 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { EthGasPrices } from '@sommelier/shared-types';
-import { Modal } from 'react-bootstrap';
 import { useWallet } from 'hooks/use-wallet';
 import { TelegramCTA } from 'components/telegram-cta';
 import mixpanel from 'util/mixpanel';
 import ConnectWalletButton from 'components/connect-wallet-button';
 import PendingTx from 'components/pending-tx';
-import { useMediaQuery } from 'react-responsive';
 import { LiquidityContainer } from 'containers/liquidity-container';
 import { Box } from '@material-ui/core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-    faDiscord,
-    faTwitter,
-    faTelegram,
-} from '@fortawesome/free-brands-svg-icons';
+import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 function LandingContainer({
     setShowConnectWallet,
     gasPrices,
@@ -23,7 +17,6 @@ function LandingContainer({
     gasPrices: EthGasPrices | null;
 }): JSX.Element {
     const { wallet } = useWallet();
-
     const showWalletModal = () => setShowConnectWallet(true);
     useEffect(() => {
         try {

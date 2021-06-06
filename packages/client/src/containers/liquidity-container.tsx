@@ -8,6 +8,7 @@ import {
 import { PoolSearch } from 'components/pool-search';
 import { Box } from '@material-ui/core';
 import { AddLiquidityV3 } from 'components/add-liquidity/add-liquidity-v3';
+import { useParams } from 'react-router-dom';
 import { useBalance } from 'hooks/use-balance';
 import { usePoolOverview } from 'hooks/data-fetchers';
 import { useWallet } from 'hooks/use-wallet';
@@ -16,7 +17,7 @@ import { EthGasPrices } from '@sommelier/shared-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faCog } from '@fortawesome/free-solid-svg-icons';
 import './liquidity-container.scss';
-import { ThreeDots } from 'react-loading-icons';
+import { Circles, ThreeDots } from 'react-loading-icons';
 import classNames from 'classnames';
 
 export enum GasPriceSelection {
@@ -43,11 +44,7 @@ export const LiquidityContext = createContext<Partial<LiquidityContext>>(
     initialContext,
 );
 
-const SearchHeader = ({
-    setPoolId,
-}: {
-    setPoolId: Dispatch<SetStateAction<string | null>>;
-}) => {
+const SearchHeader = () => {
     return (
         <>
             <Box
@@ -60,7 +57,7 @@ const SearchHeader = ({
                     {'Search Pairings'}
                 </div>
                 &nbsp;
-                <PoolSearch setPoolId={setPoolId} />
+                <PoolSearch />
                 {/* <div className='transaction-settings'>
                     <FontAwesomeIcon icon={faCog} />
                 </div> */}
@@ -74,12 +71,10 @@ const TransactionSettings = ({
 }: {
     gasPrices: EthGasPrices | null;
 }) => {
-    // TODO why does TS think this could be undefined ?
     const { selectedGasPrice, setSelectedGasPrice } = useContext(
         LiquidityContext,
     );
 
-    // TODO show loader only for prices
     const isStandardActive = selectedGasPrice === GasPriceSelection.Standard;
     const isFastActive = selectedGasPrice === GasPriceSelection.Fast;
     const isFastestActive = selectedGasPrice === GasPriceSelection.Fastest;
@@ -144,14 +139,31 @@ const TransactionSettings = ({
     );
 };
 
+const ErrorBox = ({ msg }: { msg: string }) => (
+    <Box style={{ textAlign: 'center' }} className='alert-well'>
+        {msg}
+    </Box>
+);
+
+const LoadingPoolBox = ({ msg }: { msg: string }) => (
+    <Box style={{ textAlign: 'center' }}>
+        <Circles width='24px' height='24px' />
+        {msg}
+    </Box>
+);
 export const LiquidityContainer = ({
     gasPrices,
 }: {
     gasPrices: EthGasPrices | null;
 }): JSX.Element => {
-    const [poolId, setPoolId] = useState<string | null>(null);
+    const { poolId }: { poolId: string } = useParams();
+
     const { wallet } = useWallet();
-    const { data: pool } = usePoolOverview(wallet.network, poolId);
+    const { data: pool, isLoading, isError } = usePoolOverview(
+        wallet.network,
+        poolId,
+    );
+
     const [slippageTolerance, setSlippageTolerance] = useState(3.0);
     const [selectedGasPrice, setSelectedGasPrice] = useState<GasPriceSelection>(
         GasPriceSelection.Fast,
@@ -166,7 +178,6 @@ export const LiquidityContainer = ({
         <LiquidityContext.Provider
             value={{
                 poolId,
-                setPoolId,
                 selectedGasPrice,
                 setSelectedGasPrice,
                 slippageTolerance,
@@ -174,7 +185,11 @@ export const LiquidityContainer = ({
             }}
         >
             <Box className='liquidity-container'>
-                <SearchHeader setPoolId={setPoolId} />
+                <SearchHeader />
+                {isLoading && <LoadingPoolBox msg=' fetching pool' />}
+                {isError && (
+                    <ErrorBox msg='Pool not found. Search another Pool.' />
+                )}
                 {poolId && pool && (
                     <AddLiquidityV3
                         pool={pool}

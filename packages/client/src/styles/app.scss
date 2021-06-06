@@ -65,13 +65,13 @@ p {
 }
 
 .alert-well {
-    border: 1px solid var(--bgDumpBorder);
-    background: var(--bgDump);
+    border: 1px solid var(--objNegativeAlt);
+    background: var(--objNegative);
     padding: 10px;
     font-size: 0.85rem;
     border-radius: 5px;
     color: var(--facePrimary);
-    margin: 1rem 0;
+    margin: 1rem;
 }
 
 .btn-neutral {

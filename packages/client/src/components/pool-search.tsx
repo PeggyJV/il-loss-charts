@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useState, useEffect } from 'react';
 
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { matchSorter } from 'match-sorter';
@@ -9,7 +9,7 @@ import { resolveLogo } from 'components/token-with-logo';
 import { Box } from '@material-ui/core';
 import { poolSymbol, PoolLike } from 'util/formats';
 import BigNumber from 'bignumber.js';
-
+import { useHistory, useParams } from 'react-router-dom';
 import { TopPool, useTopPools } from 'hooks/data-fetchers';
 import { ThreeDots } from 'react-loading-icons';
 import { trackPoolSearch, trackPoolSelected } from 'util/mixpanel';
@@ -31,16 +31,25 @@ const CssTextField = withStyles({
         },
     },
 })(TextField);
-export function PoolSearch({
-    setPoolId,
-}: {
-    setPoolId: Dispatch<SetStateAction<string | null>>;
-}): JSX.Element {
+export function PoolSearch(): JSX.Element {
     const classes = useStyles();
     const { data: pools, isLoading: isTopPoolsLoading } = useTopPools();
 
+    const [value, setValue] = useState<TopPool | null>(null);
+    const { poolId: pool }: { poolId: string } = useParams();
+    useEffect(() => {
+        if (pool && pools) {
+            const [first] = pools?.filter((p: { id: string }) => p.id === pool);
+            setValue(first);
+        }
+    }, [pool, pools]);
+    const history = useHistory();
     if (isTopPoolsLoading || !pools) {
-        return <ThreeDots height='1rem' />;
+        return (
+            <Box style={{ textAlign: 'center' }}>
+                <ThreeDots height='24px' width='24px' />
+            </Box>
+        );
     }
 
     const poolFilter = (options: TopPool[], { inputValue }: any) =>
@@ -89,7 +98,8 @@ export function PoolSearch({
                 noOptionsText={'Invalid Pair'}
                 loadingText={'...loading'}
                 onChange={(_, pool) => {
-                    setPoolId(pool?.id ?? null);
+                    setValue(pool);
+                    pool && history.push(`/pools/${pool?.id}`);
                     trackPoolSelected(pool);
                 }}
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -97,20 +107,27 @@ export function PoolSearch({
                 style={{ width: '100%' }}
                 filterOptions={poolFilter}
                 renderOption={renderPoolWithLogo}
-                renderInput={(params) => (
-                    <CssTextField
-                        {...params}
-                        className='pair-search-text'
-                        style={{
-                            border: '1px solid var(--borderDefault)',
-                            borderRadius: '2px',
-                            fontWeight: 400,
-                            textTransform: 'uppercase',
-                            background: 'var(--bgDeep)',
-                        }}
-                        onClick={trackPoolSearch}
-                    />
-                )}
+                getOptionSelected={(option, value) => {
+                    return value?.id === option?.id;
+                }}
+                value={value}
+                renderInput={(params) => {
+                    return (
+                        <CssTextField
+                            {...params}
+                            className='pair-search-text'
+                            style={{
+                                border: '1px solid var(--borderDefault)',
+                                borderRadius: '2px',
+                                fontWeight: 400,
+                                textTransform: 'uppercase',
+                                background: 'var(--bgDeep)',
+                            }}
+                            value={'foo'}
+                            onClick={trackPoolSearch}
+                        />
+                    );
+                }}
             />
         </Box>
     );
