@@ -17,13 +17,17 @@ export interface UseTopPools {
 
 export const useTopPools = (): UseTopPools => {
     const {
-        wallet: { network },
+        wallet: { network = '1' },
     } = useWallet();
 
-    const networkName = network ? config.networks[network].name : 'mainnet';
+    let networkName = 'mainnet';
+    if (network) {
+        networkName = config.networks[network]?.name || 'mainnet';
+    }
 
     const getTopPools = async () => {
         const response = await fetch(
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             `/api/v1/${networkName}/pools?count=${1000}`,
         );
         if (!response.ok) throw new Error(`Failed to fetch top pools`);
