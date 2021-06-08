@@ -1,5 +1,12 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useState, useContext, useEffect, useReducer, useMemo } from 'react';
+import {
+    useState,
+    useContext,
+    useEffect,
+    useReducer,
+    useMemo,
+    useRef,
+} from 'react';
 import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
 import { Price, Token, TokenAmount } from '@uniswap/sdk-core';
@@ -35,6 +42,7 @@ import { useWallet } from 'hooks/use-wallet';
 import { usePendingTx, PendingTx } from 'hooks/use-pending-tx';
 import { useMarketData } from 'hooks';
 import { LiquidityActionButton } from 'components/add-liquidity/liquidity-action-button';
+import { LiquidityRange } from 'components/add-liquidity/liquidity-range';
 import { EthGasPrices, LiquidityBand } from '@sommelier/shared-types';
 import { PoolOverview } from 'hooks/data-fetchers';
 import { debug } from 'util/debug';
@@ -252,9 +260,10 @@ export const AddLiquidityV3 = ({
         return { baseTokenCurrency, quoteTokenCurrency, uniPool };
     };
 
-    const getBoundPricesAndTicks = (indicators: {
-        [indicatorName: string]: LiquidityBand;
-    }) => {
+    const getBoundPricesAndTicks = ([lowerBound, upperBound]: [
+        number,
+        number,
+    ]) => {
         const {
             baseTokenCurrency,
             quoteTokenCurrency,
@@ -267,11 +276,6 @@ export const AddLiquidityV3 = ({
             uniPool,
         };
         (window as any).bounds = bounds;
-
-        debug.indicators = indicators;
-
-        const indicator = indicators[SELECTED_INDICATOR_NAME];
-        const [lowerBound, upperBound] = indicator.bounds[sentiment];
 
         debug.lowerBound = lowerBound;
         debug.upperBound = upperBound;
@@ -499,7 +503,7 @@ export const AddLiquidityV3 = ({
         (window as any).bounds = bounds;
 
         const { prices, ticks, ticksFromPrice } = getBoundPricesAndTicks(
-            indicators,
+            indicators[SELECTED_INDICATOR_NAME].bounds[sentiment],
         );
 
         const [lowerBound, upperBound] = prices;
@@ -606,6 +610,117 @@ export const AddLiquidityV3 = ({
         };
     };
 
+    const queuedUpdateRef = useRef<NodeJS.Timeout | null>(null);
+    const updateRange = (value: number, index: 0 | 1): void => {
+        console.log('SHOULD UPDATE', value, index);
+        // Set prices right away to give input feedback
+        // We may have to adjust prices later to fit tick spacing
+        // queue that for 2 seconds
+        const newPriceBounds = [...bounds.prices] as [number, number];
+        newPriceBounds[index] = value;
+        setBounds({
+            ...bounds,
+            prices: newPriceBounds,
+        });
+
+        // TODO: do update
+        const doUpdate = () => {
+            if (!pool) return;
+
+            const { prices, ticks, ticksFromPrice } = getBoundPricesAndTicks(
+                newPriceBounds,
+            );
+
+            const { uniPool } = getUniSDKInstances();
+            const [expectedBaseAmount, expectedQuoteAmount] = expectedAmounts;
+
+            const baseAmount0 = ethers.utils
+                .parseUnits(
+                    expectedBaseAmount.toFixed(Number(pool.token0.decimals)),
+                    pool.token0.decimals,
+                )
+                .toString();
+
+            const baseAmount1 = ethers.utils
+                .parseUnits(
+                    expectedQuoteAmount.toFixed(Number(pool.token1.decimals)),
+                    pool.token1.decimals,
+                )
+                .toString();
+
+            const position = Position.fromAmounts({
+                pool: uniPool,
+                tickLower: ticks[0],
+                tickUpper: ticks[1],
+                amount0: baseAmount0,
+                amount1: baseAmount1,
+            });
+
+            (window as any).position = position;
+
+            setBounds({
+                prices,
+                ticks,
+                ticksFromPrice,
+                position,
+            });
+
+            // Change position to match mint amounts
+            if (
+                position.mintAmounts.amount0.toString() === '0' &&
+                position.mintAmounts.amount1.toString() === '0'
+            ) {
+                return;
+            }
+
+            const newAmount0 = new BigNumber(
+                ethers.utils.formatUnits(
+                    position.mintAmounts.amount0.toString(),
+                    pool.token0.decimals,
+                ),
+            );
+
+            const newAmount1 = new BigNumber(
+                ethers.utils.formatUnits(
+                    position.mintAmounts.amount1.toString(),
+                    pool.token1.decimals,
+                ),
+            );
+
+            const ethAmount =
+                pool.token0.symbol === 'WETH' ? newAmount0 : newAmount1;
+
+            dispatch({
+                type: 'update-amount',
+                payload: {
+                    sym: pool.token0.symbol,
+                    amount: newAmount0,
+                },
+            });
+
+            dispatch({
+                type: 'update-amount',
+                payload: {
+                    sym: pool.token1.symbol,
+                    amount: newAmount1,
+                },
+            });
+
+            dispatch({
+                type: 'update-amount',
+                payload: {
+                    sym: 'ETH',
+                    amount: ethAmount,
+                },
+            });
+        };
+
+        if (queuedUpdateRef.current) {
+            clearInterval(queuedUpdateRef.current);
+        }
+        queuedUpdateRef.current = setTimeout(doUpdate, 2000);
+    };
+
     const handleGasEstimationError = (
         err: Error,
         payload: Record<string, any> = {},
@@ -637,7 +752,9 @@ export const AddLiquidityV3 = ({
 
     useEffect(() => {
         if (indicators) {
-            const bounds = getBoundPricesAndTicks(indicators);
+            debug.indicators = indicators;
+            const indicator = indicators[SELECTED_INDICATOR_NAME];
+            const bounds = getBoundPricesAndTicks(indicator.bounds[sentiment]);
             setBounds(bounds);
             setPendingBounds(false);
         }
@@ -1622,8 +1739,14 @@ export const AddLiquidityV3 = ({
                         />
                     </Box>
                 </Box>
+                <LiquidityRange
+                    pendingBounds={pendingBounds}
+                    isFlipped={isFlipped}
+                    bounds={bounds}
+                    updateRange={updateRange}
+                />
                 <br />
-                <p>Select Market Sentiment</p>
+                <p>Market Sentiment</p>
                 <Box
                     display='flex'
                     justifyContent='center'
