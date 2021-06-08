@@ -386,11 +386,13 @@
         > div {
             display: flex;
             flex-direction: column;
-            border: 1px solid red;
         }
     }
     .add-v3-container {
         .sentiment {
+            flex-direction: column;
+        }
+        .liquidity-range {
             flex-direction: column;
         }
     }
