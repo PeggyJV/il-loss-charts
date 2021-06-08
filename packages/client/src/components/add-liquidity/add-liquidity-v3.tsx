@@ -53,6 +53,7 @@ import classNames from 'classnames';
 type Props = {
     balances: WalletBalances;
     pool: PoolOverview | null;
+    shortUrl: string | null;
     gasPrices: EthGasPrices | null;
 };
 
@@ -63,6 +64,7 @@ const ETH_ID = config.ethAddress;
 export const AddLiquidityV3 = ({
     pool,
     balances,
+    shortUrl,
     gasPrices,
 }: Props): JSX.Element | null => {
     const [priceImpact, setPriceImpact] = useState('0');
@@ -1444,7 +1446,29 @@ export const AddLiquidityV3 = ({
     return (
         <>
             <div className='add-v3-container'>
-                <p>Select 1 or 2 token(s)</p>
+                <Box
+                    display='flex'
+                    flexDirection='row'
+                    justifyContent='space-between'
+                    marginBottom='8px'
+                    alignItems='center'
+                >
+                    <div>Select 1 or 2 token(s)</div>
+                    <div
+                        style={{
+                            cursor: 'pointer',
+                            padding: '5px 10px',
+                            background: 'var(--objDefault)',
+                            border: '1px solid var(--borderPrimary)',
+                            color: 'var(--faceDefault)',
+                        }}
+                        onClick={() => {
+                            void navigator.clipboard.writeText(shortUrl || '');
+                        }}
+                    >
+                        {`Copy ${token0Symbol}/${token1Symbol} Link`}
+                    </div>
+                </Box>
                 <Box
                     display='flex'
                     flexDirection='column'

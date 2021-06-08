@@ -1,5 +1,6 @@
 import {
     useState,
+    useEffect,
     useContext,
     createContext,
     Dispatch,
@@ -157,12 +158,24 @@ export const LiquidityContainer = ({
     gasPrices: EthGasPrices | null;
 }): JSX.Element => {
     const { poolId }: { poolId: string } = useParams();
-
+    const [shortUrl, setShortUrl] = useState(null);
     const { wallet } = useWallet();
     const { data: pool, isLoading, isError } = usePoolOverview(
         wallet.network,
         poolId,
     );
+
+    useEffect(() => {
+        if (!poolId) return;
+        const getShortUrl = async () => {
+            const data = await (
+                await fetch(`/api/v1/mainnet/pools/${poolId}/shorts`)
+            ).json();
+            setShortUrl(data);
+        };
+
+        void getShortUrl();
+    }, [poolId]);
 
     const [slippageTolerance, setSlippageTolerance] = useState(3.0);
     const [selectedGasPrice, setSelectedGasPrice] = useState<GasPriceSelection>(
@@ -193,6 +206,7 @@ export const LiquidityContainer = ({
                 {poolId && pool && (
                     <AddLiquidityV3
                         pool={pool}
+                        shortUrl={shortUrl}
                         balances={balances}
                         gasPrices={gasPrices}
                     />
