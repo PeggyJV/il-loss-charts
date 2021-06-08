@@ -81,6 +81,7 @@ export const AddLiquidityV3 = ({
     }>({ status: false, message: <p>Warning placeholder</p> });
     const [isFlipped, setIsFlipped] = useState<boolean>(false);
     // State here is used to compute what tokens are being used to add liquidity with.
+    const [copiedShortUrl, setCopiedShortUrl] = useState<boolean>(false);
     const initialState: Record<string, any> = useMemo(
         () => ({
             [token0Symbol]: {
@@ -1455,18 +1456,14 @@ export const AddLiquidityV3 = ({
                 >
                     <div>Select 1 or 2 token(s)</div>
                     <div
-                        style={{
-                            cursor: 'pointer',
-                            padding: '5px 10px',
-                            background: 'var(--objDefault)',
-                            border: '1px solid var(--borderPrimary)',
-                            color: 'var(--faceDefault)',
-                        }}
+                        className='shorts-button'
                         onClick={() => {
                             void navigator.clipboard.writeText(shortUrl || '');
+                            setCopiedShortUrl(true);
                         }}
                     >
-                        {`Copy ${token0Symbol}/${token1Symbol} Link`}
+                        {copiedShortUrl ? 'Copied' : 'Copy'}
+                        {` ${token0Symbol}/${token1Symbol} Link`}
                     </div>
                 </Box>
                 <Box

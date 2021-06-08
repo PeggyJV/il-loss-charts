@@ -78,11 +78,16 @@
         }
     }
     .liquidity-range {
-        text-align: center;
+        font-size: 0.85rem;
+        background: var(--bgDefault);
+        padding: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
 
         .liquidity-range-price-input {
-            font-size: 1.5em;
-            background: var(--bgDefault);
+            font-size: 1rem;
+            background: var(--bgDeep);
             padding: 0.8rem 1rem;
             border-radius: 4px;
             border: 0;
@@ -196,8 +201,12 @@
         text-align: center;
     }
 
-    .sentiment-button + .sentiment-button {
-        // margin-left: 1em;
+    .shorts-button {
+        cursor: pointer;
+        padding: 5px 10px;
+        background: var(--objDefault);
+        border: 1px solid var(--borderPrimary);
+        color: var(--faceDefault);
     }
 
     .token-select {
