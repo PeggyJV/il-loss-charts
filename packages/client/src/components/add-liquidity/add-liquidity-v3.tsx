@@ -53,6 +53,7 @@ import classNames from 'classnames';
 type Props = {
     balances: WalletBalances;
     pool: PoolOverview | null;
+    shortUrl: string | null;
     gasPrices: EthGasPrices | null;
 };
 
@@ -63,6 +64,7 @@ const ETH_ID = config.ethAddress;
 export const AddLiquidityV3 = ({
     pool,
     balances,
+    shortUrl,
     gasPrices,
 }: Props): JSX.Element | null => {
     const [priceImpact, setPriceImpact] = useState('0');
@@ -79,6 +81,7 @@ export const AddLiquidityV3 = ({
     }>({ status: false, message: <p>Warning placeholder</p> });
     const [isFlipped, setIsFlipped] = useState<boolean>(false);
     // State here is used to compute what tokens are being used to add liquidity with.
+    const [copiedShortUrl, setCopiedShortUrl] = useState<boolean>(false);
     const initialState: Record<string, any> = useMemo(
         () => ({
             [token0Symbol]: {
@@ -1444,7 +1447,25 @@ export const AddLiquidityV3 = ({
     return (
         <>
             <div className='add-v3-container'>
-                <p>Select 1 or 2 token(s)</p>
+                <Box
+                    display='flex'
+                    flexDirection='row'
+                    justifyContent='space-between'
+                    marginBottom='8px'
+                    alignItems='center'
+                >
+                    <div>Select 1 or 2 token(s)</div>
+                    <div
+                        className='shorts-button'
+                        onClick={() => {
+                            void navigator.clipboard.writeText(shortUrl || '');
+                            setCopiedShortUrl(true);
+                        }}
+                    >
+                        {copiedShortUrl ? 'Copied' : 'Copy'}
+                        {` ${token0Symbol}/${token1Symbol} Link`}
+                    </div>
+                </Box>
                 <Box
                     display='flex'
                     flexDirection='column'
@@ -1739,12 +1760,6 @@ export const AddLiquidityV3 = ({
                         />
                     </Box>
                 </Box>
-                <LiquidityRange
-                    pendingBounds={pendingBounds}
-                    isFlipped={isFlipped}
-                    bounds={bounds}
-                    updateRange={updateRange}
-                />
                 <br />
                 <p>Market Sentiment</p>
                 <Box
@@ -1824,22 +1839,17 @@ export const AddLiquidityV3 = ({
                             </span>
                         </div>
                     </Box>
-                    <Box display='flex' justifyContent='space-between'>
-                        <div>Liquidity Range</div>
-                        <div>
-                            <span className='face-positive'>
-                                {pendingBounds ? (
-                                    <ThreeDots width='24px' height='10px' />
-                                ) : isFlipped ? (
-                                    `${1 / bounds.prices[1]} to ${
-                                        1 / bounds.prices[0]
-                                    }`
-                                ) : (
-                                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                                    `${bounds.prices[0]} to ${bounds.prices[1]}`
-                                )}
-                            </span>
-                        </div>
+                    <Box
+                        display='flex'
+                        justifyContent='space-between'
+                        flexDirection='column'
+                    >
+                        <LiquidityRange
+                            pendingBounds={pendingBounds}
+                            isFlipped={isFlipped}
+                            bounds={bounds}
+                            updateRange={updateRange}
+                        />
                     </Box>
                     {/* TODO Re-introduce once we know per-tick liquidity
                         {selectedSymbolCount == 1 && (

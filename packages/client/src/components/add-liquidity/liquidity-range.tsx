@@ -18,43 +18,49 @@ export const LiquidityRange = ({
     const rightPrice = isFlipped ? 1 / bounds.prices[0] : bounds.prices[1];
     return (
         <div className='liquidity-range-container'>
-            <p>Liquidity Range</p>
-            <div className='preview liquidity-range'>
+            <div>Liquidity Range</div>
+            <div className='liquidity-range'>
                 {pendingBounds ? (
                     <ThreeDots width='24px' height='10px' />
                 ) : (
                     <>
-                        <input
-                            className='liquidity-range-price-input left'
-                            type='number'
-                            min='0'
-                            value={leftPrice}
-                            onChange={(e) => {
-                                const val = parseFloat(e.target.value);
-                                console.log('THIS IS VAL', val);
-                                if (isFlipped) {
-                                    updateRange(1 / val, 1);
-                                } else {
-                                    updateRange(val, 0);
-                                }
-                            }}
-                        />{' '}
-                        to{' '}
-                        <input
-                            className='liquidity-range-price-input'
-                            type='number'
-                            min='0'
-                            value={rightPrice}
-                            onChange={(e) => {
-                                const val = parseFloat(e.target.value);
-                                console.log('THIS IS VAL', val);
-                                if (isFlipped) {
-                                    updateRange(1 / val, 0);
-                                } else {
-                                    updateRange(val, 1);
-                                }
-                            }}
-                        />
+                        <div>
+                            <input
+                                className='liquidity-range-price-input left'
+                                type='number'
+                                min='0'
+                                value={leftPrice}
+                                onChange={(e) => {
+                                    const val = parseFloat(e.target.value);
+                                    console.log('THIS IS VAL', val);
+                                    if (isFlipped) {
+                                        updateRange(1 / val, 1);
+                                    } else {
+                                        updateRange(val, 0);
+                                    }
+                                }}
+                            />
+                            &nbsp;
+                        </div>
+                        <div>to</div>
+                        <div>
+                            &nbsp;
+                            <input
+                                className='liquidity-range-price-input'
+                                type='number'
+                                min='0'
+                                value={rightPrice}
+                                onChange={(e) => {
+                                    const val = parseFloat(e.target.value);
+                                    console.log('THIS IS VAL', val);
+                                    if (isFlipped) {
+                                        updateRange(1 / val, 0);
+                                    } else {
+                                        updateRange(val, 1);
+                                    }
+                                }}
+                            />
+                        </div>
                     </>
                 )}
             </div>
