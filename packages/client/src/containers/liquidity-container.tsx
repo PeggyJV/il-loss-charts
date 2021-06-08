@@ -19,6 +19,7 @@ import { faCheckCircle, faCog } from '@fortawesome/free-solid-svg-icons';
 import './liquidity-container.scss';
 import { Circles, ThreeDots } from 'react-loading-icons';
 import classNames from 'classnames';
+import { ethers } from 'ethers';
 
 export enum GasPriceSelection {
     Standard = 'standard',
@@ -173,6 +174,17 @@ export const LiquidityContainer = ({
     });
     debug.poolId = poolId;
     debug.balances = balances;
+    const renderErrorBox = () => {
+        if (wallet?.network !== '1') {
+            const msg = 'Switch to Ethereum Mainnet network in metamask.';
+
+            return <ErrorBox msg={msg} />;
+        }
+        if (!ethers.utils.isAddress(poolId)) {
+            return <ErrorBox msg='Invalid Ethereum pool address.' />;
+        }
+        return <ErrorBox msg='Pool not found. Search another Pool.' />;
+    };
 
     return (
         <LiquidityContext.Provider
@@ -187,9 +199,7 @@ export const LiquidityContainer = ({
             <Box className='liquidity-container'>
                 <SearchHeader />
                 {isLoading && <LoadingPoolBox msg=' fetching pool' />}
-                {isError && (
-                    <ErrorBox msg='Pool not found. Search another Pool.' />
-                )}
+                {isError && renderErrorBox()}
                 {poolId && pool && (
                     <AddLiquidityV3
                         pool={pool}
