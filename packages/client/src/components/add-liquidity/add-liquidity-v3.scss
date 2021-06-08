@@ -63,6 +63,9 @@
     }
     .liquidity-range-container {
         margin-top: 1em;
+        display: flex;
+        flex-grow: 1;
+        justify-content: space-between;
     }
     .preview {
         background: var(--bgDeep);
@@ -79,8 +82,8 @@
     }
     .liquidity-range {
         font-size: 0.85rem;
-        background: var(--bgDefault);
-        padding: 0.75rem;
+        // background: var(--bgDefault);
+        // padding: 0.75rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -88,15 +91,15 @@
         .liquidity-range-price-input {
             font-size: 1rem;
             background: var(--bgDeep);
-            padding: 0.8rem 1rem;
+            padding: 0.25rem;
             border-radius: 4px;
-            border: 0;
+            border: 1px solid var(--objDefaultAlt);
             color: var(--faceDeep);
             &:hover,
             &:focus,
             &:active,
             &:focus-visible {
-                border: 0;
+                border: 1px solid var(--objPrimaryAlt);
                 box-shadow: none;
                 outline: none;
             }

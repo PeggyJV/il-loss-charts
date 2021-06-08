@@ -1760,12 +1760,6 @@ export const AddLiquidityV3 = ({
                         />
                     </Box>
                 </Box>
-                <LiquidityRange
-                    pendingBounds={pendingBounds}
-                    isFlipped={isFlipped}
-                    bounds={bounds}
-                    updateRange={updateRange}
-                />
                 <br />
                 <p>Market Sentiment</p>
                 <Box
@@ -1845,22 +1839,17 @@ export const AddLiquidityV3 = ({
                             </span>
                         </div>
                     </Box>
-                    <Box display='flex' justifyContent='space-between'>
-                        <div>Liquidity Range</div>
-                        <div>
-                            <span className='face-positive'>
-                                {pendingBounds ? (
-                                    <ThreeDots width='24px' height='10px' />
-                                ) : isFlipped ? (
-                                    `${1 / bounds.prices[1]} to ${
-                                        1 / bounds.prices[0]
-                                    }`
-                                ) : (
-                                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                                    `${bounds.prices[0]} to ${bounds.prices[1]}`
-                                )}
-                            </span>
-                        </div>
+                    <Box
+                        display='flex'
+                        justifyContent='space-between'
+                        flexDirection='column'
+                    >
+                        <LiquidityRange
+                            pendingBounds={pendingBounds}
+                            isFlipped={isFlipped}
+                            bounds={bounds}
+                            updateRange={updateRange}
+                        />
                     </Box>
                     {/* TODO Re-introduce once we know per-tick liquidity
                         {selectedSymbolCount == 1 && (

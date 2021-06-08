@@ -18,7 +18,7 @@ export const LiquidityRange = ({
     const rightPrice = isFlipped ? 1 / bounds.prices[0] : bounds.prices[1];
     return (
         <div className='liquidity-range-container'>
-            <p>Liquidity Range</p>
+            <div>Liquidity Range</div>
             <div className='liquidity-range'>
                 {pendingBounds ? (
                     <ThreeDots width='24px' height='10px' />
@@ -44,7 +44,7 @@ export const LiquidityRange = ({
                         </div>
                         <div>to</div>
                         <div>
-                            {' '}
+                            &nbsp;
                             <input
                                 className='liquidity-range-price-input'
                                 type='number'
