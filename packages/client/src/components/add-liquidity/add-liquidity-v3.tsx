@@ -1839,18 +1839,12 @@ export const AddLiquidityV3 = ({
                             </span>
                         </div>
                     </Box>
-                    <Box
-                        display='flex'
-                        justifyContent='space-between'
-                        flexDirection='column'
-                    >
-                        <LiquidityRange
-                            pendingBounds={pendingBounds}
-                            isFlipped={isFlipped}
-                            bounds={bounds}
-                            updateRange={updateRange}
-                        />
-                    </Box>
+                    <LiquidityRange
+                        pendingBounds={pendingBounds}
+                        isFlipped={isFlipped}
+                        bounds={bounds}
+                        updateRange={updateRange}
+                    />
                     {/* TODO Re-introduce once we know per-tick liquidity
                         {selectedSymbolCount == 1 && (
                         <Box display='flex' justifyContent='space-between'>
