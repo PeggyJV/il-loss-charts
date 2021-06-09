@@ -10,7 +10,7 @@ const config: RecursivePartial<AppConfig> = {
         v3: {
             networks: {
                 mainnet:
-                    'http://graph-node-mainnet.us-west1.gcp.somm.network:8080/subgraphs/name/sommelier/uniswap-v3-history',
+                    'http://graph-node-mainnet.us-west1.gcp.somm.network:8080/subgraphs/name/sommelier/uniswap-v3',
             },
         },
     },

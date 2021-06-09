@@ -121,7 +121,9 @@ function LandingContainer({
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className='connect-wallet-modal'>
-                    {'Switch to Ethereum Mainnet network in metamask.'}
+                    {
+                        'Pairings by Sommelier only supports Ethereum mainnet. Please change your network in your wallet provider. More networks coming soon!'
+                    }
                 </Modal.Body>
             </Modal>
         </div>

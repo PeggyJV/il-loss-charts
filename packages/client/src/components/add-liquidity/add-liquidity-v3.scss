@@ -80,6 +80,10 @@
             color: var(--facePositive);
         }
     }
+    .liquidity-range-label {
+        display: flex;
+        align-items: center;
+    }
     .liquidity-range {
         font-size: 0.85rem;
         // background: var(--bgDefault);
@@ -89,11 +93,12 @@
         align-items: center;
 
         .liquidity-range-price-input {
-            font-size: 1rem;
+            // font-size: 1rem;
             background: var(--bgDeep);
             padding: 0.25rem;
             border-radius: 4px;
-            border: 1px solid var(--objDefaultAlt);
+            // border: 1px solid var(--objDefaultAlt);
+            border: none;
             color: var(--faceDeep);
             &:hover,
             &:focus,
@@ -103,9 +108,9 @@
                 box-shadow: none;
                 outline: none;
             }
-            &.left {
+            // &.left {
                 text-align: right;
-            }
+            // }
             &::-webkit-outer-spin-button,
             &::-webkit-inner-spin-button {
                 -webkit-appearance: none;
