@@ -103,7 +103,7 @@ function App(): ReactElement {
                                             )}
                                         >
                                             <Switch>
-                                                <Route path='/pools/:poolId'>
+                                                <Route path='/pools'>
                                                     <LandingContainer
                                                         gasPrices={gasPrices}
                                                         setShowConnectWallet={

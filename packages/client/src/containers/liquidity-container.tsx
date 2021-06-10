@@ -9,11 +9,12 @@ import {
 import { PoolSearch } from 'components/pool-search';
 import { Box } from '@material-ui/core';
 import { AddLiquidityV3 } from 'components/add-liquidity/add-liquidity-v3';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useBalance } from 'hooks/use-balance';
 import { usePoolOverview } from 'hooks/data-fetchers';
 import { useWallet } from 'hooks/use-wallet';
 import { debug } from 'util/debug';
+import { PoolOverview } from 'hooks/data-fetchers';
 import { EthGasPrices } from '@sommelier/shared-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faCog } from '@fortawesome/free-solid-svg-icons';
@@ -46,7 +47,7 @@ export const LiquidityContext = createContext<Partial<LiquidityContext>>(
     initialContext,
 );
 
-const SearchHeader = () => {
+const SearchHeader = ({ pool }: { pool: PoolOverview }) => {
     return (
         <>
             <Box
@@ -59,7 +60,7 @@ const SearchHeader = () => {
                     {'Search Pairings'}
                 </div>
                 &nbsp;
-                <PoolSearch />
+                <PoolSearch pool={pool} />
                 {/* <div className='transaction-settings'>
                     <FontAwesomeIcon icon={faCog} />
                 </div> */}
@@ -158,13 +159,23 @@ export const LiquidityContainer = ({
 }: {
     gasPrices: EthGasPrices | null;
 }): JSX.Element => {
-    const { poolId }: { poolId: string } = useParams();
+    const location = useLocation();
+
+    // const { poolId }: { poolId: string } = useParams();
+    const [poolId, setPoolId] = useState<string | null>(null);
     const [shortUrl, setShortUrl] = useState(null);
     const { wallet } = useWallet();
     const { data: pool, isLoading, isError } = usePoolOverview(
         wallet.network,
         poolId,
     );
+
+    useEffect(() => {
+        const query = new URLSearchParams(location?.search);
+        const poolId = query.get('id');
+
+        poolId && setPoolId(poolId);
+    }, [location]);
 
     useEffect(() => {
         if (!poolId) return;
@@ -193,12 +204,11 @@ export const LiquidityContainer = ({
 
             return <ErrorBox msg={msg} />;
         }
-        if (!ethers.utils.isAddress(poolId)) {
+        if (poolId && !ethers.utils.isAddress(poolId)) {
             return <ErrorBox msg='Invalid Ethereum pool address.' />;
         }
         return <ErrorBox msg='Pool not found. Search another Pool.' />;
     };
-
     return (
         <LiquidityContext.Provider
             value={{
@@ -210,7 +220,7 @@ export const LiquidityContainer = ({
             }}
         >
             <Box className='liquidity-container'>
-                <SearchHeader />
+                <SearchHeader pool={pool} />
                 {isLoading && <LoadingPoolBox msg=' fetching pool' />}
                 {isError && renderErrorBox()}
                 {poolId && pool && (

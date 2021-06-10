@@ -44,7 +44,7 @@ class ShortLinks {
     }
 
     poolUrl(poolId: string): string {
-        return `${baseUrl}/${poolId}`;
+        return `${baseUrl}?id=${poolId}`;
     }
 
     hash(val: string): string {

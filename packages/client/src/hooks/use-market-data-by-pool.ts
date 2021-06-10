@@ -76,7 +76,6 @@ export const useMarketData = (
             network && network !== '1'
                 ? await getMainnetPoolIdForSymbol(pool.token0, pool.token1)
                 : pool.id;
-        console.log('POOL ID VS', network, poolId, pool.id);
 
         const response = await fetch(
             `/api/v1/marketData/daily?poolId=${poolId}`,
@@ -99,7 +98,6 @@ export const useMarketData = (
             network && network !== '1'
                 ? await getMainnetPoolIdForSymbol(pool.token0, pool.token1)
                 : pool.id;
-        console.log('POOL ID VS', poolId, pool.id);
 
         const response = await fetch(
             `/api/v1/marketData/indicators?poolId=${poolId}`,
