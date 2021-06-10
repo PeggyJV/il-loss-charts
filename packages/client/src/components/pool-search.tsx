@@ -5,6 +5,7 @@ import { matchSorter } from 'match-sorter';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import './pair-search.scss';
+import { PoolOverview } from 'hooks/data-fetchers';
 import { resolveLogo } from 'components/token-with-logo';
 import { Box } from '@material-ui/core';
 import { poolSymbol, PoolLike } from 'util/formats';
@@ -31,11 +32,15 @@ const CssTextField = withStyles({
         },
     },
 })(TextField);
-export function PoolSearch(): JSX.Element {
+export function PoolSearch({
+    pool: initPool,
+}: {
+    pool?: PoolOverview;
+}): JSX.Element {
     const classes = useStyles();
     const { data: pools, isLoading: isTopPoolsLoading } = useTopPools();
 
-    const [value, setValue] = useState<TopPool | null>(null);
+    const [value, setValue] = useState<TopPool | null>(initPool || null);
     const { poolId: pool }: { poolId: string } = useParams();
     useEffect(() => {
         if (pool && pools) {
@@ -99,7 +104,7 @@ export function PoolSearch(): JSX.Element {
                 loadingText={'...loading'}
                 onChange={(_, pool) => {
                     setValue(pool);
-                    pool && history.push(`/pools/${pool?.id}`);
+                    pool && history.push(`/pools?id=${pool?.id}`);
                     trackPoolSelected(pool);
                 }}
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-return

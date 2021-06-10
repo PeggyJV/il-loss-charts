@@ -373,7 +373,7 @@ function PairContainer({
                 </p>
             </div>
 
-            <PoolSearch />
+            {/* <PoolSearch /> */}
             <div className='pair-controls'>
                 <div className='pair-and-pool-stats'>
                     <PairSelector

@@ -615,7 +615,6 @@ export const AddLiquidityV3 = ({
 
     const queuedUpdateRef = useRef<NodeJS.Timeout | null>(null);
     const updateRange = (value: number, index: 0 | 1): void => {
-        console.log('SHOULD UPDATE', value, index);
         // Set prices right away to give input feedback
         // We may have to adjust prices later to fit tick spacing
         // queue that for 2 seconds
@@ -1256,8 +1255,6 @@ export const AddLiquidityV3 = ({
         ];
 
         debug.mintParams = mintParams;
-        console.log('MINT PARAMS', mintAmountOneSide, tokenData.id, mintParams);
-
         const baseGasPrice = ethers.utils
             .parseUnits(currentGasPrice.toString(), 9)
             .toString();
