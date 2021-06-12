@@ -9,6 +9,7 @@ import {
 import { PoolSearch } from 'components/pool-search';
 import { Box } from '@material-ui/core';
 import { AddLiquidityV3 } from 'components/add-liquidity/add-liquidity-v3';
+import { Helmet } from 'react-helmet';
 import { useLocation, useParams } from 'react-router-dom';
 import { useBalance } from 'hooks/use-balance';
 import { usePoolOverview } from 'hooks/data-fetchers';
@@ -50,6 +51,15 @@ export const LiquidityContext = createContext<Partial<LiquidityContext>>(
 const SearchHeader = ({ pool }: { pool: PoolOverview }) => {
     return (
         <>
+            {pool && (
+                <Helmet>
+                    <meta
+                        name='description'
+                        content={`Simplest way to provide liquidity to ${pool?.token0?.symbol} / ${pool?.token1?.symbol} uniswap pool`}
+                    />
+                    <title>{`Sommelier Finance ${pool?.token0?.symbol} / ${pool?.token1?.symbol} Uniswap Pool`}</title>
+                </Helmet>
+            )}
             <Box
                 display='flex'
                 justifyContent='space-between'

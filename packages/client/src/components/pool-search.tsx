@@ -40,15 +40,13 @@ export function PoolSearch({
     const classes = useStyles();
     const { data: pools, isLoading: isTopPoolsLoading } = useTopPools();
 
-    const [value, setValue] = useState<TopPool | null>(initPool || null);
-    const { poolId: pool }: { poolId: string } = useParams();
-    useEffect(() => {
-        if (pool && pools) {
-            const [first] = pools?.filter((p: { id: string }) => p.id === pool);
-            setValue(first);
-        }
-    }, [pool, pools]);
+    const [value, setValue] = useState<PoolOverview | null>(null);
     const history = useHistory();
+
+    useEffect(() => {
+        initPool && setValue(initPool);
+    }, [initPool]);
+
     if (isTopPoolsLoading || !pools) {
         return (
             <Box style={{ textAlign: 'center' }}>
@@ -128,7 +126,6 @@ export function PoolSearch({
                                 textTransform: 'uppercase',
                                 background: 'var(--bgDeep)',
                             }}
-                            value={'foo'}
                             onClick={trackPoolSearch}
                         />
                     );

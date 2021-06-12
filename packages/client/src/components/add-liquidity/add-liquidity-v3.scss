@@ -97,8 +97,7 @@
             background: var(--bgDeep);
             padding: 0.25rem;
             border-radius: 4px;
-            // border: 1px solid var(--objDefaultAlt);
-            border: none;
+            border: 1px solid var(--bgDeep);
             color: var(--faceDeep);
             &:hover,
             &:focus,
