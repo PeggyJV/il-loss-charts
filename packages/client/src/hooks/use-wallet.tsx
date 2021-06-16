@@ -257,7 +257,7 @@ export const WalletProvider = ({
                 account,
                 providerName: 'metamask',
             };
-
+            mixpanel.people.set({ distinct_id: account, wallet: account });
             mixpanel.track('wallet:connected', mixpanelData);
         } catch (e) {
             console.error(`Metrics error on wallet.`);
