@@ -33,6 +33,12 @@ class MixpanelWrapper {
         if (!this.isActive) return;
         mixpanel.track(...args);
     }
+
+    get people() {
+        if (!this.isActive) return null;
+
+        return mixpanel.people;
+    }
 }
 
 const mix = new MixpanelWrapper();
