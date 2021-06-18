@@ -284,7 +284,11 @@ export const WalletProvider = ({
                 providerName: 'walletconnect',
             };
 
-            mixpanel.track('wallet:connect', mixpanelData);
+            mixpanel.people.set({
+                distinct_id: wcProvider.accounts[0],
+                wallet: wcProvider.accounts[0],
+            });
+            mixpanel.track('wallet:connected', mixpanelData);
         } catch (e) {
             console.error(`Metrics error on wallet.`);
         }
