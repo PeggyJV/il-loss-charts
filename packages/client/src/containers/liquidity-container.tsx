@@ -67,7 +67,7 @@ const SearchHeader = ({ pool }: { pool: PoolOverview }) => {
                 className='search-header'
             >
                 <div style={{ fontSize: '1', color: 'var(--faceDeep)' }}>
-                    {'Search Pairings'}
+                    {'Add Liquidity'}
                 </div>
                 &nbsp;
                 <PoolSearch pool={pool} />

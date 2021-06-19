@@ -211,9 +211,9 @@
     .shorts-button {
         cursor: pointer;
         padding: 5px 10px;
-        background: var(--objDefault);
-        border: 1px solid var(--borderPrimary);
+        background: var(--objPrimary);
         color: var(--faceDefault);
+        border-radius: 4px;
     }
 
     .token-select {

@@ -119,6 +119,7 @@ export function PoolSearch({
                         <CssTextField
                             {...params}
                             className='pair-search-text'
+                            placeholder='Search name, pair or address'
                             style={{
                                 border: '1px solid var(--borderDefault)',
                                 borderRadius: '2px',

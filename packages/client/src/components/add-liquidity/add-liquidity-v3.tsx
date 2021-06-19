@@ -34,6 +34,7 @@ import {
     faCheckCircle,
     faBan,
     faExchangeAlt,
+    faCopy,
 } from '@fortawesome/free-solid-svg-icons';
 import { ThreeDots } from 'react-loading-icons';
 import { compactHash } from 'util/formats';
@@ -1451,7 +1452,7 @@ export const AddLiquidityV3 = ({
                     marginBottom='8px'
                     alignItems='center'
                 >
-                    <div>Select 1 or 2 token(s)</div>
+                    <div>Deposit token(s)</div>
                     <div
                         className='shorts-button'
                         onClick={() => {
@@ -1459,6 +1460,8 @@ export const AddLiquidityV3 = ({
                             setCopiedShortUrl(true);
                         }}
                     >
+                        <FontAwesomeIcon icon={faCopy} />
+                        &nbsp;
                         {copiedShortUrl ? 'Copied' : 'Copy'}
                         {` ${token0Symbol}/${token1Symbol} Link`}
                     </div>
