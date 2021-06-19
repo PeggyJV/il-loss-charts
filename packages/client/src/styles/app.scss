@@ -3,6 +3,7 @@
 @import './themes.scss';
 @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@100;400;600&family=Source+Sans+Pro&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;500;700&display=swap');
 
 html {
     font-size: 13px;
@@ -204,11 +205,9 @@ p {
 
     background: rgb(32, 9, 88);
     background: linear-gradient(
-        222deg,
-        #030107 0%,
-        #8708dcc7 60%,
-        #430263 80%,
-        rgba(0, 213, 255, 0.632) 100%
+        170deg,
+        var(--bgDeep) 0%,
+        var(--bgPrimary) 100%
     );
     // background-color: #05001f;
     // background: linear-gradient(160deg, #05001f 0%, #18086b 100%);
@@ -227,10 +226,10 @@ p {
     margin-top: 1rem;
 }
 .logo-title {
-    font-family: 'Barlow Condensed';
+    font-family: 'Oswald', sans-serif;
     font-weight: 800;
     color: var(--faceDeep);
-    font-size: 2rem;
+    font-size: 1.5rem;
 }
 .centered {
     text-align: center;

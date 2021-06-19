@@ -2,11 +2,10 @@
     width: 550px;
     min-width: 225px;
     // background: radial-gradient(var(--bgDefault), var(--bgPrimary));
-    background: linear-gradient(142deg, var(--bgDefault), var(--bgPrimary));
-    border: 1px solid var(--borderDefault);
-    box-shadow: 0 0 70px 1px #e5e3f541;
+    background: linear-gradient(135deg, var(--bgPrimary), var(--bgDefault));
+    box-shadow: 0 3px 12px var(--bgDeep);
 
-    border-radius: 16px;
+    border-radius: 8px;
     > div {
         padding: 1.25rem 1rem;
     }
