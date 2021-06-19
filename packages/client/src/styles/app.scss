@@ -214,7 +214,8 @@ p {
 }
 
 .app-body {
-    width: calc(100% - 200px);
+    width: 100%;
+    max-width: 840px;
     padding: 2rem;
     min-height: 100vh;
     // background: var(--bgDeep);
@@ -268,20 +269,17 @@ p {
         display: flex;
     }
 }
-.telegram-cta {
+.social-cta {
     font-size: 1rem;
-    color: var(--facePrimary);
+    color: var(--faceAccentAlt);
+    padding: 0.5rem 0;
     a {
-        color: var(--facePrimary);
-        // font-weight: bold;
+        color: var(--faceAccentAlt);
         &:hover {
+            color: var(--faceDeep);
             text-decoration: underline;
         }
     }
-}
-
-.social-cta {
-    text-align: right;
 }
 
 // .pair-search-container {
