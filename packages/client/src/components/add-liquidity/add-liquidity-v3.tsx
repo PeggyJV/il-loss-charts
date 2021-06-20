@@ -34,6 +34,7 @@ import {
     faCheckCircle,
     faBan,
     faExchangeAlt,
+    faCopy,
 } from '@fortawesome/free-solid-svg-icons';
 import { ThreeDots } from 'react-loading-icons';
 import { compactHash } from 'util/formats';
@@ -1451,7 +1452,7 @@ export const AddLiquidityV3 = ({
                     marginBottom='8px'
                     alignItems='center'
                 >
-                    <div>Select 1 or 2 token(s)</div>
+                    <div>Deposit 1 or 2 token(s)</div>
                     <div
                         className='shorts-button'
                         onClick={() => {
@@ -1459,6 +1460,8 @@ export const AddLiquidityV3 = ({
                             setCopiedShortUrl(true);
                         }}
                     >
+                        <FontAwesomeIcon icon={faCopy} />
+                        &nbsp;
                         {copiedShortUrl ? 'Copied' : 'Copy'}
                         {` ${token0Symbol}/${token1Symbol} Link`}
                     </div>
@@ -1500,6 +1503,7 @@ export const AddLiquidityV3 = ({
                                 display='flex'
                                 justifyContent='flex-start'
                                 flexGrow='1'
+                                className='token-select'
                                 onClick={() => {
                                     if (
                                         !isTokenETHActive &&
@@ -1587,6 +1591,7 @@ export const AddLiquidityV3 = ({
                             display='flex'
                             justifyContent='flex-start'
                             flexGrow='1'
+                            className='token-select'
                             onClick={() => {
                                 if (
                                     !isToken0Active &&
@@ -1615,7 +1620,10 @@ export const AddLiquidityV3 = ({
                             >
                                 <FontAwesomeIcon
                                     icon={
-                                        isToken0Disabled ? faBan : faCheckCircle
+                                        isToken0Disabled ||
+                                        (token0Symbol === 'WETH' && disableWETH)
+                                            ? faBan
+                                            : faCheckCircle
                                     }
                                 />
                             </button>
@@ -1678,6 +1686,7 @@ export const AddLiquidityV3 = ({
                             display='flex'
                             justifyContent='flex-start'
                             flexGrow='1'
+                            className='token-select'
                             onClick={() => {
                                 if (
                                     !isToken1Active &&
@@ -1706,7 +1715,10 @@ export const AddLiquidityV3 = ({
                             >
                                 <FontAwesomeIcon
                                     icon={
-                                        isToken1Disabled ? faBan : faCheckCircle
+                                        isToken1Disabled ||
+                                        (token1Symbol === 'WETH' && disableWETH)
+                                            ? faBan
+                                            : faCheckCircle
                                     }
                                 />
                             </button>

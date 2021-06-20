@@ -284,7 +284,7 @@ export const WalletProvider = ({
                 providerName: 'walletconnect',
             };
 
-            mixpanel.people.set({
+            mixpanel.people?.set({
                 distinct_id: wcProvider.accounts[0],
                 wallet: wcProvider.accounts[0],
             });
