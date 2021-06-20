@@ -114,9 +114,10 @@ export const LiquidityContainer = ({
         >
             <Box className='liquidity-container'>
                 <WidgetSelector />
-                <SearchHeader pool={pool} gasPrices={gasPrices} />
+                <SearchWithHelmet pool={pool} />
                 {isLoading && <LoadingPoolBox msg=' fetching pool' />}
                 {isError && renderErrorBox()}
+                {poolId && pool && <SettingsBar gasPrices={gasPrices} />}
                 {poolId && pool && (
                     <AddLiquidityV3
                         pool={pool}
@@ -141,14 +142,7 @@ const WidgetSelector = (): JSX.Element => (
     </Box>
 );
 
-const SearchHeader = ({
-    pool,
-    gasPrices,
-}: {
-    pool: PoolOverview;
-    gasPrices: EthGasPrices | null;
-}) => {
-    const [showModal, setShowModal] = useState(false);
+const SearchWithHelmet = ({ pool }: { pool: PoolOverview }) => {
     return (
         <>
             {pool && (
@@ -161,32 +155,6 @@ const SearchHeader = ({
                 </Helmet>
             )}
             <PoolSearch pool={pool} />
-            <Box
-                display='flex'
-                justifyContent='space-between'
-                className='search-header'
-                alignItems='center'
-            >
-                <div style={{ fontSize: '1rem', color: 'var(--faceDeep)' }}>
-                    {'Add Liquidity'}
-                </div>
-                <div
-                    className='transaction-settings'
-                    onClick={() => setShowModal(true)}
-                >
-                    <FontAwesomeIcon icon={faCog} />
-                    {showModal ? (
-                        <SettingsPopover
-                            show={showModal}
-                            gasPrices={gasPrices}
-                            onClose={(e) => {
-                                e.stopPropagation();
-                                setShowModal(false);
-                            }}
-                        />
-                    ) : null}
-                </div>
-            </Box>
         </>
     );
 };
@@ -203,3 +171,36 @@ const LoadingPoolBox = ({ msg }: { msg: string }) => (
         {msg}
     </Box>
 );
+
+const SettingsBar = ({ gasPrices }: { gasPrices: EthGasPrices | null }) => {
+    const [showModal, setShowModal] = useState(false);
+
+    return (
+        <Box
+            display='flex'
+            justifyContent='space-between'
+            className='search-header'
+            alignItems='center'
+        >
+            <div style={{ fontSize: '1rem', color: 'var(--faceDeep)' }}>
+                {'Add Liquidity'}
+            </div>
+            <div
+                className='transaction-settings'
+                onClick={() => setShowModal(true)}
+            >
+                <FontAwesomeIcon icon={faCog} />
+                {showModal ? (
+                    <SettingsPopover
+                        show={showModal}
+                        gasPrices={gasPrices}
+                        onClose={(e) => {
+                            e.stopPropagation();
+                            setShowModal(false);
+                        }}
+                    />
+                ) : null}
+            </div>
+        </Box>
+    );
+};

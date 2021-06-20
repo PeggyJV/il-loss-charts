@@ -108,7 +108,7 @@
                 outline: none;
             }
             // &.left {
-                text-align: right;
+            text-align: right;
             // }
             &::-webkit-outer-spin-button,
             &::-webkit-inner-spin-button {
@@ -180,7 +180,7 @@
         > div {
             padding: 0.5rem 0.5rem;
             color: var(--faceSecondary);
-            border: 1px solid var(--borderPrimary);
+            border: 1px solid var(--borderDefault);
             background: var(--objDeep);
             // border-radius: 4px;
             cursor: pointer;
@@ -197,7 +197,8 @@
             border-bottom-right-radius: 4px;
         }
         .active {
-            background: linear-gradient(var(--objPrimary), var(--objDefault));
+            // background: linear-gradient(var(--objPrimary), var(--objDefault));
+            background: var(--objPrimary);
             border: 1px solid var(--borderPrimary);
             color: var(--faceDeep);
         }
@@ -246,45 +247,57 @@
             box-shadow: none;
             border: 0;
             border-radius: 4px;
-            background: var(--objDefault);
+            background: var(--objDeep);
             color: var(--faceDisabled);
         }
         button.active {
             background: var(--bgDeep);
             color: var(--objPositiveAlt);
-            background: linear-gradient(var(--objPrimary), var(--objDefault));
+            // background: linear-gradient(var(--objPrimary), var(--objDefault));
+            background: var(--objPrimary);
             color: var(--objPositiveAlt);
             border-bottom-right-radius: 0;
             border-top-right-radius: 0;
         }
     }
+    .token-select {
+        border: 1px solid var(--borderDefault);
+        border-radius: 4px;
+        margin-right: 1rem;
+        &:hover {
+            border: 1px solid var(--borderPrimary);
+        }
+    }
     .token-balance-wrapper {
-        background: var(--objDefault);
-        // background: var(--objDeep);
+        // background: var(--objDefault);
+        background: var(--objDeep);
         cursor: pointer;
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
     }
     .token-balance-wrapper.active {
-        background: linear-gradient(var(--objPrimary), var(--objDefault));
+        // background: linear-gradient(var(--objPrimary), var(--objDefault));
+        background: var(--objPrimary);
     }
-    .token-input-control {
-        border: 1px solid var(--borderDefault);
-    }
-    .token-input-control.active {
-        // border: 1px solid var(--objPositiveAlt);
-        border-radius: 4px;
-        // background: var(--bgDeep);
-        background: linear-gradient(var(--objPrimary), var(--objDefault));
-    }
-    .token-input-control.inactive {
-        border: 1px solid var(--borderDefault);
-        border-radius: 4px;
-        background: var(--objDefault);
-    }
-    .token-input-control.disable {
-        border: 1px solid var(--objDisabledAlt);
-        border-radius: 4px;
-        background: var(--objDisabled);
-    }
+    // .token-input-control {
+    //     border: 1px solid var(--borderDefault);
+    // }
+    // .token-input-control.active {
+    //     // border: 1px solid var(--objPositiveAlt);
+    //     border-radius: 4px;
+    //     // background: var(--bgDeep);
+    //     background: linear-gradient(var(--objPrimary), var(--objDefault));
+    // }
+    // .token-input-control.inactive {
+    //     border: 1px solid var(--borderDefault);
+    //     border-radius: 4px;
+    //     background: var(--objDefault);
+    // }
+    // .token-input-control.disable {
+    //     border: 1px solid var(--objDisabledAlt);
+    //     border-radius: 4px;
+    //     background: var(--objDisabled);
+    // }
 
     .token-with-logo {
         display: inline-flex;
@@ -385,7 +398,7 @@
 }
 
 .token-input.disabled {
-    opacity: 0.5;
+    opacity: 0.3;
 }
 
 @media (max-width: 500px) {
@@ -401,6 +414,9 @@
         }
         .liquidity-range {
             flex-direction: column;
+        }
+        .token-select {
+            margin: 0;
         }
     }
 }
