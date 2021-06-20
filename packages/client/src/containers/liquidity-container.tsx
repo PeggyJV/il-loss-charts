@@ -20,10 +20,9 @@ import { EthGasPrices } from '@sommelier/shared-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faCog } from '@fortawesome/free-solid-svg-icons';
 import './liquidity-container.scss';
-import { Circles, ThreeDots } from 'react-loading-icons';
-import classNames from 'classnames';
+import { Circles } from 'react-loading-icons';
 import { ethers } from 'ethers';
-
+import { SettingsPopover } from 'components/add-liquidity/settings-popover';
 export enum GasPriceSelection {
     Standard = 'standard',
     Fast = 'fast',
@@ -48,122 +47,6 @@ export const LiquidityContext = createContext<Partial<LiquidityContext>>(
     initialContext,
 );
 
-const SearchHeader = ({ pool }: { pool: PoolOverview }) => {
-    return (
-        <>
-            {pool && (
-                <Helmet>
-                    <meta
-                        name='description'
-                        content={`Simplest way to provide liquidity to ${pool?.token0?.symbol} / ${pool?.token1?.symbol} uniswap pool`}
-                    />
-                    <title>{`Sommelier Finance ${pool?.token0?.symbol} / ${pool?.token1?.symbol} Uniswap Pool`}</title>
-                </Helmet>
-            )}
-            <Box
-                display='flex'
-                justifyContent='space-between'
-                flexDirection='column'
-                className='search-header'
-            >
-                <div style={{ fontSize: '1', color: 'var(--faceDeep)' }}>
-                    {'Add Liquidity'}
-                </div>
-                &nbsp;
-                <PoolSearch pool={pool} />
-                {/* <div className='transaction-settings'>
-                    <FontAwesomeIcon icon={faCog} />
-                </div> */}
-            </Box>
-        </>
-    );
-};
-
-const TransactionSettings = ({
-    gasPrices,
-}: {
-    gasPrices: EthGasPrices | null;
-}) => {
-    const { selectedGasPrice, setSelectedGasPrice } = useContext(
-        LiquidityContext,
-    );
-
-    const isStandardActive = selectedGasPrice === GasPriceSelection.Standard;
-    const isFastActive = selectedGasPrice === GasPriceSelection.Fast;
-    const isFastestActive = selectedGasPrice === GasPriceSelection.Fastest;
-
-    return (
-        <div style={{ padding: '1rem', paddingTop: '0' }}>
-            <p style={{ marginBottom: '1rem' }}>Select Transaction Speed</p>
-            {setSelectedGasPrice && (
-                <Box
-                    display='flex'
-                    alignItems='center'
-                    justifyContent='space-between'
-                    className='transaction-speed'
-                >
-                    <div
-                        className={classNames({ active: isStandardActive })}
-                        onClick={() =>
-                            setSelectedGasPrice(GasPriceSelection.Standard)
-                        }
-                    >
-                        {isStandardActive && (
-                            <FontAwesomeIcon icon={faCheckCircle} />
-                        )}
-                        <span>
-                            Standard{' '}
-                            {gasPrices?.standard ?? <ThreeDots width='24px' />}{' '}
-                            Gwei
-                        </span>
-                    </div>
-                    <div
-                        className={classNames({ active: isFastActive })}
-                        onClick={() =>
-                            setSelectedGasPrice(GasPriceSelection.Fast)
-                        }
-                    >
-                        {isFastActive && (
-                            <FontAwesomeIcon icon={faCheckCircle} />
-                        )}
-                        <span>
-                            Fast {gasPrices?.fast ?? <ThreeDots width='24px' />}{' '}
-                            Gwei
-                        </span>
-                    </div>
-                    <div
-                        className={classNames({ active: isFastestActive })}
-                        onClick={() =>
-                            setSelectedGasPrice(GasPriceSelection.Fastest)
-                        }
-                    >
-                        {isFastestActive && (
-                            <FontAwesomeIcon icon={faCheckCircle} />
-                        )}
-                        <span>
-                            Fastest{' '}
-                            {gasPrices?.fastest ?? <ThreeDots width='24px' />}{' '}
-                            Gwei
-                        </span>
-                    </div>
-                </Box>
-            )}
-        </div>
-    );
-};
-
-const ErrorBox = ({ msg }: { msg: string }) => (
-    <Box style={{ textAlign: 'center' }} className='alert-well'>
-        {msg}
-    </Box>
-);
-
-const LoadingPoolBox = ({ msg }: { msg: string }) => (
-    <Box style={{ textAlign: 'center' }}>
-        <Circles width='24px' height='24px' />
-        {msg}
-    </Box>
-);
 export const LiquidityContainer = ({
     gasPrices,
 }: {
@@ -230,7 +113,8 @@ export const LiquidityContainer = ({
             }}
         >
             <Box className='liquidity-container'>
-                <SearchHeader pool={pool} />
+                <WidgetSelector />
+                <SearchHeader pool={pool} gasPrices={gasPrices} />
                 {isLoading && <LoadingPoolBox msg=' fetching pool' />}
                 {isError && renderErrorBox()}
                 {poolId && pool && (
@@ -241,8 +125,81 @@ export const LiquidityContainer = ({
                         gasPrices={gasPrices}
                     />
                 )}
-                {poolId && <TransactionSettings gasPrices={gasPrices} />}
+                {/* {poolId && <TransactionSettings gasPrices={gasPrices} />} */}
             </Box>
         </LiquidityContext.Provider>
     );
 };
+
+const WidgetSelector = (): JSX.Element => (
+    <Box display='flex'>
+        <Box display='flex'>
+            <div className='nav-item-border-wrapper'>
+                <div className='nav-item'>Liquidity</div>
+            </div>
+        </Box>
+    </Box>
+);
+
+const SearchHeader = ({
+    pool,
+    gasPrices,
+}: {
+    pool: PoolOverview;
+    gasPrices: EthGasPrices | null;
+}) => {
+    const [showModal, setShowModal] = useState(false);
+    return (
+        <>
+            {pool && (
+                <Helmet>
+                    <meta
+                        name='description'
+                        content={`Simplest way to provide liquidity to ${pool?.token0?.symbol} / ${pool?.token1?.symbol} uniswap pool`}
+                    />
+                    <title>{`Sommelier Finance ${pool?.token0?.symbol} / ${pool?.token1?.symbol} Uniswap Pool`}</title>
+                </Helmet>
+            )}
+            <PoolSearch pool={pool} />
+            <Box
+                display='flex'
+                justifyContent='space-between'
+                className='search-header'
+                alignItems='center'
+            >
+                <div style={{ fontSize: '1rem', color: 'var(--faceDeep)' }}>
+                    {'Add Liquidity'}
+                </div>
+                <div
+                    className='transaction-settings'
+                    onClick={() => setShowModal(true)}
+                >
+                    <FontAwesomeIcon icon={faCog} />
+                    {showModal ? (
+                        <SettingsPopover
+                            show={showModal}
+                            gasPrices={gasPrices}
+                            onClose={(e) => {
+                                e.stopPropagation();
+                                setShowModal(false);
+                            }}
+                        />
+                    ) : null}
+                </div>
+            </Box>
+        </>
+    );
+};
+
+const ErrorBox = ({ msg }: { msg: string }) => (
+    <Box style={{ textAlign: 'center' }} className='alert-well'>
+        {msg}
+    </Box>
+);
+
+const LoadingPoolBox = ({ msg }: { msg: string }) => (
+    <Box style={{ textAlign: 'center' }}>
+        <Circles width='24px' height='24px' />
+        {msg}
+    </Box>
+);
