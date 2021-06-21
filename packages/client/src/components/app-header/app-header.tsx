@@ -17,7 +17,6 @@ export const AppHeader = (): JSX.Element => {
 
     useEffect(() => {
         if (wallet?.account && wallet?.network !== '1') {
-            console.log(wallet?.network);
             setNetworkUpdateModal(true);
         }
     }, [wallet?.account, wallet?.network]);
