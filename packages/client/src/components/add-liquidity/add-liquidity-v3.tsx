@@ -35,6 +35,9 @@ import {
     faBan,
     faExchangeAlt,
     faCopy,
+    faAngleDoubleDown,
+    faAngleDoubleUp,
+    faArrowsAltV,
 } from '@fortawesome/free-solid-svg-icons';
 import { ThreeDots } from 'react-loading-icons';
 import { compactHash } from 'util/formats';
@@ -1441,6 +1444,7 @@ export const AddLiquidityV3 = ({
     const disableWETH = tokenInputState['ETH'].selected;
     const isWETHPair = token0Symbol === 'WETH' || token1Symbol === 'WETH';
     const baseCoin = isFlipped ? pool.token0.symbol : pool.token1.symbol;
+    const baseCoinId = isFlipped ? pool.token0.id : pool.token1.id;
 
     return (
         <>
@@ -1788,7 +1792,8 @@ export const AddLiquidityV3 = ({
                             trackSentimentInteraction(pool, 'bearish');
                         }}
                     >
-                        📉 Bearish {baseCoin}
+                        <FontAwesomeIcon icon={faAngleDoubleDown} /> Bearish{' '}
+                        {resolveLogo(baseCoinId)} {baseCoin}
                     </div>
                     <div
                         className={classNames({
@@ -1800,7 +1805,7 @@ export const AddLiquidityV3 = ({
                             trackSentimentInteraction(pool, 'neutral');
                         }}
                     >
-                        Neutral
+                        <FontAwesomeIcon icon={faArrowsAltV} /> Neutral
                     </div>
                     <div
                         className={classNames({
@@ -1814,7 +1819,8 @@ export const AddLiquidityV3 = ({
                             trackSentimentInteraction(pool, 'bullish');
                         }}
                     >
-                        📈 Bullish {baseCoin}
+                        <FontAwesomeIcon icon={faAngleDoubleUp} /> Bullish{' '}
+                        {resolveLogo(baseCoinId)} {baseCoin}
                     </div>
                 </Box>
                 {warning?.status && (

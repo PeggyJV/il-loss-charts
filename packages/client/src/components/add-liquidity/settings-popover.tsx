@@ -23,7 +23,6 @@ export const SettingsPopover = ({
     onClose: (e: React.MouseEvent<SVGSVGElement>) => void;
     gasPrices: EthGasPrices | null;
 }): JSX.Element | null => {
-    console.log(show);
     return (
         <div className='settings-popover'>
             <div style={{ padding: '1rem' }}>
@@ -60,6 +59,7 @@ const TransactionSettings = ({
                     justifyContent='space-between'
                     className='transaction-speed'
                 >
+                    <p>Transaction Speed</p>
                     <Box
                         display='flex'
                         justifyContent='space-between'

@@ -17,11 +17,11 @@
     background: var(--bgDefault);
     padding: 0.75rem;
     border-radius: 4px;
+    color: var(--faceDefault);
     > div {
         margin: 0.5rem  0;
-        padding: 0 0.5rem;
+        padding: 0.25rem 0.5rem;
         border: 1px solid var(--borderPrimary);
-        color: var(--faceSecondary);
         text-align: center;
         flex-grow: 1;
         border-radius: 4px;
@@ -29,7 +29,6 @@
             padding: 0 0.5rem;
         }
         &:hover {
-            color: var(--faceDeep);
             cursor: pointer;
         }
     }
