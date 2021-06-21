@@ -248,7 +248,6 @@ export const WalletProvider = ({
             provider: (window as any).ethereum,
             network: (window as any).ethereum.networkVersion || '1',
         };
-
         setWallet(walletObj);
 
         try {
@@ -257,7 +256,8 @@ export const WalletProvider = ({
                 account,
                 providerName: 'metamask',
             };
-            mixpanel.people?.set({ distinct_id: account, wallet: account });
+            mixpanel.people?.set(account, { wallet: account });
+
             mixpanel.track('wallet:connected', mixpanelData);
         } catch (e) {
             console.error(`Metrics error on wallet.`);
@@ -284,10 +284,10 @@ export const WalletProvider = ({
                 providerName: 'walletconnect',
             };
 
-            mixpanel.people?.set({
-                distinct_id: wcProvider.accounts[0],
+            mixpanel.people?.set(wcProvider.accounts[0], {
                 wallet: wcProvider.accounts[0],
             });
+
             mixpanel.track('wallet:connected', mixpanelData);
         } catch (e) {
             console.error(`Metrics error on wallet.`);
