@@ -22,7 +22,7 @@ const config = {
         v3: {
             networks: {
                 mainnet:
-                    'http://localhost:8000/subgraphs/name/sommelier/uniswap-v3-history',
+                    'https://api.thegraph.com/subgraphs/name/benesjan/uniswap-v3-subgraph',
                 rinkeby:
                     'http://35.197.14.14:8000/subgraphs/name/sommelier/uniswap-v3-2',
                 goerli:
