@@ -1,5 +1,5 @@
 import { EthGasPrices } from '@sommelier/shared-types';
-import { TelegramCTA, TwitterCTA, BlogCTA } from 'components/social-cta';
+import { TelegramCTA } from 'components/social-cta';
 import { LiquidityContainer } from 'containers/liquidity-container';
 import { useMediaQuery } from 'react-responsive';
 import { AppHeader } from 'components/app-header/app-header';
@@ -37,8 +37,6 @@ function LandingContainer({
                         <br />
                         <Box>
                             <TelegramCTA />
-                            <TwitterCTA />
-                            <BlogCTA />
                         </Box>
                     </Box>
                 )}
