@@ -17,25 +17,6 @@ export const TelegramCTA = (): JSX.Element => {
     );
 };
 
-export const TwitterCTA = (): JSX.Element => {
-    return (
-        <Box display='flex' alignItems='center' className='social-cta'>
-            <FontAwesomeIcon icon={faTwitter} />
-            &nbsp;
-            <p>
-                <a
-                    href='https://twitter.com/sommfinance'
-                    target='_blank'
-                    rel='noreferrer'
-                >
-                    {' '}
-                    Follow our Twitter
-                </a>
-            </p>
-        </Box>
-    );
-};
-
 export const BlogCTA = (): JSX.Element => {
     return (
         <Box display='flex' alignItems='center' className='social-cta'>
