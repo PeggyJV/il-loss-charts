@@ -34,6 +34,10 @@ class MixpanelWrapper {
         mixpanel.track(...args);
     }
 
+    identify(id: string) {
+        mixpanel.identify(id);
+    }
+
     get people() {
         if (!this.isActive) return null;
 
