@@ -9,6 +9,7 @@ import { GetPositionsResult } from '@sommelier/shared-types/src/api'; // how do 
 import catchAsyncRoute from 'api/util/catch-async-route';
 import { networkValidator } from 'api/util/validators';
 import validateEthAddress from 'api/util/validate-eth-address';
+import { calculateStatsForNFLPs } from 'util/calculate-stats-v3';
 
 import config from '@config';
 
@@ -34,41 +35,40 @@ const getPositionsValidator = celebrate({
 // GET /positions/:address
 async function getPositionStats(
     req: Request<Path, unknown, unknown, unknown>,
-): Promise<any> {
+): Promise<Record<string, any>> {
     const { network, address } = req.params;
     const fetcher = UniswapV3Fetchers.get(network);
 
-    const position = await fetcher.getPositions(address);
+    const positions = await fetcher.getPositions(address);
+    const snapshots = await fetcher.getPositionSnapshots(address);
 
-    const snapshots = positions.reduce((acc, position) => {
-        const [nflpId, ] = position.id.split('#');
+    const snapshotsByNFLP = snapshots.reduce((acc, snapshot) => {
+        const [nflpId] = snapshot.id.split('#');
 
         if (!acc[nflpId]) {
-            acc[nflpId] = [position];
+            acc[nflpId] = [snapshot];
         } else {
-            acc[nflpId].push(position);
+            acc[nflpId].push(snapshot);
         }
 
         return acc;
     }, {});
 
-    
+    const results: Record<string, any> = {};
+    for (const position of positions) {
+        const [nflpId] = position.id.split('#');
 
+        results[nflpId] = {
+            position,
+            snapshots: snapshotsByNFLP[nflpId],
+            stats: await calculateStatsForNFLPs(
+                position,
+                snapshotsByNFLP[nflpId],
+            ),
+        };
+    }
 
-    // get sizes
-    // token0 size
-    // token1 size
-    // usd size
-    // token0 at entry
-    // token1 at entry
-    // usd at entry
-
-    // get fees
-    // fees collected
-    // impermanent loss
-    // get total return
-    // calculate APY
-
+    return results;
 }
 
 
@@ -80,11 +80,9 @@ const positionsConfig = {
     sMaxAge: memoConfig.getTopPools.ttl / 1000,
     ...cacheConfig,
 };
-// TODO: Revisit
-const historyConfig = { maxAge: 5 * 60, sMaxAge: 60 * 60, ...cacheConfig };
 route.get(
     '/:network/positions/:address/stats',
-    networkValidator,
+    getPositionsValidator,
     catchAsyncRoute(getPositionStats, positionsConfig),
 );
 
