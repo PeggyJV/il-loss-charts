@@ -1,5 +1,4 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faPaperPlane, faBlog } from '@fortawesome/free-solid-svg-icons';
 import { Box } from '@material-ui/core';
 
