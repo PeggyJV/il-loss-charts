@@ -8,6 +8,7 @@ import {
     GetPoolDailyDataQuery,
     GetPoolHourlyDataQuery,
     GetTopPoolsQuery,
+    GetPositionsQuery,
 } from './uniswap-v3';
 
 export type GetEthPriceResult = { ethPrice: BigNumber };
@@ -24,3 +25,5 @@ export type GetTopPoolsResult = GetTopPoolsQuery['pools'];
 export type TopPool = ArrayElement<GetTopPoolsResult>;
 
 export type PoolLike = TopPool | PoolOverview;
+
+export type GetPositionsResult = GetPositionsQuery['positions'];

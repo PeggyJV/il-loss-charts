@@ -162,7 +162,7 @@ export class UniswapV3Fetcher {
         try {
             const { poolHourDatas } = await this.sdk.getPoolHourlyData({
                 id: poolId,
-                orderBy: 'periodStartUnix',
+                orderBy: 'date',
                 orderDirection: 'asc',
                 startTime,
                 endTime,
