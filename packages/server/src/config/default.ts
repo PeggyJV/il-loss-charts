@@ -3,11 +3,13 @@ import { deferConfig as defer } from 'config/defer';
 // N.B. node-config's parser will correctly detect strings / numbers and parse them correctly
 // booleans are parsed as strings must be defined with a __format: boolean to be parsed correctly.
 const config = {
+    pid: process.pid,
     env: 'development',
     logLevel: 'info',
     server: {
         host: 'http://localhost:3000',
         port: 3001,
+        shutdownTimeout: 30 * 1000, // 30 seconds
     },
     redis: {
         host: '127.0.0.1',

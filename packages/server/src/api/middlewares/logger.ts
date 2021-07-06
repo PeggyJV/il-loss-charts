@@ -7,6 +7,11 @@ import config from '@config';
 
 const { host } = config.server;
 
+const pid = String(config.pid);
+morgan.token('pid', function getPid(): string {
+    return pid;
+});
+
 morgan.token('pathname', function getPathname(req: Request): string {
     return new URL(req.originalUrl, host).pathname;
 });
@@ -96,6 +101,7 @@ function jsonFormat(tokens: Tokens, req: Request, res: Response): string {
         : length;
 
     return JSON.stringify({
+        pid: tokens['pid'](req, res),
         method: tokens['method'](req, res),
         path: tokens['pathname'](req, res),
         route: tokens['route'](req, res),

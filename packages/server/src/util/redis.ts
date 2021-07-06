@@ -18,4 +18,15 @@ try {
     throw e;
 }
 
+// disconnect from Redis gracefully
+export const stopRedis = async (): Promise<void> => {
+    if (typeof redis?.quit === 'function') {
+        console.log(`[${config.pid}] Disconnecting from Redis`);
+        await redis.quit();
+        console.log(`[${config.pid}] Disconnected from Redis`);
+
+        return;
+    }
+};
+
 export default redis;

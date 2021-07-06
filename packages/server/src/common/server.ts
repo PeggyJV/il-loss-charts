@@ -12,6 +12,7 @@ import mime from 'mime-types';
 
 import * as OpenApiValidator from 'express-openapi-validator';
 import * as middleware from '../api/middlewares';
+import { stopRedis } from '../util/redis';
 
 import config from '@config';
 
@@ -113,7 +114,9 @@ class ExpressServer {
     listen(port: number): Application {
         const welcome = (p: number) => (): void =>
             console.info(
-                `${new Date().toISOString()} up and running in ${
+                `[${
+                    config.pid
+                }] ${new Date().toISOString()} up and running in ${
                     config.env
                 } @: ${os.hostname()} on port: ${p}`,
             );
@@ -121,6 +124,50 @@ class ExpressServer {
         this.httpServer = http.createServer(app).listen(port, welcome(port));
 
         return app;
+    }
+
+    async shutdown(signal: string): Promise<void> {
+        console.log(`[${config.pid}] Received ${signal}, shutting down server`);
+
+        // Stop accepting new connections, allow in-flight requests to complete
+        const close = new Promise((resolve, reject) => {
+            server.httpServer?.close((error) => {
+                if (error) {
+                    console.error(
+                        `[${config.pid}] Could not shutdown gracefully`,
+                    );
+                    reject(null);
+                } else {
+                    // Gracefully disconnect from Redis
+                    stopRedis()
+                        .then(() => {
+                            console.log(
+                                `[${config.pid}] Gracefully shutdown server due to ${signal}`,
+                            );
+                            resolve(null);
+                        })
+                        .catch((error) => {
+                            console.error(error.message);
+                            console.error(
+                                `[${config.pid}] Could not shutdown Redis gracefully`,
+                            );
+                            reject(null);
+                        });
+                }
+            });
+        });
+
+        // Set a timeout to shutdown anyway if we're unable to shutdown gracefully
+        const delay = new Promise((resolve) => {
+            setTimeout(() => {
+                console.log(
+                    `[${config.pid}] Could not shutdown gracefully, timeout exceeded`,
+                );
+                resolve(null);
+            }, config.server.shutdownTimeout);
+        });
+
+        await Promise.race([close, delay]);
     }
 }
 

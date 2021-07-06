@@ -14,6 +14,26 @@ function startServer() {
     }
 
     new WebsocketServer(server.httpServer);
+
+    process.on('SIGINT', () => {
+        // attempt graceful shutdown
+        server
+            .shutdown('SIGINT')
+            .then(() => {
+                process.exit();
+            })
+            .catch(() => {
+                // shutdown anyway
+                process.exit();
+            });
+    });
+
+    process.on('SIGTERM', () => {
+        // attempt graceful shutdown
+        server.shutdown('SIGINT').finally(() => {
+            process.exit();
+        });
+    });
 }
 
 if (require.main === module) {
