@@ -133,5 +133,8 @@
             "eslint --cache --fix"
         ],
         "**/*.{css,md}": "prettier --write"
+    },
+    "volta": {
+        "node": "14.17.3"
     }
 }

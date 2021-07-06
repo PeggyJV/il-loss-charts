@@ -9,7 +9,7 @@ import {
 } from 'react';
 import BigNumber from 'bignumber.js';
 import { ethers } from 'ethers';
-import { Price, Token, TokenAmount } from '@uniswap/sdk-core';
+import { Price, Token } from '@uniswap/sdk-core';
 import {
     FeeAmount,
     Pool,
@@ -735,6 +735,7 @@ export const AddLiquidityV3 = ({
         const notEnoughETH =
             err.message.match(/exceeds allowance/) ||
             err.message.match(/insufficient funds/);
+        const highSlippage = err.message.match(/slippage/i);
 
         let toastMsg =
             'Could not estimate gas for this transaction. Check your parameters or try a different pool.';
@@ -742,6 +743,9 @@ export const AddLiquidityV3 = ({
         if (notEnoughETH) {
             toastMsg =
                 'Not enough ETH to pay gas for this transaction. If you are using ETH, try reducing the entry amount.';
+        } else if (highSlippage) {
+            toastMsg =
+                'Slippage too high to submit this transaction. Try adding a smaller amount or adding both tokens.';
         }
 
         toastError(toastMsg);
@@ -1197,9 +1201,12 @@ export const AddLiquidityV3 = ({
 
         const tokenId = 0;
         let decimals = 18;
-        if (selectedToken === pool.token0.symbol) {
+        if (
+            selectedToken === pool.token0.symbol ||
+            (selectedToken === 'ETH' && pool.token0.symbol === 'WETH')
+        ) {
             decimals = parseInt(pool.token0.decimals, 10);
-        } else if (selectedToken === pool.token1.symbol) {
+        } else {
             decimals = parseInt(pool.token1.decimals, 10);
         }
         const mintAmountOneSide = ethers.utils
@@ -1226,17 +1233,11 @@ export const AddLiquidityV3 = ({
             )
             .toString();
 
-        const minLiquidity = '1';
-        // TODO: Determine slippage once we know price impact of swaps
-        // const slippageRatio = new BigNumber(slippageTolerance as number).div(
-        //     100
-        // );
-
-        // const slippageCoefficient = new BigNumber(1).minus(slippageRatio);
-
-        // const liquiditySquared = new BigNumber(mintAmount0).times(mintAmount1);
-        // const minLiquidity = liquiditySquared.times(slippageCoefficient).sqrt().toFixed(0);
-        // const baseMinLiquidity = ethers.utils.parseUnits()
+        const liquidity = new BigNumber(bounds.position.liquidity.toString())
+            .exponentiatedBy(2)
+            .div(2)
+            .sqrt();
+        const minLiquidity = liquidity.times(0.97).toFixed(0);
 
         const sqrtPriceAX96 = TickMath.getSqrtRatioAtTick(
             bounds.position.tickLower,
@@ -1244,6 +1245,11 @@ export const AddLiquidityV3 = ({
         const sqrtPriceBX96 = TickMath.getSqrtRatioAtTick(
             bounds.position.tickUpper,
         );
+
+        debug.mintAmounts = {
+            liquidity,
+            minLiquidity,
+        };
 
         const mintParams = [
             pool.token0.id, // token0
