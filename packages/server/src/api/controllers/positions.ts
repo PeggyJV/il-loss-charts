@@ -1,26 +1,76 @@
 import { Request, Router } from 'express';
+import { celebrate, Joi, Segments } from 'celebrate';
+
 import { EthNetwork } from '@sommelier/shared-types';
 
-// import { HTTPError } from 'api/util/errors';
+import { HTTPError } from 'api/util/errors';
 import { memoConfig, UniswapV3Fetchers } from 'services/uniswap-v3';
-// import { GetPositionsResult } from '@sommelier/shared-types/src/api'; // how do we export at root level?
+import { GetPositionsResult } from '@sommelier/shared-types/src/api'; // how do we export at root level?
 import catchAsyncRoute from 'api/util/catch-async-route';
 import { networkValidator } from 'api/util/validators';
+import validateEthAddress from 'api/util/validate-eth-address';
+
+import config from '@config';
+
+const networks = Object.keys(config.uniswap.v3.networks);
+
 
 type Path = {
     network: EthNetwork;
+    address: string;
 };
 
-// GET /positions/:address
-async function getPositions(
-    req: Request<Path, unknown, unknown, unknown>,
-    // ): Promise<GetPositionsResult> {
-): Promise<boolean> {
-    // const { network } = req.params;
-    // const fetcher = UniswapV3Fetchers.get(network);
+const getPositionsValidator = celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+        network: Joi.string()
+            .valid(...networks)
+            .required(),
+        address: Joi.string()
+            .custom(validateEthAddress, 'Validate address')
+            .required(),
+    })
+});
 
-    return await Promise.resolve(true);
+// GET /positions/:address
+async function getPositionStats(
+    req: Request<Path, unknown, unknown, unknown>,
+): Promise<any> {
+    const { network, address } = req.params;
+    const fetcher = UniswapV3Fetchers.get(network);
+
+    const position = await fetcher.getPositions(address);
+
+    const snapshots = positions.reduce((acc, position) => {
+        const [nflpId, ] = position.id.split('#');
+
+        if (!acc[nflpId]) {
+            acc[nflpId] = [position];
+        } else {
+            acc[nflpId].push(position);
+        }
+
+        return acc;
+    }, {});
+
+    
+
+
+    // get sizes
+    // token0 size
+    // token1 size
+    // usd size
+    // token0 at entry
+    // token1 at entry
+    // usd at entry
+
+    // get fees
+    // fees collected
+    // impermanent loss
+    // get total return
+    // calculate APY
+
 }
+
 
 const route = Router();
 const cacheConfig = { public: true };
@@ -30,11 +80,12 @@ const positionsConfig = {
     sMaxAge: memoConfig.getTopPools.ttl / 1000,
     ...cacheConfig,
 };
-
+// TODO: Revisit
+const historyConfig = { maxAge: 5 * 60, sMaxAge: 60 * 60, ...cacheConfig };
 route.get(
-    '/:network/positions/:address',
+    '/:network/positions/:address/stats',
     networkValidator,
-    catchAsyncRoute(getPositions, positionsConfig),
+    catchAsyncRoute(getPositionStats, positionsConfig),
 );
 
 export default route;
