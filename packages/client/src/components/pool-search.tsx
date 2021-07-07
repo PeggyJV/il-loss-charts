@@ -101,7 +101,7 @@ export function PoolSearch({
                 noOptionsText={'Invalid Pair'}
                 loadingText={'...loading'}
                 onChange={(_, pool) => {
-                    setValue(pool);
+                    setValue(pool as PoolOverview);
                     pool && history.push(`/pools?id=${pool?.id}`);
                     trackPoolSelected(pool);
                 }}

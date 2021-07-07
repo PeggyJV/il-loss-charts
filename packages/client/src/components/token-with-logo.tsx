@@ -48,7 +48,12 @@ export function resolveLogo(addressLower?: string, size = '24px'): JSX.Element {
         const imgUrl = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png`;
         return (
             <span>
-                <img src={imgUrl} alt='🍇' height={size} />
+                <img
+                    src={imgUrl}
+                    alt='🍇'
+                    height={size}
+                    style={{ borderRadius: '1rem' }}
+                />
             </span>
         );
     }
@@ -64,7 +69,12 @@ export function resolveLogo(addressLower?: string, size = '24px'): JSX.Element {
     const imgUrl = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${address}/logo.png`;
     return (
         <span>
-            <img src={imgUrl} alt='🍇' height={size} />
+            <img
+                src={imgUrl}
+                alt='🍇'
+                height={size}
+                style={{ borderRadius: '1rem' }}
+            />
         </span>
     );
 }
