@@ -1,4 +1,4 @@
-import {
+import React, {
     useState,
     useEffect,
     useContext,
@@ -10,12 +10,19 @@ import { PoolSearch } from 'components/pool-search';
 import { Box } from '@material-ui/core';
 import { AddLiquidityV3 } from 'components/add-liquidity/add-liquidity-v3';
 import { Helmet } from 'react-helmet';
-import { useLocation, Route, Switch, Link } from 'react-router-dom';
+import {
+    useLocation,
+    Route,
+    Switch,
+    Link,
+    useRouteMatch,
+} from 'react-router-dom';
 import { useBalance } from 'hooks/use-balance';
 import { usePoolOverview } from 'hooks/data-fetchers';
 import { useWallet } from 'hooks/use-wallet';
 import { debug } from 'util/debug';
 import { PoolOverview } from 'hooks/data-fetchers';
+import { PositionsWidget } from 'components/positions/positions-widget';
 import { EthGasPrices } from '@sommelier/shared-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faCog } from '@fortawesome/free-solid-svg-icons';
@@ -82,6 +89,20 @@ export const LiquidityContainer = ({
         void getShortUrl();
     }, [poolId]);
 
+    useEffect(() => {
+        const getPositionsData = async () => {
+            console.log(wallet?.account);
+            const data = await // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            (
+                await fetch(
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                    `/api/v1/mainnet/positions/${wallet?.account}/stats`,
+                )
+            ).json();
+            console.log(data);
+        };
+        void getPositionsData();
+    }, [wallet?.account]);
     const [slippageTolerance, setSlippageTolerance] = useState(3.0);
     const [selectedGasPrice, setSelectedGasPrice] = useState<GasPriceSelection>(
         GasPriceSelection.Fast,
@@ -116,7 +137,7 @@ export const LiquidityContainer = ({
                 <WidgetSelector />
                 <Switch>
                     <Route path='/positions'>
-                        <div>This is positions pane</div>
+                        <PositionsWidget />
                     </Route>
                     <Route path='/'>
                         <SearchWithHelmet pool={pool} />
@@ -141,16 +162,48 @@ export const LiquidityContainer = ({
     );
 };
 
+const ActiveItem = ({ children }: { children: JSX.Element }): JSX.Element => (
+    <div className='nav-item-wrapper-active'>
+        <div className='nav-item-active'>{children}</div>
+    </div>
+);
+
+const InactiveItem = ({ children }: { children: JSX.Element }): JSX.Element => (
+    <div className='nav-item-container'>
+        <div className='nav-item'>{children}</div>
+    </div>
+);
+
+const NavItem = ({
+    children,
+    isActive,
+}: {
+    children: JSX.Element;
+    isActive: boolean;
+}) =>
+    isActive ? (
+        <ActiveItem>{children}</ActiveItem>
+    ) : (
+        <InactiveItem>{children}</InactiveItem>
+    );
+
 const WidgetSelector = (): JSX.Element => (
     <Box display='flex'>
         <Box display='flex'>
-            <div className='nav-item-border-wrapper'>
-                <div className='nav-item'>
+            <div
+                style={{
+                    border: '1px solid red;',
+                    background: 'var(--bgDefault)',
+                    borderRadius: '4px',
+                    display: 'flex',
+                }}
+            >
+                <NavItem isActive={location?.pathname !== '/positions'}>
                     <Link to='/'>Liquidity</Link>
-                </div>
-                <div className='nav-item'>
+                </NavItem>
+                <NavItem isActive={location?.pathname === '/positions'}>
                     <Link to='/positions'>Positions</Link>
-                </div>
+                </NavItem>
             </div>
         </Box>
     </Box>
