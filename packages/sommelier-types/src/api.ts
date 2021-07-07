@@ -31,6 +31,8 @@ export type GetPositionsResult = GetPositionsQuery['positions'];
 export type GetPositionSnapshotsResult = GetPositionSnapshotsQuery['positionSnapshots'];
 
 export interface V3PositionStats {
+    gasUsed: BigNumber;
+    gasPrice: BigNumber;
     token0Amount: BigNumber;
     token1Amount: BigNumber;
     usdAmount: BigNumber;
@@ -39,8 +41,13 @@ export interface V3PositionStats {
     entryUsdAmount: BigNumber;
     collectedFees0: BigNumber;
     collectedFees1: BigNumber;
+    collectedFeesUSD: BigNumber;
     uncollectedFees0: BigNumber;
     uncollectedFees1: BigNumber;
+    uncollectedFeesUSD: BigNumber;
+    totalFeesUSD: BigNumber;
+    txFees: BigNumber;
+    txFeesUSD: BigNumber;
 }
 export interface V3PositionData {
     position: GetPositionsResult[0];

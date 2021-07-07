@@ -34,7 +34,8 @@ const config = {
             },
         },
         contracts: {
-            NONFUNGIBLE_POSITION_MANAGER: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
+            NONFUNGIBLE_POSITION_MANAGER:
+                '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
         },
     },
     infura: {

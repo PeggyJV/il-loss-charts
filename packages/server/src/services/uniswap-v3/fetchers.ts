@@ -50,6 +50,7 @@ export class UniswapV3Fetchers {
         if (uri == null) {
             throw new Error(`${network} is an invalid network.`);
         }
+        console.log('THIS IS URI', uri);
         const link = new HttpLink({ uri, fetch });
         const cache = new InMemoryCache();
         const client = new ApolloClient({ link, cache });

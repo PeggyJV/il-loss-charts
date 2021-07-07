@@ -44,5 +44,10 @@ query getPositions($owner: String!) {
         collectedFeesToken1
         feeGrowthInside0LastX128
         feeGrowthInside1LastX128
+        transaction {
+            id
+            gasUsed
+            gasPrice
+        }
     }
 }

@@ -666,11 +666,11 @@ export type GetPoolOverviewQuery = { __typename?: 'Query' } & {
         > & {
                 token0: { __typename?: 'Token' } & Pick<
                     Token,
-                    'id' | 'name' | 'symbol' | 'decimals'
+                    'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'
                 >;
                 token1: { __typename?: 'Token' } & Pick<
                     Token,
-                    'id' | 'name' | 'symbol' | 'decimals'
+                    'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'
                 >;
             }
     >;
@@ -737,6 +737,7 @@ export type GetPositionSnapshotsQuery = { __typename?: 'Query' } & {
         > & {
                 position: { __typename?: 'Position' } & Pick<
                     Position,
+                    | 'liquidity'
                     | 'depositedToken0'
                     | 'depositedToken1'
                     | 'withdrawnToken0'
@@ -820,6 +821,10 @@ export type GetPositionsQuery = { __typename?: 'Query' } & {
                 tickUpper: { __typename?: 'Tick' } & Pick<
                     Tick,
                     'id' | 'tickIdx' | 'price0' | 'price1'
+                >;
+                transaction: { __typename?: 'Transaction' } & Pick<
+                    Transaction,
+                    'id' | 'gasUsed' | 'gasPrice'
                 >;
             }
     >;

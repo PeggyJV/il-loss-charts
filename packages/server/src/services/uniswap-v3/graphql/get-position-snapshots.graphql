@@ -34,6 +34,7 @@ query getPositionSnapshots($owner: String!) {
                 price0
                 price1
             }
+            liquidity
             depositedToken0
             depositedToken1
             withdrawnToken0

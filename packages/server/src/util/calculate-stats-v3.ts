@@ -13,6 +13,7 @@ import nflpManagerAbi from 'constants/abis/nflp-manager.json';
 import config from '@config';
 
 const MAX_UINT128 = ethers.BigNumber.from(2).pow(128).sub(1);
+const Q96 = new BigNumber(2).pow(96);
 const { NONFUNGIBLE_POSITION_MANAGER } = config.uniswap.contracts;
 const provider = new ethers.providers.InfuraProvider(
     'mainnet',
@@ -38,16 +39,19 @@ export async function calculateStatsForNFLPs(
     // token1 at entry - done
     // usd at entry - done
 
-    // get fees 0 - need to total
-    // gas costs
+    // get fees 0 - done
+    // gas costs - done
     // fees collected - done
     // impermanent loss
     // get total return
     // get pct return
     // calculate APY
 
-    // Historical data fetches
     const { ethPrice } = await fetcher.getEthPrice();
+    const { pool, owner } = position;
+    const token0Denom = new BigNumber(10).pow(pool.token0.decimals);
+    const token1Denom = new BigNumber(10).pow(pool.token1.decimals);
+    const ethDenom = new BigNumber(10).pow(18);
 
     const initialSnapshot = snapshots[0];
     const currentSnapshot = snapshots[snapshots.length - 1];
@@ -60,11 +64,11 @@ export async function calculateStatsForNFLPs(
 
     // Find reserves based on liquidity and sqrtPrice
     function getReservesForSnapshot(snapshot: GetPositionSnapshotsResult[0]) {
-        const liquidity = new BigNumber(snapshot.liquidity);
-        const sqrtPrice = new BigNumber(snapshot.sqrtPrice);
+        const liquidity = new BigNumber(snapshot.position.liquidity);
+        const sqrtPrice = new BigNumber(snapshot.sqrtPrice).div(Q96);
 
-        const reserve0 = liquidity.div(sqrtPrice);
-        const reserve1 = liquidity.times(sqrtPrice);
+        const reserve0 = liquidity.div(sqrtPrice).div(token0Denom);
+        const reserve1 = liquidity.times(sqrtPrice).div(token1Denom);
         const reserveUSD = reserve0
             .times(snapshot.token0PriceUSD)
             .plus(reserve1.times(snapshot.token1PriceUSD));
@@ -76,12 +80,12 @@ export async function calculateStatsForNFLPs(
         };
     }
 
-    const { pool, owner } = position;
     const liquidity = new BigNumber(position.liquidity);
-    const sqrtPrice = new BigNumber(pool.sqrtPrice);
+    const sqrtPrice = new BigNumber(pool.sqrtPrice).div(Q96);
 
-    const reserve0 = liquidity.div(sqrtPrice);
-    const reserve1 = liquidity.times(sqrtPrice);
+    const reserve0 = liquidity.div(sqrtPrice).div(token0Denom);
+    const reserve1 = liquidity.times(sqrtPrice).div(token1Denom);
+
     const token0PriceUSD = new BigNumber(pool.token0.derivedETH).times(
         ethPrice,
     );
@@ -100,6 +104,9 @@ export async function calculateStatsForNFLPs(
 
     const collectedFees0 = new BigNumber(currentSnapshot.collectedFeesToken0);
     const collectedFees1 = new BigNumber(currentSnapshot.collectedFeesToken1);
+    const collectedFeesUSD = collectedFees0
+        .times(token0PriceUSD)
+        .plus(collectedFees1.times(token1PriceUSD));
 
     // Get uncollected fees by calling into the contract
     const uncollectedFees = await nflpContract.callStatic.collect(
@@ -112,12 +119,31 @@ export async function calculateStatsForNFLPs(
         { from: owner }, // need to simulate the call as the owner
     );
 
-    const {
+    let {
         amount0: uncollectedFees0,
         amount1: uncollectedFees1,
     } = uncollectedFees;
 
+    uncollectedFees0 = new BigNumber(uncollectedFees0.toString()).div(
+        token0Denom,
+    );
+    uncollectedFees1 = new BigNumber(uncollectedFees1.toString()).div(
+        token1Denom,
+    );
+    const uncollectedFeesUSD = uncollectedFees0
+        .times(token0PriceUSD)
+        .plus(uncollectedFees1.times(token1PriceUSD));
+
+    const totalFeesUSD = uncollectedFeesUSD.plus(collectedFeesUSD);
+
+    const gasUsed = new BigNumber(position.transaction.gasUsed);
+    const gasPrice = new BigNumber(position.transaction.gasPrice).div(ethDenom);
+    const txFees = gasUsed.times(gasPrice);
+    const txFeesUSD = txFees.times(ethPrice);
+
     return {
+        gasUsed,
+        gasPrice,
         token0Amount: reserve0,
         token1Amount: reserve1,
         usdAmount: reserveUSD,
@@ -126,7 +152,12 @@ export async function calculateStatsForNFLPs(
         entryUsdAmount: entryReserveUSD,
         collectedFees0,
         collectedFees1,
+        collectedFeesUSD,
         uncollectedFees0,
         uncollectedFees1,
+        uncollectedFeesUSD,
+        totalFeesUSD,
+        txFees,
+        txFeesUSD,
     };
 }

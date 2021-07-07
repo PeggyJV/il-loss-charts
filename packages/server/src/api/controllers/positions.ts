@@ -49,7 +49,10 @@ async function getPositionStats(
 
     const snapshotsByNFLP = snapshots.reduce(
         (acc: { [key: string]: GetPositionSnapshotsResult }, snapshot) => {
-            const [nflpId] = snapshot.id.split('#');
+            // TODO: Deploy a new subgraph which uses a delineator
+            // between NFLP and timestamp. Right now we assume last 10
+            // digits are timestamp.
+            const nflpId = snapshot.id.slice(0, -10);
 
             if (!acc[nflpId]) {
                 acc[nflpId] = [snapshot];
@@ -61,6 +64,12 @@ async function getPositionStats(
         },
         {},
     );
+
+    console.log(
+        'ALL NFLPS',
+        positions.map((p) => p.id),
+    );
+    console.log('GOT SNAPSHOTS', Object.keys(snapshotsByNFLP));
 
     const results: V3PositionDataList = {};
     for (const position of positions) {

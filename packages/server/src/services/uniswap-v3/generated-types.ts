@@ -645,10 +645,10 @@ export type GetPoolOverviewQuery = (
     & Pick<Pool, 'id' | 'createdAtTimestamp' | 'feeTier' | 'liquidity' | 'sqrtPrice' | 'token0Price' | 'token1Price' | 'tick' | 'volumeToken0' | 'volumeToken1' | 'volumeUSD' | 'totalValueLockedToken0' | 'totalValueLockedToken1' | 'totalValueLockedETH' | 'totalValueLockedUSD'>
     & { token0: (
       { __typename?: 'Token' }
-      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'>
     ), token1: (
       { __typename?: 'Token' }
-      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'>
     ) }
   )> }
 );
@@ -687,7 +687,7 @@ export type GetPositionSnapshotsQuery = (
     & Pick<PositionSnapshot, 'id' | 'owner' | 'token0PriceUSD' | 'token1PriceUSD' | 'liquidity' | 'sqrtPrice' | 'depositedToken0' | 'depositedToken1' | 'withdrawnToken0' | 'withdrawnToken1' | 'collectedFeesToken0' | 'collectedFeesToken1'>
     & { position: (
       { __typename?: 'Position' }
-      & Pick<Position, 'depositedToken0' | 'depositedToken1' | 'withdrawnToken0' | 'withdrawnToken1' | 'collectedFeesToken0' | 'collectedFeesToken1' | 'feeGrowthInside0LastX128' | 'feeGrowthInside1LastX128'>
+      & Pick<Position, 'liquidity' | 'depositedToken0' | 'depositedToken1' | 'withdrawnToken0' | 'withdrawnToken1' | 'collectedFeesToken0' | 'collectedFeesToken1' | 'feeGrowthInside0LastX128' | 'feeGrowthInside1LastX128'>
       & { pool: (
         { __typename?: 'Pool' }
         & Pick<Pool, 'id' | 'token0Price' | 'token1Price' | 'sqrtPrice' | 'liquidity'>
@@ -735,6 +735,9 @@ export type GetPositionsQuery = (
     ), tickUpper: (
       { __typename?: 'Tick' }
       & Pick<Tick, 'id' | 'tickIdx' | 'price0' | 'price1'>
+    ), transaction: (
+      { __typename?: 'Transaction' }
+      & Pick<Transaction, 'id' | 'gasUsed' | 'gasPrice'>
     ) }
   )> }
 );
@@ -856,12 +859,14 @@ export const GetPoolOverviewDocument = gql`
       name
       symbol
       decimals
+      derivedETH
     }
     token1 {
       id
       name
       symbol
       decimals
+      derivedETH
     }
   }
 }
@@ -936,6 +941,7 @@ export const GetPositionSnapshotsDocument = gql`
         price0
         price1
       }
+      liquidity
       depositedToken0
       depositedToken1
       withdrawnToken0
@@ -1005,6 +1011,11 @@ export const GetPositionsDocument = gql`
     collectedFeesToken1
     feeGrowthInside0LastX128
     feeGrowthInside1LastX128
+    transaction {
+      id
+      gasUsed
+      gasPrice
+    }
   }
 }
     `;
