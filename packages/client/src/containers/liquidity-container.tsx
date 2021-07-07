@@ -10,7 +10,7 @@ import { PoolSearch } from 'components/pool-search';
 import { Box } from '@material-ui/core';
 import { AddLiquidityV3 } from 'components/add-liquidity/add-liquidity-v3';
 import { Helmet } from 'react-helmet';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, Route, Switch, Link } from 'react-router-dom';
 import { useBalance } from 'hooks/use-balance';
 import { usePoolOverview } from 'hooks/data-fetchers';
 import { useWallet } from 'hooks/use-wallet';
@@ -114,19 +114,28 @@ export const LiquidityContainer = ({
         >
             <Box className='liquidity-container'>
                 <WidgetSelector />
-                <SearchWithHelmet pool={pool} />
-                {isLoading && <LoadingPoolBox msg=' fetching pool' />}
-                {isError && renderErrorBox()}
-                {poolId && pool && <SettingsBar gasPrices={gasPrices} />}
-                {poolId && pool && (
-                    <AddLiquidityV3
-                        pool={pool}
-                        shortUrl={shortUrl}
-                        balances={balances}
-                        gasPrices={gasPrices}
-                    />
-                )}
-                {/* {poolId && <TransactionSettings gasPrices={gasPrices} />} */}
+                <Switch>
+                    <Route path='/positions'>
+                        <div>This is positions pane</div>
+                    </Route>
+                    <Route path='/'>
+                        <SearchWithHelmet pool={pool} />
+                        {isLoading && <LoadingPoolBox msg=' fetching pool' />}
+                        {isError && renderErrorBox()}
+                        {poolId && pool && (
+                            <SettingsBar gasPrices={gasPrices} />
+                        )}
+                        {poolId && pool && (
+                            <AddLiquidityV3
+                                pool={pool}
+                                shortUrl={shortUrl}
+                                balances={balances}
+                                gasPrices={gasPrices}
+                            />
+                        )}
+                        {/* {poolId && <TransactionSettings gasPrices={gasPrices} />} */}
+                    </Route>
+                </Switch>
             </Box>
         </LiquidityContext.Provider>
     );
@@ -136,7 +145,12 @@ const WidgetSelector = (): JSX.Element => (
     <Box display='flex'>
         <Box display='flex'>
             <div className='nav-item-border-wrapper'>
-                <div className='nav-item'>Liquidity</div>
+                <div className='nav-item'>
+                    <Link to='/'>Liquidity</Link>
+                </div>
+                <div className='nav-item'>
+                    <Link to='/positions'>Positions</Link>
+                </div>
             </div>
         </Box>
     </Box>
