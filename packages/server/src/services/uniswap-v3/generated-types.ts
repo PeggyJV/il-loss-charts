@@ -303,6 +303,7 @@ export interface Query {
   poolHourDatas: Array<PoolHourData>;
   token?: Maybe<Token>;
   positions: Array<Position>;
+  positionSnapshots: Array<PositionSnapshot>;
 }
 
 
@@ -356,6 +357,11 @@ export interface QueryTokenArgs {
 
 
 export interface QueryPositionsArgs {
+  where?: Maybe<PositionsWhere>;
+}
+
+
+export interface QueryPositionSnapshotsArgs {
   where?: Maybe<PositionsWhere>;
 }
 
@@ -669,6 +675,40 @@ export type GetPoolsOverviewQuery = (
   )> }
 );
 
+export type GetPositionSnapshotsQueryVariables = Exact<{
+  owner: Scalars['String'];
+}>;
+
+
+export type GetPositionSnapshotsQuery = (
+  { __typename?: 'Query' }
+  & { positionSnapshots: Array<(
+    { __typename?: 'PositionSnapshot' }
+    & Pick<PositionSnapshot, 'id' | 'owner' | 'token0PriceUSD' | 'token1PriceUSD' | 'liquidity' | 'sqrtPrice' | 'depositedToken0' | 'depositedToken1' | 'withdrawnToken0' | 'withdrawnToken1' | 'collectedFeesToken0' | 'collectedFeesToken1'>
+    & { position: (
+      { __typename?: 'Position' }
+      & Pick<Position, 'depositedToken0' | 'depositedToken1' | 'withdrawnToken0' | 'withdrawnToken1' | 'collectedFeesToken0' | 'collectedFeesToken1' | 'feeGrowthInside0LastX128' | 'feeGrowthInside1LastX128'>
+      & { pool: (
+        { __typename?: 'Pool' }
+        & Pick<Pool, 'id' | 'token0Price' | 'token1Price' | 'sqrtPrice' | 'liquidity'>
+        & { token0: (
+          { __typename?: 'Token' }
+          & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+        ), token1: (
+          { __typename?: 'Token' }
+          & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+        ) }
+      ), tickLower: (
+        { __typename?: 'Tick' }
+        & Pick<Tick, 'id' | 'tickIdx' | 'price0' | 'price1'>
+      ), tickUpper: (
+        { __typename?: 'Tick' }
+        & Pick<Tick, 'id' | 'tickIdx' | 'price0' | 'price1'>
+      ) }
+    ) }
+  )> }
+);
+
 export type GetPositionsQueryVariables = Exact<{
   owner: Scalars['String'];
 }>;
@@ -678,16 +718,16 @@ export type GetPositionsQuery = (
   { __typename?: 'Query' }
   & { positions: Array<(
     { __typename?: 'Position' }
-    & Pick<Position, 'id' | 'owner' | 'depositedToken0' | 'depositedToken1' | 'withdrawnToken0' | 'withdrawnToken1' | 'collectedFeesToken0' | 'collectedFeesToken1' | 'feeGrowthInside0LastX128' | 'feeGrowthInside1LastX128'>
+    & Pick<Position, 'id' | 'owner' | 'liquidity' | 'depositedToken0' | 'depositedToken1' | 'withdrawnToken0' | 'withdrawnToken1' | 'collectedFeesToken0' | 'collectedFeesToken1' | 'feeGrowthInside0LastX128' | 'feeGrowthInside1LastX128'>
     & { pool: (
       { __typename?: 'Pool' }
       & Pick<Pool, 'id' | 'token0Price' | 'token1Price' | 'sqrtPrice' | 'liquidity'>
       & { token0: (
         { __typename?: 'Token' }
-        & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+        & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'>
       ), token1: (
         { __typename?: 'Token' }
-        & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+        & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'>
       ) }
     ), tickLower: (
       { __typename?: 'Tick' }
@@ -859,6 +899,65 @@ export const GetPoolsOverviewDocument = gql`
   }
 }
     `;
+export const GetPositionSnapshotsDocument = gql`
+    query getPositionSnapshots($owner: String!) {
+  positionSnapshots(where: {owner: $owner}) {
+    id
+    owner
+    position {
+      pool {
+        id
+        token0 {
+          id
+          name
+          symbol
+          decimals
+        }
+        token1 {
+          id
+          name
+          symbol
+          decimals
+        }
+        token0Price
+        token1Price
+        sqrtPrice
+        liquidity
+      }
+      tickLower {
+        id
+        tickIdx
+        price0
+        price1
+      }
+      tickUpper {
+        id
+        tickIdx
+        price0
+        price1
+      }
+      depositedToken0
+      depositedToken1
+      withdrawnToken0
+      withdrawnToken1
+      collectedFeesToken0
+      collectedFeesToken1
+      feeGrowthInside0LastX128
+      feeGrowthInside1LastX128
+    }
+    token0PriceUSD
+    token1PriceUSD
+    liquidity
+    sqrtPrice
+    depositedToken0
+    depositedToken1
+    withdrawnToken0
+    withdrawnToken1
+    collectedFeesToken0
+    collectedFeesToken1
+  }
+}
+    `;
 export const GetPositionsDocument = gql`
     query getPositions($owner: String!) {
   positions(where: {owner: $owner}) {
@@ -871,12 +970,14 @@ export const GetPositionsDocument = gql`
         name
         symbol
         decimals
+        derivedETH
       }
       token1 {
         id
         name
         symbol
         decimals
+        derivedETH
       }
       token0Price
       token1Price
@@ -895,6 +996,7 @@ export const GetPositionsDocument = gql`
       price0
       price1
     }
+    liquidity
     depositedToken0
     depositedToken1
     withdrawnToken0
@@ -955,6 +1057,9 @@ export function getSdk<C>(requester: Requester<C>) {
     },
     getPoolsOverview(variables: GetPoolsOverviewQueryVariables, options?: C): Promise<GetPoolsOverviewQuery> {
       return requester<GetPoolsOverviewQuery, GetPoolsOverviewQueryVariables>(GetPoolsOverviewDocument, variables, options);
+    },
+    getPositionSnapshots(variables: GetPositionSnapshotsQueryVariables, options?: C): Promise<GetPositionSnapshotsQuery> {
+      return requester<GetPositionSnapshotsQuery, GetPositionSnapshotsQueryVariables>(GetPositionSnapshotsDocument, variables, options);
     },
     getPositions(variables: GetPositionsQueryVariables, options?: C): Promise<GetPositionsQuery> {
       return requester<GetPositionsQuery, GetPositionsQueryVariables>(GetPositionsDocument, variables, options);

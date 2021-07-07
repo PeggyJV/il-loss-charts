@@ -9,12 +9,14 @@ query getPositions($owner: String!) {
                 name
                 symbol
                 decimals
+                derivedETH
             }
             token1 {
                 id
                 name
                 symbol
                 decimals
+                derivedETH
             }
             token0Price
             token1Price
@@ -33,6 +35,7 @@ query getPositions($owner: String!) {
             price0
             price1
         }
+        liquidity
         depositedToken0
         depositedToken1
         withdrawnToken0

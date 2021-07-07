@@ -846,6 +846,9 @@ type Query {
     positions(
         where: PositionsWhere
     ): [Position!]!
+    positionSnapshots(
+        where: PositionsWhere
+    ): [PositionSnapshot!]!
 }
 
 schema {

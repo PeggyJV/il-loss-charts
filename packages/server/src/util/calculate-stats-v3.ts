@@ -1,9 +1,14 @@
 import BigNumber from 'bignumber.js';
 import { format } from 'date-fns';
 import { ethers } from 'ethers';
-import { UniswapFetcher } from 'index';
+import { UniswapV3Fetchers } from 'services/uniswap-v3';
+import {
+    GetPositionsResult,
+    GetPositionSnapshotsResult,
+    V3PositionStats,
+} from '@sommelier/shared-types/src/api';
 
-import nflpManagerAbi from 'constants/abis/nflpmanager.json';
+import nflpManagerAbi from 'constants/abis/nflp-manager.json';
 
 import config from '@config';
 
@@ -20,7 +25,11 @@ const nflpContract = new ethers.Contract(
     provider,
 );
 
-export async function calculateStatsForNFLPs(position: Position, snapshots: PositionSnapshots) {
+export async function calculateStatsForNFLPs(
+    position: GetPositionsResult[0],
+    snapshots: GetPositionSnapshotsResult,
+): Promise<V3PositionStats> {
+    const fetcher = UniswapV3Fetchers.get('mainnet');
     // get sizes
     // token0 size - done
     // token1 size - done
@@ -38,7 +47,7 @@ export async function calculateStatsForNFLPs(position: Position, snapshots: Posi
     // calculate APY
 
     // Historical data fetches
-    const { ethPrice } = await UniswapFetcher.getEthPrice();
+    const { ethPrice } = await fetcher.getEthPrice();
 
     const initialSnapshot = snapshots[0];
     const currentSnapshot = snapshots[snapshots.length - 1];
@@ -50,7 +59,7 @@ export async function calculateStatsForNFLPs(position: Position, snapshots: Posi
     // }
 
     // Find reserves based on liquidity and sqrtPrice
-    function getReservesForSnapshot(snapshot: PositionSnapshot) {
+    function getReservesForSnapshot(snapshot: GetPositionSnapshotsResult[0]) {
         const liquidity = new BigNumber(snapshot.liquidity);
         const sqrtPrice = new BigNumber(snapshot.sqrtPrice);
 
@@ -69,12 +78,16 @@ export async function calculateStatsForNFLPs(position: Position, snapshots: Posi
 
     const { pool, owner } = position;
     const liquidity = new BigNumber(position.liquidity);
-    const sqrtPrice = new BigNumber(position.sqrtPrice);
+    const sqrtPrice = new BigNumber(pool.sqrtPrice);
 
     const reserve0 = liquidity.div(sqrtPrice);
     const reserve1 = liquidity.times(sqrtPrice);
-    const token0PriceUSD = pool.token0.derivedETH.times(ethPrice);
-    const token1PriceUSD = pool.token1.derivedETH.times(ethPrice);
+    const token0PriceUSD = new BigNumber(pool.token0.derivedETH).times(
+        ethPrice,
+    );
+    const token1PriceUSD = new BigNumber(pool.token1.derivedETH).times(
+        ethPrice,
+    );
     const reserveUSD = reserve0
         .times(token0PriceUSD)
         .plus(reserve1.times(token1PriceUSD));
@@ -85,8 +98,8 @@ export async function calculateStatsForNFLPs(position: Position, snapshots: Posi
         reserveUSD: entryReserveUSD,
     } = getReservesForSnapshot(initialSnapshot);
 
-    const collectedFees0 = currentSnapshot.collectedFeesToken0;
-    const collectedFees1 = currentSnapshot.collectedFeesToken1;
+    const collectedFees0 = new BigNumber(currentSnapshot.collectedFeesToken0);
+    const collectedFees1 = new BigNumber(currentSnapshot.collectedFeesToken1);
 
     // Get uncollected fees by calling into the contract
     const uncollectedFees = await nflpContract.callStatic.collect(
@@ -111,7 +124,9 @@ export async function calculateStatsForNFLPs(position: Position, snapshots: Posi
         entryToken0Amount: entryReserve0,
         entryToken1Amount: entryReserve1,
         entryUsdAmount: entryReserveUSD,
-    }
-
-
+        collectedFees0,
+        collectedFees1,
+        uncollectedFees0,
+        uncollectedFees1,
+    };
 }

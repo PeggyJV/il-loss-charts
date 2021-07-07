@@ -9,6 +9,7 @@ import {
     GetPoolHourlyDataQuery,
     GetTopPoolsQuery,
     GetPositionsQuery,
+    GetPositionSnapshotsQuery,
 } from './uniswap-v3';
 
 export type GetEthPriceResult = { ethPrice: BigNumber };
@@ -27,3 +28,22 @@ export type TopPool = ArrayElement<GetTopPoolsResult>;
 export type PoolLike = TopPool | PoolOverview;
 
 export type GetPositionsResult = GetPositionsQuery['positions'];
+export type GetPositionSnapshotsResult = GetPositionSnapshotsQuery['positionSnapshots'];
+
+export interface V3PositionStats {
+    token0Amount: BigNumber;
+    token1Amount: BigNumber;
+    usdAmount: BigNumber;
+    entryToken0Amount: BigNumber;
+    entryToken1Amount: BigNumber;
+    entryUsdAmount: BigNumber;
+    collectedFees0: BigNumber;
+    collectedFees1: BigNumber;
+    uncollectedFees0: BigNumber;
+    uncollectedFees1: BigNumber;
+}
+export interface V3PositionData {
+    position: GetPositionsResult[0];
+    snapshots: GetPositionSnapshotsResult;
+    stats: V3PositionStats;
+}

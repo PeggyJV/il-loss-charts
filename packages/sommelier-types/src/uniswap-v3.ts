@@ -302,6 +302,7 @@ export interface Query {
     poolHourDatas: Array<PoolHourData>;
     token?: Maybe<Token>;
     positions: Array<Position>;
+    positionSnapshots: Array<PositionSnapshot>;
 }
 
 export interface QueryBundleArgs {
@@ -346,6 +347,10 @@ export interface QueryTokenArgs {
 }
 
 export interface QueryPositionsArgs {
+    where?: Maybe<PositionsWhere>;
+}
+
+export interface QueryPositionSnapshotsArgs {
     where?: Maybe<PositionsWhere>;
 }
 
@@ -709,6 +714,68 @@ export type GetPoolsOverviewQuery = { __typename?: 'Query' } & {
     >;
 };
 
+export type GetPositionSnapshotsQueryVariables = Exact<{
+    owner: Scalars['String'];
+}>;
+
+export type GetPositionSnapshotsQuery = { __typename?: 'Query' } & {
+    positionSnapshots: Array<
+        { __typename?: 'PositionSnapshot' } & Pick<
+            PositionSnapshot,
+            | 'id'
+            | 'owner'
+            | 'token0PriceUSD'
+            | 'token1PriceUSD'
+            | 'liquidity'
+            | 'sqrtPrice'
+            | 'depositedToken0'
+            | 'depositedToken1'
+            | 'withdrawnToken0'
+            | 'withdrawnToken1'
+            | 'collectedFeesToken0'
+            | 'collectedFeesToken1'
+        > & {
+                position: { __typename?: 'Position' } & Pick<
+                    Position,
+                    | 'depositedToken0'
+                    | 'depositedToken1'
+                    | 'withdrawnToken0'
+                    | 'withdrawnToken1'
+                    | 'collectedFeesToken0'
+                    | 'collectedFeesToken1'
+                    | 'feeGrowthInside0LastX128'
+                    | 'feeGrowthInside1LastX128'
+                > & {
+                        pool: { __typename?: 'Pool' } & Pick<
+                            Pool,
+                            | 'id'
+                            | 'token0Price'
+                            | 'token1Price'
+                            | 'sqrtPrice'
+                            | 'liquidity'
+                        > & {
+                                token0: { __typename?: 'Token' } & Pick<
+                                    Token,
+                                    'id' | 'name' | 'symbol' | 'decimals'
+                                >;
+                                token1: { __typename?: 'Token' } & Pick<
+                                    Token,
+                                    'id' | 'name' | 'symbol' | 'decimals'
+                                >;
+                            };
+                        tickLower: { __typename?: 'Tick' } & Pick<
+                            Tick,
+                            'id' | 'tickIdx' | 'price0' | 'price1'
+                        >;
+                        tickUpper: { __typename?: 'Tick' } & Pick<
+                            Tick,
+                            'id' | 'tickIdx' | 'price0' | 'price1'
+                        >;
+                    };
+            }
+    >;
+};
+
 export type GetPositionsQueryVariables = Exact<{
     owner: Scalars['String'];
 }>;
@@ -719,6 +786,7 @@ export type GetPositionsQuery = { __typename?: 'Query' } & {
             Position,
             | 'id'
             | 'owner'
+            | 'liquidity'
             | 'depositedToken0'
             | 'depositedToken1'
             | 'withdrawnToken0'
@@ -738,11 +806,11 @@ export type GetPositionsQuery = { __typename?: 'Query' } & {
                 > & {
                         token0: { __typename?: 'Token' } & Pick<
                             Token,
-                            'id' | 'name' | 'symbol' | 'decimals'
+                            'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'
                         >;
                         token1: { __typename?: 'Token' } & Pick<
                             Token,
-                            'id' | 'name' | 'symbol' | 'decimals'
+                            'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'
                         >;
                     };
                 tickLower: { __typename?: 'Tick' } & Pick<

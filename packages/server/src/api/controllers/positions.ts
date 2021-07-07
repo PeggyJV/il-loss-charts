@@ -5,7 +5,11 @@ import { EthNetwork } from '@sommelier/shared-types';
 
 import { HTTPError } from 'api/util/errors';
 import { memoConfig, UniswapV3Fetchers } from 'services/uniswap-v3';
-import { GetPositionsResult } from '@sommelier/shared-types/src/api'; // how do we export at root level?
+import {
+    GetPositionsResult,
+    GetPositionSnapshotsResult,
+    V3PositionData,
+} from '@sommelier/shared-types/src/api'; // how do we export at root level?
 import catchAsyncRoute from 'api/util/catch-async-route';
 import { networkValidator } from 'api/util/validators';
 import validateEthAddress from 'api/util/validate-eth-address';
@@ -15,11 +19,12 @@ import config from '@config';
 
 const networks = Object.keys(config.uniswap.v3.networks);
 
-
 type Path = {
     network: EthNetwork;
     address: string;
 };
+
+type V3PositionDataList = { [key: string]: V3PositionData };
 
 const getPositionsValidator = celebrate({
     [Segments.PARAMS]: Joi.object().keys({
@@ -29,32 +34,35 @@ const getPositionsValidator = celebrate({
         address: Joi.string()
             .custom(validateEthAddress, 'Validate address')
             .required(),
-    })
+    }),
 });
 
 // GET /positions/:address
 async function getPositionStats(
     req: Request<Path, unknown, unknown, unknown>,
-): Promise<Record<string, any>> {
+): Promise<V3PositionDataList> {
     const { network, address } = req.params;
     const fetcher = UniswapV3Fetchers.get(network);
 
     const positions = await fetcher.getPositions(address);
     const snapshots = await fetcher.getPositionSnapshots(address);
 
-    const snapshotsByNFLP = snapshots.reduce((acc, snapshot) => {
-        const [nflpId] = snapshot.id.split('#');
+    const snapshotsByNFLP = snapshots.reduce(
+        (acc: { [key: string]: GetPositionSnapshotsResult }, snapshot) => {
+            const [nflpId] = snapshot.id.split('#');
 
-        if (!acc[nflpId]) {
-            acc[nflpId] = [snapshot];
-        } else {
-            acc[nflpId].push(snapshot);
-        }
+            if (!acc[nflpId]) {
+                acc[nflpId] = [snapshot];
+            } else {
+                acc[nflpId].push(snapshot);
+            }
 
-        return acc;
-    }, {});
+            return acc;
+        },
+        {},
+    );
 
-    const results: Record<string, any> = {};
+    const results: V3PositionDataList = {};
     for (const position of positions) {
         const [nflpId] = position.id.split('#');
 
@@ -70,7 +78,6 @@ async function getPositionStats(
 
     return results;
 }
-
 
 const route = Router();
 const cacheConfig = { public: true };
