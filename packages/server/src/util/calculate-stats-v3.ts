@@ -12,6 +12,7 @@ import nflpManagerAbi from 'constants/abis/nflp-manager.json';
 
 import config from '@config';
 
+const oneYearSeconds = 24 * 60 * 60 * 365;
 const MAX_UINT128 = ethers.BigNumber.from(2).pow(128).sub(1);
 const Q96 = new BigNumber(2).pow(96);
 const { NONFUNGIBLE_POSITION_MANAGER } = config.uniswap.contracts;
@@ -42,9 +43,9 @@ export async function calculateStatsForNFLPs(
     // get fees 0 - done
     // gas costs - done
     // fees collected - done
-    // impermanent loss
-    // get total return
-    // get pct return
+    // impermanent loss - done
+    // get total return - done
+    // get pct return - done
     // calculate APY
 
     const { ethPrice } = await fetcher.getEthPrice();
@@ -141,6 +142,32 @@ export async function calculateStatsForNFLPs(
     const txFees = gasUsed.times(gasPrice);
     const txFeesUSD = txFees.times(ethPrice);
 
+    const initialPrice = new BigNumber(
+        initialSnapshot.position.pool.token0Price,
+    );
+
+    // TODO: handle liquidity being 0
+    // TODO: Revisit IL calculations after subgraph changes
+    const currentPrice = new BigNumber(pool.token0Price);
+    const priceRatio = currentPrice.div(initialPrice);
+    const impermanentLossPct = new BigNumber(2)
+        .times(priceRatio.sqrt())
+        .div(priceRatio.plus(1))
+        .minus(1);
+    const impermanentLoss = reserveUSD.times(impermanentLossPct);
+
+    const totalReturn = reserveUSD
+        .minus(entryReserveUSD)
+        .plus(totalFeesUSD)
+        .minus(txFeesUSD)
+        .minus(impermanentLoss);
+    const pctReturn = totalReturn.div(entryReserveUSD);
+
+    const apyFactor = new BigNumber(Math.floor(Date.now() / 1000))
+        .minus(initialSnapshot.timestamp)
+        .div(oneYearSeconds);
+    const apy = pctReturn.div(apyFactor);
+
     return {
         gasUsed,
         gasPrice,
@@ -159,5 +186,10 @@ export async function calculateStatsForNFLPs(
         totalFeesUSD,
         txFees,
         txFeesUSD,
+        impermanentLoss,
+        impermanentLossPct,
+        totalReturn,
+        pctReturn,
+        apy,
     };
 }

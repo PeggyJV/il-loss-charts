@@ -270,6 +270,8 @@ export interface PositionSnapshot {
   blockNumber: Scalars['BigInt'];
   owner: Scalars['Bytes'];
   pool: Pool;
+  token0Price: Scalars['BigDecimal'];
+  token1Price: Scalars['BigDecimal'];
   token0PriceUSD: Scalars['BigDecimal'];
   token1PriceUSD: Scalars['BigDecimal'];
   liquidity: Scalars['BigInt'];
@@ -684,7 +686,7 @@ export type GetPositionSnapshotsQuery = (
   { __typename?: 'Query' }
   & { positionSnapshots: Array<(
     { __typename?: 'PositionSnapshot' }
-    & Pick<PositionSnapshot, 'id' | 'owner' | 'token0PriceUSD' | 'token1PriceUSD' | 'liquidity' | 'sqrtPrice' | 'depositedToken0' | 'depositedToken1' | 'withdrawnToken0' | 'withdrawnToken1' | 'collectedFeesToken0' | 'collectedFeesToken1'>
+    & Pick<PositionSnapshot, 'id' | 'owner' | 'timestamp' | 'token0PriceUSD' | 'token1PriceUSD' | 'liquidity' | 'sqrtPrice' | 'depositedToken0' | 'depositedToken1' | 'withdrawnToken0' | 'withdrawnToken1' | 'collectedFeesToken0' | 'collectedFeesToken1'>
     & { position: (
       { __typename?: 'Position' }
       & Pick<Position, 'liquidity' | 'depositedToken0' | 'depositedToken1' | 'withdrawnToken0' | 'withdrawnToken1' | 'collectedFeesToken0' | 'collectedFeesToken1' | 'feeGrowthInside0LastX128' | 'feeGrowthInside1LastX128'>
@@ -951,6 +953,7 @@ export const GetPositionSnapshotsDocument = gql`
       feeGrowthInside0LastX128
       feeGrowthInside1LastX128
     }
+    timestamp
     token0PriceUSD
     token1PriceUSD
     liquidity

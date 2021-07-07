@@ -65,12 +65,6 @@ async function getPositionStats(
         {},
     );
 
-    console.log(
-        'ALL NFLPS',
-        positions.map((p) => p.id),
-    );
-    console.log('GOT SNAPSHOTS', Object.keys(snapshotsByNFLP));
-
     const results: V3PositionDataList = {};
     for (const position of positions) {
         const [nflpId] = position.id.split('#');

@@ -48,6 +48,11 @@ export interface V3PositionStats {
     totalFeesUSD: BigNumber;
     txFees: BigNumber;
     txFeesUSD: BigNumber;
+    impermanentLoss: BigNumber;
+    impermanentLossPct: BigNumber;
+    totalReturn: BigNumber;
+    pctReturn: BigNumber;
+    apy: BigNumber;
 }
 export interface V3PositionData {
     position: GetPositionsResult[0];

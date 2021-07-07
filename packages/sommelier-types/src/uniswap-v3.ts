@@ -269,6 +269,8 @@ export interface PositionSnapshot {
     blockNumber: Scalars['BigInt'];
     owner: Scalars['Bytes'];
     pool: Pool;
+    token0Price: Scalars['BigDecimal'];
+    token1Price: Scalars['BigDecimal'];
     token0PriceUSD: Scalars['BigDecimal'];
     token1PriceUSD: Scalars['BigDecimal'];
     liquidity: Scalars['BigInt'];
@@ -724,6 +726,7 @@ export type GetPositionSnapshotsQuery = { __typename?: 'Query' } & {
             PositionSnapshot,
             | 'id'
             | 'owner'
+            | 'timestamp'
             | 'token0PriceUSD'
             | 'token1PriceUSD'
             | 'liquidity'

@@ -44,6 +44,7 @@ query getPositionSnapshots($owner: String!) {
             feeGrowthInside0LastX128
             feeGrowthInside1LastX128
         }
+        timestamp
         token0PriceUSD
         token1PriceUSD
         liquidity
