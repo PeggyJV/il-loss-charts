@@ -33,6 +33,10 @@ const config = {
                     'http://35.197.14.14:8000/subgraphs/name/sommelier/uniswap-v3-2',
             },
         },
+        contracts: {
+            NONFUNGIBLE_POSITION_MANAGER:
+                '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
+        },
     },
     infura: {
         projectId: '',

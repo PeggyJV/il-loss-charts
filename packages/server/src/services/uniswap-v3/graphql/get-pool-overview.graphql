@@ -20,12 +20,14 @@ query getPoolOverview($id: ID!, $blockNumber: Int) {
             name
             symbol
             decimals
-        }
+            derivedETH
+        }   
         token1 {
             id
             name
             symbol
             decimals
+            derivedETH
         }
     }
 }

@@ -10,6 +10,8 @@ import {
     GetPoolHourlyDataResult,
     GetPoolOverviewResult,
     GetTopPoolsResult,
+    GetPositionsResult,
+    GetPositionSnapshotsResult,
 } from '@sommelier/shared-types/src/api'; // how do we export at root level?
 import { HTTPError } from 'api/util/errors';
 import { toDateInt } from 'util/gql';
@@ -43,6 +45,8 @@ export interface UniswapFetcher {
         start: Date,
         end: Date,
     ): Promise<GetPoolHourlyDataResult>;
+    getPositions(owner: string): Promise<GetPositionsResult>;
+    getPositionSnapshots(owner: string): Promise<GetPositionSnapshotsResult>;
 }
 
 export class UniswapV3Fetcher {
@@ -162,7 +166,7 @@ export class UniswapV3Fetcher {
         try {
             const { poolHourDatas } = await this.sdk.getPoolHourlyData({
                 id: poolId,
-                orderBy: 'periodStartUnix',
+                orderBy: 'date',
                 orderDirection: 'asc',
                 startTime,
                 endTime,
@@ -244,7 +248,7 @@ export class UniswapV3Fetcher {
         }
 
         let hourlyData = startData; // accumulator
-        let cursorEndTime = hourlyData[hourlyData.length - 1]?.periodStartUnix; // time of last hour data in current page
+        let cursorEndTime = hourlyData[hourlyData.length - 1]?.date; // time of last hour data in current page
         let lastStartTime = start; // start time from previous page
         const endTimestamp = Math.floor(end.getTime() / 1000);
 
@@ -264,7 +268,7 @@ export class UniswapV3Fetcher {
                 end,
             );
             hourlyData = [...hourlyData, ...moreHourlyData];
-            cursorEndTime = hourlyData[hourlyData.length - 1]?.periodStartUnix; // set new cursor
+            cursorEndTime = hourlyData[hourlyData.length - 1]?.date; // set new cursor
 
             if (hourlyData.length === oldLength) {
                 break;
@@ -272,6 +276,41 @@ export class UniswapV3Fetcher {
         }
 
         return hourlyData;
+    }
+
+    async getPositions(owner: string): Promise<GetPositionsResult> {
+        try {
+            const { positions } = await this.sdk.getPositions({
+                owner,
+            });
+            if (positions == null || positions.length === 0) {
+                throw new Error('No positions returned.');
+            }
+
+            return positions;
+        } catch (error) {
+            throw makeSdkError(`Could not fetch user positions`, error);
+        }
+    }
+
+    async getPositionSnapshots(
+        owner: string,
+    ): Promise<GetPositionSnapshotsResult> {
+        try {
+            const { positionSnapshots } = await this.sdk.getPositionSnapshots({
+                owner,
+            });
+            if (positionSnapshots == null || positionSnapshots.length === 0) {
+                throw new Error('No position snapshots returned.');
+            }
+
+            return positionSnapshots;
+        } catch (error) {
+            throw makeSdkError(
+                `Could not fetch user position snapshots`,
+                error,
+            );
+        }
     }
 }
 

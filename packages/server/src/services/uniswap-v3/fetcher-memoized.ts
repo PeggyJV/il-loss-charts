@@ -6,6 +6,8 @@ import {
     GetPoolHourlyDataResult,
     GetPoolOverviewResult,
     GetTopPoolsResult,
+    GetPositionsResult,
+    GetPositionSnapshotsResult,
 } from '@sommelier/shared-types/src/api'; // how do we export at root level?
 import { UniswapFetcher, UniswapV3Fetcher } from 'services/uniswap-v3/fetcher';
 import appConfig from '@config';
@@ -25,6 +27,8 @@ export const memoConfig = {
     getTopPools: { ttl: minuteMs * 5 },
     getHistoricalDailyData: { ttl: hourMs * 1 },
     getHistoricalHourlyData: { ttl: hourMs * 1 },
+    getPositions: { ttl: minuteMs * 10 },
+    getPositionSnapshots: { ttl: minuteMs * 10 },
 };
 
 // Proxy for UniswapV3Fetcher where functions are memoized
@@ -122,5 +126,23 @@ export class UniswapV3FetcherMemoized implements UniswapFetcher {
             config,
         );
         return fn(poolId, start, end);
+    }
+
+    getPositions(owner: string): Promise<GetPositionsResult> {
+        const config = memoConfig.getPositions;
+        const fn: UniswapFetcher['getPositions'] = this.memoize(
+            this.fetcher.getPositions.bind(this.fetcher),
+            config,
+        );
+        return fn(owner);
+    }
+
+    getPositionSnapshots(owner: string): Promise<GetPositionSnapshotsResult> {
+        const config = memoConfig.getPositionSnapshots;
+        const fn: UniswapFetcher['getPositionSnapshots'] = this.memoize(
+            this.fetcher.getPositionSnapshots.bind(this.fetcher),
+            config,
+        );
+        return fn(owner);
     }
 }

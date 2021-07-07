@@ -1,0 +1,53 @@
+query getPositions($owner: String!) {
+    positions(where: { owner: $owner }) {
+        id
+        owner
+        pool {
+            id
+            token0 {
+                id
+                name
+                symbol
+                decimals
+                derivedETH
+            }
+            token1 {
+                id
+                name
+                symbol
+                decimals
+                derivedETH
+            }
+            token0Price
+            token1Price
+            sqrtPrice
+            liquidity
+        }
+        tickLower {
+            id
+            tickIdx
+            price0
+            price1
+        }
+        tickUpper {
+            id
+            tickIdx
+            price0
+            price1
+        }
+        liquidity
+        depositedToken0
+        depositedToken1
+        withdrawnToken0
+        withdrawnToken1
+        collectedFeesToken0
+        collectedFeesToken1
+        feeGrowthInside0LastX128
+        feeGrowthInside1LastX128
+        transaction {
+            id
+            gasUsed
+            gasPrice
+        }
+    }
+}

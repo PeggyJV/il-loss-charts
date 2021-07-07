@@ -10,8 +10,8 @@ query getPoolHourlyData(
         orderDirection: $orderDirection
         where: {
             id: $id
-            periodStartUnix_gt: $startTime
-            periodStartUnix_lt: $endTime
+            date_gt: $startTime
+            date_lt: $endTime
         }
     ) {
         pool {
@@ -23,7 +23,7 @@ query getPoolHourlyData(
         high
         low
         close
-        periodStartUnix
+        date
         volumeToken0
         volumeToken1
         volumeUSD

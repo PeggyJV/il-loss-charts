@@ -29,6 +29,8 @@ export interface Burn {
     id: Scalars['ID'];
     transaction: Transaction;
     pool: Pool;
+    token0: Token;
+    token1: Token;
     timestamp: Scalars['BigInt'];
     owner?: Maybe<Scalars['Bytes']>;
     origin: Scalars['Bytes'];
@@ -63,9 +65,13 @@ export interface Factory {
     txCount: Scalars['BigInt'];
     totalVolumeUSD: Scalars['BigDecimal'];
     totalVolumeETH: Scalars['BigDecimal'];
+    totalFeesUSD: Scalars['BigDecimal'];
+    totalFeesETH: Scalars['BigDecimal'];
     untrackedVolumeUSD: Scalars['BigDecimal'];
     totalValueLockedUSD: Scalars['BigDecimal'];
     totalValueLockedETH: Scalars['BigDecimal'];
+    totalValueLockedUSDUntracked: Scalars['BigDecimal'];
+    totalValueLockedETHUntracked: Scalars['BigDecimal'];
     owner: Scalars['ID'];
 }
 
@@ -91,6 +97,8 @@ export interface Mint {
     transaction: Transaction;
     timestamp: Scalars['BigInt'];
     pool: Pool;
+    token0: Token;
+    token1: Token;
     owner: Scalars['Bytes'];
     sender?: Maybe<Scalars['Bytes']>;
     origin: Scalars['Bytes'];
@@ -113,6 +121,8 @@ export interface Pool {
     feeTier: Scalars['BigInt'];
     liquidity: Scalars['BigInt'];
     sqrtPrice: Scalars['BigInt'];
+    feeGrowthGlobal0X128: Scalars['BigInt'];
+    feeGrowthGlobal1X128: Scalars['BigInt'];
     token0Price: Scalars['BigDecimal'];
     token1Price: Scalars['BigDecimal'];
     tick?: Maybe<Scalars['BigInt']>;
@@ -121,6 +131,7 @@ export interface Pool {
     volumeToken1: Scalars['BigDecimal'];
     volumeUSD: Scalars['BigDecimal'];
     untrackedVolumeUSD: Scalars['BigDecimal'];
+    feesUSD: Scalars['BigDecimal'];
     txCount: Scalars['BigInt'];
     collectedFeesToken0: Scalars['BigDecimal'];
     collectedFeesToken1: Scalars['BigDecimal'];
@@ -129,6 +140,7 @@ export interface Pool {
     totalValueLockedToken1: Scalars['BigDecimal'];
     totalValueLockedETH: Scalars['BigDecimal'];
     totalValueLockedUSD: Scalars['BigDecimal'];
+    totalValueLockedUSDUntracked: Scalars['BigDecimal'];
     liquidityProviderCount: Scalars['BigInt'];
     poolHourData: Array<PoolHourData>;
     poolDayData: Array<PoolDayData>;
@@ -153,10 +165,13 @@ export interface PoolDayData {
     low: Scalars['BigDecimal'];
     close: Scalars['BigDecimal'];
     tick?: Maybe<Scalars['BigInt']>;
+    feeGrowthGlobal0X128: Scalars['BigInt'];
+    feeGrowthGlobal1X128: Scalars['BigInt'];
     tvlUSD: Scalars['BigDecimal'];
     volumeToken0: Scalars['BigDecimal'];
     volumeToken1: Scalars['BigDecimal'];
     volumeUSD: Scalars['BigDecimal'];
+    feesUSD: Scalars['BigDecimal'];
     txCount: Scalars['BigInt'];
 }
 
@@ -166,10 +181,10 @@ export interface PoolDayDatasWhere {
     date_lt?: Maybe<Scalars['Int']>;
 }
 
-export interface PoolHourData {
-    __typename?: 'PoolHourData';
+export interface PoolFiveMinuteData {
+    __typename?: 'PoolFiveMinuteData';
     id: Scalars['ID'];
-    periodStartUnix: Scalars['Int'];
+    date: Scalars['Int'];
     pool: Pool;
     liquidity: Scalars['BigInt'];
     sqrtPrice: Scalars['BigInt'];
@@ -180,22 +195,102 @@ export interface PoolHourData {
     low: Scalars['BigDecimal'];
     close: Scalars['BigDecimal'];
     tick?: Maybe<Scalars['BigInt']>;
+    feeGrowthGlobal0X128: Scalars['BigInt'];
+    feeGrowthGlobal1X128: Scalars['BigInt'];
     tvlUSD: Scalars['BigDecimal'];
     volumeToken0: Scalars['BigDecimal'];
     volumeToken1: Scalars['BigDecimal'];
     volumeUSD: Scalars['BigDecimal'];
+    feesUSD: Scalars['BigDecimal'];
+    txCount: Scalars['BigInt'];
+}
+
+export interface PoolHourData {
+    __typename?: 'PoolHourData';
+    id: Scalars['ID'];
+    date: Scalars['Int'];
+    pool: Pool;
+    liquidity: Scalars['BigInt'];
+    sqrtPrice: Scalars['BigInt'];
+    token0Price: Scalars['BigDecimal'];
+    token1Price: Scalars['BigDecimal'];
+    open: Scalars['BigDecimal'];
+    high: Scalars['BigDecimal'];
+    low: Scalars['BigDecimal'];
+    close: Scalars['BigDecimal'];
+    tick?: Maybe<Scalars['BigInt']>;
+    feeGrowthGlobal0X128: Scalars['BigInt'];
+    feeGrowthGlobal1X128: Scalars['BigInt'];
+    tvlUSD: Scalars['BigDecimal'];
+    volumeToken0: Scalars['BigDecimal'];
+    volumeToken1: Scalars['BigDecimal'];
+    volumeUSD: Scalars['BigDecimal'];
+    feesUSD: Scalars['BigDecimal'];
     txCount: Scalars['BigInt'];
 }
 
 export interface PoolHourDatasWhere {
     id?: Maybe<Scalars['ID']>;
-    periodStartUnix_gt?: Maybe<Scalars['Int']>;
-    periodStartUnix_lt?: Maybe<Scalars['Int']>;
+    date_gt?: Maybe<Scalars['Int']>;
+    date_lt?: Maybe<Scalars['Int']>;
 }
 
 export interface PoolWhere {
     volumeUSD_lt?: Maybe<Scalars['BigDecimal']>;
     reserveUSD_gt?: Maybe<Scalars['BigDecimal']>;
+}
+
+export interface Position {
+    __typename?: 'Position';
+    id: Scalars['ID'];
+    owner: Scalars['Bytes'];
+    pool: Pool;
+    token0: Token;
+    token1: Token;
+    tickLower: Tick;
+    tickUpper: Tick;
+    liquidity: Scalars['BigInt'];
+    depositedToken0: Scalars['BigDecimal'];
+    depositedToken1: Scalars['BigDecimal'];
+    withdrawnToken0: Scalars['BigDecimal'];
+    withdrawnToken1: Scalars['BigDecimal'];
+    collectedFeesToken0: Scalars['BigDecimal'];
+    collectedFeesToken1: Scalars['BigDecimal'];
+    transaction: Transaction;
+    feeGrowthInside0LastX128: Scalars['BigInt'];
+    feeGrowthInside1LastX128: Scalars['BigInt'];
+}
+
+export interface PositionSnapshot {
+    __typename?: 'PositionSnapshot';
+    id: Scalars['ID'];
+    position: Position;
+    timestamp: Scalars['Int'];
+    blockNumber: Scalars['BigInt'];
+    owner: Scalars['Bytes'];
+    pool: Pool;
+    token0Price: Scalars['BigDecimal'];
+    token1Price: Scalars['BigDecimal'];
+    token0PriceUSD: Scalars['BigDecimal'];
+    token1PriceUSD: Scalars['BigDecimal'];
+    liquidity: Scalars['BigInt'];
+    sqrtPrice: Scalars['BigInt'];
+    totalValueLockedETH: Scalars['BigDecimal'];
+    totalValueLockedUSD: Scalars['BigDecimal'];
+    tick?: Maybe<Scalars['BigInt']>;
+    depositedToken0: Scalars['BigDecimal'];
+    depositedToken1: Scalars['BigDecimal'];
+    withdrawnToken0: Scalars['BigDecimal'];
+    withdrawnToken1: Scalars['BigDecimal'];
+    collectedFeesToken0: Scalars['BigDecimal'];
+    collectedFeesToken1: Scalars['BigDecimal'];
+    transaction: Transaction;
+    feeGrowthInside0LastX128: Scalars['BigInt'];
+    feeGrowthInside1LastX128: Scalars['BigInt'];
+}
+
+export interface PositionsWhere {
+    owner?: Maybe<Scalars['String']>;
 }
 
 export interface Query {
@@ -208,6 +303,8 @@ export interface Query {
     poolHourData?: Maybe<PoolDayData>;
     poolHourDatas: Array<PoolHourData>;
     token?: Maybe<Token>;
+    positions: Array<Position>;
+    positionSnapshots: Array<PositionSnapshot>;
 }
 
 export interface QueryBundleArgs {
@@ -251,12 +348,22 @@ export interface QueryTokenArgs {
     id: Scalars['ID'];
 }
 
+export interface QueryPositionsArgs {
+    where?: Maybe<PositionsWhere>;
+}
+
+export interface QueryPositionSnapshotsArgs {
+    where?: Maybe<PositionsWhere>;
+}
+
 export interface Swap {
     __typename?: 'Swap';
     id: Scalars['ID'];
     transaction: Transaction;
     timestamp: Scalars['BigInt'];
     pool: Pool;
+    token0: Token;
+    token1: Token;
     sender: Scalars['Bytes'];
     recipient: Scalars['Bytes'];
     origin: Scalars['Bytes'];
@@ -274,20 +381,25 @@ export interface Tick {
     poolAddress?: Maybe<Scalars['String']>;
     tickIdx: Scalars['BigInt'];
     pool: Pool;
-    liquidityGross: Scalars['BigDecimal'];
-    liquidityNet: Scalars['BigDecimal'];
+    liquidityGross: Scalars['BigInt'];
+    liquidityNet: Scalars['BigInt'];
     price0: Scalars['BigDecimal'];
     price1: Scalars['BigDecimal'];
     volumeToken0: Scalars['BigDecimal'];
     volumeToken1: Scalars['BigDecimal'];
     volumeUSD: Scalars['BigDecimal'];
     untrackedVolumeUSD: Scalars['BigDecimal'];
+    feesToken0: Scalars['BigDecimal'];
+    feesToken1: Scalars['BigDecimal'];
+    feesUSD: Scalars['BigDecimal'];
     collectedFeesToken0: Scalars['BigDecimal'];
     collectedFeesToken1: Scalars['BigDecimal'];
     collectedFeesUSD: Scalars['BigDecimal'];
     createdAtTimestamp: Scalars['BigInt'];
     createdAtBlockNumber: Scalars['BigInt'];
     liquidityProviderCount: Scalars['BigInt'];
+    feeGrowthOutside0X128: Scalars['BigInt'];
+    feeGrowthOutside1X128: Scalars['BigInt'];
 }
 
 export interface TickDayData {
@@ -296,24 +408,73 @@ export interface TickDayData {
     date: Scalars['Int'];
     pool: Pool;
     tick: Tick;
-    liquidityGross: Scalars['BigDecimal'];
-    liquidityNet: Scalars['BigDecimal'];
+    tickIdx: Scalars['BigInt'];
+    liquidityGross: Scalars['BigInt'];
+    liquidityNet: Scalars['BigInt'];
+    startingVolumeToken0: Scalars['BigDecimal'];
+    startingVolumeToken1: Scalars['BigDecimal'];
+    startingVolumeUSD: Scalars['BigDecimal'];
+    startingFeesUSD: Scalars['BigDecimal'];
+    startingFeesToken0: Scalars['BigDecimal'];
+    startingFeesToken1: Scalars['BigDecimal'];
     volumeToken0: Scalars['BigDecimal'];
     volumeToken1: Scalars['BigDecimal'];
     volumeUSD: Scalars['BigDecimal'];
+    feesToken0: Scalars['BigDecimal'];
+    feesToken1: Scalars['BigDecimal'];
+    feesUSD: Scalars['BigDecimal'];
+    feeGrowthOutside0X128: Scalars['BigInt'];
+    feeGrowthOutside1X128: Scalars['BigInt'];
+}
+
+export interface TickFiveMinuteData {
+    __typename?: 'TickFiveMinuteData';
+    id: Scalars['ID'];
+    date: Scalars['Int'];
+    pool: Pool;
+    tick: Tick;
+    tickIdx: Scalars['BigInt'];
+    liquidityGross: Scalars['BigInt'];
+    liquidityNet: Scalars['BigInt'];
+    startingVolumeToken0: Scalars['BigDecimal'];
+    startingVolumeToken1: Scalars['BigDecimal'];
+    startingVolumeUSD: Scalars['BigDecimal'];
+    startingFeesUSD: Scalars['BigDecimal'];
+    startingFeesToken0: Scalars['BigDecimal'];
+    startingFeesToken1: Scalars['BigDecimal'];
+    volumeToken0: Scalars['BigDecimal'];
+    volumeToken1: Scalars['BigDecimal'];
+    volumeUSD: Scalars['BigDecimal'];
+    feesUSD: Scalars['BigDecimal'];
+    feesToken0: Scalars['BigDecimal'];
+    feesToken1: Scalars['BigDecimal'];
+    feeGrowthOutside0X128: Scalars['BigInt'];
+    feeGrowthOutside1X128: Scalars['BigInt'];
 }
 
 export interface TickHourData {
     __typename?: 'TickHourData';
     id: Scalars['ID'];
-    periodStartUnix: Scalars['Int'];
+    date: Scalars['Int'];
     pool: Pool;
     tick: Tick;
-    liquidityGross: Scalars['BigDecimal'];
-    liquidityNet: Scalars['BigDecimal'];
+    tickIdx: Scalars['BigInt'];
+    liquidityGross: Scalars['BigInt'];
+    liquidityNet: Scalars['BigInt'];
+    startingVolumeToken0: Scalars['BigDecimal'];
+    startingVolumeToken1: Scalars['BigDecimal'];
+    startingVolumeUSD: Scalars['BigDecimal'];
+    startingFeesUSD: Scalars['BigDecimal'];
+    startingFeesToken0: Scalars['BigDecimal'];
+    startingFeesToken1: Scalars['BigDecimal'];
     volumeToken0: Scalars['BigDecimal'];
     volumeToken1: Scalars['BigDecimal'];
     volumeUSD: Scalars['BigDecimal'];
+    feesToken0: Scalars['BigDecimal'];
+    feesToken1: Scalars['BigDecimal'];
+    feesUSD: Scalars['BigDecimal'];
+    feeGrowthOutside0X128: Scalars['BigInt'];
+    feeGrowthOutside1X128: Scalars['BigInt'];
 }
 
 export interface Token {
@@ -326,10 +487,12 @@ export interface Token {
     volume: Scalars['BigDecimal'];
     volumeUSD: Scalars['BigDecimal'];
     untrackedVolumeUSD: Scalars['BigDecimal'];
+    feesUSD: Scalars['BigDecimal'];
     txCount: Scalars['BigInt'];
     poolCount: Scalars['BigInt'];
     totalValueLocked: Scalars['BigDecimal'];
     totalValueLockedUSD: Scalars['BigDecimal'];
+    totalValueLockedUSDUntracked: Scalars['BigDecimal'];
     derivedETH: Scalars['BigDecimal'];
     whitelistPools: Array<Pool>;
     tokenDayData: Array<TokenDayData>;
@@ -346,6 +509,29 @@ export interface TokenDayData {
     totalValueLocked: Scalars['BigDecimal'];
     totalValueLockedUSD: Scalars['BigDecimal'];
     priceUSD: Scalars['BigDecimal'];
+    feesUSD: Scalars['BigDecimal'];
+    open: Scalars['BigDecimal'];
+    high: Scalars['BigDecimal'];
+    low: Scalars['BigDecimal'];
+    close: Scalars['BigDecimal'];
+}
+
+export interface TokenHourData {
+    __typename?: 'TokenHourData';
+    id: Scalars['ID'];
+    date: Scalars['Int'];
+    token: Token;
+    volume: Scalars['BigDecimal'];
+    volumeUSD: Scalars['BigDecimal'];
+    untrackedVolumeUSD: Scalars['BigDecimal'];
+    totalValueLocked: Scalars['BigDecimal'];
+    totalValueLockedUSD: Scalars['BigDecimal'];
+    priceUSD: Scalars['BigDecimal'];
+    feesUSD: Scalars['BigDecimal'];
+    open: Scalars['BigDecimal'];
+    high: Scalars['BigDecimal'];
+    low: Scalars['BigDecimal'];
+    close: Scalars['BigDecimal'];
 }
 
 export interface Transaction {
@@ -353,6 +539,8 @@ export interface Transaction {
     id: Scalars['ID'];
     blockNumber: Scalars['BigInt'];
     timestamp: Scalars['BigInt'];
+    gasUsed: Scalars['BigInt'];
+    gasPrice: Scalars['BigInt'];
     mints: Array<Maybe<Mint>>;
     burns: Array<Maybe<Burn>>;
     swaps: Array<Maybe<Swap>>;
@@ -367,6 +555,7 @@ export interface UniswapDayData {
     volumeETH: Scalars['BigDecimal'];
     volumeUSD: Scalars['BigDecimal'];
     volumeUSDUntracked: Scalars['BigDecimal'];
+    feesUSD: Scalars['BigDecimal'];
     txCount: Scalars['BigInt'];
     tvlUSD: Scalars['BigDecimal'];
 }
@@ -443,7 +632,7 @@ export type GetPoolHourlyDataQuery = { __typename?: 'Query' } & {
             | 'high'
             | 'low'
             | 'close'
-            | 'periodStartUnix'
+            | 'date'
             | 'volumeToken0'
             | 'volumeToken1'
             | 'volumeUSD'
@@ -479,11 +668,11 @@ export type GetPoolOverviewQuery = { __typename?: 'Query' } & {
         > & {
                 token0: { __typename?: 'Token' } & Pick<
                     Token,
-                    'id' | 'name' | 'symbol' | 'decimals'
+                    'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'
                 >;
                 token1: { __typename?: 'Token' } & Pick<
                     Token,
-                    'id' | 'name' | 'symbol' | 'decimals'
+                    'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'
                 >;
             }
     >;
@@ -522,6 +711,123 @@ export type GetPoolsOverviewQuery = { __typename?: 'Query' } & {
                 token1: { __typename?: 'Token' } & Pick<
                     Token,
                     'id' | 'name' | 'symbol' | 'decimals'
+                >;
+            }
+    >;
+};
+
+export type GetPositionSnapshotsQueryVariables = Exact<{
+    owner: Scalars['String'];
+}>;
+
+export type GetPositionSnapshotsQuery = { __typename?: 'Query' } & {
+    positionSnapshots: Array<
+        { __typename?: 'PositionSnapshot' } & Pick<
+            PositionSnapshot,
+            | 'id'
+            | 'owner'
+            | 'timestamp'
+            | 'token0PriceUSD'
+            | 'token1PriceUSD'
+            | 'liquidity'
+            | 'sqrtPrice'
+            | 'depositedToken0'
+            | 'depositedToken1'
+            | 'withdrawnToken0'
+            | 'withdrawnToken1'
+            | 'collectedFeesToken0'
+            | 'collectedFeesToken1'
+        > & {
+                position: { __typename?: 'Position' } & Pick<
+                    Position,
+                    | 'liquidity'
+                    | 'depositedToken0'
+                    | 'depositedToken1'
+                    | 'withdrawnToken0'
+                    | 'withdrawnToken1'
+                    | 'collectedFeesToken0'
+                    | 'collectedFeesToken1'
+                    | 'feeGrowthInside0LastX128'
+                    | 'feeGrowthInside1LastX128'
+                > & {
+                        pool: { __typename?: 'Pool' } & Pick<
+                            Pool,
+                            | 'id'
+                            | 'token0Price'
+                            | 'token1Price'
+                            | 'sqrtPrice'
+                            | 'liquidity'
+                        > & {
+                                token0: { __typename?: 'Token' } & Pick<
+                                    Token,
+                                    'id' | 'name' | 'symbol' | 'decimals'
+                                >;
+                                token1: { __typename?: 'Token' } & Pick<
+                                    Token,
+                                    'id' | 'name' | 'symbol' | 'decimals'
+                                >;
+                            };
+                        tickLower: { __typename?: 'Tick' } & Pick<
+                            Tick,
+                            'id' | 'tickIdx' | 'price0' | 'price1'
+                        >;
+                        tickUpper: { __typename?: 'Tick' } & Pick<
+                            Tick,
+                            'id' | 'tickIdx' | 'price0' | 'price1'
+                        >;
+                    };
+            }
+    >;
+};
+
+export type GetPositionsQueryVariables = Exact<{
+    owner: Scalars['String'];
+}>;
+
+export type GetPositionsQuery = { __typename?: 'Query' } & {
+    positions: Array<
+        { __typename?: 'Position' } & Pick<
+            Position,
+            | 'id'
+            | 'owner'
+            | 'liquidity'
+            | 'depositedToken0'
+            | 'depositedToken1'
+            | 'withdrawnToken0'
+            | 'withdrawnToken1'
+            | 'collectedFeesToken0'
+            | 'collectedFeesToken1'
+            | 'feeGrowthInside0LastX128'
+            | 'feeGrowthInside1LastX128'
+        > & {
+                pool: { __typename?: 'Pool' } & Pick<
+                    Pool,
+                    | 'id'
+                    | 'token0Price'
+                    | 'token1Price'
+                    | 'sqrtPrice'
+                    | 'liquidity'
+                > & {
+                        token0: { __typename?: 'Token' } & Pick<
+                            Token,
+                            'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'
+                        >;
+                        token1: { __typename?: 'Token' } & Pick<
+                            Token,
+                            'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'
+                        >;
+                    };
+                tickLower: { __typename?: 'Tick' } & Pick<
+                    Tick,
+                    'id' | 'tickIdx' | 'price0' | 'price1'
+                >;
+                tickUpper: { __typename?: 'Tick' } & Pick<
+                    Tick,
+                    'id' | 'tickIdx' | 'price0' | 'price1'
+                >;
+                transaction: { __typename?: 'Transaction' } & Pick<
+                    Transaction,
+                    'id' | 'gasUsed' | 'gasPrice'
                 >;
             }
     >;

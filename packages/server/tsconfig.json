@@ -15,6 +15,10 @@
             "@config": ["config/app"]
         }
     },
-    "include": ["src", "test"],
+    "include": [
+        "src",
+        "src/**/*.json",
+        "test"
+    ],
     "exclude": ["node_modules", "build.ts"]
 }

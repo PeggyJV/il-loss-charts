@@ -1,0 +1,59 @@
+query getPositionSnapshots($owner: String!) {
+    positionSnapshots(where: { owner: $owner }) {
+        id
+        owner
+        position {
+            pool {
+                id
+                token0 {
+                    id
+                    name
+                    symbol
+                    decimals
+                }
+                token1 {
+                    id
+                    name
+                    symbol
+                    decimals
+                }
+                token0Price
+                token1Price
+                sqrtPrice
+                liquidity
+            }
+            tickLower {
+                id
+                tickIdx
+                price0
+                price1
+            }
+            tickUpper {
+                id
+                tickIdx
+                price0
+                price1
+            }
+            liquidity
+            depositedToken0
+            depositedToken1
+            withdrawnToken0
+            withdrawnToken1
+            collectedFeesToken0
+            collectedFeesToken1
+            feeGrowthInside0LastX128
+            feeGrowthInside1LastX128
+        }
+        timestamp
+        token0PriceUSD
+        token1PriceUSD
+        liquidity
+        sqrtPrice
+        depositedToken0
+        depositedToken1
+        withdrawnToken0
+        withdrawnToken1
+        collectedFeesToken0
+        collectedFeesToken1
+    }
+}
