@@ -10,12 +10,14 @@ query getPositionSnapshots($owner: String!) {
                     name
                     symbol
                     decimals
+                    derivedETH
                 }
                 token1 {
                     id
                     name
                     symbol
                     decimals
+                    derivedETH
                 }
                 token0Price
                 token1Price

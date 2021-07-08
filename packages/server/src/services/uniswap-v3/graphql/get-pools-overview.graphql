@@ -24,12 +24,14 @@ query getPoolsOverview(
             name
             symbol
             decimals
+            derivedETH
         }
         token1 {
             id
             name
             symbol
             decimals
+            derivedETH
         }
     }
 }

@@ -669,10 +669,10 @@ export type GetPoolsOverviewQuery = (
     & Pick<Pool, 'id' | 'createdAtTimestamp' | 'feeTier' | 'liquidity' | 'sqrtPrice' | 'token0Price' | 'token1Price' | 'tick' | 'volumeToken0' | 'volumeToken1' | 'volumeUSD' | 'totalValueLockedToken0' | 'totalValueLockedToken1' | 'totalValueLockedETH' | 'totalValueLockedUSD'>
     & { token0: (
       { __typename?: 'Token' }
-      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'>
     ), token1: (
       { __typename?: 'Token' }
-      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'>
     ) }
   )> }
 );
@@ -695,10 +695,10 @@ export type GetPositionSnapshotsQuery = (
         & Pick<Pool, 'id' | 'token0Price' | 'token1Price' | 'sqrtPrice' | 'liquidity'>
         & { token0: (
           { __typename?: 'Token' }
-          & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+          & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'>
         ), token1: (
           { __typename?: 'Token' }
-          & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+          & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'>
         ) }
       ), tickLower: (
         { __typename?: 'Tick' }
@@ -758,10 +758,10 @@ export type GetTopPoolsQuery = (
     & Pick<Pool, 'id' | 'createdAtTimestamp' | 'feeTier' | 'liquidity' | 'sqrtPrice' | 'token0Price' | 'token1Price' | 'volumeToken0' | 'volumeToken1' | 'volumeUSD' | 'totalValueLockedToken0' | 'totalValueLockedToken1' | 'totalValueLockedETH' | 'totalValueLockedUSD'>
     & { token0: (
       { __typename?: 'Token' }
-      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'>
     ), token1: (
       { __typename?: 'Token' }
-      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+      & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'>
     ) }
   )> }
 );
@@ -896,12 +896,14 @@ export const GetPoolsOverviewDocument = gql`
       name
       symbol
       decimals
+      derivedETH
     }
     token1 {
       id
       name
       symbol
       decimals
+      derivedETH
     }
   }
 }
@@ -919,12 +921,14 @@ export const GetPositionSnapshotsDocument = gql`
           name
           symbol
           decimals
+          derivedETH
         }
         token1 {
           id
           name
           symbol
           decimals
+          derivedETH
         }
         token0Price
         token1Price
@@ -1044,12 +1048,14 @@ export const GetTopPoolsDocument = gql`
       name
       symbol
       decimals
+      derivedETH
     }
     token1 {
       id
       name
       symbol
       decimals
+      derivedETH
     }
   }
 }
