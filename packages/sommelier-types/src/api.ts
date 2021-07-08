@@ -3,6 +3,7 @@ import { ArrayElement } from './index';
 
 // Return values for API Endpoints
 import {
+    Position,
     GetPoolOverviewQuery,
     GetPoolsOverviewQuery,
     GetPoolDailyDataQuery,

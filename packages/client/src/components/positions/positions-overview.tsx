@@ -2,27 +2,8 @@ import { useState } from 'react';
 import Box from '@material-ui/core/Box';
 import { formatUSD } from 'util/formats';
 import { ToggleSwitch } from 'components/blocks/toggle-switch/toggle-switch';
+import { FormatPNL } from 'components/blocks/text/format-pnl';
 
-const FormatPNL = ({
-    children,
-    isNegative,
-}: {
-    children: string;
-    isNegative: boolean;
-}): JSX.Element => {
-    return (
-        <div
-            style={{
-                color: isNegative
-                    ? 'var(--faceNegative)'
-                    : 'var(--facePositive)',
-                lineHeight: '2rem',
-            }}
-        >
-            {children}
-        </div>
-    );
-};
 const overviewItemStyles = {
     display: 'flex',
     flexDirection: 'column',

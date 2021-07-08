@@ -8,7 +8,6 @@ import BigNumber from 'bignumber.js';
 import PositionsData from 'components/positions/positions-data.json';
 import { V3PositionData } from '@sommelier/shared-types/src/api';
 type V3PositionDataList = { [key: string]: V3PositionData };
-import { formatUSD } from 'util/formats';
 
 export const PositionsWidget = (): JSX.Element => {
     const { wallet } = useWallet();
@@ -26,9 +25,23 @@ export const PositionsWidget = (): JSX.Element => {
             fees: new BigNumber('0'),
         },
     });
+    const [openPositionsData, setOpenPositionsData] = useState<any | null>(
+        null,
+    );
     const positionsData = (PositionsData as unknown) as V3PositionDataList;
 
     useEffect(() => {
+        const openPositions: V3PositionData[] = [];
+        Object.keys(positionsData).forEach((id) => {
+            if (
+                !new BigNumber(
+                    positionsData?.[id]?.position?.liquidity,
+                ).isZero()
+            )
+                openPositions.push(positionsData?.[id]);
+        });
+        setOpenPositionsData(openPositions);
+
         const overview = Object.keys(positionsData).reduce(
             (acc, ele: string): any => {
                 const liquidity = new BigNumber(
@@ -71,7 +84,6 @@ export const PositionsWidget = (): JSX.Element => {
             },
             positionsSummary,
         );
-        console.log(overview);
         setPositionsSummary(overview);
     }, [positionsData, positionsSummary]);
 
@@ -89,11 +101,11 @@ export const PositionsWidget = (): JSX.Element => {
         };
         void getPositionsData();
     }, [wallet?.account]);
-    console.log(positionsSummary);
+
     return (
         <Box className='positions'>
             <PositionsOverview positionsSummary={positionsSummary} />
-            <UniswapV3Positions />
+            <UniswapV3Positions positionsData={openPositionsData} />
         </Box>
     );
 };

@@ -4,15 +4,23 @@ import './positions.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
+import { V3PositionData } from '@sommelier/shared-types/src/api';
+import { formatUSD, formatPercent } from 'util/formats';
+import BigNumber from 'bignumber.js';
+import { FormatPNL } from 'components/blocks/text/format-pnl';
 
-export const UniswapV3Positions = (): JSX.Element => (
+export const UniswapV3Positions = ({
+    positionsData,
+}: {
+    positionsData: V3PositionData[];
+}): JSX.Element => (
     <Box
         className='uniswap-v3-positions'
         bgcolor='var(--bgDefault)'
         p='1rem'
         borderRadius='4px'
     >
-        <Box mb='1rem'>Uniswap V3 Positions</Box>
+        <Box mb='1rem'>Uniswap V3 Open Positions</Box>
         <Box>
             <Box bgcolor='var(--bgDeep)' p='0.5rem'>
                 <table width='100%'>
@@ -25,28 +33,50 @@ export const UniswapV3Positions = (): JSX.Element => (
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>
-                                {resolveLogo(
-                                    '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
-                                )}
-                                {resolveLogo(
-                                    '0xdac17f958d2ee523a2206206994597c13d831ec7',
-                                )}
-                                &nbsp;&nbsp;
-                                {'UNI/USDT'}
-                            </td>
-                            <td>
-                                <div
-                                    className={classNames('range', 'in-range')}
-                                >
-                                    <FontAwesomeIcon icon={faCircle} />
-                                    In-range
-                                </div>
-                            </td>
-                            <td>$153.75</td>
-                            <td>123.46%</td>
-                        </tr>
+                        {positionsData?.map((data, id) => {
+                            return (
+                                <tr key={id}>
+                                    <td>
+                                        {resolveLogo(
+                                            data?.position?.pool?.token0?.id,
+                                        )}
+                                        {resolveLogo(
+                                            data?.position?.pool?.token1?.id,
+                                        )}
+                                        &nbsp;&nbsp;
+                                        {data?.position?.pool?.token0?.symbol}/
+                                        {data?.position?.pool?.token1?.symbol}
+                                    </td>
+                                    <td>
+                                        <div
+                                            className={classNames(
+                                                'range',
+                                                'in-range',
+                                            )}
+                                        >
+                                            <FontAwesomeIcon icon={faCircle} />
+                                            In-range
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {formatUSD(
+                                            data?.stats?.usdAmount?.toString(),
+                                        )}
+                                    </td>
+                                    <td>
+                                        <FormatPNL
+                                            isNegative={new BigNumber(
+                                                data?.stats?.apy,
+                                            ).isNegative()}
+                                        >
+                                            {formatPercent(
+                                                data?.stats?.apy?.toString(),
+                                            )}
+                                        </FormatPNL>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </Box>
