@@ -35,8 +35,7 @@ class MixpanelWrapper {
     }
 
     identify(id: string) {
-        // No-op if not using
-        if (!this.isActive) return;
+        
         mixpanel.identify(id);
     }
 
