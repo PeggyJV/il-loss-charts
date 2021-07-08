@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import Box from '@material-ui/core/Box';
 import { formatUSD } from 'util/formats';
+import { ToggleSwitch } from 'components/blocks/toggle-switch/toggle-switch';
 
 const FormatPNL = ({
     children,
@@ -33,34 +35,64 @@ export const PositionsOverview = ({
     positionsSummary,
 }: {
     positionsSummary: any;
-}): JSX.Element => (
-    <Box mb='1rem'>
-        <Box mb='1rem'>Positions Overview</Box>
-        <Box display='flex' bgcolor='var(--bgDefault)' borderRadius='4px'>
-            <Box sx={overviewItemStyles}>
-                <div style={{ color: 'var(--faceDeep)', lineHeight: '2rem' }}>
-                    {formatUSD(positionsSummary?.totalLiquidity?.toString())}
-                </div>
-                <div style={{ fontSize: '0.75rem' }}>Liquidity</div>
-            </Box>
-            <Box sx={overviewItemStyles}>
-                <div style={{ color: 'var(--faceDeep)', lineHeight: '2rem' }}>
-                    {formatUSD(positionsSummary?.gasUsed?.toString())}
-                </div>
-                <div style={{ fontSize: '0.75rem' }}>Gas Costs</div>
-            </Box>
-            <Box sx={overviewItemStyles}>
-                <FormatPNL isNegative={positionsSummary?.return?.isNegative()}>
-                    {formatUSD(positionsSummary?.return?.toString())}
-                </FormatPNL>
-                <div style={{ fontSize: '0.75rem' }}>Returns</div>
-            </Box>
-            <Box sx={overviewItemStyles}>
-                <FormatPNL isNegative={positionsSummary?.fees?.isNegative()}>
-                    {formatUSD(positionsSummary?.fees?.toString())}
-                </FormatPNL>
-                <div style={{ fontSize: '0.75rem' }}>Accrued Fees</div>
+}): JSX.Element => {
+    const [showClosedPositions, setShowClosedPositions] = useState(false);
+    const positions = showClosedPositions
+        ? positionsSummary?.all
+        : positionsSummary?.open;
+    return (
+        <Box mb='1rem'>
+            <Box mb='1rem'>Positions Overview</Box>
+            <Box bgcolor='var(--bgDefault)' borderRadius='4px'>
+                <Box display='flex'>
+                    <Box sx={overviewItemStyles}>
+                        <div
+                            style={{
+                                color: 'var(--faceDeep)',
+                                lineHeight: '2rem',
+                            }}
+                        >
+                            {formatUSD(positions?.totalLiquidity?.toString())}
+                        </div>
+                        <div style={{ fontSize: '0.75rem' }}>Liquidity</div>
+                    </Box>
+                    <Box sx={overviewItemStyles}>
+                        <div
+                            style={{
+                                color: 'var(--faceDeep)',
+                                lineHeight: '2rem',
+                            }}
+                        >
+                            {formatUSD(positions?.gasUsed?.toString())}
+                        </div>
+                        <div style={{ fontSize: '0.75rem' }}>Gas Costs</div>
+                    </Box>
+                    <Box sx={overviewItemStyles}>
+                        <FormatPNL isNegative={positions?.return?.isNegative()}>
+                            {formatUSD(positions?.return?.toString())}
+                        </FormatPNL>
+                        <div style={{ fontSize: '0.75rem' }}>Returns</div>
+                    </Box>
+                    <Box sx={overviewItemStyles}>
+                        <FormatPNL isNegative={positions?.fees?.isNegative()}>
+                            {formatUSD(positions?.fees?.toString())}
+                        </FormatPNL>
+                        <div style={{ fontSize: '0.75rem' }}>Accrued Fees</div>
+                    </Box>
+                </Box>
+                <Box display='flex' p='1rem' alignItems='center'>
+                    <ToggleSwitch
+                        size='small'
+                        checked={showClosedPositions}
+                        onChange={() =>
+                            setShowClosedPositions(!showClosedPositions)
+                        }
+                    />
+                    <Box pl='1rem' sx={{ fontSize: '0.75rem' }}>
+                        Include closed positions
+                    </Box>
+                </Box>
             </Box>
         </Box>
-    </Box>
-);
+    );
+};

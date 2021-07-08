@@ -13,15 +13,23 @@ import { formatUSD } from 'util/formats';
 export const PositionsWidget = (): JSX.Element => {
     const { wallet } = useWallet();
     const [positionsSummary, setPositionsSummary] = useState({
-        totalLiquidity: new BigNumber('0'),
-        gasUsed: new BigNumber('0'),
-        return: new BigNumber('0'),
-        fees: new BigNumber('0'),
+        open: {
+            totalLiquidity: new BigNumber('0'),
+            gasUsed: new BigNumber('0'),
+            return: new BigNumber('0'),
+            fees: new BigNumber('0'),
+        },
+        all: {
+            totalLiquidity: new BigNumber('0'),
+            gasUsed: new BigNumber('0'),
+            return: new BigNumber('0'),
+            fees: new BigNumber('0'),
+        },
     });
     const positionsData = (PositionsData as unknown) as V3PositionDataList;
 
     useEffect(() => {
-        const openPositionSummary = Object.keys(positionsData).reduce(
+        const overview = Object.keys(positionsData).reduce(
             (acc, ele: string): any => {
                 const liquidity = new BigNumber(
                     positionsData?.[ele]?.position?.liquidity,
@@ -40,22 +48,31 @@ export const PositionsWidget = (): JSX.Element => {
                     positionsData?.[ele]?.stats?.uncollectedFeesUSD,
                 );
 
-                if (liquidity.isZero()) return acc;
+                // open position
+                if (!liquidity.isZero()) {
+                    const { open } = acc;
+                    open['totalLiquidity'] = open?.totalLiquidity?.plus(
+                        usdAmount,
+                    );
+                    open['gasUsed'] = open?.gasUsed?.plus(gasUsed);
+                    open['return'] = open?.return?.plus(totalReturn);
+                    open['fees'] = open?.fees?.plus(uncollectedFees);
+                }
 
-                acc['totalLiquidity'] = acc?.totalLiquidity?.plus(usdAmount);
-                acc['gasUsed'] = acc?.gasUsed?.plus(gasUsed);
-                acc['return'] = acc?.return?.plus(totalReturn);
-                acc['fees'] = acc?.fees?.plus(uncollectedFees);
+                // all positions
+                const { all } = acc;
+
+                all['totalLiquidity'] = all?.totalLiquidity?.plus(usdAmount);
+                all['gasUsed'] = all?.gasUsed?.plus(gasUsed);
+                all['return'] = all?.return?.plus(totalReturn);
+                all['fees'] = all?.fees?.plus(uncollectedFees);
+
                 return acc;
             },
             positionsSummary,
         );
-
-        console.log(formatUSD(openPositionSummary.totalLiquidity.toString()));
-        console.log(formatUSD(openPositionSummary.gasUsed.toString()));
-        console.log(formatUSD(openPositionSummary.return.toString()));
-        console.log(formatUSD(openPositionSummary.fees.toString()));
-        setPositionsSummary(openPositionSummary);
+        console.log(overview);
+        setPositionsSummary(overview);
     }, [positionsData, positionsSummary]);
 
     useEffect(() => {
