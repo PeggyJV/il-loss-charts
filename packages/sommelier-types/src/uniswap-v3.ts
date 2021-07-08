@@ -706,11 +706,11 @@ export type GetPoolsOverviewQuery = { __typename?: 'Query' } & {
         > & {
                 token0: { __typename?: 'Token' } & Pick<
                     Token,
-                    'id' | 'name' | 'symbol' | 'decimals'
+                    'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'
                 >;
                 token1: { __typename?: 'Token' } & Pick<
                     Token,
-                    'id' | 'name' | 'symbol' | 'decimals'
+                    'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'
                 >;
             }
     >;
@@ -760,11 +760,19 @@ export type GetPositionSnapshotsQuery = { __typename?: 'Query' } & {
                         > & {
                                 token0: { __typename?: 'Token' } & Pick<
                                     Token,
-                                    'id' | 'name' | 'symbol' | 'decimals'
+                                    | 'id'
+                                    | 'name'
+                                    | 'symbol'
+                                    | 'decimals'
+                                    | 'derivedETH'
                                 >;
                                 token1: { __typename?: 'Token' } & Pick<
                                     Token,
-                                    'id' | 'name' | 'symbol' | 'decimals'
+                                    | 'id'
+                                    | 'name'
+                                    | 'symbol'
+                                    | 'decimals'
+                                    | 'derivedETH'
                                 >;
                             };
                         tickLower: { __typename?: 'Tick' } & Pick<
@@ -860,11 +868,11 @@ export type GetTopPoolsQuery = { __typename?: 'Query' } & {
         > & {
                 token0: { __typename?: 'Token' } & Pick<
                     Token,
-                    'id' | 'name' | 'symbol' | 'decimals'
+                    'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'
                 >;
                 token1: { __typename?: 'Token' } & Pick<
                     Token,
-                    'id' | 'name' | 'symbol' | 'decimals'
+                    'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'
                 >;
             }
     >;

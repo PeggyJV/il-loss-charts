@@ -132,7 +132,10 @@ export const WalletProvider = ({
                             account,
                             providerName: 'metamask',
                         };
-                        mixpanel.identify(walletObj.account || walletObj.network)
+
+                        if (walletObj?.account) {
+                            mixpanel.identify(walletObj.account);
+                        }
 
                         mixpanel.track('wallet', mixpanelData);
                     } catch (e) {
@@ -257,8 +260,10 @@ export const WalletProvider = ({
                 account,
                 providerName: 'metamask',
             };
-            mixpanel.identify(walletObj.account || walletObj.network)
-            mixpanel.people?.set(account, { wallet: account });
+
+            if (walletObj?.account) {
+                mixpanel.identify(walletObj.account);
+            }
 
             mixpanel.track('wallet:connected', mixpanelData);
         } catch (e) {
@@ -285,8 +290,9 @@ export const WalletProvider = ({
                 account: wcProvider.accounts[0],
                 providerName: 'walletconnect',
             };
-            mixpanel.identify(walletObj.account || walletObj.network)
-
+            if (walletObj?.account) {
+                mixpanel.identify(walletObj.account);
+            }
             mixpanel.people?.set(wcProvider.accounts[0], {
                 wallet: wcProvider.accounts[0],
             });

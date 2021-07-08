@@ -19,12 +19,14 @@ query getTopPools($first: Int!, $orderDirection: String!, $orderBy: String!) {
             name
             symbol
             decimals
+            derivedETH
         }
         token1 {
             id
             name
             symbol
             decimals
+            derivedETH
         }
     }
 }
