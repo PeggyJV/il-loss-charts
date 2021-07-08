@@ -1,0 +1,44 @@
+.positions {
+    .uniswap-v3-positions {
+        table {
+            tr {
+                > :nth-last-child(1),
+                :nth-last-child(2) {
+                    text-align: right;
+                }
+                th {
+                    padding: 0.5rem;
+                    font-size: 0.85rem;
+                    color: var(--facePrimary);
+                    font-weight: normal;
+                }
+                td {
+                    padding: 0.5rem;
+                    color: var(--faceDeep);
+                    .range {
+                        font-size: 0.85rem;
+                        border-radius: 4px;
+                        padding: 0.25rem 0.5rem;
+                        display: inline;
+                        &.in-range {
+                            background: var(--objPrimary);
+                            svg {
+                                color: var(--facePositive);
+                                height: 8px;
+                                margin-right: 2px;
+                            }
+                        }
+                        &.out-range {
+                            background: var(--objDisabled);
+                            svg {
+                                color: var(--faceNegative);
+                                height: 8px;
+                                margin-right: 2px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
