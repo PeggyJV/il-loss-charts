@@ -1,4 +1,5 @@
 import { PoolLike } from '@sommelier/shared-types/src/api';
+import BigNumber from 'bignumber.js';
 
 const usdFormatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -10,7 +11,7 @@ const usdFormatter = new Intl.NumberFormat('en-US', {
 });
 
 export const formatUSD = (val: string | number): string =>
-    usdFormatter.format(parseFloat(val.toString()));
+    !val ? '-' : usdFormatter.format(parseFloat(val.toString()));
 
 export const formatAddress = (val: string): string => {
     return `${val.substring(0, 6)}...${val.substring(val.length - 5)}`;

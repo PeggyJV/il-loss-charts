@@ -89,20 +89,6 @@ export const LiquidityContainer = ({
         void getShortUrl();
     }, [poolId]);
 
-    useEffect(() => {
-        const getPositionsData = async () => {
-            console.log(wallet?.account);
-            const data = await // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            (
-                await fetch(
-                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                    `/api/v1/mainnet/positions/${wallet?.account}/stats`,
-                )
-            ).json();
-            console.log(data);
-        };
-        void getPositionsData();
-    }, [wallet?.account]);
     const [slippageTolerance, setSlippageTolerance] = useState(3.0);
     const [selectedGasPrice, setSelectedGasPrice] = useState<GasPriceSelection>(
         GasPriceSelection.Fast,
@@ -192,7 +178,6 @@ const WidgetSelector = (): JSX.Element => (
         <Box display='flex'>
             <div
                 style={{
-                    border: '1px solid red;',
                     background: 'var(--bgDefault)',
                     borderRadius: '4px',
                     display: 'flex',
