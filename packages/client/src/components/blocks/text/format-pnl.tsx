@@ -2,7 +2,7 @@ export const FormatPNL = ({
     children,
     isNegative,
 }: {
-    children: string;
+    children: string | JSX.Element;
     isNegative: boolean;
 }): JSX.Element => {
     return (

@@ -1,8 +1,8 @@
 import Box from '@material-ui/core/Box';
-import { PositionsOverview } from 'components/positions/positions-overview';
+import { PositionsSummary } from 'components/positions/positions-summary';
 import { useEffect, useState } from 'react';
 import { useWallet } from 'hooks/use-wallet';
-import { UniswapV3Positions } from 'components/positions/uniswap-v3-positions';
+import { PositionsOverview } from 'components/positions/positions-overview';
 import './positions.scss';
 import BigNumber from 'bignumber.js';
 import PositionsData from 'components/positions/positions-data.json';
@@ -25,23 +25,10 @@ export const PositionsWidget = (): JSX.Element => {
             fees: new BigNumber('0'),
         },
     });
-    const [openPositionsData, setOpenPositionsData] = useState<any | null>(
-        null,
-    );
+
     const positionsData = (PositionsData as unknown) as V3PositionDataList;
 
     useEffect(() => {
-        const openPositions: V3PositionData[] = [];
-        Object.keys(positionsData).forEach((id) => {
-            if (
-                !new BigNumber(
-                    positionsData?.[id]?.position?.liquidity,
-                ).isZero()
-            )
-                openPositions.push(positionsData?.[id]);
-        });
-        setOpenPositionsData(openPositions);
-
         const overview = Object.keys(positionsData).reduce(
             (acc, ele: string): any => {
                 const liquidity = new BigNumber(
@@ -104,8 +91,8 @@ export const PositionsWidget = (): JSX.Element => {
 
     return (
         <Box className='positions'>
-            <PositionsOverview positionsSummary={positionsSummary} />
-            <UniswapV3Positions positionsData={openPositionsData} />
+            <PositionsSummary positionsSummary={positionsSummary} />
+            <PositionsOverview positionsData={positionsData} />
         </Box>
     );
 };
