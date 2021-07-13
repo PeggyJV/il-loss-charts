@@ -10,6 +10,7 @@ const overviewItemStyles = {
     padding: '1rem',
     justifyContent: 'left',
     flexGrow: 1,
+    fontSize: '1.15rem',
 };
 
 export const PositionsSummary = ({
@@ -23,7 +24,26 @@ export const PositionsSummary = ({
         : positionsSummary?.open;
     return (
         <Box mb='1rem'>
-            <Box mb='1rem'>Positions Overview</Box>
+            <Box
+                display='flex'
+                mb='1rem'
+                alignItems='center'
+                justifyContent='space-between'
+            >
+                <Box>Positions Summary</Box>
+                <Box display='flex' alignItems='center'>
+                    <ToggleSwitch
+                        size='small'
+                        checked={showClosedPositions}
+                        onChange={() =>
+                            setShowClosedPositions(!showClosedPositions)
+                        }
+                    />
+                    <Box pl='1rem' sx={{ fontSize: '0.75rem' }}>
+                        Include closed positions
+                    </Box>
+                </Box>
+            </Box>
             <Box bgcolor='var(--bgDefault)' borderRadius='4px'>
                 <Box display='flex'>
                     <Box sx={overviewItemStyles}>
@@ -59,18 +79,6 @@ export const PositionsSummary = ({
                             {formatUSD(positions?.fees?.toString())}
                         </FormatPNL>
                         <div style={{ fontSize: '0.75rem' }}>Accrued Fees</div>
-                    </Box>
-                </Box>
-                <Box display='flex' p='1rem' alignItems='center'>
-                    <ToggleSwitch
-                        size='small'
-                        checked={showClosedPositions}
-                        onChange={() =>
-                            setShowClosedPositions(!showClosedPositions)
-                        }
-                    />
-                    <Box pl='1rem' sx={{ fontSize: '0.75rem' }}>
-                        Include closed positions
                     </Box>
                 </Box>
             </Box>

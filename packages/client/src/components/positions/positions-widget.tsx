@@ -5,12 +5,17 @@ import { useWallet } from 'hooks/use-wallet';
 import { PositionsOverview } from 'components/positions/positions-overview';
 import './positions.scss';
 import BigNumber from 'bignumber.js';
-import PositionsData from 'components/positions/positions-data.json';
+// import PositionsData from 'components/positions/positions-data.json';
 import { V3PositionData } from '@sommelier/shared-types/src/api';
 type V3PositionDataList = { [key: string]: V3PositionData };
 
 export const PositionsWidget = (): JSX.Element => {
     const { wallet } = useWallet();
+    const [
+        positionsData,
+        setPositionsData,
+    ] = useState<V3PositionDataList | null>(null);
+    const [isError, setIsError] = useState<boolean>(false);
     const [positionsSummary, setPositionsSummary] = useState({
         open: {
             totalLiquidity: new BigNumber('0'),
@@ -26,9 +31,10 @@ export const PositionsWidget = (): JSX.Element => {
         },
     });
 
-    const positionsData = (PositionsData as unknown) as V3PositionDataList;
+    // const mockData = (PositionsData as unknown) as V3PositionDataList;
 
     useEffect(() => {
+        if (!positionsData) return;
         const overview = Object.keys(positionsData).reduce(
             (acc, ele: string): any => {
                 const liquidity = new BigNumber(
@@ -78,21 +84,31 @@ export const PositionsWidget = (): JSX.Element => {
         const getPositionsData = async () => {
             if (!wallet?.account) return;
 
-            const data = await // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            (
-                await fetch(
-                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                    `/api/v1/mainnet/positions/${wallet?.account}/stats`,
-                )
-            ).json();
+            const response = await fetch(
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                `/api/v1/mainnet/positions/${wallet?.account}/stats`,
+            );
+            if (response?.status === 200) {
+                const data = await response.json();
+                setPositionsData(data);
+            } else {
+                // setPositionsData(mockData);
+                setIsError(true);
+            }
         };
         void getPositionsData();
     }, [wallet?.account]);
 
     return (
         <Box className='positions'>
-            <PositionsSummary positionsSummary={positionsSummary} />
-            <PositionsOverview positionsData={positionsData} />
+            {!positionsData || isError ? (
+                <Box>Positions Unavailable</Box>
+            ) : (
+                <>
+                    <PositionsSummary positionsSummary={positionsSummary} />
+                    <PositionsOverview positionsData={positionsData} />
+                </>
+            )}
         </Box>
     );
 };

@@ -39,7 +39,6 @@ import {
     faAngleDoubleUp,
     faArrowsAltV,
 } from '@fortawesome/free-solid-svg-icons';
-import { ThreeDots } from 'react-loading-icons';
 import { compactHash } from 'util/formats';
 import { WalletBalances, BoundsState, TokenInputAmount } from 'types/states';
 import { useWallet } from 'hooks/use-wallet';
@@ -50,7 +49,7 @@ import { LiquidityRange } from 'components/add-liquidity/liquidity-range';
 import { EthGasPrices, LiquidityBand } from '@sommelier/shared-types';
 import { PoolOverview } from 'hooks/data-fetchers';
 import { debug } from 'util/debug';
-import Sentry, { init, SentryError } from 'util/sentry';
+import Sentry, { SentryError } from 'util/sentry';
 import { trackSentimentInteraction, trackAddLiquidityTx } from 'util/mixpanel';
 import classNames from 'classnames';
 
@@ -1848,7 +1847,7 @@ export const AddLiquidityV3 = ({
                                     onClick={() => setIsFlipped(!isFlipped)}
                                     style={{
                                         cursor: 'pointer',
-                                        color: 'var(--objAccentAlt)',
+                                        color: 'var(--objHighlight)',
                                         padding: '0.5rem',
                                     }}
                                 >

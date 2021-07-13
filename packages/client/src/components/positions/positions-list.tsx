@@ -5,6 +5,7 @@ import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import { V3PositionData } from '@sommelier/shared-types/src/api';
 import { formatUSD, formatPercent } from 'util/formats';
+import { RangeStatus } from 'components/positions/range-status';
 import BigNumber from 'bignumber.js';
 import { FormatPNL } from 'components/blocks/text/format-pnl';
 import { useHistory } from 'react-router';
@@ -46,12 +47,7 @@ export const PositionsList = ({
                                 {data?.position?.pool?.token1?.symbol}
                             </td>
                             <td>
-                                <div
-                                    className={classNames('range', 'in-range')}
-                                >
-                                    <FontAwesomeIcon icon={faCircle} />
-                                    In-range
-                                </div>
+                                <RangeStatus position={data?.position} />
                             </td>
                             <td>
                                 {formatUSD(data?.stats?.usdAmount?.toString())}
