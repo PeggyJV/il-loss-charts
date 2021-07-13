@@ -13,6 +13,7 @@ import { toastSuccess, toastWarn, toastError } from 'util/toasters';
 import { compactHash } from 'util/formats';
 import { useWallet } from 'hooks/use-wallet';
 import { usePendingTx, PendingTx } from 'hooks/use-pending-tx';
+import { handleGasEstimationError } from 'components/add-liquidity/add-liquidity-v3';
 import { debug } from 'util/debug';
 import Sentry, { SentryError } from 'util/sentry';
 import { EthGasPrices } from '@sommelier/shared-types';
@@ -101,18 +102,13 @@ export const RemovePosition = ({
         } catch (err) {
             // TODO: ADD TOAST MESSAGE
             // Send event to sentry
-            const sentryErr = new SentryError(
-                `Could not estimate gas: ${err.message as string}`,
-                {
-                    type: 'remove::liquidity::gasEstimate',
-                    method: 'approve',
-                    account: wallet?.account,
-                    to: nfpmContractAddress,
-                    tokenId: position?.id,
-                },
-            );
-            Sentry.captureException(sentryErr);
-            return;
+            return handleGasEstimationError(err, {
+                type: 'remove::liquidity::gasEstimate',
+                method: 'approve',
+                account: wallet?.account,
+                to: nfpmContractAddress,
+                tokenId: position?.id,
+            });
         }
 
         setPendingApproval(true);
@@ -177,20 +173,12 @@ export const RemovePosition = ({
             // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
             gasEstimate.add(gasEstimate.div(2));
         } catch (err) {
-            // TODO: ADD TOAST MESSAGE
-            // Send event to sentry
-            const sentryErr = new SentryError(
-                `Could not estimate gas: ${err.message as string}`,
-                {
-                    type: 'remove::liquidity',
-                    method: 'removeLiquidityFromUniV3NFLP',
-                    account: wallet?.account,
-                    to: removeLiquidityV3ContractAddress,
-                    // mintParams,
-                },
-            );
-            Sentry.captureException(sentryErr);
-            return;
+            return handleGasEstimationError(err, {
+                type: 'remove::liquidity',
+                method: 'removeLiquidityFromUniV3NFLP',
+                account: wallet?.account,
+                to: removeLiquidityV3ContractAddress,
+            });
         }
 
         const { hash } = await removeLiquidityContract[
