@@ -117,7 +117,7 @@ export const LiquidityContainer = ({
                 <WidgetSelector />
                 <Switch>
                     <Route path='/positions'>
-                        <PositionsWidget />
+                        <PositionsWidget gasPrices={gasPrices} />
                     </Route>
                     <Route path='/'>
                         <SearchWithHelmet pool={pool} />

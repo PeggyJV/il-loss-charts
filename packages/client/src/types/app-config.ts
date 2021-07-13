@@ -5,7 +5,9 @@ type ContractABI =
     | 'ADD_LIQUIDITY'
     | 'REMOVE_LIQUIDITY'
     | 'TWO_SIDE_ADD_LIQUIDITY'
-    | 'ADD_LIQUIDITY_V3';
+    | 'ADD_LIQUIDITY_V3'
+    | 'REMOVE_LIQUIDITY_V3'
+    | 'NON_FUNGIBLE_POSITION_MANAGER';
 
 type Network = {
     [key in NetworkIds]: {

@@ -6,13 +6,16 @@ import BigNumber from 'bignumber.js';
 import { Route, useHistory } from 'react-router';
 import { PositionsDetail } from 'components/positions/positions-detail';
 import { PositionsList } from 'components/positions/positions-list';
+import { EthGasPrices } from '@sommelier/shared-types';
 
 type V3PositionDataList = { [key: string]: V3PositionData };
 
 export const PositionsOverview = ({
     positionsData,
+    gasPrices,
 }: {
     positionsData: V3PositionDataList;
+    gasPrices: EthGasPrices | null;
 }): JSX.Element => {
     const history = useHistory();
     const [openPositionsData, setOpenPositionsData] = useState<any | null>(
@@ -47,7 +50,10 @@ export const PositionsOverview = ({
                 </Box>
             </Route>
             <Route path='/positions/:nflpId'>
-                <PositionsDetail positionsData={positionsData} />
+                <PositionsDetail
+                    positionsData={positionsData}
+                    gasPrices={gasPrices}
+                />
             </Route>
         </Box>
     );

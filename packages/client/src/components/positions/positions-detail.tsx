@@ -15,13 +15,16 @@ import { RemovePosition } from 'components/positions/remove-position';
 import { RangeStatus } from 'components/positions/range-status';
 import './positions.scss';
 import BigNumber from 'bignumber.js';
+import { EthGasPrices } from '@sommelier/shared-types';
 
 type V3PositionDataList = { [key: string]: V3PositionData };
 
 export const PositionsDetail = ({
     positionsData,
+    gasPrices,
 }: {
     positionsData: V3PositionDataList;
+    gasPrices: EthGasPrices | null;
 }): JSX.Element => {
     const { nflpId } = useParams<{ nflpId: string }>();
     const currentPosition = positionsData?.[nflpId];
@@ -169,170 +172,172 @@ export const PositionsDetail = ({
                 </Box>
             </Box>
             {showRemoveLiquidity ? (
-                <RemovePosition position={currentPosition} />
+                <RemovePosition
+                    positionPoolStats={currentPosition}
+                    setShowRemoveLiquidity={setShowRemoveLiquidity}
+                    gasPrices={gasPrices}
+                />
             ) : (
-                <Box mb='1rem'>
-                    <Box mb='1rem'>Liquidity Range</Box>
-                    <Box
-                        display='flex'
-                        sx={{
-                            border: '1px solid var(--borderPrimary)',
-                            borderRadius: '4px',
-                            textAlign: 'center',
-                        }}
-                    >
+                <>
+                    <Box mb='1rem'>
+                        <Box mb='1rem'>Liquidity Range</Box>
                         <Box
+                            display='flex'
                             sx={{
-                                flexGrow: '1',
-                                padding: '1rem',
-                                borderRight: '1px solid var(--borderPrimary)',
-                                maxWidth: '33%',
-                                overflow: 'hidden',
-                                whiteSpace: 'nowrap',
-                                textOverflow: 'ellipsis',
+                                border: '1px solid var(--borderPrimary)',
+                                borderRadius: '4px',
+                                textAlign: 'center',
                             }}
                         >
-                            <Box fontSize='0.75rem'>Lower Bound</Box>
                             <Box
                                 sx={{
-                                    color: 'var(--faceDeep)',
+                                    flexGrow: '1',
+                                    padding: '1rem',
+                                    borderRight:
+                                        '1px solid var(--borderPrimary)',
+                                    maxWidth: '33%',
                                     overflow: 'hidden',
                                     whiteSpace: 'nowrap',
                                     textOverflow: 'ellipsis',
                                 }}
                             >
-                                {isFlipped
-                                    ? 1 /
-                                      parseFloat(position?.tickUpper?.price1)
-                                    : parseFloat(position?.tickUpper?.price1)}
-                            </Box>
-                            <Box>
-                                <span style={{ fontSize: '0.75rem' }}>
-                                    {isFlipped
-                                        ? `${pool?.token1?.symbol} per ${pool?.token0?.symbol}`
-                                        : `${pool?.token0?.symbol} per ${pool?.token1?.symbol}`}
-                                </span>
-                            </Box>
-                        </Box>
-                        <Box
-                            sx={{
-                                flexGrow: '1',
-                                padding: '1rem',
-                                borderRight: '1px solid var(--borderPrimary)',
-                                maxWidth: '33%',
-                            }}
-                        >
-                            <Box fontSize='0.75rem'>Current Price</Box>
-                            <Box
-                                sx={{
-                                    color: 'var(--faceDeep)',
-                                    overflow: 'hidden',
-                                    whiteSpace: 'nowrap',
-                                    textOverflow: 'ellipsis',
-                                }}
-                            >
-                                {isFlipped
-                                    ? 1 / parseFloat(pool?.token0Price)
-                                    : parseFloat(pool?.token0Price)}
-                            </Box>
-                            <Box>
-                                <span
-                                    style={{
-                                        background: 'var(--objPrimary)',
-                                        padding: '0.25rem 0.5rem',
-                                        borderRadius: '4px',
-                                        fontSize: '0.85rem',
+                                <Box fontSize='0.75rem'>Lower Bound</Box>
+                                <Box
+                                    sx={{
+                                        color: 'var(--faceDeep)',
+                                        overflow: 'hidden',
+                                        whiteSpace: 'nowrap',
+                                        textOverflow: 'ellipsis',
                                     }}
                                 >
-                                    {' '}
                                     {isFlipped
-                                        ? pool.token1.symbol
-                                        : pool.token0.symbol}
-                                    <span
-                                        onClick={() => setIsFlipped(!isFlipped)}
-                                        style={{
-                                            cursor: 'pointer',
-                                            color: 'var(--objHighlight)',
-                                            padding: '0.5rem',
-                                        }}
-                                    >
-                                        <FontAwesomeIcon icon={faExchangeAlt} />
+                                        ? 1 /
+                                          parseFloat(
+                                              position?.tickUpper?.price1,
+                                          )
+                                        : parseFloat(
+                                              position?.tickUpper?.price1,
+                                          )}
+                                </Box>
+                                <Box>
+                                    <span style={{ fontSize: '0.75rem' }}>
+                                        {isFlipped
+                                            ? `${pool?.token1?.symbol} per ${pool?.token0?.symbol}`
+                                            : `${pool?.token0?.symbol} per ${pool?.token1?.symbol}`}
                                     </span>
-                                    {isFlipped
-                                        ? pool.token0.symbol
-                                        : pool.token1.symbol}
-                                </span>
+                                </Box>
                             </Box>
-                        </Box>
-                        <Box
-                            sx={{
-                                flexGrow: '1',
-                                padding: '1rem',
-                                maxWidth: '33%',
-                                overflow: 'hidden',
-                                whiteSpace: 'nowrap',
-                                textOverflow: 'ellipsis',
-                            }}
-                        >
-                            <Box fontSize='0.75rem'>Upper Bound</Box>
                             <Box
                                 sx={{
-                                    color: 'var(--faceDeep)',
+                                    flexGrow: '1',
+                                    padding: '1rem',
+                                    borderRight:
+                                        '1px solid var(--borderPrimary)',
+                                    maxWidth: '33%',
+                                }}
+                            >
+                                <Box fontSize='0.75rem'>Current Price</Box>
+                                <Box
+                                    sx={{
+                                        color: 'var(--faceDeep)',
+                                        overflow: 'hidden',
+                                        whiteSpace: 'nowrap',
+                                        textOverflow: 'ellipsis',
+                                    }}
+                                >
+                                    {isFlipped
+                                        ? 1 / parseFloat(pool?.token0Price)
+                                        : parseFloat(pool?.token0Price)}
+                                </Box>
+                                <Box>
+                                    <span
+                                        style={{
+                                            background: 'var(--objPrimary)',
+                                            padding: '0.25rem 0.5rem',
+                                            borderRadius: '4px',
+                                            fontSize: '0.85rem',
+                                        }}
+                                    >
+                                        {' '}
+                                        {isFlipped
+                                            ? pool.token1.symbol
+                                            : pool.token0.symbol}
+                                        <span
+                                            onClick={() =>
+                                                setIsFlipped(!isFlipped)
+                                            }
+                                            style={{
+                                                cursor: 'pointer',
+                                                color: 'var(--objHighlight)',
+                                                padding: '0.5rem',
+                                            }}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faExchangeAlt}
+                                            />
+                                        </span>
+                                        {isFlipped
+                                            ? pool.token0.symbol
+                                            : pool.token1.symbol}
+                                    </span>
+                                </Box>
+                            </Box>
+                            <Box
+                                sx={{
+                                    flexGrow: '1',
+                                    padding: '1rem',
+                                    maxWidth: '33%',
                                     overflow: 'hidden',
                                     whiteSpace: 'nowrap',
                                     textOverflow: 'ellipsis',
                                 }}
                             >
-                                {isFlipped
-                                    ? 1 /
-                                      parseFloat(position?.tickLower?.price1)
-                                    : parseFloat(position?.tickLower?.price1)}
-                            </Box>
-                            <Box>
-                                <span style={{ fontSize: '0.75rem' }}>
+                                <Box fontSize='0.75rem'>Upper Bound</Box>
+                                <Box
+                                    sx={{
+                                        color: 'var(--faceDeep)',
+                                        overflow: 'hidden',
+                                        whiteSpace: 'nowrap',
+                                        textOverflow: 'ellipsis',
+                                    }}
+                                >
                                     {isFlipped
-                                        ? `${pool?.token1?.symbol} per ${pool?.token0?.symbol}`
-                                        : `${pool?.token0?.symbol} per ${pool?.token1?.symbol}`}
-                                </span>
+                                        ? 1 /
+                                          parseFloat(
+                                              position?.tickLower?.price1,
+                                          )
+                                        : parseFloat(
+                                              position?.tickLower?.price1,
+                                          )}
+                                </Box>
+                                <Box>
+                                    <span style={{ fontSize: '0.75rem' }}>
+                                        {isFlipped
+                                            ? `${pool?.token1?.symbol} per ${pool?.token0?.symbol}`
+                                            : `${pool?.token0?.symbol} per ${pool?.token1?.symbol}`}
+                                    </span>
+                                </Box>
                             </Box>
                         </Box>
                     </Box>
-                </Box>
-            )}
-            <Box display='flex' textAlign='center'>
-                {showRemoveLiquidity && (
-                    <Box
-                        sx={{
-                            bgcolor: 'var(--objDeep)',
-                            padding: '1rem',
-                            flexGrow: '1',
-                            borderRadius: '4px',
-                            mr: '1rem',
-                            border: '1px solid var(--objDeepAlt)',
-                        }}
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => setShowRemoveLiquidity(false)}
-                    >
-                        Cancel
+
+                    <Box display='flex' textAlign='center'>
+                        <Box
+                            sx={{
+                                bgcolor: 'var(--objAccent)',
+                                padding: '1rem',
+                                flexGrow: '1',
+                                borderRadius: '4px',
+                                border: '1px solid var(--objAccentAlt)',
+                            }}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => setShowRemoveLiquidity(true)}
+                        >
+                            Remove Liquidity & Collect Fees
+                        </Box>
                     </Box>
-                )}
-                <Box
-                    sx={{
-                        bgcolor: 'var(--objAccent)',
-                        padding: '1rem',
-                        flexGrow: '1',
-                        borderRadius: '4px',
-                        mr: '1rem',
-                        border: '1px solid var(--objAccentAlt)',
-                    }}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => setShowRemoveLiquidity(true)}
-                >
-                    {showRemoveLiquidity
-                        ? 'Remove'
-                        : 'Remove Liquidity & Collect Fees'}
-                </Box>
-            </Box>
+                </>
+            )}
         </div>
     );
 };

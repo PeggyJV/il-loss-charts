@@ -1,17 +1,256 @@
 import { Box } from '@material-ui/core';
-import { useState } from 'react';
+import { useState, Dispatch, SetStateAction, useContext } from 'react';
 import Slider from '@material-ui/core/Slider';
 import { V3PositionData } from '@sommelier/shared-types/src/api';
 import BigNumber from 'bignumber.js';
 import { resolveLogo } from 'components/token-with-logo';
+import { ethers } from 'ethers';
+import config from 'config/app';
+import removeLiquidityAbi from 'constants/abis/uniswap_v3_remove_liquidity.json';
+import erc721Abi from 'constants/abis/uniswap_nfpm.json';
+import { LiquidityContext } from 'containers/liquidity-container';
+import { toastSuccess, toastWarn, toastError } from 'util/toasters';
+import { compactHash } from 'util/formats';
+import { useWallet } from 'hooks/use-wallet';
+import { usePendingTx, PendingTx } from 'hooks/use-pending-tx';
+import { debug } from 'util/debug';
+import Sentry, { SentryError } from 'util/sentry';
+import { EthGasPrices } from '@sommelier/shared-types';
 
 export const RemovePosition = ({
-    position,
+    positionPoolStats,
+    setShowRemoveLiquidity,
+    gasPrices,
 }: {
-    position: V3PositionData;
+    positionPoolStats: V3PositionData;
+    setShowRemoveLiquidity: Dispatch<SetStateAction<boolean>>;
+    gasPrices: EthGasPrices | null;
 }): JSX.Element => {
     const [removeAmountPercent, setRemoveAmountPercent] = useState<number>(100);
-    const { stats } = position;
+    const { stats, position } = positionPoolStats;
+    const { wallet } = useWallet();
+    const [pendingApproval, setPendingApproval] = useState(false);
+    const { setPendingTx } = usePendingTx();
+    let provider: ethers.providers.Web3Provider | null = null;
+    if (wallet?.provider) {
+        provider = new ethers.providers.Web3Provider(wallet?.provider);
+    }
+
+    // gas works
+    const { selectedGasPrice } = useContext(LiquidityContext);
+    let currentGasPrice: number | null = null;
+    let baseGasPrice: string | null;
+    if (gasPrices && selectedGasPrice) {
+        currentGasPrice = gasPrices[selectedGasPrice];
+        baseGasPrice = ethers.utils
+            .parseUnits(currentGasPrice.toString(), 9)
+            .toString();
+    }
+
+    const doRemoveLiquidity = async (): Promise<void> => {
+        // bail out if we dont have some stuff
+        console.log(position, provider, currentGasPrice);
+        if (!position || !provider || !currentGasPrice) return;
+
+        // get remove contract address
+        const removeLiquidityV3ContractAddress =
+            config.networks[wallet.network || '1']?.contracts
+                ?.REMOVE_LIQUIDITY_V3;
+
+        if (!removeLiquidityV3ContractAddress) {
+            throw new Error(
+                'Remove liquidity contract not available on this network.',
+            );
+        }
+
+        // Create signer
+        const signer = provider.getSigner();
+
+        const removeLiquidityContract = new ethers.Contract(
+            removeLiquidityV3ContractAddress,
+            (removeLiquidityAbi as unknown) as typeof removeLiquidityV3ContractAddress,
+            signer,
+        );
+
+        // debug.contract = removeLiquidityContract;
+        const nfpmContractAddress =
+            config.networks[wallet.network || '1']?.contracts
+                ?.NON_FUNGIBLE_POSITION_MANAGER;
+        if (!nfpmContractAddress) {
+            throw new Error(
+                'Remove liquidity contract not available on this network.',
+            );
+        }
+
+        const erc721Contract = new ethers.Contract(
+            nfpmContractAddress,
+            erc721Abi,
+            signer,
+        );
+
+        // approve removal of position
+        let approvalEstimate: ethers.BigNumber | null = null;
+
+        try {
+            approvalEstimate = await erc721Contract.estimateGas.approve(
+                removeLiquidityV3ContractAddress,
+                position?.id,
+                { gasPrice: baseGasPrice },
+            );
+            approvalEstimate = approvalEstimate.add(approvalEstimate.div(3));
+        } catch (err) {
+            // TODO: ADD TOAST MESSAGE
+            // Send event to sentry
+            const sentryErr = new SentryError(
+                `Could not estimate gas: ${err.message as string}`,
+                {
+                    type: 'remove::liquidity::gasEstimate',
+                    method: 'approve',
+                    account: wallet?.account,
+                    to: nfpmContractAddress,
+                    tokenId: position?.id,
+                },
+            );
+            Sentry.captureException(sentryErr);
+            return;
+        }
+
+        setPendingApproval(true);
+        let approveHash: string | undefined;
+        try {
+            const { hash } = await erc721Contract.approve(
+                removeLiquidityV3ContractAddress,
+                position?.id,
+
+                {
+                    gasPrice: baseGasPrice,
+                    gasLimit: approvalEstimate,
+                },
+            );
+            approveHash = hash;
+        } catch (e) {
+            setPendingApproval(false);
+            return;
+        }
+
+        // setApprovalState('pending');
+        if (approveHash) {
+            toastWarn(`Approving tx ${compactHash(approveHash)}`);
+            setPendingTx &&
+                setPendingTx(
+                    (state: PendingTx): PendingTx =>
+                        ({
+                            approval: [...state.approval, approveHash],
+                            confirm: [...state.confirm],
+                        } as PendingTx),
+                );
+            await provider.waitForTransaction(approveHash);
+            setPendingApproval(false);
+            setPendingTx &&
+                setPendingTx(
+                    (state: PendingTx): PendingTx =>
+                        ({
+                            approval: [
+                                ...state.approval.filter(
+                                    (h) => h != approveHash,
+                                ),
+                            ],
+                            confirm: [...state.confirm],
+                        } as PendingTx),
+                );
+        }
+
+        // volumeFi contract tx fee
+        const baseMsgValue = ethers.utils.parseEther('0.005');
+        const value = baseMsgValue.toString();
+        let gasEstimate: ethers.BigNumber;
+        const MAX_INT = 2 ** 256 - 1;
+        const removeParams = [position?.liquidity, wallet?.account, MAX_INT];
+        try {
+            gasEstimate = await removeLiquidityContract.estimateGas[
+                'removeLiquidityFromUniV3NFLP'
+            ](position?.id, removeParams, false, {
+                gasPrice: baseGasPrice,
+                value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
+            });
+
+            // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
+            gasEstimate.add(gasEstimate.div(2));
+        } catch (err) {
+            // TODO: ADD TOAST MESSAGE
+            // Send event to sentry
+            const sentryErr = new SentryError(
+                `Could not estimate gas: ${err.message as string}`,
+                {
+                    type: 'remove::liquidity',
+                    method: 'removeLiquidityFromUniV3NFLP',
+                    account: wallet?.account,
+                    to: removeLiquidityV3ContractAddress,
+                    // mintParams,
+                },
+            );
+            Sentry.captureException(sentryErr);
+            return;
+        }
+
+        const { hash } = await removeLiquidityContract[
+            'removeLiquidityFromUniV3NFLP'
+        ](position?.id, removeParams, false, {
+            gasPrice: baseGasPrice,
+            value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
+        });
+
+        if (hash) {
+            toastWarn(`Confirming tx ${compactHash(hash)}`);
+            setPendingTx &&
+                setPendingTx(
+                    (state: PendingTx): PendingTx =>
+                        ({
+                            approval: [...state.approval],
+                            confirm: [...state.confirm, hash],
+                        } as PendingTx),
+                );
+
+            if (provider) {
+                const txStatus: ethers.providers.TransactionReceipt = await provider.waitForTransaction(
+                    hash,
+                );
+
+                const { status } = txStatus;
+
+                if (status === 1) {
+                    toastSuccess(`Confirmed tx ${compactHash(hash)}`);
+                    setPendingTx &&
+                        setPendingTx(
+                            (state: PendingTx): PendingTx =>
+                                ({
+                                    approval: [...state.approval],
+                                    confirm: [
+                                        ...state.approval.filter(
+                                            (hash) => hash !== hash,
+                                        ),
+                                    ],
+                                } as PendingTx),
+                        );
+                } else {
+                    toastError(`Rejected tx ${compactHash(hash)}`);
+                    setPendingTx &&
+                        setPendingTx(
+                            (state: PendingTx): PendingTx =>
+                                ({
+                                    approval: [...state.approval],
+                                    confirm: [
+                                        ...state.approval.filter(
+                                            (hash) => hash !== hash,
+                                        ),
+                                    ],
+                                } as PendingTx),
+                        );
+                }
+            }
+        }
+    };
+
     const percentStyle = {
         borderRadius: '4px',
         padding: '0.5rem 1rem',
@@ -19,6 +258,7 @@ export const RemovePosition = ({
         bgcolor: 'var(--objPrimary)',
         margin: '0 0.5rem',
     };
+
     return (
         <>
             <Box
@@ -104,9 +344,7 @@ export const RemovePosition = ({
                     <tbody>
                         <tr>
                             <td>
-                                {resolveLogo(
-                                    position?.position?.pool?.token0?.id,
-                                )}{' '}
+                                {resolveLogo(position?.pool?.token0?.id)}{' '}
                                 <span
                                     style={{
                                         fontWeight: 'bold',
@@ -114,7 +352,7 @@ export const RemovePosition = ({
                                         fontSize: '1rem',
                                     }}
                                 >
-                                    {position?.position?.pool?.token0?.symbol}
+                                    {position?.pool?.token0?.symbol}
                                 </span>
                             </td>
                             <td>
@@ -130,9 +368,7 @@ export const RemovePosition = ({
                         </tr>
                         <tr>
                             <td>
-                                {resolveLogo(
-                                    position?.position?.pool?.token1?.id,
-                                )}{' '}
+                                {resolveLogo(position?.pool?.token1?.id)}{' '}
                                 <span
                                     style={{
                                         fontWeight: 'bold',
@@ -140,7 +376,7 @@ export const RemovePosition = ({
                                         fontSize: '1rem',
                                     }}
                                 >
-                                    {position?.position?.pool?.token1?.symbol}
+                                    {position?.pool?.token1?.symbol}
                                 </span>
                             </td>
                             <td>
@@ -156,87 +392,36 @@ export const RemovePosition = ({
                         </tr>
                     </tbody>
                 </table>
-                {/* <Box
-                    display='flex'
-                    flexDirection='column'
-                    flexGrow='1'
-                    justifyContent='center'
-                    fontSize='0.75rem'
+            </Box>
+            <Box display='flex' textAlign='center'>
+                <Box
+                    sx={{
+                        bgcolor: 'var(--objDeep)',
+                        padding: '1rem',
+                        flexGrow: '1',
+                        borderRadius: '4px',
+                        mr: '1rem',
+                        border: '1px solid var(--objDeepAlt)',
+                    }}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setShowRemoveLiquidity(false)}
                 >
-                    <div>
-                        Pooled{' '}
-                        <span
-                            style={{
-                                fontWeight: 'bold',
-                                color: 'var(--faceDeep)',
-                                fontSize: '1rem',
-                            }}
-                        >
-                            {position?.position?.pool?.token0?.symbol}
-                        </span>
-                    </div>
-                    <div>
-                        Pooled{' '}
-                        <span
-                            style={{
-                                fontWeight: 'bold',
-                                color: 'var(--faceDeep)',
-                                fontSize: '1rem',
-                            }}
-                        >
-                            {position?.position?.pool?.token1?.symbol}
-                        </span>
-                    </div>
-                    <div>
-                        Fees{' '}
-                        <span
-                            style={{
-                                fontWeight: 'bold',
-                                color: 'var(--faceDeep)',
-                                fontSize: '1rem',
-                            }}
-                        >
-                            {position?.position?.pool?.token0?.symbol}
-                        </span>
-                    </div>
-                    <div>
-                        Fees{' '}
-                        <span
-                            style={{
-                                fontWeight: 'bold',
-                                color: 'var(--faceDeep)',
-                                fontSize: '1rem',
-                            }}
-                        >
-                            {position?.position?.pool?.token1?.symbol}
-                        </span>
-                    </div>
-                </Box> */}
-                {/* <Box
-                    display='flex'
-                    flexDirection='column'
-                    flexGrow='1'
-                    alignItems='flex-end'
+                    Cancel
+                </Box>
+                <Box
+                    sx={{
+                        bgcolor: 'var(--objAccent)',
+                        padding: '1rem',
+                        flexGrow: '1',
+                        borderRadius: '4px',
+                        mr: '1rem',
+                        border: '1px solid var(--objAccentAlt)',
+                    }}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => doRemoveLiquidity()}
                 >
-                    <div>
-                        {new BigNumber(stats?.token0Amount).toFixed(8)}&nbsp;
-                        {resolveLogo(position?.position?.pool?.token0?.id)}
-                    </div>
-                    <div>
-                        {new BigNumber(stats?.token1Amount).toFixed(8)}&nbsp;
-                        {resolveLogo(position?.position?.pool?.token1?.id)}
-                    </div>
-                    <div>
-                        {new BigNumber(stats?.uncollectedFees0).toFixed(8)}
-                        &nbsp;
-                        {resolveLogo(position?.position?.pool?.token0?.id)}
-                    </div>
-                    <div>
-                        {new BigNumber(stats?.uncollectedFees1).toFixed(8)}
-                        &nbsp;
-                        {resolveLogo(position?.position?.pool?.token1?.id)}
-                    </div>
-                </Box> */}
+                    Remove
+                </Box>
             </Box>
         </>
     );

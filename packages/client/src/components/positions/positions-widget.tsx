@@ -7,9 +7,15 @@ import './positions.scss';
 import BigNumber from 'bignumber.js';
 // import PositionsData from 'components/positions/positions-data.json';
 import { V3PositionData } from '@sommelier/shared-types/src/api';
+import { EthGasPrices } from '@sommelier/shared-types';
+
 type V3PositionDataList = { [key: string]: V3PositionData };
 
-export const PositionsWidget = (): JSX.Element => {
+export const PositionsWidget = ({
+    gasPrices,
+}: {
+    gasPrices: EthGasPrices | null;
+}): JSX.Element => {
     const { wallet } = useWallet();
     const [
         positionsData,
@@ -106,7 +112,10 @@ export const PositionsWidget = (): JSX.Element => {
             ) : (
                 <>
                     <PositionsSummary positionsSummary={positionsSummary} />
-                    <PositionsOverview positionsData={positionsData} />
+                    <PositionsOverview
+                        positionsData={positionsData}
+                        gasPrices={gasPrices}
+                    />
                 </>
             )}
         </Box>
