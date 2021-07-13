@@ -211,9 +211,8 @@ export const PositionsDetail = ({
                                     }}
                                 >
                                     {isFlipped
-                                        ? 1 /
-                                          parseFloat(
-                                              position?.tickUpper?.price1,
+                                        ? parseFloat(
+                                              position?.tickLower?.price0,
                                           )
                                         : parseFloat(
                                               position?.tickUpper?.price1,
@@ -302,9 +301,8 @@ export const PositionsDetail = ({
                                     }}
                                 >
                                     {isFlipped
-                                        ? 1 /
-                                          parseFloat(
-                                              position?.tickLower?.price1,
+                                        ? parseFloat(
+                                              position?.tickUpper?.price0,
                                           )
                                         : parseFloat(
                                               position?.tickLower?.price1,
