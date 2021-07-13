@@ -162,10 +162,11 @@ export const RemovePosition = ({
         let gasEstimate: ethers.BigNumber;
         const MAX_INT = 2 ** 256 - 1;
         const removeParams = [position?.liquidity, wallet?.account, MAX_INT];
+
         try {
             gasEstimate = await removeLiquidityContract.estimateGas[
-                'removeLiquidityFromUniV3NFLP'
-            ](position?.id, removeParams, false, {
+                'removeLiquidityFromUniV3NFLP(uint256,(uint256,address, uint256))'
+            ](position?.id, removeParams, {
                 gasPrice: baseGasPrice,
                 value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
             });
