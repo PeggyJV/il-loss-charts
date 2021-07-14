@@ -169,12 +169,14 @@ export const RemovePosition = ({
         const baseMsgValue = ethers.utils.parseEther('0.005');
         const value = baseMsgValue.toString();
         let gasEstimate: ethers.BigNumber;
-        const MAX_INT = 2 ** 256 - 1;
+        const deadline = Math.floor(Date.now() / 1000) + 86400000;
+        // calculate what % of liquidity to remove from slider input
         const liquidityMultiplier = removeAmountPercent / 100;
         const liquidity = new BigNumber(position?.liquidity)
             .times(liquidityMultiplier)
+            .toFixed(0)
             .toString();
-        const removeParams = [liquidity, wallet?.account, MAX_INT];
+        const removeParams = [liquidity, wallet?.account, deadline];
 
         try {
             gasEstimate = await removeLiquidityContract.estimateGas[
