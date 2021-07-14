@@ -1,0 +1,44 @@
+query getLastDailyData(
+    $pool: ID!
+    $orderBy: String!
+    $orderDirection: String!
+    $first: Int!
+) {
+    poolDayDatas(
+        orderBy: $orderBy
+        orderDirection: $orderDirection
+        first: $first
+        where: { pool: $pool }
+    ) {
+        id
+        date
+        pool {
+            id
+            token0 {
+                id
+                name
+                symbol
+            }
+            token1 {
+                id
+                name
+                symbol
+            }
+            token0Price
+            token1Price
+        }
+        liquidity
+        sqrtPrice
+        open
+        high
+        low
+        close
+        token0Price
+        token1Price
+        volumeToken0
+        volumeToken1
+        volumeUSD
+        tvlUSD
+        txCount
+    }
+}

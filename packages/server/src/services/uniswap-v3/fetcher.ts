@@ -30,6 +30,10 @@ export interface UniswapFetcher {
         start: Date,
         end: Date,
     ): Promise<GetPoolDailyDataResult>;
+    getPoolDailyDataLastDays(
+        poolId: string,
+        count: number,
+    ): Promise<GetPoolDailyDataResult>;
     getPoolHourlyData(
         poolId: string,
         start: Date,
@@ -147,6 +151,31 @@ export class UniswapV3Fetcher {
             }
 
             return poolDayDatas;
+        } catch (error) {
+            throw makeSdkError(
+                `Could not fetch daily data for pool ${poolId}.`,
+                error,
+            );
+        }
+    }
+
+    async getPoolDailyDataLastDays(
+        poolId: string,
+        count: number,
+    ): Promise<GetPoolDailyDataResult> {
+        try {
+            const { poolDayDatas } = await this.sdk.getLastDailyData({
+                pool: poolId,
+                orderBy: 'date',
+                orderDirection: 'asc',
+                first: count,
+            });
+
+            if (poolDayDatas == null) {
+                throw new Error('No pools returned.');
+            }
+
+            return (poolDayDatas as unknown) as GetPoolDailyDataResult;
         } catch (error) {
             throw makeSdkError(
                 `Could not fetch daily data for pool ${poolId}.`,

@@ -332,6 +332,7 @@ export interface QueryPoolDayDatasArgs {
     orderBy?: Maybe<Scalars['String']>;
     orderDirection?: Maybe<Scalars['String']>;
     where?: Maybe<PoolDayDatasWhere>;
+    first?: Maybe<Scalars['Int']>;
 }
 
 export interface QueryPoolHourDataArgs {
@@ -567,6 +568,50 @@ export type GetEthPriceQueryVariables = Exact<{
 
 export type GetEthPriceQuery = { __typename?: 'Query' } & {
     bundle?: Maybe<{ __typename?: 'Bundle' } & Pick<Bundle, 'ethPriceUSD'>>;
+};
+
+export type GetLastDailyDataQueryVariables = Exact<{
+    pool: Scalars['ID'];
+    orderBy: Scalars['String'];
+    orderDirection: Scalars['String'];
+    first: Scalars['Int'];
+}>;
+
+export type GetLastDailyDataQuery = { __typename?: 'Query' } & {
+    poolDayDatas: Array<
+        { __typename?: 'PoolDayData' } & Pick<
+            PoolDayData,
+            | 'id'
+            | 'date'
+            | 'liquidity'
+            | 'sqrtPrice'
+            | 'open'
+            | 'high'
+            | 'low'
+            | 'close'
+            | 'token0Price'
+            | 'token1Price'
+            | 'volumeToken0'
+            | 'volumeToken1'
+            | 'volumeUSD'
+            | 'tvlUSD'
+            | 'txCount'
+        > & {
+                pool: { __typename?: 'Pool' } & Pick<
+                    Pool,
+                    'id' | 'token0Price' | 'token1Price'
+                > & {
+                        token0: { __typename?: 'Token' } & Pick<
+                            Token,
+                            'id' | 'name' | 'symbol'
+                        >;
+                        token1: { __typename?: 'Token' } & Pick<
+                            Token,
+                            'id' | 'name' | 'symbol'
+                        >;
+                    };
+            }
+    >;
 };
 
 export type GetPoolDailyDataQueryVariables = Exact<{

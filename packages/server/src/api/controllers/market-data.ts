@@ -180,10 +180,14 @@ async function getUniswapPoolDailyOHLC(
     const endDate = endOfDay(now);
     const startDate = startOfDay(subDays(now, 1));
 
-    const result = await UniswapFetcher.getHistoricalDailyData(
+    // const result = await UniswapFetcher.getHistoricalDailyData(
+    //     poolId as string,
+    //     startDate,
+    //     endDate,
+    // );
+    const result = await UniswapFetcher.getPoolDailyDataLastDays(
         poolId as string,
-        startDate,
-        endDate,
+        1,
     );
     const ohlc = convertUniswapToOHLC(result[0]);
     return ohlc;
@@ -198,10 +202,14 @@ async function getUniswapPoolWeeklyOHLC(
     const endDate = endOfDay(now);
     const startDate = startOfDay(subDays(now, 7));
 
-    const result = await UniswapFetcher.getHistoricalDailyData(
+    // const result = await UniswapFetcher.getHistoricalDailyData(
+    //     poolId as string,
+    //     startDate,
+    //     endDate,
+    // );
+    const result = await UniswapFetcher.getPoolDailyDataLastDays(
         poolId as string,
-        startDate,
-        endDate,
+        7,
     );
     const ohlc = result.map(convertUniswapToOHLC);
     return ohlc;
@@ -215,10 +223,14 @@ export async function _getUniswapPeriodIndicators(
     startDate: number,
     endDate: number,
 ) {
-    const marketData = await UniswapFetcher.getHistoricalDailyData(
+    // const marketData = await UniswapFetcher.getHistoricalDailyData(
+    //     poolId,
+    //     new Date(startDate),
+    //     new Date(endDate),
+    // );
+    const marketData = await UniswapFetcher.getPoolDailyDataLastDays(
         poolId,
-        new Date(startDate),
-        new Date(endDate),
+        19,
     );
 
     const ohlc = marketData.map(convertUniswapToOHLC);
