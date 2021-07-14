@@ -13,8 +13,8 @@ export const RangeStatus = ({
 }): JSX.Element => {
     // FixMe:  flip tickUpper and tickLower once sub graph is synced
     let isInRange = false;
-    const lower = new BigNumber(position?.tickUpper?.price1);
-    const upper = new BigNumber(position?.tickLower?.price1);
+    const lower = new BigNumber(position?.tickUpper?.price0);
+    const upper = new BigNumber(position?.tickLower?.price0);
     const current = new BigNumber(position?.pool?.token0Price);
     if (current.gte(lower) && current.lte(upper)) {
         isInRange = true;

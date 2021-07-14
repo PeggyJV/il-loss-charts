@@ -73,7 +73,7 @@ export const RemovePosition = ({
             signer,
         );
 
-        // debug.contract = removeLiquidityContract;
+        debug.contract = removeLiquidityContract;
         const nfpmContractAddress =
             config.networks[wallet.network || '1']?.contracts
                 ?.NON_FUNGIBLE_POSITION_MANAGER;
@@ -180,7 +180,7 @@ export const RemovePosition = ({
 
         try {
             gasEstimate = await removeLiquidityContract.estimateGas[
-                'removeLiquidityFromUniV3NFLP(uint256,(uint256,address, uint256), bool)'
+                'removeLiquidityFromUniV3NFLP(uint256,(uint256,address,uint256),bool)'
             ](position?.id, removeParams, false, {
                 gasPrice: baseGasPrice,
                 value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
@@ -198,7 +198,7 @@ export const RemovePosition = ({
         }
 
         const { hash } = await removeLiquidityContract[
-            'removeLiquidityFromUniV3NFLP(uint256,(uint256,address, uint256), bool)'
+            'removeLiquidityFromUniV3NFLP(uint256,(uint256,address,uint256),bool)'
         ](position?.id, removeParams, false, {
             gasPrice: baseGasPrice,
             value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
