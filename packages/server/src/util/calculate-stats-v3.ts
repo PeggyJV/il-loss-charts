@@ -109,28 +109,28 @@ export async function calculateStatsForNFLPs(
         .times(token0PriceUSD)
         .plus(collectedFees1.times(token1PriceUSD));
 
-    // Get uncollected fees by calling into the contract
-    const uncollectedFees = await nflpContract.callStatic.collect(
-        {
-            tokenId: position.id,
-            recipient: owner, // some tokens might fail if transferred to address(0)
-            amount0Max: MAX_UINT128,
-            amount1Max: MAX_UINT128,
-        },
-        { from: owner }, // need to simulate the call as the owner
-    );
+    let uncollectedFees0 = new BigNumber(0);
+    let uncollectedFees1 = new BigNumber(0);
+    try {
+        // Get uncollected fees by calling into the contract
+        const uncollectedFees = await nflpContract.callStatic.collect(
+            {
+                tokenId: position.id,
+                recipient: owner, // some tokens might fail if transferred to address(0)
+                amount0Max: MAX_UINT128,
+                amount1Max: MAX_UINT128,
+            },
+            { from: owner }, // need to simulate the call as the owner
+        );
 
-    let {
-        amount0: uncollectedFees0,
-        amount1: uncollectedFees1,
-    } = uncollectedFees;
+        const { amount0, amount1 } = uncollectedFees;
 
-    uncollectedFees0 = new BigNumber(uncollectedFees0.toString()).div(
-        token0Denom,
-    );
-    uncollectedFees1 = new BigNumber(uncollectedFees1.toString()).div(
-        token1Denom,
-    );
+        uncollectedFees0 = new BigNumber(amount0.toString()).div(token0Denom);
+        uncollectedFees1 = new BigNumber(amount1.toString()).div(token1Denom);
+    } catch (err) {
+        console.error('Could not attempt to collect fees for position');
+    }
+
     const uncollectedFeesUSD = uncollectedFees0
         .times(token0PriceUSD)
         .plus(uncollectedFees1.times(token1PriceUSD));

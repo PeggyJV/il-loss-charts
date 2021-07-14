@@ -83,6 +83,15 @@ export class UniswapV3FetcherMemoized implements UniswapFetcher {
     }
 
     // not memoized
+    getPoolDailyDataLastDays(
+        poolId: string,
+        count: number,
+    ): Promise<GetPoolDailyDataResult> {
+        const fn = this.fetcher.getPoolDailyDataLastDays.bind(this.fetcher);
+        return fn(poolId, count);
+    }
+
+    // not memoized
     getPoolDailyData(
         poolId: string,
         start: Date,

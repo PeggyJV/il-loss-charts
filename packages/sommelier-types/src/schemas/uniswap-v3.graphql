@@ -839,6 +839,7 @@ type Query {
         orderBy: String
         orderDirection: String
         where: PoolDayDatasWhere
+        first: Int
     ): [PoolDayData!]!
     poolHourData(id: ID!): PoolDayData
     poolHourDatas(
