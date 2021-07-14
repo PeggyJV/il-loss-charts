@@ -286,10 +286,10 @@ export const PositionsDetail = ({
                                 >
                                     {isFlipped
                                         ? parseFloat(
-                                              position?.tickLower?.price0,
+                                              position?.tickLower?.price1,
                                           )
                                         : parseFloat(
-                                              position?.tickUpper?.price1,
+                                              position?.tickUpper?.price0,
                                           )}
                                     <span
                                         style={{
