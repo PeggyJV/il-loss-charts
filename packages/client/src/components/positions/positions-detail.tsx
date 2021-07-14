@@ -291,33 +291,6 @@ export const PositionsDetail = ({
                                         : parseFloat(
                                               position?.tickUpper?.price0,
                                           )}
-                                    <span
-                                        style={{
-                                            fontSize: '0.85rem',
-                                        }}
-                                    >
-                                        {' '}
-                                        {isFlipped
-                                            ? pool.token1.symbol
-                                            : pool.token0.symbol}
-                                        <span
-                                            onClick={() =>
-                                                setIsFlipped(!isFlipped)
-                                            }
-                                            style={{
-                                                cursor: 'pointer',
-                                                color: 'var(--objHighlight)',
-                                                padding: '0.5rem',
-                                            }}
-                                        >
-                                            <FontAwesomeIcon
-                                                icon={faExchangeAlt}
-                                            />
-                                        </span>
-                                        {isFlipped
-                                            ? pool.token0.symbol
-                                            : pool.token1.symbol}
-                                    </span>
                                 </Box>
                             </Box>
                             <Box
@@ -347,34 +320,6 @@ export const PositionsDetail = ({
                                         : parseFloat(
                                               position?.tickLower?.price0,
                                           )}
-                                    &nbsp;
-                                    <span
-                                        style={{
-                                            fontSize: '0.85rem',
-                                        }}
-                                    >
-                                        {' '}
-                                        {isFlipped
-                                            ? pool.token1.symbol
-                                            : pool.token0.symbol}
-                                        <span
-                                            onClick={() =>
-                                                setIsFlipped(!isFlipped)
-                                            }
-                                            style={{
-                                                cursor: 'pointer',
-                                                color: 'var(--objHighlight)',
-                                                padding: '0.5rem',
-                                            }}
-                                        >
-                                            <FontAwesomeIcon
-                                                icon={faExchangeAlt}
-                                            />
-                                        </span>
-                                        {isFlipped
-                                            ? pool.token0.symbol
-                                            : pool.token1.symbol}
-                                    </span>
                                 </Box>
                             </Box>
                         </Box>
