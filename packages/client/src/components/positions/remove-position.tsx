@@ -328,10 +328,11 @@ export const RemovePosition = ({
                 display='flex'
                 justifyContent='space-between'
                 borderRadius='4px'
+                border='1px solid var(--borderDefault)'
                 bgcolor='var(--bgDeep)'
                 mb='1rem'
-                p='1rem'
-                lineHeight='1.75rem'
+                p='0.5rem'
+                // lineHeight='1.75rem'
             >
                 <table width='100%'>
                     <thead>
@@ -341,7 +342,7 @@ export const RemovePosition = ({
                                 fontSize: '0.75rem',
                             }}
                         >
-                            <td>Token</td>
+                            <td></td>
                             <td>Pooled</td>
                             <td>Fees</td>
                         </tr>

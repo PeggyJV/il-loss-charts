@@ -70,14 +70,14 @@ button.remove-position {
 }
 
 button.cancel-remove {
-    background: var(--objDefault);
     padding: 1rem;
-    border: 1px solid var(--objDefaultAlt);
+    background: var(--objDeep);
+    border: 1px solid var(--borderDefault);
     border-radius: 4px;
     cursor: pointer;
     color: var(--faceDefault);
     width: 50%;
     &:hover {
-        background: var(--objDefaultAlt);
+      background: var(--objDefault);
     }
 }
