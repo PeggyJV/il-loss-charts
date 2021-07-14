@@ -74,6 +74,8 @@ export const handleGasEstimationError = (
         err.message.match(/insufficient funds/);
     const highSlippage = err.message.match(/slippage/i);
 
+    console.error('Error estimating gas', err.message);
+
     let toastMsg =
         'Could not estimate gas for this transaction. Check your parameters or try a different pool.';
 
