@@ -84,7 +84,6 @@ export const PositionsDetail = ({
                         sx={{
                             border: '1px solid var(--borderDefault)',
                             padding: '0.5rem',
-                            bgcolor: 'var(--objPrimary)',
                             borderRadius: '4px',
                             fontSize: '0.75rem',
                         }}
@@ -101,9 +100,9 @@ export const PositionsDetail = ({
                     {position?.pool?.token0?.symbol}/
                     {position?.pool?.token1?.symbol}
                     &nbsp;
-                    <RangeStatus position={position} />
                 </div>
-                <Box
+                <RangeStatus position={position} />
+                {/* <Box
                     sx={{
                         border: '1px solid var(--borderPrimary)',
                         padding: '0.5rem',
@@ -120,39 +119,33 @@ export const PositionsDetail = ({
                     &nbsp;
                     {copiedShortUrl ? 'Copied' : 'Copy'}
                     {' Pool Link'}
-                </Box>
+                </Box> */}
             </Box>
             <Box
                 display='flex'
+                width='100%'
+                flexWrap='wrap'
+                justifyContent='space-between'
+                mb='1rem'
                 sx={{
-                    fontSize: '1rem',
-                    bgcolor: 'var(--bgDeep)',
-                    padding: '1rem',
+                    border: '1px solid var(--borderDefault)',
                     borderRadius: '4px',
-                    lineHeight: '1.75rem',
-                    mb: '1rem',
+                    padding: '1rem',
                 }}
             >
-                <Box
-                    display='flex'
-                    flexDirection='column'
-                    flexGrow='1'
-                    justifyContent='center'
-                    sx={{ fontSize: '0.75rem' }}
-                >
-                    <div>Entry Liquidity</div>
-                    <div>Current Size</div>
-                    <div>Earned Fees</div>
-                    <div>APY</div>
+                <Box flexGrow='1'>
+                    <Box lineHeight='2rem' color='var(--faceDeep)'>
+                        {formatUSD(stats?.entryUsdAmount?.toString())}
+                    </Box>
+                    <Box fontSize='0.75rem'>Entry Liquidity</Box>
                 </Box>
-                <Box
-                    display='flex'
-                    flexDirection='column'
-                    flexGrow='1'
-                    alignItems='flex-end'
-                >
-                    <div>{formatUSD(stats?.entryUsdAmount?.toString())}</div>
-                    <div>{formatUSD(stats?.usdAmount?.toString())}</div>
+                <Box flexGrow='1'>
+                    <Box lineHeight='2rem' color='var(--faceDeep)'>
+                        {formatUSD(stats?.usdAmount?.toString())}
+                    </Box>
+                    <Box fontSize='0.75rem'>Current Size</Box>
+                </Box>
+                <Box flexGrow='1'>
                     <div>
                         <FormatPNL
                             isNegative={new BigNumber(
@@ -162,6 +155,9 @@ export const PositionsDetail = ({
                             {formatUSD(stats?.totalFeesUSD?.toString())}
                         </FormatPNL>
                     </div>
+                    <Box fontSize='0.75rem'>Earned Fees</Box>
+                </Box>
+                <Box flexGrow='1'>
                     <div>
                         <FormatPNL
                             isNegative={new BigNumber(stats?.apy).isNegative()}
@@ -169,6 +165,7 @@ export const PositionsDetail = ({
                             {formatPercent(stats?.apy?.toString())}
                         </FormatPNL>
                     </div>
+                    <Box fontSize='0.75rem'>APY</Box>
                 </Box>
             </Box>
             {showRemoveLiquidity ? (
@@ -180,59 +177,49 @@ export const PositionsDetail = ({
             ) : (
                 <>
                     <Box mb='1rem'>
-                        <Box mb='1rem'>Liquidity Range</Box>
                         <Box
                             display='flex'
+                            justifyContent='space-between'
+                            mb='1rem'
+                            alignItems='center'
+                        >
+                            <Box>Liquidity Range</Box>
+                            <Box
+                                sx={{
+                                    border: '1px solid var(--borderDefault)',
+                                    padding: '0.5rem',
+                                    borderRadius: '4px',
+                                    fontSize: '0.75rem',
+                                }}
+                                onClick={() => {
+                                    void navigator.clipboard.writeText(
+                                        shortUrl || '',
+                                    );
+                                    setCopiedShortUrl(true);
+                                }}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                <FontAwesomeIcon icon={faCopy} />
+                                &nbsp;
+                                {copiedShortUrl ? 'Copied' : 'Copy'}
+                                {' Pool Link'}
+                            </Box>
+                        </Box>
+                        <Box
                             sx={{
-                                border: '1px solid var(--borderPrimary)',
+                                border: '1px solid var(--borderDefault)',
                                 borderRadius: '4px',
                                 textAlign: 'center',
+                                bgcolor: 'var(--bgDeep)',
                             }}
                         >
                             <Box
                                 sx={{
                                     flexGrow: '1',
-                                    padding: '1rem',
-                                    borderRight:
-                                        '1px solid var(--borderPrimary)',
-                                    maxWidth: '33%',
-                                    overflow: 'hidden',
-                                    whiteSpace: 'nowrap',
-                                    textOverflow: 'ellipsis',
-                                }}
-                            >
-                                <Box fontSize='0.75rem'>Lower Bound</Box>
-                                <Box
-                                    sx={{
-                                        color: 'var(--faceDeep)',
-                                        overflow: 'hidden',
-                                        whiteSpace: 'nowrap',
-                                        textOverflow: 'ellipsis',
-                                    }}
-                                >
-                                    {isFlipped
-                                        ? parseFloat(
-                                              position?.tickLower?.price0,
-                                          )
-                                        : parseFloat(
-                                              position?.tickUpper?.price1,
-                                          )}
-                                </Box>
-                                <Box>
-                                    <span style={{ fontSize: '0.75rem' }}>
-                                        {isFlipped
-                                            ? `${pool?.token1?.symbol} per ${pool?.token0?.symbol}`
-                                            : `${pool?.token0?.symbol} per ${pool?.token1?.symbol}`}
-                                    </span>
-                                </Box>
-                            </Box>
-                            <Box
-                                sx={{
-                                    flexGrow: '1',
-                                    padding: '1rem',
-                                    borderRight:
-                                        '1px solid var(--borderPrimary)',
-                                    maxWidth: '33%',
+                                    padding: '0.5rem 1rem',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
                                 }}
                             >
                                 <Box fontSize='0.75rem'>Current Price</Box>
@@ -247,13 +234,9 @@ export const PositionsDetail = ({
                                     {isFlipped
                                         ? 1 / parseFloat(pool?.token0Price)
                                         : parseFloat(pool?.token0Price)}
-                                </Box>
-                                <Box>
+                                    &nbsp;
                                     <span
                                         style={{
-                                            background: 'var(--objPrimary)',
-                                            padding: '0.25rem 0.5rem',
-                                            borderRadius: '4px',
                                             fontSize: '0.85rem',
                                         }}
                                     >
@@ -284,11 +267,68 @@ export const PositionsDetail = ({
                             <Box
                                 sx={{
                                     flexGrow: '1',
-                                    padding: '1rem',
-                                    maxWidth: '33%',
+                                    padding: '0.5rem 1rem',
                                     overflow: 'hidden',
                                     whiteSpace: 'nowrap',
                                     textOverflow: 'ellipsis',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
+                                <Box fontSize='0.75rem'>Lower Bound</Box>
+                                <Box
+                                    sx={{
+                                        color: 'var(--faceDeep)',
+                                        overflow: 'hidden',
+                                        whiteSpace: 'nowrap',
+                                        textOverflow: 'ellipsis',
+                                    }}
+                                >
+                                    {isFlipped
+                                        ? parseFloat(
+                                              position?.tickLower?.price0,
+                                          )
+                                        : parseFloat(
+                                              position?.tickUpper?.price1,
+                                          )}
+                                    <span
+                                        style={{
+                                            fontSize: '0.85rem',
+                                        }}
+                                    >
+                                        {' '}
+                                        {isFlipped
+                                            ? pool.token1.symbol
+                                            : pool.token0.symbol}
+                                        <span
+                                            onClick={() =>
+                                                setIsFlipped(!isFlipped)
+                                            }
+                                            style={{
+                                                cursor: 'pointer',
+                                                color: 'var(--objHighlight)',
+                                                padding: '0.5rem',
+                                            }}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faExchangeAlt}
+                                            />
+                                        </span>
+                                        {isFlipped
+                                            ? pool.token0.symbol
+                                            : pool.token1.symbol}
+                                    </span>
+                                </Box>
+                            </Box>
+                            <Box
+                                sx={{
+                                    flexGrow: '1',
+                                    padding: '0.5rem 1rem',
+                                    overflow: 'hidden',
+                                    whiteSpace: 'nowrap',
+                                    textOverflow: 'ellipsis',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
                                 }}
                             >
                                 <Box fontSize='0.75rem'>Upper Bound</Box>
@@ -307,12 +347,33 @@ export const PositionsDetail = ({
                                         : parseFloat(
                                               position?.tickLower?.price1,
                                           )}
-                                </Box>
-                                <Box>
-                                    <span style={{ fontSize: '0.75rem' }}>
+                                    &nbsp;
+                                    <span
+                                        style={{
+                                            fontSize: '0.85rem',
+                                        }}
+                                    >
+                                        {' '}
                                         {isFlipped
-                                            ? `${pool?.token1?.symbol} per ${pool?.token0?.symbol}`
-                                            : `${pool?.token0?.symbol} per ${pool?.token1?.symbol}`}
+                                            ? pool.token1.symbol
+                                            : pool.token0.symbol}
+                                        <span
+                                            onClick={() =>
+                                                setIsFlipped(!isFlipped)
+                                            }
+                                            style={{
+                                                cursor: 'pointer',
+                                                color: 'var(--objHighlight)',
+                                                padding: '0.5rem',
+                                            }}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faExchangeAlt}
+                                            />
+                                        </span>
+                                        {isFlipped
+                                            ? pool.token0.symbol
+                                            : pool.token1.symbol}
                                     </span>
                                 </Box>
                             </Box>

@@ -52,6 +52,32 @@
     }
 }
 
-.MuiSlider-root.MuiSlider-colorPrimary{
+.MuiSlider-root.MuiSlider-colorPrimary {
     color: var(--objPrimary);
+}
+
+button.remove-position {
+    background: var(--objAccent);
+    padding: 1rem;
+    border: 1px solid var(--objAccentAlt);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--faceDefault);
+    width: 50%;
+    &:hover {
+        background: var(--objAccentAlt);
+    }
+}
+
+button.cancel-remove {
+    background: var(--objDefault);
+    padding: 1rem;
+    border: 1px solid var(--objDefaultAlt);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--faceDefault);
+    width: 50%;
+    &:hover {
+        background: var(--objDefaultAlt);
+    }
 }

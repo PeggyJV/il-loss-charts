@@ -45,7 +45,7 @@ export const PositionsSummary = ({
                 </Box>
             </Box>
             <Box bgcolor='var(--bgDefault)' borderRadius='4px'>
-                <Box display='flex'>
+                <Box display='flex' flexWrap='wrap'>
                     <Box sx={overviewItemStyles}>
                         <div
                             style={{

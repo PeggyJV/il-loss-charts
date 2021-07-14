@@ -17,6 +17,7 @@ import { handleGasEstimationError } from 'components/add-liquidity/add-liquidity
 import { debug } from 'util/debug';
 import Sentry, { SentryError } from 'util/sentry';
 import { EthGasPrices } from '@sommelier/shared-types';
+import './positions.scss';
 
 export const RemovePosition = ({
     positionPoolStats,
@@ -50,7 +51,6 @@ export const RemovePosition = ({
 
     const doRemoveLiquidity = async (): Promise<void> => {
         // bail out if we dont have some stuff
-        console.log(position, provider, currentGasPrice);
         if (!position || !provider || !currentGasPrice) return;
 
         // get remove contract address
@@ -399,34 +399,20 @@ export const RemovePosition = ({
                 </table>
             </Box>
             <Box display='flex' textAlign='center'>
-                <Box
-                    sx={{
-                        bgcolor: 'var(--objDeep)',
-                        padding: '1rem',
-                        flexGrow: '1',
-                        borderRadius: '4px',
-                        mr: '1rem',
-                        border: '1px solid var(--objDeepAlt)',
-                    }}
-                    style={{ cursor: 'pointer' }}
+                <button
+                    className='cancel-remove'
                     onClick={() => setShowRemoveLiquidity(false)}
                 >
                     Cancel
-                </Box>
-                <Box
-                    sx={{
-                        bgcolor: 'var(--objAccent)',
-                        padding: '1rem',
-                        flexGrow: '1',
-                        borderRadius: '4px',
-                        mr: '1rem',
-                        border: '1px solid var(--objAccentAlt)',
-                    }}
-                    style={{ cursor: 'pointer' }}
+                </button>
+                &nbsp;
+                <button
+                    className='remove-position'
                     onClick={() => doRemoveLiquidity()}
+                    disabled={pendingApproval}
                 >
                     Remove
-                </Box>
+                </button>
             </Box>
         </>
     );
