@@ -170,12 +170,16 @@ export const RemovePosition = ({
         const value = baseMsgValue.toString();
         let gasEstimate: ethers.BigNumber;
         const MAX_INT = 2 ** 256 - 1;
-        const removeParams = [position?.liquidity, wallet?.account, MAX_INT];
+        const liquidityMultiplier = removeAmountPercent / 100;
+        const liquidity = new BigNumber(position?.liquidity)
+            .times(liquidityMultiplier)
+            .toString();
+        const removeParams = [liquidity, wallet?.account, MAX_INT];
 
         try {
             gasEstimate = await removeLiquidityContract.estimateGas[
-                'removeLiquidityFromUniV3NFLP(uint256,(uint256,address, uint256))'
-            ](position?.id, removeParams, {
+                'removeLiquidityFromUniV3NFLP(uint256,(uint256,address, uint256), bool)'
+            ](position?.id, removeParams, false, {
                 gasPrice: baseGasPrice,
                 value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
             });
@@ -192,7 +196,7 @@ export const RemovePosition = ({
         }
 
         const { hash } = await removeLiquidityContract[
-            'removeLiquidityFromUniV3NFLP'
+            'removeLiquidityFromUniV3NFLP(uint256,(uint256,address, uint256), bool)'
         ](position?.id, removeParams, false, {
             gasPrice: baseGasPrice,
             value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
@@ -312,6 +316,7 @@ export const RemovePosition = ({
                             onChange={(_, value) =>
                                 setRemoveAmountPercent(value as number)
                             }
+                            min={1}
                             value={removeAmountPercent}
                         />
                     </Box>
