@@ -5,7 +5,6 @@ import { useWallet } from 'hooks/use-wallet';
 import { PositionsOverview } from 'components/positions/positions-overview';
 import './positions.scss';
 import BigNumber from 'bignumber.js';
-// import PositionsData from 'components/positions/positions-data.json';
 import { V3PositionData } from '@sommelier/shared-types/src/api';
 import { EthGasPrices } from '@sommelier/shared-types';
 
@@ -36,8 +35,6 @@ export const PositionsWidget = ({
             fees: new BigNumber('0'),
         },
     });
-
-    // const mockData = (PositionsData as unknown) as V3PositionDataList;
 
     useEffect(() => {
         if (!positionsData) return;
@@ -98,7 +95,6 @@ export const PositionsWidget = ({
                 const data = await response.json();
                 setPositionsData(data);
             } else {
-                // setPositionsData(mockData);
                 setIsError(true);
             }
         };
