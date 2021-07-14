@@ -89,73 +89,82 @@ export const RemovePosition = ({
             signer,
         );
 
-        // approve removal of position
-        let approvalEstimate: ethers.BigNumber | null = null;
+        // get approved address for the NFLP
+        const approvedAddress = await erc721Contract.getApproved(position?.id);
+        // check if our remove contract is the approved address
+        const needsApproval =
+            approvedAddress !== removeLiquidityV3ContractAddress;
 
-        try {
-            approvalEstimate = await erc721Contract.estimateGas.approve(
-                removeLiquidityV3ContractAddress,
-                position?.id,
-                { gasPrice: baseGasPrice },
-            );
-            approvalEstimate = approvalEstimate.add(approvalEstimate.div(3));
-        } catch (err) {
-            // TODO: ADD TOAST MESSAGE
-            // Send event to sentry
-            return handleGasEstimationError(err, {
-                type: 'remove::liquidity::gasEstimate',
-                method: 'approve',
-                account: wallet?.account,
-                to: nfpmContractAddress,
-                tokenId: position?.id,
-            });
-        }
+        if (needsApproval) {
+            // approve removal of position
+            let approvalEstimate: ethers.BigNumber | null = null;
 
-        setPendingApproval(true);
-        let approveHash: string | undefined;
-        try {
-            const { hash } = await erc721Contract.approve(
-                removeLiquidityV3ContractAddress,
-                position?.id,
-
-                {
-                    gasPrice: baseGasPrice,
-                    gasLimit: approvalEstimate,
-                },
-            );
-            approveHash = hash;
-        } catch (e) {
-            setPendingApproval(false);
-            return;
-        }
-
-        // setApprovalState('pending');
-        if (approveHash) {
-            toastWarn(`Approving tx ${compactHash(approveHash)}`);
-            setPendingTx &&
-                setPendingTx(
-                    (state: PendingTx): PendingTx =>
-                        ({
-                            approval: [...state.approval, approveHash],
-                            confirm: [...state.confirm],
-                        } as PendingTx),
+            try {
+                approvalEstimate = await erc721Contract.estimateGas.approve(
+                    removeLiquidityV3ContractAddress,
+                    position?.id,
+                    { gasPrice: baseGasPrice },
                 );
-            await provider.waitForTransaction(approveHash);
-            setPendingApproval(false);
-            setPendingTx &&
-                setPendingTx(
-                    (state: PendingTx): PendingTx =>
-                        ({
-                            approval: [
-                                ...state.approval.filter(
-                                    (h) => h != approveHash,
-                                ),
-                            ],
-                            confirm: [...state.confirm],
-                        } as PendingTx),
+                approvalEstimate = approvalEstimate.add(
+                    approvalEstimate.div(3),
                 );
-        }
+            } catch (err) {
+                // TODO: ADD TOAST MESSAGE
+                // Send event to sentry
+                return handleGasEstimationError(err, {
+                    type: 'remove::liquidity::gasEstimate',
+                    method: 'approve',
+                    account: wallet?.account,
+                    to: nfpmContractAddress,
+                    tokenId: position?.id,
+                });
+            }
 
+            setPendingApproval(true);
+            let approveHash: string | undefined;
+            try {
+                const { hash } = await erc721Contract.approve(
+                    removeLiquidityV3ContractAddress,
+                    position?.id,
+
+                    {
+                        gasPrice: baseGasPrice,
+                        gasLimit: approvalEstimate,
+                    },
+                );
+                approveHash = hash;
+            } catch (e) {
+                setPendingApproval(false);
+                return;
+            }
+
+            // setApprovalState('pending');
+            if (approveHash) {
+                toastWarn(`Approving tx ${compactHash(approveHash)}`);
+                setPendingTx &&
+                    setPendingTx(
+                        (state: PendingTx): PendingTx =>
+                            ({
+                                approval: [...state.approval, approveHash],
+                                confirm: [...state.confirm],
+                            } as PendingTx),
+                    );
+                await provider.waitForTransaction(approveHash);
+                setPendingApproval(false);
+                setPendingTx &&
+                    setPendingTx(
+                        (state: PendingTx): PendingTx =>
+                            ({
+                                approval: [
+                                    ...state.approval.filter(
+                                        (h) => h != approveHash,
+                                    ),
+                                ],
+                                confirm: [...state.confirm],
+                            } as PendingTx),
+                    );
+            }
+        }
         // volumeFi contract tx fee
         const baseMsgValue = ethers.utils.parseEther('0.005');
         const value = baseMsgValue.toString();
