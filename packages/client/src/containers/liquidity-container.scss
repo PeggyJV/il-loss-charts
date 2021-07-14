@@ -19,7 +19,7 @@
     border-radius: 4px;
     color: var(--faceDefault);
     > div {
-        margin: 0.5rem  0;
+        margin: 0.5rem 0;
         padding: 0.25rem 0.5rem;
         border: 1px solid var(--borderPrimary);
         text-align: center;
@@ -49,24 +49,39 @@
     cursor: pointer;
 }
 
-.nav-item-border-wrapper {
+.nav-item-wrapper-active {
     background: linear-gradient(to right, #fdb636 0%, #f500c4 100%);
+    // background: linear-gradient(124deg, rgba(54,253,110,1) 0%, rgba(253,182,54,1) 100%);
     padding: 1px;
     border-radius: 4px;
 }
-
+.nav-item-container {
+    padding: 1px;
+    border-radius: 4px;
+}
+.nav-item-active {
+    padding: 0.85rem 1rem;
+    border-radius: 4px;
+    background: var(--objPrimary);
+    a {
+        color: var(--faceDeep);
+    }
+}
 .nav-item {
     padding: 0.85rem 1rem;
     // border-width: 1px;
     // background: linear-gradient(to bottom, var(--objSecondary), var(--objDefault));
-    background: var(--objPrimary);
+    // background: var(--objPrimary);
     border-radius: 4px;
     // border: 1px solid;
     // border-image-slice: 1;
     // border-image-source: linear-gradient(to right, #fdb636 0%, #f500c4 100%);
+    a {
+        color: var(--faceSecondary);
+    }
 }
 
-.settings-popover{
+.settings-popover {
     position: absolute;
     border: 1px solid var(--borderPrimary);
     background: var(--objDefault);

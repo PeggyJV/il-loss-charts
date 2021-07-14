@@ -39,7 +39,6 @@ import {
     faAngleDoubleUp,
     faArrowsAltV,
 } from '@fortawesome/free-solid-svg-icons';
-import { ThreeDots } from 'react-loading-icons';
 import { compactHash } from 'util/formats';
 import { WalletBalances, BoundsState, TokenInputAmount } from 'types/states';
 import { useWallet } from 'hooks/use-wallet';
@@ -50,7 +49,7 @@ import { LiquidityRange } from 'components/add-liquidity/liquidity-range';
 import { EthGasPrices, LiquidityBand } from '@sommelier/shared-types';
 import { PoolOverview } from 'hooks/data-fetchers';
 import { debug } from 'util/debug';
-import Sentry, { init, SentryError } from 'util/sentry';
+import Sentry, { SentryError } from 'util/sentry';
 import { trackSentimentInteraction, trackAddLiquidityTx } from 'util/mixpanel';
 import classNames from 'classnames';
 
@@ -64,6 +63,39 @@ type Props = {
 export type Sentiment = 'bullish' | 'bearish' | 'neutral';
 
 const ETH_ID = config.ethAddress;
+
+export const handleGasEstimationError = (
+    err: Error,
+    payload: Record<string, any> = {},
+): undefined => {
+    // We could not estimate gas, for whaever reason, so we should not let the transaction continue.
+    const notEnoughETH =
+        err.message.match(/exceeds allowance/) ||
+        err.message.match(/insufficient funds/);
+    const highSlippage = err.message.match(/slippage/i);
+
+    let toastMsg =
+        'Could not estimate gas for this transaction. Check your parameters or try a different pool.';
+
+    if (notEnoughETH) {
+        toastMsg =
+            'Not enough ETH to pay gas for this transaction. If you are using ETH, try reducing the entry amount.';
+    } else if (highSlippage) {
+        toastMsg =
+            'Slippage too high to submit this transaction. Try adding a smaller amount or adding both tokens.';
+    }
+
+    toastError(toastMsg);
+
+    // Send event to sentry
+    const sentryErr = new SentryError(
+        `Could not estimate gas: ${err.message}`,
+        payload,
+    );
+    Sentry.captureException(sentryErr);
+
+    return;
+};
 
 export const AddLiquidityV3 = ({
     pool,
@@ -725,39 +757,6 @@ export const AddLiquidityV3 = ({
             clearInterval(queuedUpdateRef.current);
         }
         queuedUpdateRef.current = setTimeout(doUpdate, 2000);
-    };
-
-    const handleGasEstimationError = (
-        err: Error,
-        payload: Record<string, any> = {},
-    ): undefined => {
-        // We could not estimate gas, for whaever reason, so we should not let the transaction continue.
-        const notEnoughETH =
-            err.message.match(/exceeds allowance/) ||
-            err.message.match(/insufficient funds/);
-        const highSlippage = err.message.match(/slippage/i);
-
-        let toastMsg =
-            'Could not estimate gas for this transaction. Check your parameters or try a different pool.';
-
-        if (notEnoughETH) {
-            toastMsg =
-                'Not enough ETH to pay gas for this transaction. If you are using ETH, try reducing the entry amount.';
-        } else if (highSlippage) {
-            toastMsg =
-                'Slippage too high to submit this transaction. Try adding a smaller amount or adding both tokens.';
-        }
-
-        toastError(toastMsg);
-
-        // Send event to sentry
-        const sentryErr = new SentryError(
-            `Could not estimate gas: ${err.message}`,
-            payload,
-        );
-        Sentry.captureException(sentryErr);
-
-        return;
     };
 
     useEffect(() => {
@@ -1848,7 +1847,7 @@ export const AddLiquidityV3 = ({
                                     onClick={() => setIsFlipped(!isFlipped)}
                                     style={{
                                         cursor: 'pointer',
-                                        color: 'var(--objAccentAlt)',
+                                        color: 'var(--objHighlight)',
                                         padding: '0.5rem',
                                     }}
                                 >

@@ -1,4 +1,4 @@
-import {
+import React, {
     useState,
     useEffect,
     useContext,
@@ -10,12 +10,13 @@ import { PoolSearch } from 'components/pool-search';
 import { Box } from '@material-ui/core';
 import { AddLiquidityV3 } from 'components/add-liquidity/add-liquidity-v3';
 import { Helmet } from 'react-helmet';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, Route, Switch, Link, matchPath } from 'react-router-dom';
 import { useBalance } from 'hooks/use-balance';
 import { usePoolOverview } from 'hooks/data-fetchers';
 import { useWallet } from 'hooks/use-wallet';
 import { debug } from 'util/debug';
 import { PoolOverview } from 'hooks/data-fetchers';
+import { PositionsWidget } from 'components/positions/positions-widget';
 import { EthGasPrices } from '@sommelier/shared-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faCog } from '@fortawesome/free-solid-svg-icons';
@@ -114,34 +115,84 @@ export const LiquidityContainer = ({
         >
             <Box className='liquidity-container'>
                 <WidgetSelector />
-                <SearchWithHelmet pool={pool} />
-                {isLoading && <LoadingPoolBox msg=' fetching pool' />}
-                {isError && renderErrorBox()}
-                {poolId && pool && <SettingsBar gasPrices={gasPrices} />}
-                {poolId && pool && (
-                    <AddLiquidityV3
-                        pool={pool}
-                        shortUrl={shortUrl}
-                        balances={balances}
-                        gasPrices={gasPrices}
-                    />
-                )}
-                {/* {poolId && <TransactionSettings gasPrices={gasPrices} />} */}
+                <Switch>
+                    <Route path='/positions'>
+                        <PositionsWidget gasPrices={gasPrices} />
+                    </Route>
+                    <Route path='/'>
+                        <SearchWithHelmet pool={pool} />
+                        {isLoading && <LoadingPoolBox msg=' fetching pool' />}
+                        {isError && renderErrorBox()}
+                        {poolId && pool && (
+                            <SettingsBar gasPrices={gasPrices} />
+                        )}
+                        {poolId && pool && (
+                            <AddLiquidityV3
+                                pool={pool}
+                                shortUrl={shortUrl}
+                                balances={balances}
+                                gasPrices={gasPrices}
+                            />
+                        )}
+                        {/* {poolId && <TransactionSettings gasPrices={gasPrices} />} */}
+                    </Route>
+                </Switch>
             </Box>
         </LiquidityContext.Provider>
     );
 };
 
-const WidgetSelector = (): JSX.Element => (
-    <Box display='flex'>
-        <Box display='flex'>
-            <div className='nav-item-border-wrapper'>
-                <div className='nav-item'>Liquidity</div>
-            </div>
-        </Box>
-    </Box>
+const ActiveItem = ({ children }: { children: JSX.Element }): JSX.Element => (
+    <div className='nav-item-wrapper-active'>
+        <div className='nav-item-active'>{children}</div>
+    </div>
 );
 
+const InactiveItem = ({ children }: { children: JSX.Element }): JSX.Element => (
+    <div className='nav-item-container'>
+        <div className='nav-item'>{children}</div>
+    </div>
+);
+
+const NavItem = ({
+    children,
+    isActive,
+}: {
+    children: JSX.Element;
+    isActive: boolean;
+}) =>
+    isActive ? (
+        <ActiveItem>{children}</ActiveItem>
+    ) : (
+        <InactiveItem>{children}</InactiveItem>
+    );
+
+const WidgetSelector = (): JSX.Element => {
+    const isPositions = matchPath(location?.pathname, {
+        path: ['/positions/:id', '/positions'],
+    });
+
+    return (
+        <Box display='flex'>
+            <Box display='flex'>
+                <div
+                    style={{
+                        background: 'var(--bgDefault)',
+                        borderRadius: '4px',
+                        display: 'flex',
+                    }}
+                >
+                    <NavItem isActive={!isPositions?.isExact}>
+                        <Link to='/'>Liquidity</Link>
+                    </NavItem>
+                    <NavItem isActive={isPositions?.isExact ?? false}>
+                        <Link to='/positions'>Positions</Link>
+                    </NavItem>
+                </div>
+            </Box>
+        </Box>
+    );
+};
 const SearchWithHelmet = ({ pool }: { pool: PoolOverview }) => {
     return (
         <>

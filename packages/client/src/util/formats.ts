@@ -9,8 +9,16 @@ const usdFormatter = new Intl.NumberFormat('en-US', {
     //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
 });
 
+const percentFormatter = new Intl.NumberFormat('en-US', {
+    style: 'unit',
+    unit: 'percent',
+});
+
 export const formatUSD = (val: string | number): string =>
-    usdFormatter.format(parseFloat(val.toString()));
+    !val ? '-' : usdFormatter.format(parseFloat(val.toString()));
+
+export const formatPercent = (val: string | number): string =>
+    !val ? '-' : percentFormatter.format(parseFloat(val.toString()));
 
 export const formatAddress = (val: string): string => {
     return `${val.substring(0, 6)}...${val.substring(val.length - 5)}`;
