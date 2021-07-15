@@ -798,6 +798,8 @@ export type GetPositionSnapshotsQuery = { __typename?: 'Query' } & {
                         pool: { __typename?: 'Pool' } & Pick<
                             Pool,
                             | 'id'
+                            | 'feeTier'
+                            | 'tick'
                             | 'token0Price'
                             | 'token1Price'
                             | 'sqrtPrice'
@@ -856,6 +858,8 @@ export type GetPositionsQuery = { __typename?: 'Query' } & {
                 pool: { __typename?: 'Pool' } & Pick<
                     Pool,
                     | 'id'
+                    | 'feeTier'
+                    | 'tick'
                     | 'token0Price'
                     | 'token1Price'
                     | 'sqrtPrice'

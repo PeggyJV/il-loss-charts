@@ -720,7 +720,7 @@ export type GetPositionSnapshotsQuery = (
       & Pick<Position, 'liquidity' | 'depositedToken0' | 'depositedToken1' | 'withdrawnToken0' | 'withdrawnToken1' | 'collectedFeesToken0' | 'collectedFeesToken1' | 'feeGrowthInside0LastX128' | 'feeGrowthInside1LastX128'>
       & { pool: (
         { __typename?: 'Pool' }
-        & Pick<Pool, 'id' | 'token0Price' | 'token1Price' | 'sqrtPrice' | 'liquidity'>
+        & Pick<Pool, 'id' | 'feeTier' | 'tick' | 'token0Price' | 'token1Price' | 'sqrtPrice' | 'liquidity'>
         & { token0: (
           { __typename?: 'Token' }
           & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'>
@@ -751,7 +751,7 @@ export type GetPositionsQuery = (
     & Pick<Position, 'id' | 'owner' | 'liquidity' | 'depositedToken0' | 'depositedToken1' | 'withdrawnToken0' | 'withdrawnToken1' | 'collectedFeesToken0' | 'collectedFeesToken1' | 'feeGrowthInside0LastX128' | 'feeGrowthInside1LastX128'>
     & { pool: (
       { __typename?: 'Pool' }
-      & Pick<Pool, 'id' | 'token0Price' | 'token1Price' | 'sqrtPrice' | 'liquidity'>
+      & Pick<Pool, 'id' | 'feeTier' | 'tick' | 'token0Price' | 'token1Price' | 'sqrtPrice' | 'liquidity'>
       & { token0: (
         { __typename?: 'Token' }
         & Pick<Token, 'id' | 'name' | 'symbol' | 'decimals' | 'derivedETH'>
@@ -985,6 +985,8 @@ export const GetPositionSnapshotsDocument = gql`
     position {
       pool {
         id
+        feeTier
+        tick
         token0 {
           id
           name
@@ -1047,6 +1049,8 @@ export const GetPositionsDocument = gql`
     owner
     pool {
       id
+      feeTier
+      tick
       token0 {
         id
         name

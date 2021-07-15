@@ -1,6 +1,8 @@
 import BigNumber from 'bignumber.js';
 import { format } from 'date-fns';
 import { ethers } from 'ethers';
+import { Position, Pool, FeeAmount } from '@uniswap/v3-sdk';
+import { Token } from '@uniswap/sdk-core';
 import { UniswapV3Fetchers } from 'services/uniswap-v3';
 import {
     GetPositionsResult,
@@ -63,13 +65,44 @@ export async function calculateStatsForNFLPs(
     //     currentSnapshot = snapshots[snapshots.length - 2];
     // }
 
+    const baseTokenCurrency = new Token(
+        1,
+        pool.token0.id,
+        Number(pool.token0.decimals),
+        pool.token0.symbol,
+        pool.token0.name,
+    );
+
+    const quoteTokenCurrency = new Token(
+        1,
+        pool.token1.id,
+        Number(pool.token1.decimals),
+        pool.token1.symbol,
+        pool.token1.name,
+    );
+
+    const uniPool = new Pool(
+        baseTokenCurrency,
+        quoteTokenCurrency,
+        (parseInt(pool.feeTier, 10) as any) as FeeAmount,
+        pool.sqrtPrice,
+        pool.liquidity,
+        parseInt(pool.tick || '0', 10),
+        [],
+    );
+
     // Find reserves based on liquidity and sqrtPrice
     function getReservesForSnapshot(snapshot: GetPositionSnapshotsResult[0]) {
-        const liquidity = new BigNumber(snapshot.position.liquidity);
-        const sqrtPrice = new BigNumber(snapshot.sqrtPrice).div(Q96);
+        const uniPosition = new Position({
+            pool: uniPool,
+            liquidity: snapshot.position.liquidity,
+            tickLower: Number(snapshot.position.tickLower.tickIdx),
+            tickUpper: Number(snapshot.position.tickUpper.tickIdx),
+        });
 
-        const reserve0 = liquidity.div(sqrtPrice).div(token0Denom);
-        const reserve1 = liquidity.times(sqrtPrice).div(token1Denom);
+        const reserve0 = new BigNumber(uniPosition.amount0.toFixed());
+        const reserve1 = new BigNumber(uniPosition.amount1.toFixed());
+
         const reserveUSD = reserve0
             .times(snapshot.token0PriceUSD)
             .plus(reserve1.times(snapshot.token1PriceUSD));
@@ -81,11 +114,15 @@ export async function calculateStatsForNFLPs(
         };
     }
 
-    const liquidity = new BigNumber(position.liquidity);
-    const sqrtPrice = new BigNumber(pool.sqrtPrice).div(Q96);
+    const uniPosition = new Position({
+        pool: uniPool,
+        liquidity: position.liquidity,
+        tickLower: Number(position.tickLower.tickIdx),
+        tickUpper: Number(position.tickUpper.tickIdx),
+    });
 
-    const reserve0 = liquidity.div(sqrtPrice).div(token0Denom);
-    const reserve1 = liquidity.times(sqrtPrice).div(token1Denom);
+    const reserve0 = new BigNumber(uniPosition.amount0.toFixed());
+    const reserve1 = new BigNumber(uniPosition.amount1.toFixed());
 
     const token0PriceUSD = new BigNumber(pool.token0.derivedETH).times(
         ethPrice,

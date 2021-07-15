@@ -4,6 +4,8 @@ query getPositions($owner: String!) {
         owner
         pool {
             id
+            feeTier
+            tick
             token0 {
                 id
                 name

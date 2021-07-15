@@ -5,6 +5,8 @@ query getPositionSnapshots($owner: String!) {
         position {
             pool {
                 id
+                feeTier
+                tick
                 token0 {
                     id
                     name
