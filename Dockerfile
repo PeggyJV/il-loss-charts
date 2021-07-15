@@ -19,7 +19,7 @@ ENV APP_ERR_LOG="/var/log/app/err.log"
 RUN yarn global add lerna
 RUN yarn global add pm2
 
-COPY package.json lerna.json yarn.lock ecosystem.config.dev.js /app/il-loss-charts/
+COPY package.json lerna.json yarn.lock dev.ecosystem.config.js /app/il-loss-charts/
 COPY packages/sommelier-types/package.json /app/il-loss-charts/packages/sommelier-types/package.json
 COPY packages/server/package.json /app/il-loss-charts/packages/server/package.json
 COPY packages/workers/package.json /app/il-loss-charts/packages/workers/package.json
