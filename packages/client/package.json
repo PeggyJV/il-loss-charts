@@ -9,7 +9,7 @@
             "url": "http://www.apache.org/licenses/LICENSE-2.0"
         }
     ],
-    "homepage": "./",
+    "homepage": "https://dev.sommelier.finance",
     "dependencies": {
         "@apollo/client": "^3.3.4",
         "@fortawesome/fontawesome-svg-core": "^1.2.34",
