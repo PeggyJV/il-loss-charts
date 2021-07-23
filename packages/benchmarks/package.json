@@ -1,15 +1,15 @@
 {
-  "name": "@sommelier/benchmarks",
-  "version": "1.0.0",
-  "description": "Benchmarks that inform engineering decisions, cause jsperf is always down",
-  "engines": {
-    "node": ">=14 <=15"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "devDependencies": {
-    "benchmark": "^2.1.4",
-    "microtime": "^3.0.0"
-  }
+    "name": "@sommelier/benchmarks",
+    "version": "1.0.0",
+    "description": "Benchmarks that inform engineering decisions, cause jsperf is always down",
+    "engines": {
+        "node": ">=14 <=15"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "devDependencies": {
+        "benchmark": "^2.1.4",
+        "microtime": "^3.0.0"
+    }
 }

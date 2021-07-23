@@ -4,13 +4,13 @@ const BigNumber = require('bignumber.js');
 const suite = new Benchmark.Suite();
 
 const pools = [];
-for (let i=0; i<1000; i++) {
+for (let i = 0; i < 1000; i++) {
     pools.push({
         volumeUSD: randomVol(),
     });
 }
 
-const poolsConverted = pools.map(p => ({ volumeUSD: new BigNumber(p) }));
+const poolsConverted = pools.map((p) => ({ volumeUSD: new BigNumber(p) }));
 
 suite
     .add('1000 items: convert to BigNum and sort by volumeUSD', function () {
@@ -19,7 +19,7 @@ suite
             const volB = new BigNumber(b.volumeUSD);
 
             return sortBigNum({ volumeUSD: volA }, { volumeUSD: volB });
-        })
+        });
     })
     .add('1000 items: pre-convert, then sort by volumeUSD', function () {
         poolsConverted.sort(sortBigNum);
@@ -30,7 +30,7 @@ suite
             const volB = new BigNumber(b.volumeUSD);
 
             return sortBigNum({ volumeUSD: volA }, { volumeUSD: volB });
-        })
+        });
     })
     .add('50 items: pre-convert, then sort by volumeUSD', function () {
         poolsConverted.sort(sortBigNum);
