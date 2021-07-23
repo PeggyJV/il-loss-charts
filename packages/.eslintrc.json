@@ -14,9 +14,7 @@
         "project": "packages/tsconfig.settings.json",
         "ecmaVersion": 12
     },
-    "plugins": [
-        "@typescript-eslint"
-    ],
+    "plugins": ["@typescript-eslint"],
     "rules": {
         "prefer-const": "error",
         "no-unused-vars": "off",
@@ -27,7 +25,5 @@
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/prefer-regexp-exec": "off"
     },
-    "ignorePatterns": [
-      "packages/benchmarks"
-    ]
+    "ignorePatterns": ["packages/benchmarks"]
 }

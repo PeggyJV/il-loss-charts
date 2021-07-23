@@ -3,7 +3,7 @@ documents: null
 generates:
   packages/sommelier-types/src/uniswap-v3.ts:
     schema: packages/sommelier-types/src/schemas/uniswap-v3.graphql
-    documents: 
+    documents:
       - packages/server/src/services/uniswap-v3/graphql/*.graphql
     plugins:
       - "typescript"
@@ -20,7 +20,7 @@ generates:
         Bytes: "string" # https://thegraph.com/docs/define-a-subgraph#built-in-scalar-types
   packages/server/src/services/uniswap-v3/generated-types.ts:
     schema: packages/sommelier-types/src/schemas/uniswap-v3.graphql
-    documents: 
+    documents:
       - packages/server/src/services/uniswap-v3/graphql/*.graphql
     plugins:
       - "typescript"
@@ -38,7 +38,7 @@ generates:
     #     Bytes: "string"
   packages/server/src/services/bitquery/generated-types.ts:
     schema: packages/sommelier-types/src/schemas/bitquery.graphql
-    documents: 
+    documents:
       - packages/server/src/services/bitquery/graphql/*.graphql
     plugins:
       - "typescript"
@@ -50,4 +50,4 @@ generates:
       - "typescript"
 
 config:
-  declarationKind: 'interface'
+  declarationKind: "interface"

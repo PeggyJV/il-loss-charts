@@ -2,9 +2,7 @@
     "compileOnSave": false,
     "compilerOptions": {
         "target": "ESNext",
-        "lib": [
-            "esnext"
-        ],
+        "lib": ["esnext"],
         "module": "commonjs",
         "strict": true,
         "skipLibCheck": true,
@@ -14,13 +12,9 @@
         "sourceMap": true,
         "incremental": true,
         "moduleResolution": "node",
-        "typeRoots": [
-            "node_modules/@types"
-        ],
+        "typeRoots": ["node_modules/@types"],
         "paths": {
-            "*": [
-                "*"
-            ]
+            "*": ["*"]
         },
         "resolveJsonModule": true
     }
