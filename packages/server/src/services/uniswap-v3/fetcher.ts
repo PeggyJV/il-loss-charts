@@ -167,7 +167,7 @@ export class UniswapV3Fetcher {
             const { poolDayDatas } = await this.sdk.getLastDailyData({
                 pool: poolId,
                 orderBy: 'date',
-                orderDirection: 'asc',
+                orderDirection: 'desc',
                 first: count,
             });
 
