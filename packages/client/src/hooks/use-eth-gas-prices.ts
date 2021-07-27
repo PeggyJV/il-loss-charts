@@ -34,9 +34,8 @@ export function useEthGasPrices(): EthGasPrices | null {
 
         // check if we have the gas price topic
         if (gasPriceTopicRex.test(topic)) {
-            const {
-                data: newGasPrices,
-            }: { data: EthGasPrices } = lastJsonMessage;
+            const { data: newGasPrices }: { data: EthGasPrices } =
+                lastJsonMessage;
 
             // ensure the price actually changed before setting
             if (isChangedPrice(gasPrices, newGasPrices)) {

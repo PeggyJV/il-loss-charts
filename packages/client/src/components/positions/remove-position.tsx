@@ -69,7 +69,7 @@ export const RemovePosition = ({
 
         const removeLiquidityContract = new ethers.Contract(
             removeLiquidityV3ContractAddress,
-            (removeLiquidityAbi as unknown) as typeof removeLiquidityV3ContractAddress,
+            removeLiquidityAbi as unknown as typeof removeLiquidityV3ContractAddress,
             signer,
         );
 
@@ -216,9 +216,8 @@ export const RemovePosition = ({
                 );
 
             if (provider) {
-                const txStatus: ethers.providers.TransactionReceipt = await provider.waitForTransaction(
-                    hash,
-                );
+                const txStatus: ethers.providers.TransactionReceipt =
+                    await provider.waitForTransaction(hash);
 
                 const { status } = txStatus;
 

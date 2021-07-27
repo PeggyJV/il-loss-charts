@@ -72,10 +72,11 @@ export const useBalance = ({ pairData, wallet }: Props): WalletBalances => {
                     const targetAddress = EXCHANGE_ADD_ABI_ADDRESS;
 
                     try {
-                        const allowance: ethers.BigNumber = await token.allowance(
-                            wallet.account,
-                            targetAddress,
-                        );
+                        const allowance: ethers.BigNumber =
+                            await token.allowance(
+                                wallet.account,
+                                targetAddress,
+                            );
                         return allowance;
                     } catch (e) {
                         console.error(
@@ -152,9 +153,8 @@ export const useBalance = ({ pairData, wallet }: Props): WalletBalances => {
                     decimals: '18',
                     allowance: {
                         [EXCHANGE_ADD_ABI_ADDRESS]: ethers.BigNumber.from(0),
-                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: ethers.BigNumber.from(
-                            0,
-                        ),
+                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]:
+                            ethers.BigNumber.from(0),
                     },
                 },
                 [pairData.token0.symbol]: {
@@ -164,7 +164,8 @@ export const useBalance = ({ pairData, wallet }: Props): WalletBalances => {
                     decimals: pairData.token0.decimals,
                     allowance: {
                         [EXCHANGE_ADD_ABI_ADDRESS]: token0Allowance,
-                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: addTwoToken0Allowance,
+                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]:
+                            addTwoToken0Allowance,
                     },
                 },
                 [pairData.token1.symbol]: {
@@ -174,7 +175,8 @@ export const useBalance = ({ pairData, wallet }: Props): WalletBalances => {
                     decimals: pairData.token0.decimals,
                     allowance: {
                         [EXCHANGE_ADD_ABI_ADDRESS]: token1Allowance,
-                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: addTwoToken1Allowance,
+                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]:
+                            addTwoToken1Allowance,
                     },
                 },
                 currentPair: {

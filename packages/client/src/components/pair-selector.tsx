@@ -29,9 +29,8 @@ function PairSelector({
         }
     }
 
-    const [currentValue, setCurrentValue] = useState<IUniswapPair>(
-        defaultValue,
-    );
+    const [currentValue, setCurrentValue] =
+        useState<IUniswapPair>(defaultValue);
 
     const leftSideOptions = [];
     const rightSideOptions = [];
@@ -55,35 +54,35 @@ function PairSelector({
         if (currentValue?.id) setPair(currentValue.id);
     }, [currentValue, setPair]);
 
-    const renderPairText = (side: 'left' | 'right') => (
-        pair: string | IUniswapPair,
-    ): string => {
-        // If pair is string, it's typed in so return
-        if (typeof pair === 'string') return pair;
+    const renderPairText =
+        (side: 'left' | 'right') =>
+        (pair: string | IUniswapPair): string => {
+            // If pair is string, it's typed in so return
+            if (typeof pair === 'string') return pair;
 
-        const token = side === 'left' ? 'token0' : 'token1';
-        return pair[token].symbol;
-    };
-
-    const handleChange = (side: 'left' | 'right') => (
-        value: string | IUniswapPair,
-    ): void => {
-        // If pair is string, it's typed in
-        // so just override one side
-        if (typeof value === 'string') {
             const token = side === 'left' ? 'token0' : 'token1';
-            setCurrentValue((current: IUniswapPair) => ({
-                ...current,
-                id: '',
-                [token]: {
-                    ...[current[token]],
-                    symbol: value,
-                },
-            }));
-        } else {
-            setCurrentValue(value);
-        }
-    };
+            return pair[token].symbol;
+        };
+
+    const handleChange =
+        (side: 'left' | 'right') =>
+        (value: string | IUniswapPair): void => {
+            // If pair is string, it's typed in
+            // so just override one side
+            if (typeof value === 'string') {
+                const token = side === 'left' ? 'token0' : 'token1';
+                setCurrentValue((current: IUniswapPair) => ({
+                    ...current,
+                    id: '',
+                    [token]: {
+                        ...[current[token]],
+                        symbol: value,
+                    },
+                }));
+            } else {
+                setCurrentValue(value);
+            }
+        };
 
     return (
         <div className='pair-selector-container'>

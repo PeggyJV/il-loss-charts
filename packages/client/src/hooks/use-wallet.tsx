@@ -44,9 +44,8 @@ const initialWallet = {
     },
     error: null,
 };
-export const WalletContext = createContext<Partial<WalletContextType>>(
-    initialWallet,
-);
+export const WalletContext =
+    createContext<Partial<WalletContextType>>(initialWallet);
 
 export const WalletProvider = ({
     children,
@@ -177,8 +176,7 @@ export const WalletProvider = ({
                     providerName: 'walletconnect',
                     provider: wcProvider,
                     network:
-                        ((wcProvider?.networkId as unknown) as NetworkIds) ||
-                        '1',
+                        (wcProvider?.networkId as unknown as NetworkIds) || '1',
                 };
 
                 setWallet(walletObj);
@@ -277,7 +275,7 @@ export const WalletProvider = ({
             account: wcProvider?.accounts[0],
             providerName: 'walletconnect',
             provider: wcProvider,
-            network: ((wcProvider?.networkId as unknown) as NetworkIds) || '1',
+            network: (wcProvider?.networkId as unknown as NetworkIds) || '1',
         };
 
         // If provider is different, set to the WC wallet

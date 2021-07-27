@@ -3,8 +3,7 @@ import { Integrations } from '@sentry/tracing';
 
 export function init(): void {
     Sentry.init({
-        dsn:
-            'https://f35d9c09635541b1803ab440224ae61f@o514714.ingest.sentry.io/5618374',
+        dsn: 'https://f35d9c09635541b1803ab440224ae61f@o514714.ingest.sentry.io/5618374',
         integrations: [new Integrations.BrowserTracing()],
 
         // We recommend adjusting this value in production, or using tracesSampler

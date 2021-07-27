@@ -34,10 +34,8 @@ function ManageLiquidityModal({
 
     const pairData = usePairDataOverview(pairId, wallet.network || '1');
 
-    const [
-        positionData,
-        setPositionData,
-    ] = useState<LPPositionData<string> | null>(null);
+    const [positionData, setPositionData] =
+        useState<LPPositionData<string> | null>(null);
     const { setPendingTx } = usePendingTx();
     let provider: ethers.providers.Web3Provider | null = null;
 
@@ -62,9 +60,8 @@ function ManageLiquidityModal({
 
         toastWarn(`Confirming tx ${compactHash(txHash)}`);
         if (provider) {
-            const txStatus: ethers.providers.TransactionReceipt = await provider.waitForTransaction(
-                txHash,
-            );
+            const txStatus: ethers.providers.TransactionReceipt =
+                await provider.waitForTransaction(txHash);
             const { status } = txStatus;
 
             if (status === 1) {
@@ -107,10 +104,8 @@ function ManageLiquidityModal({
         const fetchPositionsForWallet = async () => {
             if (!wallet.account) return;
 
-            const {
-                data: positionData,
-                error,
-            } = await Uniswap.getPositionStats(wallet.account);
+            const { data: positionData, error } =
+                await Uniswap.getPositionStats(wallet.account);
 
             if (error) {
                 // we could not list pairs

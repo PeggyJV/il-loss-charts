@@ -23,10 +23,8 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [currentError, setError] = useState<string | null>(null);
     useErrorHandler(currentError);
-    const [
-        positionData,
-        setPositionData,
-    ] = useState<LPPositionData<string> | null>(null);
+    const [positionData, setPositionData] =
+        useState<LPPositionData<string> | null>(null);
 
     // ------------------ Shared State ------------------
 
@@ -68,10 +66,8 @@ function PositionContainer({ wallet }: { wallet: Wallet }): JSX.Element {
             if (!isLoading) setIsLoading(true);
             if (currentError || !wallet.account) return;
 
-            const {
-                data: positionData,
-                error,
-            } = await Uniswap.getPositionStats(wallet.account);
+            const { data: positionData, error } =
+                await Uniswap.getPositionStats(wallet.account);
 
             if (error) {
                 // we could not list pairs

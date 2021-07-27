@@ -42,9 +42,8 @@ const TransactionSettings = ({
 }: {
     gasPrices: EthGasPrices | null;
 }) => {
-    const { selectedGasPrice, setSelectedGasPrice } = useContext(
-        LiquidityContext,
-    );
+    const { selectedGasPrice, setSelectedGasPrice } =
+        useContext(LiquidityContext);
 
     const isStandardActive = selectedGasPrice === GasPriceSelection.Standard;
     const isFastActive = selectedGasPrice === GasPriceSelection.Fast;

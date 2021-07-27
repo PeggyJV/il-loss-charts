@@ -136,10 +136,8 @@ function PairContainer({
 
     const [lpDate, setLPDate] = useState(new Date(initialData.lpDate));
     const [lpShare, setLPShare] = useState(initialData.lpShare);
-    const [
-        defaultLPStats,
-        setDefaultLPStats,
-    ] = useState<LPStats<string> | null>(null);
+    const [defaultLPStats, setDefaultLPStats] =
+        useState<LPStats<string> | null>(null);
 
     useEffect(() => {
         const getDefaultLPStats = async () => {

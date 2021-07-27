@@ -85,9 +85,8 @@ export default function usePairData(
                             new BigNumber(dailyData.dailyVolumeUSD).gt(0),
                     );
 
-                    const activeDaily = historicalDailyData.slice(
-                        firstActiveDaily,
-                    );
+                    const activeDaily =
+                        historicalDailyData.slice(firstActiveDaily);
 
                     const firstActiveHourly = historicalHourlyData.findIndex(
                         (hourlyDatas) =>
@@ -95,9 +94,8 @@ export default function usePairData(
                             new BigNumber(hourlyDatas.hourlyVolumeUSD).gt(0),
                     );
 
-                    const activeHourly = historicalHourlyData.slice(
-                        firstActiveHourly,
-                    );
+                    const activeHourly =
+                        historicalHourlyData.slice(firstActiveHourly);
 
                     setLPInfo(
                         (prevLpInfo): PairPricesState => ({

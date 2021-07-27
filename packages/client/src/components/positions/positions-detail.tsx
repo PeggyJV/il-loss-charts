@@ -64,9 +64,8 @@ export const PositionsDetail = ({
     // );
     // const price = tickToPrice(baseToken, quoteToken, tick);
 
-    const [showRemoveLiquidity, setShowRemoveLiquidity] = useState<boolean>(
-        false,
-    );
+    const [showRemoveLiquidity, setShowRemoveLiquidity] =
+        useState<boolean>(false);
 
     return (
         <div className='positions-detail'>

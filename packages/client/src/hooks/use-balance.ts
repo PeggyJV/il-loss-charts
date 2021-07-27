@@ -76,10 +76,11 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                     const targetAddress = EXCHANGE_ADD_V3_ABI_ADDRESS;
 
                     try {
-                        const allowance: ethers.BigNumber = await token.allowance(
-                            wallet.account,
-                            targetAddress,
-                        );
+                        const allowance: ethers.BigNumber =
+                            await token.allowance(
+                                wallet.account,
+                                targetAddress,
+                            );
                         return allowance;
                     } catch (e) {
                         console.error(
@@ -110,10 +111,11 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                     const targetAddress = EXCHANGE_ADD_V3_ABI_ADDRESS;
 
                     try {
-                        const allowance: ethers.BigNumber = await token.allowance(
-                            wallet.account,
-                            targetAddress,
-                        );
+                        const allowance: ethers.BigNumber =
+                            await token.allowance(
+                                wallet.account,
+                                targetAddress,
+                            );
                         return allowance;
                     } catch (e) {
                         console.error(
@@ -159,9 +161,8 @@ export const useBalance = ({ pool }: Props): WalletBalances => {
                     decimals: '18',
                     allowance: {
                         [EXCHANGE_ADD_V3_ABI_ADDRESS]: ethers.BigNumber.from(0),
-                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]: ethers.BigNumber.from(
-                            0,
-                        ),
+                        [EXCHANGE_TWO_SIDE_ADD_ABI_ADDRESS]:
+                            ethers.BigNumber.from(0),
                     },
                 },
                 [pool.token0.symbol]: {
