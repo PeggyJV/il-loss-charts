@@ -151,9 +151,8 @@ export type EthNetwork = 'mainnet' | 'rinkeby' | 'goerli' | 'ropsten' | 'kovan';
 export type NetworkIds = '1' | '4' | '5' | '3' | '42';
 
 // Utility
-export type ArrayElement<
-    ArrayType extends readonly unknown[]
-> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
+export type ArrayElement<ArrayType extends readonly unknown[]> =
+    ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 
 // TODO rename this package to shared and clean up import / exports
 export interface ICodedError {
