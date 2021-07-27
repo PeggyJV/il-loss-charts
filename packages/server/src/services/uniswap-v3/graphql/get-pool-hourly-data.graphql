@@ -8,11 +8,7 @@ query getPoolHourlyData(
     poolHourDatas(
         orderBy: $orderBy
         orderDirection: $orderDirection
-        where: {
-            id: $id
-            date_gt: $startTime
-            date_lt: $endTime
-        }
+        where: { id: $id, date_gt: $startTime, date_lt: $endTime }
     ) {
         pool {
             id
