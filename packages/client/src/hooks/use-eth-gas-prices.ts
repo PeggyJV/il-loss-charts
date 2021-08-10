@@ -4,6 +4,7 @@ import useWebSocket from 'react-use-websocket';
 import { debug } from 'util/debug';
 import { EthGasPrices } from '@sommelier/shared-types';
 import config from 'config/app';
+import { getSafeGasPrice } from 'services/api-etherscan';
 
 export const ethGasPriceTopic = 'ethGas:getGasPrices';
 export const gasPriceTopicRex = /^ethGas:getGasPrices/;
@@ -38,12 +39,15 @@ export function useEthGasPrices(): EthGasPrices | null {
                 data: newGasPrices,
             }: { data: EthGasPrices } = lastJsonMessage;
 
-            // ensure the price actually changed before setting
-            if (isChangedPrice(gasPrices, newGasPrices)) {
-                setGasPrices(newGasPrices);
-            }
+            void getSafeGasPrice().then((safeprice: number): void => {
+                newGasPrices.safe = safeprice;
+                // ensure the price actually changed before setting
+                if (isChangedPrice(gasPrices, newGasPrices)) {
+                    setGasPrices(newGasPrices);
+                }
 
-            debug.gasPrices = newGasPrices;
+                debug.gasPrices = newGasPrices;
+            });
         }
     }, [lastJsonMessage, gasPrices]);
 
@@ -58,6 +62,7 @@ export function isChangedPrice(
         prices?.safeLow !== oldPrices?.safeLow ||
         prices?.standard !== oldPrices?.standard ||
         prices?.fast !== oldPrices?.fast ||
-        prices?.fastest !== oldPrices?.fastest
+        prices?.fastest !== oldPrices?.fastest ||
+        prices?.safe !== oldPrices?.safe
     );
 }

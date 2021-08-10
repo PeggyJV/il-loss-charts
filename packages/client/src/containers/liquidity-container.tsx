@@ -28,6 +28,7 @@ export enum GasPriceSelection {
     Standard = 'standard',
     Fast = 'fast',
     Fastest = 'fastest',
+    Safe = 'safe',
 }
 
 type LiquidityContext = {

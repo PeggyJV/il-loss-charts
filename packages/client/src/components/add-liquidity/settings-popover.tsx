@@ -49,6 +49,7 @@ const TransactionSettings = ({
     const isStandardActive = selectedGasPrice === GasPriceSelection.Standard;
     const isFastActive = selectedGasPrice === GasPriceSelection.Fast;
     const isFastestActive = selectedGasPrice === GasPriceSelection.Fastest;
+    const isSafeActive = selectedGasPrice === GasPriceSelection.Safe;
 
     return (
         <>
@@ -127,6 +128,30 @@ const TransactionSettings = ({
                         </div>
                         <div>
                             {gasPrices?.fastest ?? (
+                                <ThreeDots width='24px' height='24px' />
+                            )}{' '}
+                            Gwei
+                        </div>
+                    </Box>
+                    <Box
+                        display='flex'
+                        justifyContent='space-between'
+                        alignItems='center'
+                        className={classNames({ active: isSafeActive })}
+                        onClick={() =>
+                            setSelectedGasPrice(GasPriceSelection.Safe)
+                        }
+                    >
+                        <div>
+                            {isSafeActive ? (
+                                <FontAwesomeIcon icon={faCheckCircle} />
+                            ) : (
+                                <FontAwesomeIcon icon={faCircle} />
+                            )}
+                            <span>Safe</span>
+                        </div>
+                        <div>
+                            {gasPrices?.safe ?? (
                                 <ThreeDots width='24px' height='24px' />
                             )}{' '}
                             Gwei

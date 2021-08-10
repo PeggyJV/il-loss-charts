@@ -122,6 +122,7 @@ export interface EthGasPrices {
     standard: number;
     fast: number;
     fastest: number;
+    safe: number;
 }
 
 export interface OHLCData {

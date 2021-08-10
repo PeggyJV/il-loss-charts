@@ -24,4 +24,5 @@ export default interface AppConfig {
     wsApi: string;
     networks: Network;
     ethAddress: string;
+    etherscanApiKey: string;
 }
