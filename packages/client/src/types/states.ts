@@ -110,7 +110,7 @@ export interface WalletBalances {
 export type BoundsState = {
     prices: [number, number];
     ticks: [number, number];
-    ticksFromPrice?: [Price, Price];
+    ticksFromPrice?: [any, any];
     position?: Position;
 };
 
