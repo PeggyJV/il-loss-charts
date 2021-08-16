@@ -404,6 +404,13 @@ export const AddLiquidityV3 = ({
             }
         }
 
+        if (Math.abs(upperBoundTick - lowerBoundTick) == uniPool.tickSpacing) {
+            upperBoundTick +=
+                upperBoundTick > lowerBoundTick
+                    ? uniPool.tickSpacing
+                    : -uniPool.tickSpacing;
+        }
+
         const priceLower = tickToPrice(
             baseTokenCurrency,
             quoteTokenCurrency,
