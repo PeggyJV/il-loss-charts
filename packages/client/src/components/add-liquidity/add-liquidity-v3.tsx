@@ -418,7 +418,10 @@ export const AddLiquidityV3 = ({
         return {
             prices: [lowerBound, upperBound] as [number, number],
             ticks: [lowerBoundTick, upperBoundTick] as [number, number],
-            ticksFromPrice: [priceLower, priceUpper] as [any, any],
+            ticksFromPrice: [priceLower, priceUpper] as [
+                Price<Token, Token>,
+                Price<Token, Token>,
+            ],
         };
     };
 
