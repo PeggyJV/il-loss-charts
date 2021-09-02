@@ -85,6 +85,23 @@ export const LiquidityActionButton = ({
                     parseInt(balances?.[symbol]?.decimals || '0', 10),
                 ) || '0';
 
+            if (symbol === 'ETH') {
+                // we think a majority of the gas estimation errors are due to users not having enough ETH to cover for both the position and gas fees
+
+                // Check to make sure there is atleast 0.08ETH set aside for gas apart from the position itself
+                const amountInWei = ethers.utils.parseUnits(
+                    tokenInputState[symbol]?.amount?.toString(),
+                    18,
+                );
+
+                const minimumETH = ethers.utils.parseUnits('0.08', 18);
+                const totalAmount = amountInWei.add(minimumETH);
+
+                if (balances?.[symbol]?.balance.lt(totalAmount)) {
+                    setButtonState('insufficientETH');
+                    return;
+                }
+            }
             if (tokenAmount.gt(tokenBalance)) {
                 setButtonState('insufficientFunds');
                 return;
@@ -105,6 +122,7 @@ export const LiquidityActionButton = ({
         wallet?.account,
         wallet?.provider,
         isDisabled,
+        wallet?.providerName,
     ]);
 
     switch (buttonState) {
@@ -167,6 +185,16 @@ export const LiquidityActionButton = ({
                     className={classNames('btn-addl', 'btn-negative')}
                 >
                     {'Enter Amount(s)'}
+                </button>
+            );
+        case 'insufficientETH':
+            return (
+                <button
+                    disabled={true}
+                    onClick={onClick}
+                    className={classNames('btn-addl', 'btn-negative')}
+                >
+                    {'Insufficient ETH'}
                 </button>
             );
         case 'insufficientFunds':
