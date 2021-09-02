@@ -3,8 +3,15 @@ import { ethers } from 'ethers';
 import { WalletBalances } from 'types/states';
 import BigNumber from 'bignumber.js';
 
-const toBalanceStr = (token: string, balances: WalletBalances): string => {
-    const balance = balances[token]?.balance;
+const toBalanceStr = (
+    token: string,
+    balances: WalletBalances,
+    reserveETHforGas?: boolean,
+): string => {
+    const minimumETH = ethers.utils.parseUnits('0.08', 18);
+    const balance = reserveETHforGas
+        ? balances[token]?.balance.sub(minimumETH)
+        : balances[token]?.balance;
 
     return new BigNumber(
         ethers.utils.formatUnits(
@@ -37,7 +44,9 @@ export const TokenInput = ({
             className=''
             disabled={!balances?.[token] || disabled}
             onClick={() => {
-                updateAmount(toBalanceStr(token, balances));
+                token === 'ETH'
+                    ? updateAmount(toBalanceStr(token, balances, true))
+                    : updateAmount(toBalanceStr(token, balances));
                 handleTokenRatio(token, toBalanceStr(token, balances));
             }}
         >
