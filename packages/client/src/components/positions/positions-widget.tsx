@@ -16,10 +16,8 @@ export const PositionsWidget = ({
     gasPrices: EthGasPrices | null;
 }): JSX.Element => {
     const { wallet } = useWallet();
-    const [
-        positionsData,
-        setPositionsData,
-    ] = useState<V3PositionDataList | null>(null);
+    const [positionsData, setPositionsData] =
+        useState<V3PositionDataList | null>(null);
     const [isError, setIsError] = useState<boolean>(false);
     const [positionsSummary, setPositionsSummary] = useState({
         open: {
@@ -60,9 +58,8 @@ export const PositionsWidget = ({
                 // open position
                 if (!liquidity.isZero()) {
                     const { open } = acc;
-                    open['totalLiquidity'] = open?.totalLiquidity?.plus(
-                        usdAmount,
-                    );
+                    open['totalLiquidity'] =
+                        open?.totalLiquidity?.plus(usdAmount);
                     open['gasUsed'] = open?.gasUsed?.plus(gasUsed);
                     open['return'] = open?.return?.plus(totalReturn);
                     open['fees'] = open?.fees?.plus(uncollectedFees);

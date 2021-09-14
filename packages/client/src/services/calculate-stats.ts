@@ -246,9 +246,7 @@ export function calculateTimeWindowStats(
     }
 }
 
-export function calculatePairRankings(
-    pairs: IUniswapPair[],
-): {
+export function calculatePairRankings(pairs: IUniswapPair[]): {
     byVolume: IUniswapPair[];
     byLiquidity: IUniswapPair[];
     pairs: IUniswapPair[];
@@ -369,9 +367,8 @@ export function deriveLPStats(
         totalReturn: '0',
         runningFees: lpStats.runningFees.slice(sliceIndex),
         runningNotionalGain: lpStats.runningNotionalGain.slice(sliceIndex),
-        runningImpermanentLoss: lpStats.runningImpermanentLoss.slice(
-            sliceIndex,
-        ),
+        runningImpermanentLoss:
+            lpStats.runningImpermanentLoss.slice(sliceIndex),
         runningReturn: lpStats.runningReturn.slice(sliceIndex),
         ticks: lpStats.ticks.slice(sliceIndex),
         fullDates: lpStats.fullDates.slice(sliceIndex),

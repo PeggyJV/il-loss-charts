@@ -390,37 +390,38 @@ function RemoveLiquidity({
         }
     }
 
-    const removeLiquidityActionState: ManageLiquidityActionState = useMemo(() => {
-        if (gasPrices == null) {
-            return 'awaitingGasPrices';
-        } else if (txSubmitted) {
-            return 'submitted';
-        } else if (!exitAmount || new BigNumber(exitAmount).lte(0)) {
-            return 'amountNotEntered';
-        } else if (new BigNumber(exitAmount).gt(currentLpTokens || 0)) {
-            return 'insufficientFunds';
-        } else if (currentGasPrice == null) {
-            return 'gasPriceNotSelected';
-        } else if (approvalState === 'needed') {
-            return 'needsApproval';
-            // } else if (approvalState === 'pending') {
-            //     return 'waitingApproval';
-        } else if (
-            new BigNumber(exitAmount).lte(currentLpTokens || 0) &&
-            new BigNumber(exitAmount).gt(0)
-        ) {
-            return 'needsSubmit';
-        } else {
-            return 'unknown';
-        }
-    }, [
-        gasPrices,
-        currentGasPrice,
-        currentLpTokens,
-        exitAmount,
-        txSubmitted,
-        approvalState,
-    ]);
+    const removeLiquidityActionState: ManageLiquidityActionState =
+        useMemo(() => {
+            if (gasPrices == null) {
+                return 'awaitingGasPrices';
+            } else if (txSubmitted) {
+                return 'submitted';
+            } else if (!exitAmount || new BigNumber(exitAmount).lte(0)) {
+                return 'amountNotEntered';
+            } else if (new BigNumber(exitAmount).gt(currentLpTokens || 0)) {
+                return 'insufficientFunds';
+            } else if (currentGasPrice == null) {
+                return 'gasPriceNotSelected';
+            } else if (approvalState === 'needed') {
+                return 'needsApproval';
+                // } else if (approvalState === 'pending') {
+                //     return 'waitingApproval';
+            } else if (
+                new BigNumber(exitAmount).lte(currentLpTokens || 0) &&
+                new BigNumber(exitAmount).gt(0)
+            ) {
+                return 'needsSubmit';
+            } else {
+                return 'unknown';
+            }
+        }, [
+            gasPrices,
+            currentGasPrice,
+            currentLpTokens,
+            exitAmount,
+            txSubmitted,
+            approvalState,
+        ]);
 
     if (!wallet || !provider || !pairData) {
         return <p className='centered'>Connect your wallet to continue.</p>;

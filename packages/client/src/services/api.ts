@@ -79,9 +79,7 @@ export class UniswapApiFetcher extends OfflineFetcher {
         return { data, error };
     }
 
-    static async getMintsAndBurns(
-        pairId: string,
-    ): Promise<
+    static async getMintsAndBurns(pairId: string): Promise<
         ApiResponse<{
             mints: UniswapMintOrBurn[];
             burns: UniswapMintOrBurn[];

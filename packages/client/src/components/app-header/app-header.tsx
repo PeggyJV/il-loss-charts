@@ -10,9 +10,8 @@ import ConnectWalletModal from 'components/connect-wallet-modal';
 import { ReactComponent as SommelierLogo } from 'styles/sommelier-logo.svg';
 export const AppHeader = (): JSX.Element => {
     const { wallet } = useWallet();
-    const [networkUpdateModal, setNetworkUpdateModal] = useState<boolean>(
-        false,
-    );
+    const [networkUpdateModal, setNetworkUpdateModal] =
+        useState<boolean>(false);
     const [showConnectWallet, setShowConnectWallet] = useState(false);
 
     useEffect(() => {

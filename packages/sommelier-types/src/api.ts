@@ -29,7 +29,8 @@ export type TopPool = ArrayElement<GetTopPoolsResult>;
 export type PoolLike = TopPool | PoolOverview;
 
 export type GetPositionsResult = GetPositionsQuery['positions'];
-export type GetPositionSnapshotsResult = GetPositionSnapshotsQuery['positionSnapshots'];
+export type GetPositionSnapshotsResult =
+    GetPositionSnapshotsQuery['positionSnapshots'];
 
 export interface V3PositionStats {
     gasUsed: BigNumber;

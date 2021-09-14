@@ -20,10 +20,8 @@ export default function usePrefetch(
         pairs,
     );
 
-    const [
-        prefetchedPairs,
-        setPrefetchedPairs,
-    ] = useState<PrefetchedPairState | null>(null);
+    const [prefetchedPairs, setPrefetchedPairs] =
+        useState<PrefetchedPairState | null>(null);
 
     useEffect(() => {
         if (!pairsToFetch) return;
@@ -38,10 +36,8 @@ export default function usePrefetch(
                 const prefetchPair = async () => {
                     const { id: pairId } = pair;
 
-                    const {
-                        data: newPair,
-                        error,
-                    } = await Uniswap.getPairOverview('1', pairId);
+                    const { data: newPair, error } =
+                        await Uniswap.getPairOverview('1', pairId);
 
                     if (error) {
                         console.error(
@@ -113,29 +109,33 @@ export default function usePrefetch(
                             lpStats
                         ) {
                             // Find first data points with non-zero volume and liquidity
-                            const firstActiveDaily = historicalDailyData.findIndex(
-                                (dailyData) =>
-                                    new BigNumber(dailyData.reserveUSD).gt(0) &&
-                                    new BigNumber(dailyData.dailyVolumeUSD).gt(
-                                        0,
-                                    ),
-                            );
+                            const firstActiveDaily =
+                                historicalDailyData.findIndex(
+                                    (dailyData) =>
+                                        new BigNumber(dailyData.reserveUSD).gt(
+                                            0,
+                                        ) &&
+                                        new BigNumber(
+                                            dailyData.dailyVolumeUSD,
+                                        ).gt(0),
+                                );
 
-                            const activeDaily = historicalDailyData.slice(
-                                firstActiveDaily,
-                            );
+                            const activeDaily =
+                                historicalDailyData.slice(firstActiveDaily);
 
-                            const firstActiveHourly = historicalHourlyData.findIndex(
-                                (dailyData) =>
-                                    new BigNumber(dailyData.reserveUSD).gt(0) &&
-                                    new BigNumber(dailyData.hourlyVolumeUSD).gt(
-                                        0,
-                                    ),
-                            );
+                            const firstActiveHourly =
+                                historicalHourlyData.findIndex(
+                                    (dailyData) =>
+                                        new BigNumber(dailyData.reserveUSD).gt(
+                                            0,
+                                        ) &&
+                                        new BigNumber(
+                                            dailyData.hourlyVolumeUSD,
+                                        ).gt(0),
+                                );
 
-                            const activeHourly = historicalHourlyData.slice(
-                                firstActiveHourly,
-                            );
+                            const activeHourly =
+                                historicalHourlyData.slice(firstActiveHourly);
 
                             return {
                                 isLoading: false,

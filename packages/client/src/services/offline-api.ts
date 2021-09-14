@@ -30,9 +30,7 @@ export class UniswapApiFetcher {
         return Promise.resolve({ data: initialData.swaps as UniswapSwap[] });
     }
 
-    static async getMintsAndBurns(
-        pairId: string,
-    ): Promise<
+    static async getMintsAndBurns(pairId: string): Promise<
         ApiResponse<{
             mints: UniswapMintOrBurn[];
             burns: UniswapMintOrBurn[];

@@ -44,9 +44,8 @@ const initialContext = {
     selectedGasPrice: GasPriceSelection.Standard,
     slippageTolerance: 3.0,
 };
-export const LiquidityContext = createContext<Partial<LiquidityContext>>(
-    initialContext,
-);
+export const LiquidityContext =
+    createContext<Partial<LiquidityContext>>(initialContext);
 
 export const LiquidityContainer = ({
     gasPrices,
@@ -59,10 +58,11 @@ export const LiquidityContainer = ({
     const [poolId, setPoolId] = useState<string | null>(null);
     const [shortUrl, setShortUrl] = useState(null);
     const { wallet } = useWallet();
-    const { data: pool, isLoading, isError } = usePoolOverview(
-        wallet.network,
-        poolId,
-    );
+    const {
+        data: pool,
+        isLoading,
+        isError,
+    } = usePoolOverview(wallet.network, poolId);
 
     useEffect(() => {
         const query = new URLSearchParams(location?.search);

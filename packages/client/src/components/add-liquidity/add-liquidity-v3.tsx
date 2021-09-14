@@ -219,9 +219,8 @@ export const AddLiquidityV3 = ({
 
     // const [token, setToken] = useState('ETH');
     // TODO calculate price impact
-    const { selectedGasPrice, slippageTolerance } = useContext(
-        LiquidityContext,
-    );
+    const { selectedGasPrice, slippageTolerance } =
+        useContext(LiquidityContext);
     let currentGasPrice: number | null = null;
     if (gasPrices && selectedGasPrice) {
         currentGasPrice = gasPrices[selectedGasPrice];
@@ -291,7 +290,7 @@ export const AddLiquidityV3 = ({
         const uniPool = new Pool(
             baseTokenCurrency,
             quoteTokenCurrency,
-            (parseInt(pool.feeTier, 10) as any) as FeeAmount,
+            parseInt(pool.feeTier, 10) as any as FeeAmount,
             pool.sqrtPrice,
             pool.liquidity,
             parseInt(pool.tick || '0', 10),
@@ -305,11 +304,8 @@ export const AddLiquidityV3 = ({
         number,
         number,
     ]) => {
-        const {
-            baseTokenCurrency,
-            quoteTokenCurrency,
-            uniPool,
-        } = getUniSDKInstances();
+        const { baseTokenCurrency, quoteTokenCurrency, uniPool } =
+            getUniSDKInstances();
 
         (window as any).uni = {
             baseTokenCurrency,
@@ -563,11 +559,8 @@ export const AddLiquidityV3 = ({
             return;
         }
 
-        const {
-            baseTokenCurrency,
-            quoteTokenCurrency,
-            uniPool,
-        } = getUniSDKInstances();
+        const { baseTokenCurrency, quoteTokenCurrency, uniPool } =
+            getUniSDKInstances();
 
         (window as any).uni = {
             baseTokenCurrency,
@@ -703,9 +696,8 @@ export const AddLiquidityV3 = ({
         const doUpdate = () => {
             if (!pool) return;
 
-            const { prices, ticks, ticksFromPrice } = getBoundPricesAndTicks(
-                newPriceBounds,
-            );
+            const { prices, ticks, ticksFromPrice } =
+                getBoundPricesAndTicks(newPriceBounds);
 
             const { uniPool } = getUniSDKInstances();
             const [expectedBaseAmount, expectedQuoteAmount] = expectedAmounts;
@@ -819,9 +811,8 @@ export const AddLiquidityV3 = ({
         const getPriceImpact = () => {
             const [expectedBaseAmount, expectedQuoteAmount] = expectedAmounts;
 
-            const expectedQuoteAmountNoSlippage = expectedBaseAmount.times(
-                currentPrice,
-            );
+            const expectedQuoteAmountNoSlippage =
+                expectedBaseAmount.times(currentPrice);
             const priceImpact = new BigNumber(expectedQuoteAmountNoSlippage)
                 .minus(expectedQuoteAmount.toFixed(8))
                 .div(expectedQuoteAmountNoSlippage)
@@ -906,9 +897,8 @@ export const AddLiquidityV3 = ({
                         } as PendingTx),
                 );
             if (provider) {
-                const txStatus: ethers.providers.TransactionReceipt = await provider.waitForTransaction(
-                    hash,
-                );
+                const txStatus: ethers.providers.TransactionReceipt =
+                    await provider.waitForTransaction(hash);
 
                 const { status } = txStatus;
 
@@ -1117,9 +1107,7 @@ export const AddLiquidityV3 = ({
             setPendingApproval(true);
             let approveHash: string | undefined;
             try {
-                const {
-                    hash,
-                } = await erc20Contract.approve(
+                const { hash } = await erc20Contract.approve(
                     addLiquidityContractAddress,
                     baseApproveAmount,
                     { gasPrice: baseGasPrice, gasLimit: approvalEstimate },
@@ -1382,9 +1370,7 @@ export const AddLiquidityV3 = ({
             setPendingApproval(true);
             let approveHash: string | undefined;
             try {
-                const {
-                    hash,
-                } = await erc20Contract.approve(
+                const { hash } = await erc20Contract.approve(
                     addLiquidityContractAddress,
                     baseApproveAmount,
                     { gasPrice: baseGasPrice, gasLimit: approvalEstimate },
