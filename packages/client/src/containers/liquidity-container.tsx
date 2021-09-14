@@ -224,7 +224,7 @@ const LoadingPoolBox = ({ msg }: { msg: string }) => (
 );
 
 const SettingsBar = ({ gasPrices }: { gasPrices: EthGasPrices | null }) => {
-    // const [showModal, setShowModal] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
     return (
         <Box
@@ -236,7 +236,7 @@ const SettingsBar = ({ gasPrices }: { gasPrices: EthGasPrices | null }) => {
             <div style={{ fontSize: '1rem', color: 'var(--faceDeep)' }}>
                 {'Add Liquidity'}
             </div>
-            {/* <div
+            <div
                 className='transaction-settings'
                 onClick={() => setShowModal(true)}
             >
@@ -251,7 +251,7 @@ const SettingsBar = ({ gasPrices }: { gasPrices: EthGasPrices | null }) => {
                         }}
                     />
                 ) : null}
-            </div> */}
+            </div>
         </Box>
     );
 };
