@@ -13,7 +13,6 @@ export const LiquidityActionButton = ({
     pendingApproval,
     pendingBounds,
     disabledInput,
-    currentGasPrice,
 }: {
     tokenInputState: any;
     onClick: () => void;
@@ -21,7 +20,6 @@ export const LiquidityActionButton = ({
     pendingApproval: boolean;
     pendingBounds: boolean;
     disabledInput: string[] | null;
-    currentGasPrice: number | null;
 }): JSX.Element => {
     // const [isDisabled, setIsDisabled] = useState(disabled);
     const [buttonState, setButtonState] = useState('Add Liquidity');
@@ -44,11 +42,6 @@ export const LiquidityActionButton = ({
             !wallet?.provider?.connected
         ) {
             setButtonState('reConnectWallet');
-            return;
-        }
-
-        if (!currentGasPrice) {
-            setButtonState('gasPriceNotSelected');
             return;
         }
 
@@ -114,7 +107,6 @@ export const LiquidityActionButton = ({
         }
         setButtonState('addLiquidity');
     }, [
-        currentGasPrice,
         balances,
         pendingApproval,
         pendingBounds,
