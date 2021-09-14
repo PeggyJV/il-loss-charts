@@ -52,6 +52,7 @@ import { debug } from 'util/debug';
 import Sentry, { SentryError } from 'util/sentry';
 import { trackSentimentInteraction, trackAddLiquidityTx } from 'util/mixpanel';
 import classNames from 'classnames';
+import { getGasPriceFromInfura } from 'services/infura-json-rpc';
 
 type Props = {
     balances: WalletBalances;
@@ -117,6 +118,15 @@ export const AddLiquidityV3 = ({
         status: boolean;
         message?: JSX.Element;
     }>({ status: false, message: <p>Warning placeholder</p> });
+
+    const getGasPrice = async (): Promise<[string, string]> => {
+        const gas = Number(await getGasPriceFromInfura());
+        const maxgasfee = gas * 2 + 10;
+        console.log('gas price from infra: ', gas);
+        console.log('max price: ', maxgasfee);
+        return [gas.toString(), maxgasfee.toString()];
+    };
+
     const [isFlipped, setIsFlipped] = useState<boolean>(false);
     // State here is used to compute what tokens are being used to add liquidity with.
     const [copiedShortUrl, setCopiedShortUrl] = useState<boolean>(false);
@@ -222,10 +232,6 @@ export const AddLiquidityV3 = ({
     const { selectedGasPrice, slippageTolerance } = useContext(
         LiquidityContext,
     );
-    let currentGasPrice: number | null = null;
-    if (gasPrices && selectedGasPrice) {
-        currentGasPrice = gasPrices[selectedGasPrice];
-    }
 
     const [sentiment, setSentiment] = useState<Sentiment>('neutral');
     const [bounds, setBounds] = useState<BoundsState>({
@@ -873,9 +879,6 @@ export const AddLiquidityV3 = ({
 
     const doAddLiquidity = async () => {
         if (!pool || !provider || !indicators || !bounds.position) return;
-        if (!currentGasPrice) {
-            throw new Error('Gas price not selected.');
-        }
 
         let hash: string | undefined;
         let addType: string;
@@ -946,14 +949,7 @@ export const AddLiquidityV3 = ({
     };
 
     const doTwoSidedAdd = async (): Promise<string | undefined> => {
-        if (
-            !pool ||
-            !provider ||
-            !indicators ||
-            !bounds.position ||
-            !currentGasPrice
-        )
-            return;
+        if (!pool || !provider || !indicators || !bounds.position) return;
 
         const addLiquidityContractAddress =
             config.networks[wallet.network || '1']?.contracts?.ADD_LIQUIDITY_V3;
@@ -1041,10 +1037,6 @@ export const AddLiquidityV3 = ({
         debug.mintParams = mintParams;
         debug.fnName = fnName;
 
-        const baseGasPrice = ethers.utils
-            .parseUnits(currentGasPrice.toString(), 9)
-            .toString();
-
         for (const tokenSymbol of [pool.token0.symbol, pool.token1.symbol]) {
             // IF WETH, check if ETH is selected - if not, approve WETH
             // IF NOT WETH, approve
@@ -1091,11 +1083,19 @@ export const AddLiquidityV3 = ({
             // Call the contract and sign
             let approvalEstimate: ethers.BigNumber;
 
+            const [gasprice, maxFee] = await getGasPrice();
+
+            const baseGasPrice = ethers.utils
+                .parseUnits(gasprice, 9)
+                .toString();
+
+            const maxFeePerGas = ethers.utils.parseUnits(maxFee, 9).toString();
+
             try {
                 approvalEstimate = await erc20Contract.estimateGas.approve(
                     addLiquidityContractAddress,
                     baseApproveAmount,
-                    { gasPrice: baseGasPrice },
+                    { maxFeePerGas: maxFeePerGas },
                 );
 
                 // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
@@ -1122,7 +1122,7 @@ export const AddLiquidityV3 = ({
                 } = await erc20Contract.approve(
                     addLiquidityContractAddress,
                     baseApproveAmount,
-                    { gasPrice: baseGasPrice, gasLimit: approvalEstimate },
+                    { maxFeePerGas: maxFeePerGas, gasLimit: approvalEstimate },
                 );
                 approveHash = hash;
             } catch (e) {
@@ -1171,12 +1171,17 @@ export const AddLiquidityV3 = ({
         // Call the contract and sign
         let gasEstimate: ethers.BigNumber;
 
+        const [gasprice, maxFee] = await getGasPrice();
+
+        const baseGasPrice = ethers.utils.parseUnits(gasprice, 9).toString();
+        const maxFeePerGas = ethers.utils.parseUnits(maxFee, 9).toString();
+
         try {
             gasEstimate = await addLiquidityContract.estimateGas[fnName](
                 tokenId,
                 mintParams,
                 {
-                    gasPrice: baseGasPrice,
+                    maxFeePerGas: maxFeePerGas,
                     value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
                 },
             );
@@ -1198,7 +1203,7 @@ export const AddLiquidityV3 = ({
             tokenId,
             mintParams,
             {
-                gasPrice: baseGasPrice,
+                maxFeePerGas: maxFeePerGas,
                 gasLimit: gasEstimate,
                 value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
             },
@@ -1208,14 +1213,7 @@ export const AddLiquidityV3 = ({
     };
 
     const doOneSidedAdd = async (): Promise<string | undefined> => {
-        if (
-            !pool ||
-            !provider ||
-            !indicators ||
-            !bounds.position ||
-            !currentGasPrice
-        )
-            return;
+        if (!pool || !provider || !indicators || !bounds.position) return;
 
         const addLiquidityContractAddress =
             config.networks[wallet.network || '1']?.contracts?.ADD_LIQUIDITY_V3;
@@ -1278,7 +1276,7 @@ export const AddLiquidityV3 = ({
             .exponentiatedBy(2)
             .div(2)
             .sqrt();
-        const minLiquidity = liquidity.times(0.97).toFixed(0);
+        const minLiquidity = '0'; //liquidity.times(0.97).toFixed(0);
 
         const sqrtPriceAX96 = TickMath.getSqrtRatioAtTick(
             bounds.position.tickLower,
@@ -1306,20 +1304,19 @@ export const AddLiquidityV3 = ({
         ];
 
         debug.mintParams = mintParams;
-        const baseGasPrice = ethers.utils
-            .parseUnits(currentGasPrice.toString(), 9)
-            .toString();
 
         for (const tokenSymbol of [pool.token0.symbol, pool.token1.symbol]) {
             // IF WETH, check if ETH is selected - if not, approve WETH
             // IF NOT WETH, approve
 
-            // if (tokenSymbol === 'WETH') {
-            //     const selectedTokens = tokenInputState.selectedTokens;
-            //     if (selectedTokens.includes('ETH')) {
-            //         continue;
-            //     }
-            // }
+            const selectedTokens = tokenInputState.selectedTokens;
+            if (tokenSymbol === 'WETH') {
+                if (selectedTokens.includes('ETH')) {
+                    continue;
+                }
+            } else if (!selectedTokens.includes(tokenSymbol)) {
+                continue;
+            }
 
             const erc20Contract = new ethers.Contract(
                 tokenInputState[tokenSymbol].id,
@@ -1356,11 +1353,18 @@ export const AddLiquidityV3 = ({
             // Call the contract and sign
             let approvalEstimate: ethers.BigNumber;
 
+            const [gasprice, maxFee] = await getGasPrice();
+
+            const baseGasPrice = ethers.utils
+                .parseUnits(gasprice, 9)
+                .toString();
+            const maxFeePerGas = ethers.utils.parseUnits(maxFee, 9).toString();
+
             try {
                 approvalEstimate = await erc20Contract.estimateGas.approve(
                     addLiquidityContractAddress,
                     baseApproveAmount,
-                    { gasPrice: baseGasPrice },
+                    { maxFeePerGas: maxFeePerGas },
                 );
 
                 // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
@@ -1387,7 +1391,7 @@ export const AddLiquidityV3 = ({
                 } = await erc20Contract.approve(
                     addLiquidityContractAddress,
                     baseApproveAmount,
-                    { gasPrice: baseGasPrice, gasLimit: approvalEstimate },
+                    { maxFeePerGas: maxFeePerGas, gasLimit: approvalEstimate },
                 );
                 approveHash = hash;
             } catch (e) {
@@ -1436,11 +1440,16 @@ export const AddLiquidityV3 = ({
         // Call the contract and sign
         let gasEstimate: ethers.BigNumber;
 
+        const [gasprice, maxFee] = await getGasPrice();
+
+        const baseGasPrice = ethers.utils.parseUnits(gasprice, 9).toString();
+        const maxFeePerGas = ethers.utils.parseUnits(maxFee, 9).toString();
+
         try {
             gasEstimate = await addLiquidityContract.estimateGas[
                 'investTokenForUniPair'
             ](tokenData.id, mintAmountOneSide, tokenId, mintParams, {
-                gasPrice: baseGasPrice,
+                maxFeePerGas: maxFeePerGas,
                 value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
             });
 
@@ -1465,7 +1474,7 @@ export const AddLiquidityV3 = ({
             tokenId,
             mintParams,
             {
-                gasPrice: baseGasPrice,
+                maxFeePerGas: maxFeePerGas,
                 gasLimit: gasEstimate,
                 value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
             },
@@ -1928,7 +1937,6 @@ export const AddLiquidityV3 = ({
                         onClick={() => doAddLiquidity()}
                         balances={balances}
                         pendingBounds={pendingBounds}
-                        currentGasPrice={currentGasPrice}
                     />
                 </div>
             </div>
