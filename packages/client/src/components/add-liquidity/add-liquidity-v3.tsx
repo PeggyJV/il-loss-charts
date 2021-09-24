@@ -1089,13 +1089,11 @@ export const AddLiquidityV3 = ({
                 .parseUnits(gasprice, 9)
                 .toString();
 
-            const maxFeePerGas = ethers.utils.parseUnits(maxFee, 9).toString();
-
             try {
                 approvalEstimate = await erc20Contract.estimateGas.approve(
                     addLiquidityContractAddress,
                     baseApproveAmount,
-                    { maxFeePerGas: maxFeePerGas },
+                    {},
                 );
 
                 // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
@@ -1122,7 +1120,7 @@ export const AddLiquidityV3 = ({
                 } = await erc20Contract.approve(
                     addLiquidityContractAddress,
                     baseApproveAmount,
-                    { maxFeePerGas: maxFeePerGas, gasLimit: approvalEstimate },
+                    { gasLimit: approvalEstimate },
                 );
                 approveHash = hash;
             } catch (e) {
@@ -1174,14 +1172,12 @@ export const AddLiquidityV3 = ({
         const [gasprice, maxFee] = await getGasPrice();
 
         const baseGasPrice = ethers.utils.parseUnits(gasprice, 9).toString();
-        const maxFeePerGas = ethers.utils.parseUnits(maxFee, 9).toString();
 
         try {
             gasEstimate = await addLiquidityContract.estimateGas[fnName](
                 tokenId,
                 mintParams,
                 {
-                    maxFeePerGas: maxFeePerGas,
                     value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
                 },
             );
@@ -1203,7 +1199,6 @@ export const AddLiquidityV3 = ({
             tokenId,
             mintParams,
             {
-                maxFeePerGas: maxFeePerGas,
                 gasLimit: gasEstimate,
                 value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
             },
@@ -1358,13 +1353,12 @@ export const AddLiquidityV3 = ({
             const baseGasPrice = ethers.utils
                 .parseUnits(gasprice, 9)
                 .toString();
-            const maxFeePerGas = ethers.utils.parseUnits(maxFee, 9).toString();
 
             try {
                 approvalEstimate = await erc20Contract.estimateGas.approve(
                     addLiquidityContractAddress,
                     baseApproveAmount,
-                    { maxFeePerGas: maxFeePerGas },
+                    {},
                 );
 
                 // Add a 30% buffer over the ethers.js gas estimate. We don't want transactions to fail
@@ -1391,7 +1385,7 @@ export const AddLiquidityV3 = ({
                 } = await erc20Contract.approve(
                     addLiquidityContractAddress,
                     baseApproveAmount,
-                    { maxFeePerGas: maxFeePerGas, gasLimit: approvalEstimate },
+                    { gasLimit: approvalEstimate },
                 );
                 approveHash = hash;
             } catch (e) {
@@ -1440,16 +1434,10 @@ export const AddLiquidityV3 = ({
         // Call the contract and sign
         let gasEstimate: ethers.BigNumber;
 
-        const [gasprice, maxFee] = await getGasPrice();
-
-        const baseGasPrice = ethers.utils.parseUnits(gasprice, 9).toString();
-        const maxFeePerGas = ethers.utils.parseUnits(maxFee, 9).toString();
-
         try {
             gasEstimate = await addLiquidityContract.estimateGas[
                 'investTokenForUniPair'
             ](tokenData.id, mintAmountOneSide, tokenId, mintParams, {
-                maxFeePerGas: maxFeePerGas,
                 value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
             });
 
@@ -1474,7 +1462,6 @@ export const AddLiquidityV3 = ({
             tokenId,
             mintParams,
             {
-                maxFeePerGas: maxFeePerGas,
                 gasLimit: gasEstimate,
                 value, // flat fee sent to contract - 0.0005 ETH - with ETH added if used as entry
             },
