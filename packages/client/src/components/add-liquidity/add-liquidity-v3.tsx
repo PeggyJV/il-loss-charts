@@ -1271,7 +1271,7 @@ export const AddLiquidityV3 = ({
             .exponentiatedBy(2)
             .div(2)
             .sqrt();
-        const minLiquidity = '0'; //liquidity.times(0.97).toFixed(0);
+        const minLiquidity = liquidity.times(0.95).toFixed(0);
 
         const sqrtPriceAX96 = TickMath.getSqrtRatioAtTick(
             bounds.position.tickLower,
