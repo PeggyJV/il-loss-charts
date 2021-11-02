@@ -82,3 +82,30 @@ This will setup an ssh tunnel from your local @ port 8000 to the subgraph runnin
 ## TODOs
 
 You can see all TODOs for this repo in the [Issues](https://github.com/PeggyJV/il-loss-charts/issues) section. Feel free to submit any suggestion as an issue!
+
+## DEX and AMM Add/Remove Contracts for IL-Loss app.
+Liquidity Exchange and Add to any listed Pool with XXX/ETH from any ERC20 token and develped in Vyper.
+
+### Current Contracts deployed at:
+1. Uniswapv3 Liquidity:
+
+ * Release1 Add: [0x8039722EE74dE2e37fDc39783b0a574Ea492DBAc](https://etherscan.io/address/0x8039722EE74dE2e37fDc39783b0a574Ea492DBAc)
+
+ * Release1 Swapv2Addv3: [0xDA76A489b8148Ba6e409B04259CB14E75e5E9dd3](https://etherscan.io/address/0xDA76A489b8148Ba6e409B04259CB14E75e5E9dd3)
+
+ * Release2 Swapv2Addv3: [0xE76427463FdBacdD0e794e5Ea30269f30Dd9B8eB](https://etherscan.io/address/0xE76427463FdBacdD0e794e5Ea30269f30Dd9B8eB)
+
+ * Release3 Swapv2Addv3: [0x5e6906203B985C22B39824Ae2A8488d7dF275f28](https://etherscan.io/address/0x5e6906203B985C22B39824Ae2A8488d7dF275f28)
+
+ * Release1 v3Remove: [0x66C7fAFe42cC9B1aba0cc979F216B3bbF80ff23B](https://etherscan.io/address/0x66C7fAFe42cC9B1aba0cc979F216B3bbF80ff23B)
+
+ * Release2 v3Remove: [0x356Ab692955cC3cBa5de3E9bA4b0390c39353DFD](https://etherscan.io/address/0x356Ab692955cC3cBa5de3E9bA4b0390c39353DFD)
+
+2. Uniswapv2 Liquidity:
+  * Release1 Add: [0xFd8A61F94604aeD5977B31930b48f1a94ff3a195](https://etherscan.io/address/0xFd8A61F94604aeD5977B31930b48f1a94ff3a195)
+
+  * Release1 Remove: [0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92](https://etherscan.io/address/0x418915329226AE7fCcB20A2354BbbF0F6c22Bd92)
+
+  * Release2 Add: [0xA522AA47C40F2BAC847cbe4D37455c521E69DEa7](https://etherscan.io/address/0xA522AA47C40F2BAC847cbe4D37455c521E69DEa7)
+
+  * Release2 Remove: [0x430f33353490b256D2fD7bBD9DaDF3BB7f905E78](https://etherscan.io/address/0x430f33353490b256D2fD7bBD9DaDF3BB7f905E78)
